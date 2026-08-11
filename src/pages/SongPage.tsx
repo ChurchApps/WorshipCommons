@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSongs, Song, themeList, formatBytes } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS } from "../chordpro";
+import { playMidi } from "../midiPlayer";
 import { wcPost, WC_API } from "../api";
 import "../styles/song.css";
 
@@ -12,9 +13,25 @@ export default function SongPage() {
   const [showChords, setShowChords] = useState(true);
   const [count, setCount] = useState<number | null>(null);
   const [sung, setSung] = useState(false);
+  const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
+  const stopRef = useRef<(() => void) | null>(null);
+
+  const stopPlayback = () => {
+    stopRef.current?.();
+    stopRef.current = null;
+    setPlayState("idle");
+  };
+
+  useEffect(() => () => stopRef.current?.(), []);
 
   useEffect(() => { loadSongs().then(setSongs); }, []);
   const song = songs.find(s => s.id === id);
+
+  useEffect(() => {
+    stopRef.current?.();
+    stopRef.current = null;
+    setPlayState("idle");
+  }, [selectedKey, id]);
 
   useEffect(() => {
     if (song) {
@@ -39,6 +56,18 @@ export default function SongPage() {
 
   const related = songs.filter(s => s.parentSongId === song.id);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
+
+  const audioShift = shift > 6 ? shift - 12 : shift;
+  const playPiano = async () => {
+    if (playState === "playing") { stopPlayback(); return; }
+    setPlayState("loading");
+    try {
+      stopRef.current = await playMidi(song.midiUrl!, audioShift, stopPlayback);
+      setPlayState("playing");
+    } catch {
+      setPlayState("idle");
+    }
+  };
 
   const weSing = async () => {
     const resp = await wcPost(`/songs/${song.id}/sing`, {});
@@ -98,6 +127,16 @@ export default function SongPage() {
         </article>
 
         <aside>
+          {song.midiUrl && (
+            <div className="card side-card">
+              <h2>Listen</h2>
+              <button className="btn btn-primary" data-testid="piano-play" disabled={playState === "loading"} onClick={playPiano}>
+                {playState === "loading" ? "Loading…" : playState === "playing" ? "■ Stop" : "▶ Play piano"}
+              </button>
+              <p className="rel-hint">Hymnal piano in {keyLabel}, played right in your browser — pick a different key and hear it there.</p>
+            </div>
+          )}
+
           {song.demoAudioUrl && (
             <div className="card side-card">
               <h2>Listen</h2>

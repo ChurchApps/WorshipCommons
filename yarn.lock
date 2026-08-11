@@ -1031,6 +1031,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"adsr@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "adsr@npm:1.0.1"
+  checksum: 10c0/e2aed7ab6272f6db4c59eea39566d78d807271c185469aa98a0f50282331385dd93f17a89c90b64161d81aea18425e6a1ca31800b990dc28ebcba062fd187e3d
+  languageName: node
+  linkType: hard
+
 "ajv@npm:^6.14.0":
   version: 6.15.0
   resolution: "ajv@npm:6.15.0"
@@ -1162,6 +1169,13 @@ __metadata:
   version: 1.0.0
   resolution: "async-generator-function@npm:1.0.0"
   checksum: 10c0/2c50ef856c543ad500d8d8777d347e3c1ba623b93e99c9263ecc5f965c1b12d2a140e2ab6e43c3d0b85366110696f28114649411cbcd10b452a92a2318394186
+  languageName: node
+  linkType: hard
+
+"audio-loader@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "audio-loader@npm:0.5.0"
+  checksum: 10c0/363dc649383a838776d96c8b0c46461042fa8ba190580a7c26a46dba3ad17ccdc068a5449a56769c1cd5a8555b164d5d0d131f1372288863ed43eccb384b8e38
   languageName: node
   linkType: hard
 
@@ -2670,6 +2684,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"midimessage@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "midimessage@npm:1.0.5"
+  checksum: 10c0/f7c3a125cd1803d624ebb65da3b4dded6a7a38112202d7e50b0eba5b10ee0f9c3c700ad2487d32766083f3981179746dce56ab0469a9750d0d1bfd3e6981910a
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:^10.2.2":
   version: 10.2.6
   resolution: "minimatch@npm:10.2.6"
@@ -2774,6 +2795,20 @@ __metadata:
   bin:
     nopt: bin/nopt.js
   checksum: 10c0/980d89257f9587f3e1f77877ddbf905d6aa3b738ec33e49a4fa1a059a0dd82eb28063982b150654a7ae9de386f2ead60e56172db7d37cf56de545f7392a2a26a
+  languageName: node
+  linkType: hard
+
+"note-parser@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "note-parser@npm:1.1.0"
+  checksum: 10c0/e88acbd4661b378f1026bed3fd516621bbd75d42b9c2cce0bde103c062b6cafb7ae7fcf84659490ffabddb3f7ae9d878149b88d2c8b051fd3f86da12acc424b0
+  languageName: node
+  linkType: hard
+
+"note-parser@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "note-parser@npm:2.0.1"
+  checksum: 10c0/8d0ef55879a7a1ac03deaf3bd1798a9ccef528a104c2d59360489dcc0e6f5b43f88587a3dad451949806ef341df3894095b77b4ba7cd59f615664182ea8b8373
   languageName: node
   linkType: hard
 
@@ -3266,6 +3301,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sample-player@npm:^0.5.5":
+  version: 0.5.5
+  resolution: "sample-player@npm:0.5.5"
+  dependencies:
+    adsr: "npm:^1.0.0"
+    midimessage: "npm:^1.0.5"
+    note-parser: "npm:^1.1.0"
+  checksum: 10c0/52e74ac6c5347aff095431c9ae22caa57b0517c96d69123ddeaf73b2eaef24b41bd7ab83014c5fb9bae2dea43e95aa42a909915f5b72ac9f6e2dd19134ba35e7
+  languageName: node
+  linkType: hard
+
 "scheduler@npm:^0.27.0":
   version: 0.27.0
   resolution: "scheduler@npm:0.27.0"
@@ -3396,6 +3442,17 @@ __metadata:
     side-channel-map: "npm:^1.0.1"
     side-channel-weakmap: "npm:^1.0.2"
   checksum: 10c0/dc0ab81d67f61bda9247d053ce93f41c3fd8ad2bdcb9cf9d8d2f8540d488f26d87a5e99ebfc07eea49ec025867b2452b705442d974b1478f0395e69f6bfb3270
+  languageName: node
+  linkType: hard
+
+"soundfont-player@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "soundfont-player@npm:0.12.0"
+  dependencies:
+    audio-loader: "npm:^0.5.0"
+    note-parser: "npm:^2.0.0"
+    sample-player: "npm:^0.5.5"
+  checksum: 10c0/5c70b6e86162f7f5a94549dc23907aba1bc513b373cbf80717882ac1c7967286047ad558fab1f6d48edae8ef8698d74234e1c32ac6e9e585366125e17bc2be9b
   languageName: node
   linkType: hard
 
@@ -3836,6 +3893,7 @@ __metadata:
     react: "npm:^19.1.0"
     react-dom: "npm:^19.1.0"
     react-router-dom: "npm:^7.15.0"
+    soundfont-player: "npm:^0.12.0"
     typescript: "npm:^5.7.3"
     vite: "npm:^6.0.11"
   dependenciesMeta:
