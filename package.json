@@ -1,0 +1,51 @@
+{
+  "name": "worshipcommons-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.15.0"
+  },
+  "scripts": {
+    "preinstall": "node -e \"if(!(process.env.npm_config_user_agent||'').startsWith('yarn')){console.error('\\n[WorshipCommons] This project uses Yarn (Berry). Run \\'yarn install\\' instead of npm/pnpm.\\n');process.exit(1)}\"",
+    "dev": "vite --port 3104",
+    "start": "vite --port 3104",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint --fix src/ tests/",
+    "lint:check": "eslint src/ tests/",
+    "test": "playwright test",
+    "predeploy-staging": "VITE_WC_API=https://api.staging.worshipcommons.org VITE_CORE_API=https://api.staging.churchapps.org yarn build",
+    "exec-deploy-staging": "aws s3 sync build/ s3://staging-worshipcommons-app --delete",
+    "postdeploy-staging": "aws cloudfront create-invalidation --distribution-id E3T6JKTGXHBUG6 --paths \"/*\"",
+    "deploy-staging": "yarn predeploy-staging && yarn exec-deploy-staging && yarn postdeploy-staging",
+    "predeploy-prod": "VITE_WC_API=https://api.worshipcommons.org VITE_CORE_API=https://api.churchapps.org yarn build",
+    "exec-deploy-prod": "aws s3 sync build/ s3://worshipcommons-app --delete",
+    "postdeploy-prod": "aws cloudfront create-invalidation --distribution-id E363E9V6GH4TVJ --paths \"/*\"",
+    "deploy-prod": "yarn predeploy-prod && yarn exec-deploy-prod && yarn postdeploy-prod"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.2",
+    "@types/node": "^22.15.5",
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11"
+  },
+  "packageManager": "yarn@4.15.0",
+  "dependenciesMeta": {
+    "esbuild": {
+      "built": true
+    }
+  }
+}

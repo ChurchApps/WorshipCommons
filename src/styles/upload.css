@@ -1,0 +1,23 @@
+.step { margin-top: 44px; }
+  .step h2 { display: flex; align-items: center; gap: 14px; font-size: 1.5rem; margin-bottom: 6px; }
+  .step h2 .n { width: 38px; height: 38px; border-radius: 12px; background: rgba(108,43,217,0.1); color: var(--primary); display: grid; place-items: center; font-size: 1rem; flex: none; }
+  .step > p.hint { max-width: 62ch; margin: 0 0 22px 52px; }
+  .step-body { margin-left: 52px; }
+
+  .dropzone { border: 2px dashed #CFC7E0; border-radius: 20px; background: var(--surface); padding: 36px 24px; text-align: center; color: var(--muted); font-size: 0.875rem; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+  .dropzone:hover { border-color: var(--primary); background: rgba(108,43,217,0.03); }
+  .dropzone b { display: block; font-family: var(--font-heading); font-size: 1.0625rem; color: var(--ink); margin-bottom: 4px; }
+  .dz-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+
+  .submit-row { margin-top: 40px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .submit-row .hint { margin: 0; }
+  .thanks { display: none; margin-top: 48px; text-align: center; padding: 64px 40px; }
+  .thanks.show { display: block; }
+  .thanks h2 { margin-bottom: 14px; }
+  .thanks p { color: var(--text-2); max-width: 44em; margin: 0 auto 28px; }
+  form.done { display: none; }
+
+  @media (max-width: 820px) {
+    .dz-row { grid-template-columns: 1fr; }
+    .step > p.hint, .step-body { margin-left: 0; }
+  }
