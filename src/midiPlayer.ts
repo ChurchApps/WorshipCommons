@@ -75,7 +75,7 @@ let piano: Soundfont.Player | null = null;
 export async function playMidi(url: string, semitones: number, onEnd: () => void): Promise<() => void> {
   ctx = ctx || new AudioContext();
   await ctx.resume();
-  piano = piano || await Soundfont.instrument(ctx, "acoustic_grand_piano");
+  piano = piano || await Soundfont.instrument(ctx, "acoustic_grand_piano", { nameToUrl: () => "/soundfonts/acoustic_grand_piano-mp3.js" });
   const { notes, duration } = parseMidi(await (await fetch(url)).arrayBuffer());
   const base = ctx.currentTime + 0.1;
   for (const x of notes) piano.play(x.n + semitones, base + x.t, { duration: x.d, gain: x.v / 127 });

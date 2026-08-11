@@ -6,7 +6,7 @@ declare module "soundfont-player" {
     }
   }
   const Soundfont: {
-    instrument(ac: AudioContext, name: string): Promise<Soundfont.Player>;
+    instrument(ac: AudioContext, name: string, opts?: { nameToUrl?: (name: string, soundfont?: string, format?: string) => string }): Promise<Soundfont.Player>;
   };
   export default Soundfont;
 }
