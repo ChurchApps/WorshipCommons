@@ -29,13 +29,13 @@ test.describe("library", () => {
     const topPd = [...songs].sort((a, b) => b.churchCount - a.churchCount).find(s => s.license === "PD");
     await expect(page.locator(".t-row", { hasText: topPd.title }).locator(".pd-badge")).toHaveText("Public domain");
 
-    await page.fill("#q", "every valley");
-    await expect(page.locator(".t-row", { hasText: "Every Valley" }).first().locator(".free-badge")).toHaveText("Free");
+    await page.fill("#q", "amazing grace");
+    await expect(page.locator(".t-row", { hasText: "Amazing Grace" }).first().locator(".pd-badge")).toHaveText("Public domain");
   });
 
   test("search narrows results and empty state appears for no matches", async ({ page }) => {
     await openLibrary(page);
-    const expected = songs.filter(s => `${s.title} ${s.writer} ${s.scripture}`.toLowerCase().includes("amazing")).length;
+    const expected = songs.filter(s => `${s.title} ${s.writer} ${s.scripture} ${s.themes}`.toLowerCase().includes("amazing")).length;
     await page.fill("#q", "amazing");
     await expect(page.locator(".t-row")).toHaveCount(expected);
     await expect(page.locator(".t-row", { hasText: "Amazing Grace" })).toBeVisible();

@@ -10,8 +10,10 @@ const STORAGE_STATE_PATH = path.join(__dirname, ".auth-state.json");
 async function globalSetup(config: FullConfig) {
   await verifyEnv({ fullCheck: true });
 
-  // fresh demo data every run — the seed is the reset
-  execSync("yarn seed", { cwd: path.join(__dirname, "..", "..", "WorshipCommonsApi"), stdio: "inherit" });
+  // fresh demo data every run — migrate then seed is the reset
+  const apiDir = path.join(__dirname, "..", "..", "WorshipCommonsApi");
+  execSync("yarn migrate:up", { cwd: apiDir, stdio: "inherit" });
+  execSync("yarn seed", { cwd: apiDir, stdio: "inherit" });
 
   const baseURL = (config.projects[0].use.baseURL as string) || process.env.BASE_URL || "http://localhost:3104";
 

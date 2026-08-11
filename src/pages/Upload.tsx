@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { wcPost } from "../api";
 import "../styles/upload.css";
+import { usePageMeta } from "../seo";
 
 interface Attached { name: string; contentType: string; base64: string; size: number; }
 
@@ -32,6 +33,7 @@ function Dropzone({ label, hint, accept, testId, onFile }: { label: string; hint
 }
 
 export default function Upload() {
+  usePageMeta("Share your song — WorshipCommons");
   const { user } = useAuth();
   const location = useLocation();
   const [form, setForm] = useState({ title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language: "English", scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false });

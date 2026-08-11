@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { loadSongs, Song } from "../songs";
 import "../styles/home.css";
+import { usePageMeta } from "../seo";
 
 const PlayIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
@@ -11,25 +12,17 @@ const CheckIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
 );
 
-const TICKER = [
-  ["Every Valley", "D"],
-  ["Bread and Cup", "G"],
-  ["Amazing Grace", "G"],
-  ["The Lord Is Near", "Bb"],
-  ["Tunakuabudu", "F"],
-  ["Morning Will Come", "C"],
-  ["Be Thou My Vision", "E"],
-  ["Rise Up, O Sleeper", "A"],
-  ["Todo Valle", "D"],
-  ["House of Bread", "F"]
-];
-
 export default function Home() {
+  usePageMeta("WorshipCommons — Worship music, set free", "An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio.");
   const [songs, setSongs] = useState<Song[]>([]);
   useEffect(() => { loadSongs().then(setSongs); }, []);
-  const linkFor = (title: string) => {
-    const song = songs.find(s => s.title === title);
-    return song ? `/songs/${song.id}` : "/songs";
+
+  // /songs arrives sorted by churchCount desc
+  const top = songs.slice(0, 10);
+  const stats = {
+    songs: songs.length,
+    sings: songs.reduce((n, s) => n + s.churchCount, 0),
+    langs: new Set(songs.map(s => s.language)).size
   };
 
   useEffect(() => {
@@ -57,32 +50,24 @@ export default function Home() {
               <Link to="/songs" className="btn btn-primary">Explore the songs</Link>
               <a href="#writers" className="btn btn-ghost">I write songs</a>
             </div>
-            <p className="hero-proof rise rise-3"><strong>4,108 churches</strong> are already singing from the commons</p>
+            <p className="hero-proof rise rise-3"><strong>{stats.songs > 0 ? `${stats.songs.toLocaleString()} songs` : "Hundreds of songs"}</strong> free for your church to sing, in {stats.langs > 1 ? `${stats.langs} languages` : "any language"}</p>
           </div>
           <div className="card-stack rise rise-3" aria-hidden="true">
-            <div className="song-card sc1">
-              <button className="play-btn" aria-label="Play Every Valley"><PlayIcon /></button>
-              <div><b>Every Valley</b><span>Miriam Okafor · Key of D</span></div>
-              <span className="free-badge">Free</span>
-            </div>
-            <div className="song-card sc2">
-              <button className="play-btn" aria-label="Play The Lord Is Near"><PlayIcon /></button>
-              <div><b>The Lord Is Near</b><span>Mbeki &amp; Cho · 126 BPM</span></div>
-              <span className="free-badge">Free</span>
-            </div>
-            <div className="song-card sc3">
-              <button className="play-btn" aria-label="Play Rise Up O Sleeper"><PlayIcon /></button>
-              <div><b>Rise Up, O Sleeper</b><span>Daniel Antwi · Easter</span></div>
-              <span className="free-badge">Free</span>
-            </div>
+            {top.slice(0, 3).map((s, i) => (
+              <div className={`song-card sc${i + 1}`} key={s.id}>
+                <button className="play-btn" aria-label={`Play ${s.title}`}><PlayIcon /></button>
+                <div><b>{s.title}</b><span>{s.writer} · Key of {s.songKey}</span></div>
+                <span className="free-badge">Free</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <div className="ticker" aria-hidden="true">
         <div className="ticker-track">
-          {[0, 1].map(pass => TICKER.map(([title, key]) => (
-            <span key={pass + title}>{title} <b>· {key} ·</b></span>
+          {[0, 1].map(pass => top.map(s => (
+            <span key={pass + s.id}>{s.title} <b>· {s.songKey} ·</b></span>
           )))}
         </div>
       </div>
@@ -132,16 +117,11 @@ export default function Home() {
               <Link className="chip" to="/songs?lang=Spanish">En español</Link>
             </div>
             <ul className="row-list">
-              {[
-                { t: "Every Valley", meta: "Miriam Okafor · Advent, Comfort", kv: "D · 72 BPM · 312 churches" },
-                { t: "Bread and Cup", meta: "Andrés Delgado · Communion", kv: "G · 68 BPM · 268 churches" },
-                { t: "Amazing Grace", meta: "John Newton · Grace, Assurance", kv: "G · 84 BPM · 1,893 churches" },
-                { t: "Tunakuabudu", meta: "Esther Wanjiru · Praise · Swahili", kv: "F · 96 BPM · 143 churches" }
-              ].map(row => (
-                <li key={row.t}>
+              {top.slice(0, 4).map(s => (
+                <li key={s.id}>
                   <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
-                  <div><Link to={linkFor(row.t)}><b>{row.t}</b></Link><div className="meta">{row.meta}</div></div>
-                  <span className="kv">{row.kv}</span>
+                  <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}{s.language !== "English" ? ` · ${s.language}` : ""}</div></div>
+                  <span className="kv">{s.songKey} · {s.bpm} BPM{s.churchCount > 0 ? ` · ${s.churchCount.toLocaleString()} churches` : ""}</span>
                   <span className="free-badge">Free</span>
                 </li>
               ))}
@@ -197,9 +177,9 @@ export default function Home() {
 
       <section className="block">
         <div className="wrap stats-band">
-          <div className="stat animate-on-scroll"><b>312</b><span>songs, growing weekly</span></div>
-          <div className="stat animate-on-scroll"><b>4,108</b><span>churches singing them</span></div>
-          <div className="stat animate-on-scroll"><b>41</b><span>languages and counting</span></div>
+          <div className="stat animate-on-scroll"><b>{stats.songs.toLocaleString()}</b><span>songs, growing weekly</span></div>
+          <div className="stat animate-on-scroll"><b>{stats.sings.toLocaleString()}</b><span>times a church said &ldquo;we sing this&rdquo;</span></div>
+          <div className="stat animate-on-scroll"><b>{stats.langs}</b><span>languages and counting</span></div>
         </div>
       </section>
 

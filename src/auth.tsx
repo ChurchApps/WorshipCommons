@@ -9,7 +9,7 @@ interface AuthContextValue {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextValue>(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 const stored = (): WcUser | null => {
   try {
@@ -39,4 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
 }
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth outside AuthProvider");
+  return ctx;
+};

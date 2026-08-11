@@ -14,7 +14,7 @@ export interface Song {
   scriptureText?: string;
   license: "WC" | "PD";
   churchCount: number;
-  chordPro: string;
+  chordPro?: string;
   demoAudioUrl?: string;
   demoAudioBytes?: number;
   sheetPdfUrl?: string;
@@ -32,10 +32,23 @@ export interface Song {
 }
 
 let cache: Song[] | null = null;
+const songCache = new Map<string, Song | null>();
 
-export async function loadSongs(force = false): Promise<Song[]> {
-  if (!cache || force) cache = await wcGet("/songs") as Song[];
+// list payload is summaries only — no chordPro/scriptureText; use loadSong for the full record
+export async function loadSongs(): Promise<Song[]> {
+  if (!cache) cache = await wcGet("/songs") as Song[];
   return cache;
+}
+
+export async function loadSong(id: string): Promise<Song | null> {
+  if (!songCache.has(id)) {
+    try {
+      songCache.set(id, await wcGet(`/songs/${id}`) as Song);
+    } catch {
+      songCache.set(id, null);
+    }
+  }
+  return songCache.get(id) ?? null;
 }
 
 export const themeList = (song: Song) => (song.themes || "").split(",").map(t => t.trim()).filter(Boolean);

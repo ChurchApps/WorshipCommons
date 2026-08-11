@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { songIdByTitle } from "./helpers/api";
 
 test("we-sing counter increments on the server and stays counted", async ({ page, request }) => {
-  const id = await songIdByTitle(request, "Every Valley");
+  const id = await songIdByTitle(request, "Amazing Grace");
   await page.goto(`/songs/${id}`);
   await expect(page.getByTestId("cong-count")).toHaveText("0");
 

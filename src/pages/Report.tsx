@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { wcPost } from "../api";
 import "../styles/report.css";
+import { usePageMeta } from "../seo";
 
 export default function Report() {
+  usePageMeta("Report a song — WorshipCommons");
   const [form, setForm] = useState({ songText: "", reporterRole: "", details: "", name: "", email: "", signature: "", goodfaith: false });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");

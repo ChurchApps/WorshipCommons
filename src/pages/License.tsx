@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/license.css";
+import { usePageMeta } from "../seo";
 
 const Check = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
@@ -10,6 +11,7 @@ const Star = () => (
 );
 
 export default function License() {
+  usePageMeta("The WorshipCommons License — WorshipCommons");
   const { hash } = useLocation();
   useEffect(() => {
     if (hash) document.querySelector(hash)?.scrollIntoView();

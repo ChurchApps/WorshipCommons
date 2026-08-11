@@ -7,8 +7,7 @@ const request = async (base: string, method: string, path: string, data?: unknow
   if (authed && jwt) headers.Authorization = `Bearer ${jwt}`;
   const response = await fetch(base + path, { method, headers, body: data === undefined ? undefined : JSON.stringify(data) });
   if (!response.ok) {
-    // stale/garbage JWT makes the API 500 on verify — clear it so anonymous browsing recovers
-    if (authed && (response.status === 401 || response.status === 500)) localStorage.removeItem("wcJwt");
+    if (authed && (response.status === 401 || response.status === 403)) localStorage.removeItem("wcJwt");
     let message = `Request failed (${response.status})`;
     try {
       const body = await response.json();

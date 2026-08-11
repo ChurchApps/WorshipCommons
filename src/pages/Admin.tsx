@@ -4,6 +4,7 @@ import { useAuth } from "../auth";
 import { wcGet, wcPost } from "../api";
 import { Song } from "../songs";
 import "../styles/songs.css";
+import { usePageMeta } from "../seo";
 
 interface AdminReport { id: string; songText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
 
@@ -16,6 +17,7 @@ const quality = (s: Song) => {
 };
 
 export default function Admin() {
+  usePageMeta("Admin — WorshipCommons");
   const { user } = useAuth();
   const location = useLocation();
   const [pending, setPending] = useState<Song[] | null>(null);

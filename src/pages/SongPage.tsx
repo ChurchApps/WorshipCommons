@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { loadSongs, Song, themeList, formatBytes } from "../songs";
+import { loadSong, loadSongs, Song, themeList, formatBytes } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS } from "../chordpro";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
+import { usePageMeta } from "../seo";
 import "../styles/song.css";
 
 export default function SongPage() {
@@ -32,8 +33,14 @@ export default function SongPage() {
     setKaraoke(false);
   }, [id]);
 
+  const [song, setSong] = useState<Song | null>(null);
+  const [notFound, setNotFound] = useState(false);
   useEffect(() => { loadSongs().then(setSongs); }, []);
-  const song = songs.find(s => s.id === id);
+  useEffect(() => {
+    setSong(null);
+    setNotFound(false);
+    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
+  }, [id]);
 
   const audioShift = useMemo(() => {
     if (!song) return 0;
@@ -52,9 +59,14 @@ export default function SongPage() {
     }
   }, [song]);
 
-  const stanzas = useMemo(() => song ? parseChordPro(song.chordPro) : [], [song]);
+  const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
 
-  if (songs.length > 0 && !song) {
+  usePageMeta(
+    song ? `${song.title} — free chords and lyrics | WorshipCommons` : "WorshipCommons",
+    song ? `Free chord chart, lyrics, and melody for ${song.title} (${song.writer}, ${song.year}). Transpose to any key, print it, project it, sing it — no license needed.` : undefined
+  );
+
+  if (notFound) {
     return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>Song not found. <Link to="/songs">← All songs</Link></p></main>;
   }
   if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>Loading…</p></main>;
@@ -167,8 +179,8 @@ export default function SongPage() {
 
           {song.demoAudioUrl && (
             <div className="card side-card">
-              <h2>Listen</h2>
-              <p style={{ fontSize: "0.875rem", color: "var(--muted)", marginBottom: 10 }}>Demo recording · {song.writer}</p>
+              <h2>Demo recording</h2>
+              <p style={{ fontSize: "0.875rem", color: "var(--muted)", marginBottom: 10 }}>As shared by {song.writer}</p>
               <audio controls src={song.demoAudioUrl} style={{ width: "100%" }} data-testid="demo-audio" />
             </div>
           )}
@@ -184,11 +196,11 @@ export default function SongPage() {
           <div className="card side-card">
             <h2>Take it to Sunday</h2>
             <ul className="dl-list">
-              <li><Link to={`/songs/${song.id}/print`}>Chord chart (print)</Link> <span className="size">PDF via print</span></li>
+              <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}`}>Chord chart (print)</Link> <span className="size">PDF via print · {keyLabel}</span></li>
               {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>Sheet music (PDF)</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
               {song.midiUrl && <li><a href={song.midiUrl} download>Melody (MIDI)</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
-              <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{formatBytes(song.chordPro?.length)}</span></li>
-              <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>Lyrics only (TXT)</a> <span className="size">{formatBytes(song.chordPro?.length)}</span></li>
+              <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">text</span></li>
+              <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>Lyrics only (TXT)</a> <span className="size">text</span></li>
             </ul>
           </div>
 

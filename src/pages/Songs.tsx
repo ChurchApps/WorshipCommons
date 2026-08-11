@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { loadSongs, Song, themeList } from "../songs";
 import "../styles/songs.css";
+import { usePageMeta } from "../seo";
 
 const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
@@ -13,6 +14,7 @@ const XIcon = () => (
 );
 
 export default function Songs() {
+  usePageMeta("Song library — WorshipCommons", "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key, no licenses needed.");
   const [params] = useSearchParams();
   const [songs, setSongs] = useState<Song[]>([]);
   const [state, setState] = useState<Filters>(() => ({
@@ -44,7 +46,7 @@ export default function Songs() {
   // "OR within a facet, AND across facets" — skip excludes a facet so its own counts stay live
   const matches = (s: Song, skip?: string) => {
     const th = themeList(s);
-    return (skip === "q" || !state.q || (s.title + " " + s.writer + " " + s.scripture).toLowerCase().includes(state.q)) &&
+    return (skip === "q" || !state.q || (s.title + " " + s.writer + " " + s.scripture + " " + s.themes).toLowerCase().includes(state.q)) &&
       (skip === "themes" || !state.themes.size || th.some(t => state.themes.has(t))) &&
       (skip === "key" || !state.key || s.songKey === state.key) &&
       (skip === "tempo" || !state.tempo || tempoBucket(s.bpm) === state.tempo) &&

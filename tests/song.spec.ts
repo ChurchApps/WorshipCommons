@@ -1,45 +1,50 @@
 import { test, expect } from "@playwright/test";
 import { WC_API, songIdByTitle } from "./helpers/api";
 
-let EVERY_VALLEY = "";
+let AMAZING_GRACE = "";
 let SILENT_NIGHT = "";
 let ABIDE = "";
+let BARE_SONG = "";
 
 test.beforeAll(async ({ request }) => {
-  EVERY_VALLEY = `/songs/${await songIdByTitle(request, "Every Valley")}`;
+  AMAZING_GRACE = `/songs/${await songIdByTitle(request, "Amazing Grace")}`;
   SILENT_NIGHT = `/songs/${await songIdByTitle(request, "Silent Night")}`;
   ABIDE = `/songs/${await songIdByTitle(request, "Abide, O Dearest Jesus")}`;
+  const list = await (await request.get(`${WC_API}/songs`)).json();
+  const bare = list.find((s: { midiUrl?: string; lyricsUrl?: string; demoAudioUrl?: string }) => !s.midiUrl && !s.lyricsUrl && !s.demoAudioUrl);
+  if (!bare) throw new Error("No seeded song without media found");
+  BARE_SONG = `/songs/${bare.id}`;
 });
 
 test.describe("song page", () => {
   test("renders the chart with stanzas and metadata", async ({ page }) => {
-    await page.goto(EVERY_VALLEY);
-    await expect(page.getByRole("heading", { name: "Every Valley" })).toBeVisible();
-    await expect(page.locator(".byline")).toContainText("Miriam Okafor · 2023");
-    for (const label of ["Verse 1", "Chorus", "Verse 2", "Bridge"]) {
+    await page.goto(AMAZING_GRACE);
+    await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
+    await expect(page.locator(".byline")).toContainText("John Newton · 1779");
+    for (const label of ["Verse 1", "Verse 2"]) {
       await expect(page.locator(".stanza-label", { hasText: label })).toBeVisible();
     }
-    await expect(page.locator("#key-label")).toHaveText("D");
-    await expect(page.locator(".sheet .free-badge")).toContainText("Free for worship");
+    await expect(page.locator("#key-label")).toHaveText("G");
+    await expect(page.locator(".sheet .pd-badge")).toContainText("Public domain");
   });
 
   test("transposes chords to any key", async ({ page }) => {
-    await page.goto(EVERY_VALLEY);
+    await page.goto(AMAZING_GRACE);
     const firstChord = page.locator(".stanza .seg .c").first();
-    await expect(firstChord).toHaveText("D");
+    await expect(firstChord).toHaveText("G");
 
-    await page.selectOption("#transpose", "E");
-    await expect(firstChord).toHaveText("E");
-    await expect(page.locator("#key-label")).toHaveText("E");
-    // Bm (relative minor) moves with the key: D->E means Bm->C#m
-    await expect(page.locator(".stanza .seg .c", { hasText: "C#m" }).first()).toBeVisible();
+    await page.selectOption("#transpose", "A");
+    await expect(firstChord).toHaveText("A");
+    await expect(page.locator("#key-label")).toHaveText("A");
+    // Em (relative minor) moves with the key: G->A means Em->F#m
+    await expect(page.locator(".stanza .seg .c", { hasText: "F#m" }).first()).toBeVisible();
 
     await page.selectOption("#transpose", "Bb");
     await expect(firstChord).toHaveText("Bb");
   });
 
   test("show-chords toggle hides the chord line", async ({ page }) => {
-    await page.goto(EVERY_VALLEY);
+    await page.goto(AMAZING_GRACE);
     const firstChord = page.locator(".stanza .seg .c").first();
     await expect(firstChord).toBeVisible();
     await page.uncheck("#chords-toggle");
@@ -49,28 +54,28 @@ test.describe("song page", () => {
   });
 
   test("chordpro and lyrics downloads carry real content", async ({ page }) => {
-    const cho = await page.request.get(`${WC_API}${EVERY_VALLEY}/chordpro`);
+    const cho = await page.request.get(`${WC_API}${AMAZING_GRACE}/chordpro`);
     expect(cho.ok()).toBeTruthy();
     const choText = await cho.text();
-    expect(choText).toContain("{title: Every Valley}");
-    expect(choText).toContain("[D]Every valley shall [G]be [D]lifted,");
+    expect(choText).toContain("{title: Amazing Grace}");
+    expect(choText).toContain("[G]Amazing grace! how [C]sweet the [G]sound,");
 
-    const lyr = await page.request.get(`${WC_API}${EVERY_VALLEY}/lyrics`);
+    const lyr = await page.request.get(`${WC_API}${AMAZING_GRACE}/lyrics`);
     const lyrText = await lyr.text();
-    expect(lyrText).toContain("Every valley shall be lifted,");
+    expect(lyrText).toContain("Amazing grace! how sweet the sound,");
     expect(lyrText).not.toContain("[");
   });
 
-  test("related songs appear, with no fabricated audio or stems", async ({ page }) => {
-    await page.goto(EVERY_VALLEY);
+  test("real translations link both ways through the commons", async ({ page }) => {
+    await page.goto(SILENT_NIGHT);
     await expect(page.getByTestId("demo-audio")).toHaveCount(0);
     await expect(page.locator(".mt-zip")).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Melody (MIDI)" })).toHaveCount(0);
-    await expect(page.locator(".rel-list a", { hasText: "Todo Valle" })).toBeVisible();
+    await expect(page.locator(".rel-list a", { hasText: "Stille Nacht" })).toBeVisible();
+    await expect(page.locator(".rel-list a", { hasText: "Noche de Paz" })).toBeVisible();
 
-    await page.locator(".rel-list a", { hasText: "Todo Valle" }).click();
-    await expect(page.getByRole("heading", { name: "Todo Valle" })).toBeVisible();
-    await expect(page.locator(".rel-list a", { hasText: "Every Valley" })).toBeVisible();
+    await page.locator(".rel-list a", { hasText: "Stille Nacht" }).click();
+    await expect(page.getByRole("heading", { name: "Stille Nacht" })).toBeVisible();
+    await expect(page.locator(".rel-list a", { hasText: "Silent Night" })).toBeVisible();
   });
 
   test("a seeded hymn renders with real lyrics and flat-key transposition", async ({ page }) => {
@@ -106,16 +111,23 @@ test.describe("song page", () => {
   });
 
   test("songs without timing data get no sing-along button", async ({ page }) => {
-    await page.goto(EVERY_VALLEY);
+    await page.goto(BARE_SONG);
+    await expect(page.locator(".song-title")).toBeVisible();
     await expect(page.getByTestId("piano-play")).toHaveCount(0);
     await expect(page.getByTestId("sing-along")).toHaveCount(0);
   });
 
-  test("print chart renders a printable page", async ({ page }) => {
-    await page.goto(EVERY_VALLEY + "/print");
-    await expect(page.getByRole("heading", { name: "Every Valley" })).toBeVisible();
+  test("print chart renders a printable page in the chosen key", async ({ page }) => {
+    await page.goto(AMAZING_GRACE + "/print");
+    await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
     // lyric lines are split across chord segments — match within one segment
-    await expect(page.getByText("Prepare the").first()).toBeVisible();
+    await expect(page.getByText("sweet the").first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Print" })).toBeVisible();
+    await expect(page.locator(".print-chord").first()).toHaveText("G");
+
+    // ?key= transposes the printed chart
+    await page.goto(AMAZING_GRACE + "/print?key=A");
+    await expect(page.getByText("Key of A")).toBeVisible();
+    await expect(page.locator(".print-chord").first()).toHaveText("A");
   });
 });
