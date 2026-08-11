@@ -59,10 +59,11 @@ test.describe("song page", () => {
     expect(lyrText).not.toContain("[");
   });
 
-  test("audio, stems and related songs appear", async ({ page }) => {
+  test("related songs appear, with no fabricated audio or stems", async ({ page }) => {
     await page.goto(EVERY_VALLEY);
-    await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /demo\.wav/);
-    await expect(page.locator(".mt-zip")).toContainText("All stems · ZIP");
+    await expect(page.getByTestId("demo-audio")).toHaveCount(0);
+    await expect(page.locator(".mt-zip")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Melody (MIDI)" })).toHaveCount(0);
     await expect(page.locator(".rel-list a", { hasText: "Todo Valle" })).toBeVisible();
 
     await page.locator(".rel-list a", { hasText: "Todo Valle" }).click();
@@ -78,7 +79,13 @@ test.describe("song page", () => {
     await expect(firstChord).toHaveText("Bb");
     await page.selectOption("#transpose", "C");
     await expect(firstChord).toHaveText("C");
-    await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /demo\.wav/);
+
+    // real PD melody MIDI from the Open Hymnal import
+    const midiLink = page.getByRole("link", { name: "Melody (MIDI)" });
+    await expect(midiLink).toBeVisible();
+    const midi = await page.request.get(await midiLink.getAttribute("href"));
+    expect(midi.ok()).toBeTruthy();
+    expect((await midi.body()).subarray(0, 4).toString()).toBe("MThd");
   });
 
   test("print chart renders a printable page", async ({ page }) => {

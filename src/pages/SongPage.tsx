@@ -119,6 +119,7 @@ export default function SongPage() {
             <ul className="dl-list">
               <li><Link to={`/songs/${song.id}/print`}>Chord chart (print)</Link> <span className="size">PDF via print</span></li>
               {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>Sheet music (PDF)</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
+              {song.midiUrl && <li><a href={song.midiUrl} download>Melody (MIDI)</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
               <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{formatBytes(song.chordPro?.length)}</span></li>
               <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>Lyrics only (TXT)</a> <span className="size">{formatBytes(song.chordPro?.length)}</span></li>
             </ul>

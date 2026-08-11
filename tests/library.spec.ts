@@ -6,7 +6,7 @@ interface SeedSong { title: string; writer: string; scripture: string; themes: s
 // expectations are computed from the live seed so the catalog can grow without breaking specs
 let songs: SeedSong[] = [];
 const themeOf = (s: SeedSong) => (s.themes || "").split(",").map(t => t.trim());
-const countText = (n: number) => `of ${n.toLocaleString()} songs`;
+const countText = (n: number) => (n ? `of ${n.toLocaleString()} songs` : "No songs found");
 const firstPage = (n: number) => Math.min(50, n);
 
 test.beforeAll(async ({ request }) => {

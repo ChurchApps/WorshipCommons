@@ -21,6 +21,8 @@ export interface Song {
   sheetPdfBytes?: number;
   stemsZipUrl?: string;
   stemsZipBytes?: number;
+  midiUrl?: string;
+  midiBytes?: number;
   parentSongId?: string;
   relationLabel?: string;
   proAnswer?: string;
