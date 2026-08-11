@@ -7,6 +7,14 @@ import "../styles/songs.css";
 
 interface AdminReport { id: string; songText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
 
+const quality = (s: Song) => {
+  if (!s.qualityDetail) return "";
+  try {
+    const d = JSON.parse(s.qualityDetail);
+    return `Completeness ${d.heuristic}/40 · Lyrics ${d.llm}/60${d.notes ? ` — ${d.notes}` : ""}`;
+  } catch { return ""; }
+};
+
 export default function Admin() {
   const { user } = useAuth();
   const location = useLocation();
@@ -50,8 +58,9 @@ export default function Admin() {
         {pending?.length === 0 && <p className="hint" data-testid="no-pending">Nothing waiting — the queue is clear.</p>}
         {pending?.map(s => (
           <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16 }} data-testid="pending-song">
-            <h3 style={{ marginBottom: 4 }}>{s.title}</h3>
+            <h3 style={{ marginBottom: 4 }}>{s.title}{s.qualityScore != null && <span className="free-badge" style={{ marginLeft: 10 }}>Score {s.qualityScore}</span>}</h3>
             <p className="hint" style={{ marginBottom: 12 }}>{s.writer} · Key {s.songKey}{s.bpm ? ` · ${s.bpm} BPM` : ""} · {s.license === "PD" ? "Public domain" : "Free for worship"}{s.proAnswer ? ` · PRO: ${s.proAnswer}` : ""}</p>
+            {quality(s) && <p className="hint" style={{ marginBottom: 12 }}>{quality(s)}</p>}
             {s.demoAudioUrl && <audio controls src={s.demoAudioUrl} style={{ width: "100%", marginBottom: 12 }} />}
             <details style={{ marginBottom: 14 }}>
               <summary>Lyrics &amp; chords</summary>

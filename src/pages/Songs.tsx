@@ -72,8 +72,11 @@ export default function Songs() {
 
   const list = useMemo(() => {
     const filtered = songs.filter(s => matches(s));
+    // usage dominates, quality is a kicker; unscored songs sit at a neutral 50
+    const maxCC = Math.max(1, ...songs.map(s => s.churchCount));
+    const blend = (s: Song) => (s.churchCount / maxCC) * 60 + ((s.qualityScore ?? 50) / 100) * 40;
     filtered.sort((a, b) =>
-      sort === "cong" ? b.churchCount - a.churchCount :
+      sort === "cong" ? blend(b) - blend(a) :
         sort === "new" ? b.year - a.year :
           a.title.localeCompare(b.title));
     return filtered;

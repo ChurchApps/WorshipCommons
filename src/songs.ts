@@ -26,6 +26,8 @@ export interface Song {
   parentSongId?: string;
   relationLabel?: string;
   proAnswer?: string;
+  qualityScore?: number;
+  qualityDetail?: string;
 }
 
 let cache: Song[] | null = null;
