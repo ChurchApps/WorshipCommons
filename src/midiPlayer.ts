@@ -65,20 +65,107 @@ export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: numb
       if (start) notes.push({ t: toSec(start.tick), d: Math.max(toSec(e.tick) - toSec(start.tick), 0.05), n: e.n, v: start.v });
     }
   }
+  notes.sort((a, b) => a.t - b.t);
   const duration = notes.reduce((m, x) => Math.max(m, x.t + x.d), 0);
   return { notes, duration };
+}
+
+export interface TunePlayer {
+  readonly duration: number;
+  play(): void;
+  pause(): void;
+  stop(): void;
+  getTime(): number;
+  setRate(r: number): void;
+  setSemitones(s: number): void;
+  onEnd: (() => void) | null;
 }
 
 let ctx: AudioContext | null = null;
 let piano: Soundfont.Player | null = null;
 
-export async function playMidi(url: string, semitones: number, onEnd: () => void): Promise<() => void> {
+const LOOKAHEAD = 0.35;
+
+// ponytail: one global player — piano.stop() silences everything, so never run two tunes at once
+export async function loadTune(url: string): Promise<TunePlayer> {
   ctx = ctx || new AudioContext();
   await ctx.resume();
   piano = piano || await Soundfont.instrument(ctx, "acoustic_grand_piano", { nameToUrl: () => "/soundfonts/acoustic_grand_piano-mp3.js" });
   const { notes, duration } = parseMidi(await (await fetch(url)).arrayBuffer());
-  const base = ctx.currentTime + 0.1;
-  for (const x of notes) piano.play(x.n + semitones, base + x.t, { duration: x.d, gain: x.v / 127 });
-  const timer = window.setTimeout(onEnd, (duration + 1) * 1000);
-  return () => { window.clearTimeout(timer); piano?.stop(); };
+
+  let rate = 1, semis = 0, playing = false, pausedAt = 0;
+  let anchorCtx = 0, anchorSong = 0, idx = 0, timer = 0;
+  let sched: { t: number; node: { stop: (when?: number) => void } }[] = [];
+
+  const getTime = () => (playing ? anchorSong + (ctx!.currentTime - anchorCtx) * rate : pausedAt);
+  const firstAfter = (t: number) => { let i = 0; while (i < notes.length && notes[i].t <= t) i++; return i; };
+
+  const tick = () => {
+    const now = getTime();
+    while (idx < notes.length && notes[idx].t <= now + LOOKAHEAD * rate) {
+      const n = notes[idx++];
+      const when = anchorCtx + (n.t - anchorSong) / rate;
+      const node = piano!.play(n.n + semis, when, { duration: n.d / rate, gain: n.v / 127 }) as { stop: (when?: number) => void };
+      sched.push({ t: n.t, node });
+    }
+    sched = sched.filter(s => s.t > now);
+    if (idx >= notes.length && now >= duration) {
+      playing = false;
+      window.clearInterval(timer);
+      pausedAt = 0;
+      idx = 0;
+      player.onEnd?.();
+    }
+  };
+
+  const silence = () => {
+    window.clearInterval(timer);
+    piano!.stop();
+    sched = [];
+  };
+
+  const player: TunePlayer = {
+    duration,
+    onEnd: null,
+    getTime,
+    play() {
+      if (playing || notes.length === 0) return;
+      ctx!.resume();
+      anchorCtx = ctx!.currentTime + 0.05;
+      anchorSong = pausedAt;
+      idx = firstAfter(pausedAt - 0.001);
+      playing = true;
+      timer = window.setInterval(tick, 50);
+      tick();
+    },
+    pause() {
+      if (!playing) return;
+      pausedAt = getTime();
+      playing = false;
+      silence();
+    },
+    stop() {
+      playing = false;
+      pausedAt = 0;
+      idx = 0;
+      silence();
+    },
+    setRate(r: number) {
+      r = Math.min(2, Math.max(0.25, r));
+      if (playing) {
+        const now = getTime();
+        for (const s of sched) if (s.t > now) { try { s.node.stop(); } catch { /* already ended */ } }
+        sched = [];
+        idx = firstAfter(now);
+        anchorSong = now;
+        anchorCtx = ctx!.currentTime;
+        rate = r;
+        tick();
+      } else rate = r;
+    },
+    setSemitones(s: number) {
+      semis = s;
+    }
+  };
+  return player;
 }

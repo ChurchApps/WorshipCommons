@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSongs, Song, themeList, formatBytes } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS } from "../chordpro";
-import { playMidi } from "../midiPlayer";
+import { loadTune, TunePlayer } from "../midiPlayer";
+import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
 import "../styles/song.css";
 
@@ -14,24 +15,34 @@ export default function SongPage() {
   const [count, setCount] = useState<number | null>(null);
   const [sung, setSung] = useState(false);
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
-  const stopRef = useRef<(() => void) | null>(null);
+  const [rate, setRate] = useState(100);
+  const [karaoke, setKaraoke] = useState(false);
+  const playerRef = useRef<TunePlayer | null>(null);
 
   const stopPlayback = () => {
-    stopRef.current?.();
-    stopRef.current = null;
+    playerRef.current?.stop();
     setPlayState("idle");
   };
 
-  useEffect(() => () => stopRef.current?.(), []);
+  useEffect(() => () => {
+    playerRef.current?.stop();
+    playerRef.current = null;
+    setPlayState("idle");
+    setRate(100);
+    setKaraoke(false);
+  }, [id]);
 
   useEffect(() => { loadSongs().then(setSongs); }, []);
   const song = songs.find(s => s.id === id);
 
-  useEffect(() => {
-    stopRef.current?.();
-    stopRef.current = null;
-    setPlayState("idle");
-  }, [selectedKey, id]);
+  const audioShift = useMemo(() => {
+    if (!song) return 0;
+    const shift = (noteIndex(splitKey(selectedKey || song.songKey).root) - noteIndex(splitKey(song.songKey).root) + 12) % 12;
+    return shift > 6 ? shift - 12 : shift;
+  }, [song, selectedKey]);
+
+  useEffect(() => { playerRef.current?.setSemitones(audioShift); }, [audioShift]);
+  useEffect(() => { playerRef.current?.setRate(rate / 100); }, [rate]);
 
   useEffect(() => {
     if (song) {
@@ -57,16 +68,25 @@ export default function SongPage() {
   const related = songs.filter(s => s.parentSongId === song.id);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
 
-  const audioShift = shift > 6 ? shift - 12 : shift;
   const playPiano = async () => {
     if (playState === "playing") { stopPlayback(); return; }
     setPlayState("loading");
     try {
-      stopRef.current = await playMidi(song.midiUrl!, audioShift, stopPlayback);
+      const p = playerRef.current || await loadTune(song.midiUrl!);
+      playerRef.current = p;
+      p.setSemitones(audioShift);
+      p.setRate(rate / 100);
+      p.onEnd = () => setPlayState("idle");
+      p.play();
       setPlayState("playing");
     } catch {
       setPlayState("idle");
     }
+  };
+
+  const openKaraoke = () => {
+    stopPlayback();
+    setKaraoke(true);
   };
 
   const weSing = async () => {
@@ -133,7 +153,15 @@ export default function SongPage() {
               <button className="btn btn-primary" data-testid="piano-play" disabled={playState === "loading"} onClick={playPiano}>
                 {playState === "loading" ? "Loading…" : playState === "playing" ? "■ Stop" : "▶ Play piano"}
               </button>
-              <p className="rel-hint">Hymnal piano in {keyLabel}, played right in your browser — pick a different key and hear it there.</p>
+              <div className="tempo-row">
+                <label htmlFor="tempo">Tempo</label>
+                <input id="tempo" type="range" min={50} max={150} step={5} value={rate} onChange={e => setRate(Number(e.target.value))} />
+                <span className="tempo-val">{song.bpm ? `${Math.round(song.bpm * rate / 100)} BPM` : `${rate}%`}</span>
+              </div>
+              {song.lyricsUrl && (
+                <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>Sing along</button>
+              )}
+              <p className="rel-hint">Hymnal piano in {keyLabel}, played right in your browser — pick a different key or tempo and hear it there.</p>
             </div>
           )}
 
@@ -192,6 +220,19 @@ export default function SongPage() {
           </div>
         </aside>
       </div>
+
+      {karaoke && (
+        <Karaoke
+          song={song}
+          audioShift={audioShift}
+          rate={rate}
+          onRateChange={setRate}
+          selRoot={selRoot}
+          keySuffix={keySuffix}
+          onKeyChange={root => setSelectedKey(root + keySuffix)}
+          onClose={() => setKaraoke(false)}
+        />
+      )}
     </main>
   );
 }

@@ -23,6 +23,7 @@ export interface Song {
   stemsZipBytes?: number;
   midiUrl?: string;
   midiBytes?: number;
+  lyricsUrl?: string;
   parentSongId?: string;
   relationLabel?: string;
   proAnswer?: string;

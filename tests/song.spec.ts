@@ -3,10 +3,12 @@ import { WC_API, songIdByTitle } from "./helpers/api";
 
 let EVERY_VALLEY = "";
 let SILENT_NIGHT = "";
+let ABIDE = "";
 
 test.beforeAll(async ({ request }) => {
   EVERY_VALLEY = `/songs/${await songIdByTitle(request, "Every Valley")}`;
   SILENT_NIGHT = `/songs/${await songIdByTitle(request, "Silent Night")}`;
+  ABIDE = `/songs/${await songIdByTitle(request, "Abide, O Dearest Jesus")}`;
 });
 
 test.describe("song page", () => {
@@ -86,6 +88,27 @@ test.describe("song page", () => {
     const midi = await page.request.get(await midiLink.getAttribute("href"));
     expect(midi.ok()).toBeTruthy();
     expect((await midi.body()).subarray(0, 4).toString()).toBe("MThd");
+  });
+
+  test("tempo control and karaoke sing-along on a timed hymn", async ({ page }) => {
+    await page.goto(ABIDE);
+    await expect(page.locator("#tempo")).toBeVisible();
+    await expect(page.locator(".tempo-val").first()).toContainText("BPM");
+
+    const sing = page.getByTestId("sing-along");
+    await expect(sing).toBeVisible();
+    await sing.click();
+    await expect(page.getByTestId("karaoke")).toBeVisible();
+    // lyrics come from lyrics.json and render without waiting on audio
+    await expect(page.locator(".karaoke-line").first()).toContainText("Abide, O dearest Jesus");
+    await page.getByTestId("karaoke-close").click();
+    await expect(page.getByTestId("karaoke")).toHaveCount(0);
+  });
+
+  test("songs without timing data get no sing-along button", async ({ page }) => {
+    await page.goto(EVERY_VALLEY);
+    await expect(page.getByTestId("piano-play")).toHaveCount(0);
+    await expect(page.getByTestId("sing-along")).toHaveCount(0);
   });
 
   test("print chart renders a printable page", async ({ page }) => {
