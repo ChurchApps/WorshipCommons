@@ -1,31 +1,36 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { loadSongs, Song } from "../songs";
-import { libraryIds, toggleLibrary } from "../library";
+import { libraryIds, setInLibrary } from "../library";
+import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 
 export default function Library() {
   const { t } = useI18n();
   usePageMeta(t("Your library — WorshipCommons"));
+  const { user } = useAuth();
+  const location = useLocation();
   const [songs, setSongs] = useState<Song[] | null>(null);
 
   useEffect(() => {
-    const ids = libraryIds();
-    loadSongs().then(all => setSongs(ids.map(id => all.find(s => s.id === id)).filter(Boolean) as Song[]));
-  }, []);
+    if (!user) return;
+    Promise.all([libraryIds(), loadSongs()]).then(([ids, all]) => setSongs(ids.map(id => all.find(s => s.id === id)).filter(Boolean) as Song[]));
+  }, [user]);
 
   const remove = (id: string) => {
-    toggleLibrary(id);
+    setInLibrary(id, false);
     setSongs(s => s!.filter(x => x.id !== id));
   };
+
+  if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
 
   return (
     <main className="wrap-narrow">
       <div className="page-head">
         <span className="eyebrow">{t("Your library")}</span>
         <h1>{t("Songs you’ve saved")}</h1>
-        <p className="lede">{t("Saved on this device — no account needed.")}</p>
+        <p className="lede">{t("Saved to your account — on every device you sign in from.")}</p>
       </div>
 
       {!songs && <p>{t("Loading…")}</p>}

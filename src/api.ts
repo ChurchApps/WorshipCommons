@@ -20,4 +20,5 @@ const request = async (base: string, method: string, path: string, data?: unknow
 
 export const wcGet = (path: string, authed = false) => request(WC_API, "GET", path, undefined, authed);
 export const wcPost = (path: string, data?: unknown, authed = false) => request(WC_API, "POST", path, data, authed);
+export const wcDelete = (path: string, authed = false) => request(WC_API, "DELETE", path, undefined, authed);
 export const corePost = (path: string, data?: unknown) => request(CORE_API, "POST", path, data);

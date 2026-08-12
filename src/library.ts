@@ -1,14 +1,18 @@
-const KEY = "wcLibrary";
+import { wcDelete, wcGet, wcPost } from "./api";
 
-export const libraryIds = (): string[] => {
-  try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
+let cache: Promise<string[]> | null = null;
+
+export const libraryIds = (): Promise<string[]> => {
+  if (!cache) cache = wcGet("/songs/library", true).catch(() => [] as string[]);
+  return cache;
 };
 
-export const inLibrary = (id: string) => libraryIds().includes(id);
+export const clearLibraryCache = () => { cache = null; };
 
-export const toggleLibrary = (id: string): boolean => {
-  const ids = libraryIds();
-  const next = ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id];
-  localStorage.setItem(KEY, JSON.stringify(next));
-  return next.includes(id);
+// returns the song's updated churchCount when a save added one
+export const setInLibrary = async (id: string, add: boolean): Promise<number | undefined> => {
+  const resp = add ? await wcPost(`/songs/${id}/library`, {}, true) : await wcDelete(`/songs/${id}/library`, true);
+  const current = await libraryIds();
+  cache = Promise.resolve(add ? [id, ...current.filter(i => i !== id)] : current.filter(i => i !== id));
+  return resp?.churchCount;
 };

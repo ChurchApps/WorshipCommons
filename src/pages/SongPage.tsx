@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, loadSongs, Song, themeList, formatBytes } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
-import { inLibrary, toggleLibrary } from "../library";
+import { libraryIds, setInLibrary } from "../library";
+import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { coverSvg } from "../cover.mjs";
 import { useI18n } from "../i18n";
@@ -16,6 +17,9 @@ const youTubeId = (url?: string) => url?.match(/[?&]v=([\w-]{11})/)?.[1];
 export default function SongPage() {
   const { t } = useI18n();
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [songs, setSongs] = useState<Song[]>([]);
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [showChords, setShowChords] = useState(true);
@@ -79,9 +83,10 @@ export default function SongPage() {
       setSelectedKey(song.songKey);
       setCount(song.churchCount);
       setSung(!!localStorage.getItem("wcSung_" + song.id));
-      setInLib(inLibrary(song.id));
+      if (user) libraryIds().then(ids => setInLib(ids.includes(song.id)));
+      else setInLib(false);
     }
-  }, [song]);
+  }, [song, user]);
 
   const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
 
@@ -144,6 +149,13 @@ export default function SongPage() {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const toggleLib = async () => {
+    if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
+    const churchCount = await setInLibrary(song.id, !inLib);
+    if (churchCount != null) setCount(churchCount);
+    setInLib(!inLib);
   };
 
   const weSing = async () => {
@@ -227,9 +239,10 @@ export default function SongPage() {
 
         <aside>
           <div className="card side-card">
-            <button className={"btn " + (inLib ? "btn-ghost" : "btn-primary")} data-testid="library-toggle" onClick={() => setInLib(toggleLibrary(song.id))}>
+            <button className={"btn " + (inLib ? "btn-ghost" : "btn-primary")} data-testid="library-toggle" onClick={toggleLib}>
               {inLib ? t("✓ In your library") : t("+ Add to your library")}
             </button>
+            {!user && <p className="rel-hint" style={{ marginTop: 10 }}>{t("Sign in to save it to your account.")}</p>}
             {inLib && <p className="rel-hint" style={{ marginTop: 10 }}><Link to="/library">{t("View your library →")}</Link></p>}
           </div>
 
