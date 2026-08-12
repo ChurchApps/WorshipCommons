@@ -23,9 +23,10 @@ function LogoMark() {
 
 function LangToggle() {
   const { lang, setLang } = useI18n();
+  // ponytail: stopPropagation keeps the mobile menu from closing (display:none) under the open picker
   return (
     <select className="lang-toggle" aria-label="Site language" data-testid="lang-select"
-      value={lang} onChange={e => setLang(e.target.value as Lang)}>
+      value={lang} onClick={e => e.stopPropagation()} onChange={e => setLang(e.target.value as Lang)}>
       {Object.entries(LANGS).map(([code, l]) => <option key={code} value={code}>{l.label}</option>)}
     </select>
   );
