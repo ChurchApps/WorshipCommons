@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSong, loadSongs, Song, themeList, formatBytes } from "../songs";
-import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS } from "../chordpro";
+import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
@@ -25,6 +25,8 @@ export default function SongPage() {
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
   const [rate, setRate] = useState(100);
   const [karaoke, setKaraoke] = useState(false);
+  const [capo, setCapo] = useState(0);
+  const [copied, setCopied] = useState(false);
   const playerRef = useRef<TunePlayer | null>(null);
 
   const stopPlayback = () => {
@@ -38,6 +40,7 @@ export default function SongPage() {
     setPlayState("idle");
     setRate(100);
     setKaraoke(false);
+    setCapo(0);
   }, [id]);
 
   const [song, setSong] = useState<Song | null>(null);
@@ -82,11 +85,23 @@ export default function SongPage() {
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
   const { root: selRoot } = splitKey(selectedKey || song.songKey);
   const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
-  const useFlats = FLAT_KEYS.has(selRoot);
+  // capo shifts the written shapes down; sounding key (and audio) stays selectedKey
+  const shapeRootAt = (n: number) => {
+    const idx = (noteIndex(selRoot) - n + 12) % 12;
+    return FLAT_KEYS.has(FLAT[idx]) ? FLAT[idx] : SHARP[idx];
+  };
+  const useFlats = FLAT_KEYS.has(shapeRootAt(capo));
+  const dispShift = (shift - capo + 12) % 12;
   const keyLabel = selectedKey || song.songKey;
 
   const related = songs.filter(s => s.parentSongId === song.id);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
+  const relIds = new Set([song.id, parent?.id, ...related.map(r => r.id)]);
+  const myThemes = new Set(themeList(song));
+  const similar = songs
+    .filter(s => !relIds.has(s.id) && s.language === song.language && themeList(s).some(th => myThemes.has(th)))
+    .sort((a, b) => b.churchCount - a.churchCount)
+    .slice(0, 4);
 
   const playPiano = async () => {
     if (playState === "playing") { stopPlayback(); return; }
@@ -109,6 +124,13 @@ export default function SongPage() {
     setKaraoke(true);
   };
 
+  const copyLyrics = async () => {
+    const text = stanzas.map(st => [st.label, ...st.lines.map(l => l.map(seg => seg.text).join("").trimEnd())].join("\n")).join("\n\n");
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   const weSing = async () => {
     const resp = await wcPost(`/songs/${song.id}/sing`, {});
     setCount(resp.churchCount);
@@ -127,7 +149,7 @@ export default function SongPage() {
             <div className="hero-scrim">
               <span>{song.license === "WC" ? <span className="free-badge">{t("Free for worship")}</span> : <span className="pd-badge on-art">{t("Public domain")}</span>}</span>
               <h1 className="song-title">{song.title}</h1>
-              <p className="byline">{t("Words and music by {writer}", { writer: song.writer })} · {song.year}</p>
+              <p className="byline">{t("Words and music by")} <Link to={`/songs?q=${encodeURIComponent(song.writer)}`}>{song.writer}</Link> · {song.year}</p>
             </div>
           </div>
           <div className="sheet-body">
@@ -136,7 +158,7 @@ export default function SongPage() {
               <span className="s-tag">{t("Key")} <b id="key-label">{keyLabel}</b></span>
               <span className="s-tag"><b>{song.bpm}</b> BPM</span>
               <span className="s-tag"><b>{song.timeSignature}</b></span>
-              {themeList(song).map(t => <span className="s-tag" key={t}>{t}</span>)}
+              {themeList(song).map(th => <Link className="s-tag" key={th} to={`/songs?theme=${encodeURIComponent(th)}`}>{th}</Link>)}
             </div>
 
             <div className="toolbar">
@@ -145,7 +167,14 @@ export default function SongPage() {
                   {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
                 </select>
               </span>
+              <span><label htmlFor="capo">{t("Capo")}</label>
+                <select id="capo" value={capo} onChange={e => setCapo(Number(e.target.value))}>
+                  <option value={0}>{t("No capo")}</option>
+                  {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: shapeRootAt(n) + keySuffix })}</option>)}
+                </select>
+              </span>
               <label className="chk"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>
+              <button className="btn btn-ghost copy-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
               <span className="free-note">{t("Any key, no permission needed")}</span>
             </div>
 
@@ -156,7 +185,7 @@ export default function SongPage() {
                   <p className="line" key={li}>
                     {segments.map((seg, gi) => (
                       <span className="seg" key={gi}>
-                        <b className="c">{seg.chord ? transposeChord(seg.chord, shift, useFlats) : " "}</b>
+                        <b className="c">{seg.chord ? transposeChord(seg.chord, dispShift, useFlats) : " "}</b>
                         <span className="t">{seg.text || " "}</span>
                       </span>
                     ))}
@@ -247,7 +276,7 @@ export default function SongPage() {
           <div className="card side-card">
             <h2>{t("Take it to Sunday")}</h2>
             <ul className="dl-list">
-              <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}</span></li>
+              <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
               {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
               {song.midiUrl && <li><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
               <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
@@ -265,13 +294,23 @@ export default function SongPage() {
             <p className="sung-hint">{t("Counts come from churches, not play counts — the real measure of a song is who sings it.")}</p>
           </div>
 
-          {(related.length > 0 || parent) && (
+          {(related.length > 0 || parent || similar.length > 0) && (
             <div className="card side-card">
               <h2>{t("In the commons")}</h2>
-              <ul className="rel-list">
-                {parent && <li><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></li>}
-                {related.map(r => <li key={r.id}><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{r.relationLabel || `${r.writer}, ${r.year}`}</span></li>)}
-              </ul>
+              {(parent || related.length > 0) && (
+                <ul className="rel-list">
+                  {parent && <li><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></li>}
+                  {related.map(r => <li key={r.id}><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{r.relationLabel || `${r.writer}, ${r.year}`}</span></li>)}
+                </ul>
+              )}
+              {similar.length > 0 && (
+                <>
+                  <p className="rel-sub">{t("Similar songs")}</p>
+                  <ul className="rel-list" data-testid="similar-songs">
+                    {similar.map(s => <li key={s.id}><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {themeList(s).find(th => myThemes.has(th))}</span></li>)}
+                  </ul>
+                </>
+              )}
               <p className="rel-hint">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>
             </div>
           )}

@@ -21,7 +21,7 @@ export default function Songs() {
   const [params] = useSearchParams();
   const [songs, setSongs] = useState<Song[]>([]);
   const [state, setState] = useState<Filters>(() => ({
-    q: "",
+    q: (params.get("q") || "").trim().toLowerCase(),
     themes: new Set(params.get("theme") ? [params.get("theme")] : []),
     key: "",
     tempo: "",

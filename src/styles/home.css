@@ -102,3 +102,8 @@
     .song-card { width: 250px; }
     .row-list .kv { display: none; }
   }
+
+.row-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+.row-head h3 { font-family: var(--font-heading); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+.row-head a { font-size: 0.8125rem; color: var(--accent); text-decoration: none; }
+.row-head a:hover { text-decoration: underline; }

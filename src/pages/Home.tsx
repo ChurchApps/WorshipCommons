@@ -118,6 +118,10 @@ export default function Home() {
               ))}
               <Link className="chip" to="/songs?lang=Spanish">En español</Link>
             </div>
+            <div className="row-head">
+              <h3>{t("Most sung in the commons")}</h3>
+              <Link to="/songs">{t("See all →")}</Link>
+            </div>
             <ul className="row-list">
               {top.slice(0, 4).map(s => (
                 <li key={s.id}>
