@@ -195,8 +195,11 @@ export const es: Record<string, string> = {
   "Take it to Sunday": "Llévala al domingo",
   "Chord chart (print)": "Cifrado (para imprimir)",
   "PDF via print": "PDF al imprimir",
+  "Sheet music (print)": "Partitura (para imprimir)",
+  "melody & parts": "melodía y voces",
   "Sheet music (PDF)": "Partitura (PDF)",
   "Melody (MIDI)": "Melodía (MIDI)",
+  "Notation (ABC)": "Notación (ABC)",
   "Lyrics only (TXT)": "Solo la letra (TXT)",
   "text": "texto",
   "Who’s singing it": "Quién la canta",
@@ -222,6 +225,14 @@ export const es: Record<string, string> = {
   "← Back to song": "← Volver a la canción",
   "Shared through WorshipCommons — free for worship everywhere, always.": "Compartida por medio de WorshipCommons: gratis para la adoración en todas partes, siempre.",
   "Public domain.": "Dominio público.",
+
+  // sheet music
+  "{title} — sheet music | WorshipCommons": "{title} — partitura | WorshipCommons",
+  "Part": "Voz",
+  "All parts": "Todas las voces",
+  "No engraved score is available for this song yet.": "Todavía no hay partitura grabada para esta canción.",
+  "This song is sung to a shared tune — the score shows the music without words.": "Esta canción se canta con una melodía compartida: la partitura muestra la música sin letra.",
+  "Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.": "Grabada en tu navegador a partir de la partitura del Open Hymnal Project: dominio público, libre para cualquier uso.",
 
   // license page
   "The WorshipCommons License — WorshipCommons": "La licencia WorshipCommons — WorshipCommons",
@@ -337,6 +348,7 @@ export const es: Record<string, string> = {
   "Lyrics and chords": "Letra y acordes",
   "ChordPro welcome — [D]Every valley [G]shall be [D]lifted…": "ChordPro bienvenido — [D]Todo valle [G]se ha de [D]alzar…",
   "Start each section with its name (Verse 1, Chorus…), chords in [brackets]. We generate the chord chart and downloads from this.": "Empieza cada sección con su nombre (Verso 1, Coro…), con los acordes entre [corchetes]. Con esto generamos el cifrado y las descargas.",
+  "Chart preview — how churches will see it": "Vista previa del cifrado: así lo verán las iglesias",
   "Files": "Archivos",
   "Optional — but a demo recording is the single best thing you can give a worship leader deciding at 10pm on a Thursday.": "Opcional, pero una grabación de muestra es lo mejor que le puedes dar a un líder de alabanza que decide un jueves a las 10 de la noche.",
   "Drop an MP3 or WAV, or click to choose · a phone recording is fine": "Suelta un MP3 o WAV, o haz clic para elegir · una grabación de celular sirve",

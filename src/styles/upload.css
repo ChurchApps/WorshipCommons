@@ -9,6 +9,8 @@
   .dropzone b { display: block; font-family: var(--font-heading); font-size: 1.0625rem; color: var(--ink); margin-bottom: 4px; }
   .dz-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
 
+  .cp-preview-box { border: 1px solid #E4DEF2; border-radius: 16px; background: var(--surface); padding: 20px 24px; max-height: 420px; overflow-y: auto; }
+
   .submit-row { margin-top: 40px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
   .submit-row .hint { margin: 0; }
   .thanks { display: none; margin-top: 48px; text-align: center; padding: 64px 40px; }

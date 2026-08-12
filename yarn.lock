@@ -1267,6 +1267,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"abcjs@npm:^6.6.4":
+  version: 6.6.4
+  resolution: "abcjs@npm:6.6.4"
+  checksum: 10c0/4d85ed86b86ac5fc55f48b7e0dcb0e297f8df6c5eee48055bbc84268f5b0afa6336fcb321d1ca37cd776322115e8e64481e356dff88b3f96ee432c2b462b8f62
+  languageName: node
+  linkType: hard
+
 "acorn-jsx@npm:^5.3.2":
   version: 5.3.2
   resolution: "acorn-jsx@npm:5.3.2"
@@ -4243,6 +4250,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.55.0"
     "@typescript-eslint/parser": "npm:^8.55.0"
     "@vitejs/plugin-react": "npm:^4.3.4"
+    abcjs: "npm:^6.6.4"
     eslint: "npm:^9.39.2"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.0.1"

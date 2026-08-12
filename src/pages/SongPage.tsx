@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, loadSongs, Song, themeList, formatBytes } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
+import { abcKeyRoot } from "../abc";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
 import { libraryIds, setInLibrary } from "../library";
@@ -60,11 +61,23 @@ export default function SongPage() {
     if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
   }, [id]);
 
+  // 44 curated charts are keyed for congregational singing while the OH tune file
+  // stays in its hymnal key — the ABC's K: is the audio's true base, not songKey
+  const [tuneRoot, setTuneRoot] = useState("");
+  useEffect(() => {
+    setTuneRoot("");
+    if (!song?.abcUrl) return;
+    let stale = false;
+    fetch(song.abcUrl).then(r => r.ok ? r.text() : "").then(t => { if (!stale && t) setTuneRoot(abcKeyRoot(t)); }).catch(() => {});
+    return () => { stale = true; };
+  }, [song?.abcUrl]);
+
   const audioShift = useMemo(() => {
     if (!song) return 0;
-    const shift = (noteIndex(splitKey(selectedKey || song.songKey).root) - noteIndex(splitKey(song.songKey).root) + 12) % 12;
+    const base = tuneRoot || splitKey(song.songKey).root;
+    const shift = (noteIndex(splitKey(selectedKey || song.songKey).root) - noteIndex(base) + 12) % 12;
     return shift > 6 ? shift - 12 : shift;
-  }, [song, selectedKey]);
+  }, [song, selectedKey, tuneRoot]);
 
   useEffect(() => { playerRef.current?.setSemitones(audioShift); }, [audioShift]);
   useEffect(() => { playerRef.current?.setRate(rate / 100); }, [rate]);
@@ -324,8 +337,10 @@ export default function SongPage() {
             <h2>{t("Take it to Sunday")}</h2>
             <ul className="dl-list">
               <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
+              {song.abcUrl && <li><Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="size">{t("melody & parts")} · {keyLabel}</span></li>}
               {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
               {song.midiUrl && <li><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
+              {song.abcUrl && <li><a href={song.abcUrl} download>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
               <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
               <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>

@@ -70,7 +70,7 @@ h2 { font-size: clamp(1.75rem, 3.5vw, 2.625rem); font-weight: 700; }
 /* ===== forms ===== */
 label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 7px; }
 .hint { font-size: 0.8438rem; color: var(--muted); font-weight: 400; margin-top: 5px; }
-input[type="text"], input[type="email"], input[type="url"], input[type="number"], select, textarea {
+input[type="text"], input[type="email"], input[type="password"], input[type="url"], input[type="number"], select, textarea {
   width: 100%; font-family: var(--font-body); font-size: 0.9375rem; color: var(--ink);
   background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 13px 16px;
   transition: border-color 0.2s;

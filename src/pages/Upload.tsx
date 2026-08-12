@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { wcPost } from "../api";
+import ChordProPreview from "../components/ChordProPreview";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -149,6 +150,12 @@ export default function Upload() {
               <textarea id="lyrics" rows={9} placeholder={t("ChordPro welcome — [D]Every valley [G]shall be [D]lifted…")} required value={form.chordPro} onChange={e => set("chordPro", e.target.value)} />
               <p className="hint">{t("Start each section with its name (Verse 1, Chorus…), chords in [brackets]. We generate the chord chart and downloads from this.")}</p>
             </div>
+            {form.chordPro.trim() !== "" && (
+              <div className="field">
+                <label>{t("Chart preview — how churches will see it")}</label>
+                <div className="cp-preview-box"><ChordProPreview chordPro={form.chordPro} /></div>
+              </div>
+            )}
           </div>
         </section>
 

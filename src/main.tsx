@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Songs from "./pages/Songs";
 import SongPage from "./pages/SongPage";
 import PrintChart from "./pages/PrintChart";
+import SheetMusic from "./pages/SheetMusic";
 import Upload from "./pages/Upload";
 import License from "./pages/License";
 import Report from "./pages/Report";
@@ -29,6 +30,7 @@ createRoot(document.getElementById("root")).render(
         <BrowserRouter>
           <Routes>
             <Route path="/songs/:id/print" element={<PrintChart />} />
+            <Route path="/songs/:id/sheet" element={<SheetMusic />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
