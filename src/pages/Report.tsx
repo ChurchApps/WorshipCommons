@@ -36,13 +36,13 @@ export default function Report() {
       <div className="page-head">
         <span className="eyebrow">Keep the commons honest</span>
         <h1>Report a song</h1>
-        <p className="lede">The commons runs on one promise: whoever shares a song actually owns it. If someone gave away a song that wasn&apos;t theirs — especially if it&apos;s yours — tell us and we&apos;ll make it right.</p>
+        <p className="lede">The commons runs on one promise: whoever shares a song actually owns it. If someone gave away a song that wasn&apos;t theirs — especially if it&apos;s yours — tell us and we&apos;ll look into it.</p>
       </div>
 
       <div className="process">
         <div className="card"><span className="n">1</span><b>You report it</b><p>Point us at the song and tell us why the sharing wasn&apos;t legit. Ownership claims jump the queue.</p></div>
         <div className="card"><span className="n">2</span><b>We review it</b><p>A real person contacts the uploader, hears both sides, checks the claim, and pulls the song from the library while ownership is genuinely in dispute.</p></div>
-        <div className="card"><span className="n">3</span><b>We make it right</b><p>Bad uploads come down, the uploader loses their account and answers for the mistake, and every church that downloaded the song hears from us right away.</p></div>
+        <div className="card"><span className="n">3</span><b>We take it down</b><p>If the claim holds up, the song comes down from the library and stays down.</p></div>
       </div>
 
       {submitted ? (

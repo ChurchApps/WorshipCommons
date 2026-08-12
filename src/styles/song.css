@@ -11,7 +11,8 @@
 
   .hero-art { position: relative; aspect-ratio: 3 / 1; min-height: 200px; }
   .hero-cover, .hero-cover svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hero-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,18,31,0) 30%, rgba(23,18,31,0.82) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 48px 20px; }
+  .hero-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,18,31,0) 20%, rgba(23,18,31,0.55) 55%, rgba(23,18,31,0.94) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 48px 20px; }
+  .hero-scrim .song-title, .hero-scrim .byline { text-shadow: 0 1px 8px rgba(23,18,31,0.6); }
   .hero-scrim .song-title { color: #fff; margin: 6px 0 2px; font-size: clamp(1.8rem, 3.6vw, 2.6rem); }
   .hero-scrim .byline { color: rgba(255,255,255,0.78); }
   .pd-badge.on-art { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.35); }

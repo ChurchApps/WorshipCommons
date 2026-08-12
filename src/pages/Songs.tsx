@@ -225,7 +225,9 @@ export default function Songs() {
                         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
                         : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
                     </button>
-                    <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />
+                    {s.writerPortraitUrl
+                      ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img src={s.writerPortraitUrl} alt="" loading="lazy" /></Link>
+                      : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
                     <div className="t-main"><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {s.year}{s.stemsZipUrl ? <> · <b className="mt-flag">stems</b></> : null}</span></div>
                     <span className="t-themes">{themeList(s).join(", ")}</span>
                     <span className="t-num t-key">{s.songKey}</span>

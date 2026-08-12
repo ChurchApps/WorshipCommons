@@ -81,7 +81,7 @@ export default function Upload() {
         <div className="thanks card show" data-testid="upload-thanks">
           <span className="free-badge">Received</span>
           <h2 style={{ marginTop: 16 }}>Thank you — it&apos;s in review</h2>
-          <p>We&apos;ll email you when your song takes its place in the library. The church will be glad to sing it.</p>
+          <p>A human reviews every song — usually within a few days. Track it on <Link to="/my-songs">My songs</Link>. The church will be glad to sing it.</p>
           <Link to="/songs" className="btn btn-ghost">Back to the library</Link>
         </div>
       </main>

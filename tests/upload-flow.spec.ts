@@ -27,6 +27,9 @@ test.describe.serial("upload flow", () => {
     await page.getByRole("button", { name: "Add it to the commons" }).click();
 
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
+
+    await page.goto("/my-songs");
+    await expect(page.getByTestId("my-song").filter({ hasText: SONG_TITLE })).toContainText("In review");
   });
 
   test("admin sees it pending and approves it", async ({ page }) => {
@@ -38,6 +41,9 @@ test.describe.serial("upload flow", () => {
     await card.getByRole("button", { name: "Approve" }).click();
     await expect(card).toHaveCount(0);
     await expect(page.getByTestId("no-pending")).toBeVisible();
+
+    await page.goto("/my-songs");
+    await expect(page.getByTestId("my-song").filter({ hasText: SONG_TITLE })).toContainText("Live");
   });
 
   test("approved song appears in the library with working page and audio", async ({ page }) => {

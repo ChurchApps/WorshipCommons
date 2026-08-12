@@ -39,6 +39,7 @@
   .t-row { display: grid; grid-template-columns: 52px 44px 1fr 150px 64px 64px 100px 118px; gap: 10px; align-items: center; padding: 9px 20px; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
   .t-cover { display: block; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; }
   .t-cover svg { display: block; width: 100%; height: 100%; }
+  .t-cover img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.2) sepia(0.12); }
   .t-row:last-child { border-bottom: 0; }
   .t-row:hover { background: rgba(108,43,217,0.03); }
   .t-row .play-btn { width: 34px; height: 34px; }

@@ -1,4 +1,3 @@
-// ported verbatim from the mockup's transpose logic (mockup/song.html)
 export const SHARP = [
   "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 ];

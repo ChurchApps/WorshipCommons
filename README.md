@@ -1,6 +1,6 @@
 # WorshipCommons
 
-The worshipcommons.org site — an open library of worship music. React 19 + Vite SPA (no Next.js, no MUI); the original static mockup lives in `mockup/`. Talks to WorshipCommonsApi (port 8098) and the core Api for login (no church selection — user JWT only).
+The worshipcommons.org site — an open library of worship music. React 19 + Vite SPA (no Next.js, no MUI). Talks to WorshipCommonsApi (port 8098) and the core Api for login (no church selection — user JWT only).
 
 ```bash
 yarn dev     # localhost:3104

@@ -32,6 +32,8 @@ export interface Song {
   proAnswer?: string;
   qualityScore?: number;
   qualityDetail?: string;
+  status?: string;
+  createdAt?: string;
 }
 
 let cache: Song[] | null = null;
