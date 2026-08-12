@@ -13,8 +13,10 @@ test.beforeAll(async ({ request }) => {
   songs = await (await request.get(`${WC_API}/songs`)).json();
 });
 
+// the site language pre-filters the library — clear it to assert against the whole catalog
 async function openLibrary(page: Page) {
   await page.goto("/songs");
+  await page.getByLabel("Language", { exact: true }).selectOption("");
   await expect(page.locator("#count")).toContainText(countText(songs.length));
 }
 
@@ -63,10 +65,10 @@ test.describe("library", () => {
     await page.getByLabel(/Any tempo/).check();
 
     const spanish = songs.filter(s => s.language === "Spanish");
-    await page.getByLabel("Language").selectOption("Spanish");
-    await expect(page.locator(".t-row")).toHaveCount(spanish.length);
+    await page.getByLabel("Language", { exact: true }).selectOption("Spanish");
+    await expect(page.locator(".t-row")).toHaveCount(firstPage(spanish.length));
     await expect(page.locator(".t-row", { hasText: "Santo, Santo, Santo" })).toBeVisible();
-    await page.getByLabel("Language").selectOption("");
+    await page.getByLabel("Language", { exact: true }).selectOption("");
 
     const pd = songs.filter(s => s.license === "PD").length;
     await page.getByLabel(/Public domain/).check();
@@ -103,10 +105,27 @@ test.describe("library", () => {
     await expect(page.locator(".t-row").first()).toContainText(newFirst.title);
   });
 
+  test("the language toggle translates the page and filters the list", async ({ page }) => {
+    await page.goto("/songs");
+    const english = songs.filter(s => s.language === "English").length;
+    await expect(page.locator("#count")).toContainText(countText(english));
+
+    await page.getByTestId("lang-es").click();
+    const spanish = songs.filter(s => s.language === "Spanish");
+    await expect(page.locator(".t-row")).toHaveCount(firstPage(spanish.length));
+    await expect(page.locator(".t-row", { hasText: "Santo, Santo, Santo" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Borrar todos los filtros" })).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Encuentra lo que tu iglesia va a cantar" })).toBeVisible();
+    await page.getByTestId("lang-en").click();
+    await expect(page.locator("#count")).toContainText(countText(english));
+  });
+
   test("pagination walks the catalog", async ({ page }) => {
     test.skip(songs.length <= 50, "catalog fits on one page");
     await openLibrary(page);
-    await page.locator(".pager button", { hasText: "2" }).click();
+    await page.locator(".pager").getByRole("button", { name: "2", exact: true }).click();
     await expect(page.locator("#count")).toContainText("Showing 51–");
     await expect(page.locator(".t-row")).toHaveCount(Math.min(50, songs.length - 50));
     await page.locator(".pager button", { hasText: "‹" }).click();

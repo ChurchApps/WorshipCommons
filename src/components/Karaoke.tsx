@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Song } from "../songs";
 import { KEY_CHOICES } from "../chordpro";
 import { loadTune, TunePlayer } from "../midiPlayer";
+import { useI18n } from "../i18n";
 
 interface TimedWord { t: number; d: number; text: string }
 interface TimedStanza { label: string; lines: TimedWord[][] }
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function Karaoke({ song, audioShift, rate, onRateChange, selRoot, keySuffix, onKeyChange, onClose }: Props) {
+  const { t } = useI18n();
   const [stanzas, setStanzas] = useState<TimedStanza[] | null>(null);
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -93,24 +95,24 @@ export default function Karaoke({ song, audioShift, rate, onRateChange, selRoot,
     <div className="karaoke" data-testid="karaoke">
       <div className="karaoke-bar">
         <button className="btn btn-primary" data-testid="karaoke-play" disabled={!ready} onClick={toggle}>
-          {!ready ? "Loading…" : playing ? "❚❚ Pause" : "▶ Play"}
+          {!ready ? t("Loading…") : playing ? t("❚❚ Pause") : t("▶ Play")}
         </button>
         <span className="karaoke-ctl">
-          <label htmlFor="karaoke-key">Key</label>
+          <label htmlFor="karaoke-key">{t("Key")}</label>
           <select id="karaoke-key" value={selRoot} onChange={e => onKeyChange(e.target.value)}>
             {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix}</option>)}
           </select>
         </span>
         <span className="karaoke-ctl">
-          <label htmlFor="karaoke-tempo">Tempo</label>
+          <label htmlFor="karaoke-tempo">{t("Tempo")}</label>
           <input id="karaoke-tempo" type="range" min={50} max={150} step={5} value={rate} onChange={e => onRateChange(Number(e.target.value))} />
           <span className="tempo-val">{song.bpm ? `${Math.round(song.bpm * rate / 100)} BPM` : `${rate}%`}</span>
         </span>
-        <button className="karaoke-close" data-testid="karaoke-close" onClick={onClose} aria-label="Close">✕</button>
+        <button className="karaoke-close" data-testid="karaoke-close" onClick={onClose} aria-label={t("Close")}>✕</button>
       </div>
       <div className="karaoke-scroll">
         <h1 className="karaoke-title">{song.title}</h1>
-        {!stanzas && <p className="karaoke-loading">Loading lyrics…</p>}
+        {!stanzas && <p className="karaoke-loading">{t("Loading lyrics…")}</p>}
         {stanzas?.map((st, si) => (
           <section className="karaoke-stanza" key={si}>
             <p className="karaoke-label">{st.label}</p>

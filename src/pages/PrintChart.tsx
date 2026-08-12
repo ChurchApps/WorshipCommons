@@ -3,8 +3,10 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { loadSong, Song } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, FLAT_KEYS } from "../chordpro";
 import { usePageMeta } from "../seo";
+import { useI18n } from "../i18n";
 
 export default function PrintChart() {
+  const { t } = useI18n();
   const { id } = useParams();
   const [params] = useSearchParams();
   const [song, setSong] = useState<Song | null>(null);
@@ -13,10 +15,10 @@ export default function PrintChart() {
     if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
   }, [id]);
   const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
-  usePageMeta(song ? `${song.title} — chord chart | WorshipCommons` : "WorshipCommons");
+  usePageMeta(song ? t("{title} — chord chart | WorshipCommons", { title: song.title }) : "WorshipCommons");
 
-  if (notFound) return <main style={{ padding: 40 }}>Song not found. <Link to="/songs">← All songs</Link></main>;
-  if (!song) return <main style={{ padding: 40 }}>Loading…</main>;
+  if (notFound) return <main style={{ padding: 40 }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></main>;
+  if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
   const { root: selRoot } = splitKey(params.get("key") || song.songKey);
@@ -33,11 +35,11 @@ export default function PrintChart() {
         @media print { .no-print { display: none; } }
       `}</style>
       <div className="no-print">
-        <button onClick={() => window.print()} style={{ padding: "8px 20px", cursor: "pointer" }}>Print</button>
-        {" "}<Link to={`/songs/${song.id}`}>← Back to song</Link>
+        <button onClick={() => window.print()} style={{ padding: "8px 20px", cursor: "pointer" }}>{t("Print")}</button>
+        {" "}<Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
       </div>
       <h1 style={{ marginBottom: 4 }}>{song.title}</h1>
-      <p style={{ marginBottom: 24 }}>{song.writer} · Key of {keyLabel} · {song.bpm} BPM · {song.timeSignature}</p>
+      <p style={{ marginBottom: 24 }}>{song.writer} · {t("Key of {key}", { key: keyLabel })} · {song.bpm} BPM · {song.timeSignature}</p>
       {stanzas.map((stanza, si) => (
         <section key={si} style={{ marginBottom: 24 }}>
           <p style={{ fontWeight: 700, textTransform: "uppercase", fontSize: 13, letterSpacing: 1 }}>{stanza.label}</p>
@@ -54,7 +56,7 @@ export default function PrintChart() {
         </section>
       ))}
       <p style={{ marginTop: 32, fontSize: 13, color: "#555" }}>
-        {song.license === "WC" ? `© ${song.year} ${song.writer} · Shared through WorshipCommons — free for worship everywhere, always.` : "Public domain."}
+        {song.license === "WC" ? `© ${song.year} ${song.writer} · ${t("Shared through WorshipCommons — free for worship everywhere, always.")}` : t("Public domain.")}
       </p>
     </main>
   );

@@ -4,6 +4,7 @@ import { useAuth } from "../auth";
 import { wcGet } from "../api";
 import { Song } from "../songs";
 import { usePageMeta } from "../seo";
+import { useI18n } from "../i18n";
 
 const STATUS: Record<string, { label: string; note: string }> = {
   pending: { label: "In review", note: "A human reads every song before it goes live — usually within a few days." },
@@ -12,7 +13,8 @@ const STATUS: Record<string, { label: string; note: string }> = {
 };
 
 export default function MySongs() {
-  usePageMeta("My songs — WorshipCommons");
+  const { t } = useI18n();
+  usePageMeta(t("My songs — WorshipCommons"));
   const { user } = useAuth();
   const location = useLocation();
   const [songs, setSongs] = useState<Song[] | null>(null);
@@ -26,16 +28,16 @@ export default function MySongs() {
   return (
     <main className="wrap-narrow">
       <div className="page-head">
-        <span className="eyebrow">My songs</span>
-        <h1>What you&apos;ve shared</h1>
-        <p className="lede">Every song you&apos;ve submitted and where it stands.</p>
+        <span className="eyebrow">{t("My songs")}</span>
+        <h1>{t("What you’ve shared")}</h1>
+        <p className="lede">{t("Every song you’ve submitted and where it stands.")}</p>
       </div>
 
-      {!songs && <p>Loading…</p>}
+      {!songs && <p>{t("Loading…")}</p>}
       {songs?.length === 0 && (
         <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="no-submissions">
-          <p style={{ marginBottom: 16 }}>Nothing here yet.</p>
-          <Link to="/upload" className="btn btn-primary">Share your first song</Link>
+          <p style={{ marginBottom: 16 }}>{t("Nothing here yet.")}</p>
+          <Link to="/upload" className="btn btn-primary">{t("Share your first song")}</Link>
         </div>
       )}
       {songs?.map(s => {
@@ -44,10 +46,10 @@ export default function MySongs() {
           <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16 }} data-testid="my-song">
             <h3 style={{ marginBottom: 4 }}>
               {s.status === "approved" ? <Link to={`/songs/${s.id}`}>{s.title}</Link> : s.title}
-              <span className={s.status === "approved" ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{st.label}</span>
+              <span className={s.status === "approved" ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{t(st.label)}</span>
             </h3>
-            <p className="hint" style={{ marginBottom: 8 }}>{s.writer} · Key {s.songKey}{s.bpm ? ` · ${s.bpm} BPM` : ""}{s.createdAt ? ` · submitted ${new Date(s.createdAt).toLocaleDateString()}` : ""}</p>
-            <p style={{ fontSize: "0.9375rem" }}>{st.note}{s.status === "approved" && s.churchCount > 0 ? ` ${s.churchCount.toLocaleString()} churches sing it.` : ""}</p>
+            <p className="hint" style={{ marginBottom: 8 }}>{s.writer} · {t("Key")} {s.songKey}{s.bpm ? ` · ${s.bpm} BPM` : ""}{s.createdAt ? t(" · submitted {date}", { date: new Date(s.createdAt).toLocaleDateString() }) : ""}</p>
+            <p style={{ fontSize: "0.9375rem" }}>{t(st.note)}{s.status === "approved" && s.churchCount > 0 ? t(" {count} churches sing it.", { count: s.churchCount.toLocaleString() }) : ""}</p>
           </div>
         );
       })}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth";
+import { useI18n } from "../i18n";
 
 function LogoMark() {
   return (
@@ -20,9 +21,20 @@ function LogoMark() {
   );
 }
 
+function LangToggle() {
+  const { lang, setLang } = useI18n();
+  return (
+    <span className="lang-toggle" role="group" aria-label="Site language">
+      <button className={lang === "en" ? "on" : ""} aria-pressed={lang === "en"} data-testid="lang-en" onClick={() => setLang("en")}>EN</button>
+      <button className={lang === "es" ? "on" : ""} aria-pressed={lang === "es"} data-testid="lang-es" onClick={() => setLang("es")}>ES</button>
+    </span>
+  );
+}
+
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { t } = useI18n();
 
   return (
     <>
@@ -31,14 +43,15 @@ export default function Layout() {
           <Link className="logo" to="/"><LogoMark />WorshipCommons</Link>
           <button className="nav-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}><span></span><span></span><span></span></button>
           <ul className={"nav-menu" + (open ? " open" : "")} onClick={() => setOpen(false)}>
-            <li><NavLink to="/songs">Songs</NavLink></li>
-            <li><NavLink to="/license">The License</NavLink></li>
-            <li><NavLink to="/report">Report</NavLink></li>
-            {user && <li><NavLink to="/my-songs" data-testid="my-songs">My songs</NavLink></li>}
+            <li><NavLink to="/songs">{t("Songs")}</NavLink></li>
+            <li><NavLink to="/license">{t("The License")}</NavLink></li>
+            <li><NavLink to="/report">{t("Report")}</NavLink></li>
+            {user && <li><NavLink to="/my-songs" data-testid="my-songs">{t("My songs")}</NavLink></li>}
             {user
-              ? <li><button className="nav-signout" data-testid="sign-out" onClick={logout}>Sign out ({user.firstName})</button></li>
-              : <li><NavLink to="/login" data-testid="sign-in">Sign in</NavLink></li>}
-            <li><Link to="/upload" className="btn btn-primary">Share a song</Link></li>
+              ? <li><button className="nav-signout" data-testid="sign-out" onClick={logout}>{t("Sign out ({name})", { name: user.firstName })}</button></li>
+              : <li><NavLink to="/login" data-testid="sign-in">{t("Sign in")}</NavLink></li>}
+            <li><LangToggle /></li>
+            <li><Link to="/upload" className="btn btn-primary">{t("Share a song")}</Link></li>
           </ul>
         </nav>
       </header>
@@ -50,28 +63,28 @@ export default function Layout() {
           <div className="foot-grid">
             <div>
               <Link className="logo" to="/"><LogoMark />WorshipCommons</Link>
-              <p className="foot-note">Free worship music for every church.<br />Full commercial rights for every writer.</p>
+              <p className="foot-note">{t("Free worship music for every church.")}<br />{t("Full commercial rights for every writer.")}</p>
             </div>
             <div>
-              <h4>Explore</h4>
+              <h4>{t("Explore")}</h4>
               <ul>
-                <li><Link to="/songs">Song library</Link></li>
-                <li><Link to="/upload">Share a song</Link></li>
-                <li><Link to="/license">How the license works</Link></li>
+                <li><Link to="/songs">{t("Song library")}</Link></li>
+                <li><Link to="/upload">{t("Share a song")}</Link></li>
+                <li><Link to="/license">{t("How the license works")}</Link></li>
               </ul>
             </div>
             <div>
-              <h4>Trust</h4>
+              <h4>{t("Trust")}</h4>
               <ul>
-                <li><Link to="/report">Report a song</Link></li>
-                <li><Link to="/license#who">Who qualifies</Link></li>
-                <li><Link to="/license#faq">Questions</Link></li>
-                <li><a href="https://churchapps.org/privacy">Privacy</a></li>
-                <li><a href="https://churchapps.org/terms">Terms</a></li>
+                <li><Link to="/report">{t("Report a song")}</Link></li>
+                <li><Link to="/license#who">{t("Who qualifies")}</Link></li>
+                <li><Link to="/license#faq">{t("Questions")}</Link></li>
+                <li><a href="https://churchapps.org/privacy">{t("Privacy")}</a></li>
+                <li><a href="https://churchapps.org/terms">{t("Terms")}</a></li>
               </ul>
             </div>
           </div>
-          <p className="foot-note">© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.</p>
+          <p className="foot-note">{t("© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.")}</p>
         </div>
       </footer>
     </>

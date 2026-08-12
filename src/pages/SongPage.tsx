@@ -7,11 +7,13 @@ import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
 import { usePageMeta } from "../seo";
 import { coverSvg } from "../cover.mjs";
+import { useI18n } from "../i18n";
 import "../styles/song.css";
 
 const youTubeId = (url?: string) => url?.match(/[?&]v=([\w-]{11})/)?.[1];
 
 export default function SongPage() {
+  const { t } = useI18n();
   const { id } = useParams();
   const [songs, setSongs] = useState<Song[]>([]);
   const [selectedKey, setSelectedKey] = useState<string>("");
@@ -65,14 +67,14 @@ export default function SongPage() {
   const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
 
   usePageMeta(
-    song ? `${song.title} — free chords and lyrics | WorshipCommons` : "WorshipCommons",
-    song ? `Free chord chart, lyrics, and melody for ${song.title} (${song.writer}, ${song.year}). Transpose to any key, print it, project it, sing it — no license needed.` : undefined
+    song ? t("{title} — free chords and lyrics | WorshipCommons", { title: song.title }) : "WorshipCommons",
+    song ? t("Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.", { title: song.title, writer: song.writer, year: song.year }) : undefined
   );
 
   if (notFound) {
-    return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>Song not found. <Link to="/songs">← All songs</Link></p></main>;
+    return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
   }
-  if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>Loading…</p></main>;
+  if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
 
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
   const { root: selRoot } = splitKey(selectedKey || song.songKey);
@@ -113,35 +115,35 @@ export default function SongPage() {
 
   return (
     <main className="wrap">
-      <p className="crumb"><Link to="/songs">← All songs</Link></p>
+      <p className="crumb"><Link to="/songs">{t("← All songs")}</Link></p>
 
       <div className="song-layout">
         <article className={"card sheet" + (showChords ? "" : " hide-chords")}>
           <div className="hero-art">
             <div className="hero-cover" dangerouslySetInnerHTML={{ __html: coverSvg(song, 900, 300) }} />
             <div className="hero-scrim">
-              <span>{song.license === "WC" ? <span className="free-badge">Free for worship</span> : <span className="pd-badge on-art">Public domain</span>}</span>
+              <span>{song.license === "WC" ? <span className="free-badge">{t("Free for worship")}</span> : <span className="pd-badge on-art">{t("Public domain")}</span>}</span>
               <h1 className="song-title">{song.title}</h1>
-              <p className="byline">Words and music by {song.writer} · {song.year}</p>
+              <p className="byline">{t("Words and music by {writer}", { writer: song.writer })} · {song.year}</p>
             </div>
           </div>
           <div className="sheet-body">
             {song.scriptureText && <p className="epigraph"><b>{song.scriptureText.replace(/ — .*$/, "")}</b> — {song.scripture}</p>}
             <div className="meta-chips">
-              <span className="s-tag">Key <b id="key-label">{keyLabel}</b></span>
+              <span className="s-tag">{t("Key")} <b id="key-label">{keyLabel}</b></span>
               <span className="s-tag"><b>{song.bpm}</b> BPM</span>
               <span className="s-tag"><b>{song.timeSignature}</b></span>
               {themeList(song).map(t => <span className="s-tag" key={t}>{t}</span>)}
             </div>
 
             <div className="toolbar">
-              <span><label htmlFor="transpose">Key</label>
+              <span><label htmlFor="transpose">{t("Key")}</label>
                 <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
-                  {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? `${k}${keySuffix} (original)` : k + keySuffix}</option>)}
+                  {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
                 </select>
               </span>
-              <label className="chk"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> Show chords</label>
-              <span className="free-note">Any key, no permission needed</span>
+              <label className="chk"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>
+              <span className="free-note">{t("Any key, no permission needed")}</span>
             </div>
 
             {stanzas.map((stanza, si) => (
@@ -162,8 +164,8 @@ export default function SongPage() {
 
             <p className="colophon">
               {song.license === "WC"
-                ? <>© {song.year} {song.writer} · Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer. <Link to="/license">How that works</Link></>
-                : <>Public domain — free for any use, anywhere, forever.</>}
+                ? <>© {song.year} {song.writer} · {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+                : t("Public domain — free for any use, anywhere, forever.")}
             </p>
           </div>
         </article>
@@ -171,29 +173,29 @@ export default function SongPage() {
         <aside>
           {song.midiUrl && (
             <div className="card side-card">
-              <h2>Listen</h2>
+              <h2>{t("Listen")}</h2>
               <button className="btn btn-primary" data-testid="piano-play" disabled={playState === "loading"} onClick={playPiano}>
-                {playState === "loading" ? "Loading…" : playState === "playing" ? "■ Stop" : "▶ Play piano"}
+                {playState === "loading" ? t("Loading…") : playState === "playing" ? t("■ Stop") : t("▶ Play piano")}
               </button>
               <div className="tempo-row">
-                <label htmlFor="tempo">Tempo</label>
+                <label htmlFor="tempo">{t("Tempo")}</label>
                 <input id="tempo" type="range" min={50} max={150} step={5} value={rate} onChange={e => setRate(Number(e.target.value))} />
                 <span className="tempo-val">{song.bpm ? `${Math.round(song.bpm * rate / 100)} BPM` : `${rate}%`}</span>
               </div>
               {song.lyricsUrl && (
-                <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>Sing along</button>
+                <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>{t("Sing along")}</button>
               )}
-              <p className="rel-hint">Hymnal piano in {keyLabel}, played right in your browser — pick a different key or tempo and hear it there.</p>
+              <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there.", { key: keyLabel })}</p>
             </div>
           )}
 
           {youTubeId(song.videoUrl) && (
             <div className="card side-card">
-              <h2>Watch</h2>
+              <h2>{t("Watch")}</h2>
               <div className="yt-embed">
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${youTubeId(song.videoUrl)}`}
-                  title={`${song.title} — video`}
+                  title={t("{title} — video", { title: song.title })}
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -204,70 +206,70 @@ export default function SongPage() {
 
           {song.writerPortraitUrl && (
             <div className="card side-card">
-              <h2>About the writer</h2>
+              <h2>{t("About the writer")}</h2>
               <div className="writer-row">
-                <img className="writer-photo" src={song.writerPortraitUrl} alt={`Portrait of ${song.writer}`} loading="lazy" />
+                <img className="writer-photo" src={song.writerPortraitUrl} alt={t("Portrait of {writer}", { writer: song.writer })} loading="lazy" />
                 <div>
                   <b>{song.writer}</b>
                   {song.writerBio && <p className="writer-bio">{song.writerBio}</p>}
                 </div>
               </div>
-              <p className="writer-src">Public-domain portrait &amp; bio via Wikipedia.</p>
+              <p className="writer-src">{t("Public-domain portrait & bio via Wikipedia.")}</p>
             </div>
           )}
 
           {song.demoAudioUrl && (
             <div className="card side-card">
-              <h2>Demo recording</h2>
-              <p style={{ fontSize: "0.875rem", color: "var(--muted)", marginBottom: 10 }}>As shared by {song.writer}</p>
+              <h2>{t("Demo recording")}</h2>
+              <p style={{ fontSize: "0.875rem", color: "var(--muted)", marginBottom: 10 }}>{t("As shared by {writer}", { writer: song.writer })}</p>
               <audio controls src={song.demoAudioUrl} style={{ width: "100%" }} data-testid="demo-audio" />
             </div>
           )}
 
           {song.stemsZipUrl && (
             <div className="card side-card">
-              <h2>Multitracks</h2>
-              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download>All stems · ZIP · {formatBytes(song.stemsZipBytes)}</a>
-              <p className="rel-hint">One master set, recorded in {song.songKey} at {song.bpm} BPM — every file starts at bar 1. Works in Prime, Playback, Ableton, or any DAW.</p>
+              <h2>{t("Multitracks")}</h2>
+              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download>{t("All stems")} · ZIP · {formatBytes(song.stemsZipBytes)}</a>
+              <p className="rel-hint">{t("One master set, recorded in {key} at {bpm} BPM — every file starts at bar 1. Works in Prime, Playback, Ableton, or any DAW.", { key: song.songKey, bpm: song.bpm })}</p>
             </div>
           )}
 
           <div className="card side-card">
-            <h2>Take it to Sunday</h2>
+            <h2>{t("Take it to Sunday")}</h2>
             <ul className="dl-list">
-              <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}`}>Chord chart (print)</Link> <span className="size">PDF via print · {keyLabel}</span></li>
-              {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>Sheet music (PDF)</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
-              {song.midiUrl && <li><a href={song.midiUrl} download>Melody (MIDI)</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
-              <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">text</span></li>
-              <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>Lyrics only (TXT)</a> <span className="size">text</span></li>
+              <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}</span></li>
+              {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
+              {song.midiUrl && <li><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
+              <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
+              <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>
           </div>
 
           <div className="card side-card">
-            <h2>Who&apos;s singing it</h2>
+            <h2>{t("Who’s singing it")}</h2>
             <div className="sung-count" data-testid="cong-count">{(count ?? song.churchCount).toLocaleString()}</div>
-            <p className="sung-note">churches</p>
+            <p className="sung-note">{t("churches")}</p>
             <button className="btn btn-primary we-sing" data-testid="we-sing" disabled={sung} style={sung ? { opacity: 0.65 } : undefined} onClick={weSing}>
-              {sung ? "Counted — thank you" : "We sing this"}
+              {sung ? t("Counted — thank you") : t("We sing this")}
             </button>
-            <p className="sung-hint">Counts come from churches, not play counts — the real measure of a song is who sings it.</p>
+            <p className="sung-hint">{t("Counts come from churches, not play counts — the real measure of a song is who sings it.")}</p>
           </div>
 
           {(related.length > 0 || parent) && (
             <div className="card side-card">
-              <h2>In the commons</h2>
+              <h2>{t("In the commons")}</h2>
               <ul className="rel-list">
-                {parent && <li><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>Original · {parent.writer}, {parent.year}</span></li>}
+                {parent && <li><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></li>}
                 {related.map(r => <li key={r.id}><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{r.relationLabel || `${r.writer}, ${r.year}`}</span></li>)}
               </ul>
-              <p className="rel-hint">Made an arrangement or translation? <Link to="/upload">Add it back.</Link></p>
+              <p className="rel-hint">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>
             </div>
           )}
 
           <div className="card side-card">
-            <h2>Something wrong?</h2>
-            <p style={{ fontSize: "0.875rem", color: "var(--text-2)" }}>Think this song was shared by someone who doesn&apos;t own it?</p>
-            <p style={{ marginTop: 10, fontSize: "0.9375rem" }}><Link to="/report" style={{ fontWeight: 600 }}>Report this song →</Link></p>
+            <h2>{t("Something wrong?")}</h2>
+            <p style={{ fontSize: "0.875rem", color: "var(--text-2)" }}>{t("Think this song was shared by someone who doesn’t own it?")}</p>
+            <p style={{ marginTop: 10, fontSize: "0.9375rem" }}><Link to="/report" style={{ fontWeight: 600 }}>{t("Report this song →")}</Link></p>
           </div>
         </aside>
       </div>

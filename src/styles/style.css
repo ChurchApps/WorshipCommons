@@ -138,3 +138,8 @@ fieldset { border: 0; }
 /* react app additions */
 .nav-signout { background: none; border: none; cursor: pointer; font: inherit; color: var(--text-2); padding: 8px 0; }
 .nav-signout:hover { color: var(--primary); }
+
+.lang-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.lang-toggle button { background: none; border: none; cursor: pointer; font: inherit; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.03em; color: var(--text-2); padding: 6px 12px; min-height: 32px; }
+.lang-toggle button:hover { color: var(--ink); }
+.lang-toggle button.on { background: var(--ink); color: var(--surface); }

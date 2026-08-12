@@ -13,6 +13,6 @@ test.describe("home", () => {
     await page.goto("/");
     await page.getByRole("link", { name: "Advent", exact: true }).click();
     await expect(page).toHaveURL(/theme=Advent/);
-    await expect(page.locator("#active-chips .active-chip")).toContainText("Advent");
+    await expect(page.locator("#active-chips .active-chip", { hasText: "Advent" })).toBeVisible();
   });
 });
