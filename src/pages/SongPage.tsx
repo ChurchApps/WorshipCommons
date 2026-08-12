@@ -5,6 +5,7 @@ import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_K
 import { loadTune, TunePlayer } from "../midiPlayer";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
+import { inLibrary, toggleLibrary } from "../library";
 import { usePageMeta } from "../seo";
 import { coverSvg } from "../cover.mjs";
 import { useI18n } from "../i18n";
@@ -20,6 +21,7 @@ export default function SongPage() {
   const [showChords, setShowChords] = useState(true);
   const [count, setCount] = useState<number | null>(null);
   const [sung, setSung] = useState(false);
+  const [inLib, setInLib] = useState(false);
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
   const [rate, setRate] = useState(100);
   const [karaoke, setKaraoke] = useState(false);
@@ -61,6 +63,7 @@ export default function SongPage() {
       setSelectedKey(song.songKey);
       setCount(song.churchCount);
       setSung(!!localStorage.getItem("wcSung_" + song.id));
+      setInLib(inLibrary(song.id));
     }
   }, [song]);
 
@@ -171,6 +174,13 @@ export default function SongPage() {
         </article>
 
         <aside>
+          <div className="card side-card">
+            <button className={"btn " + (inLib ? "btn-ghost" : "btn-primary")} data-testid="library-toggle" onClick={() => setInLib(toggleLibrary(song.id))}>
+              {inLib ? t("✓ In your library") : t("+ Add to your library")}
+            </button>
+            {inLib && <p className="rel-hint" style={{ marginTop: 10 }}><Link to="/library">{t("View your library →")}</Link></p>}
+          </div>
+
           {song.midiUrl && (
             <div className="card side-card">
               <h2>{t("Listen")}</h2>
@@ -269,7 +279,7 @@ export default function SongPage() {
           <div className="card side-card">
             <h2>{t("Something wrong?")}</h2>
             <p style={{ fontSize: "0.875rem", color: "var(--text-2)" }}>{t("Think this song was shared by someone who doesn’t own it?")}</p>
-            <p style={{ marginTop: 10, fontSize: "0.9375rem" }}><Link to="/report" style={{ fontWeight: 600 }}>{t("Report this song →")}</Link></p>
+            <p style={{ marginTop: 10, fontSize: "0.9375rem" }}><Link to={`/report?song=${encodeURIComponent(`${song.title} — /songs/${song.id}`)}`} style={{ fontWeight: 600 }}>{t("Report this song →")}</Link></p>
           </div>
         </aside>
       </div>

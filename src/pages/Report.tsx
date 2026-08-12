@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { wcPost } from "../api";
 import "../styles/report.css";
 import { usePageMeta } from "../seo";
@@ -8,7 +8,8 @@ import { useI18n } from "../i18n";
 export default function Report() {
   const { t } = useI18n();
   usePageMeta(t("Report a song — WorshipCommons"));
-  const [form, setForm] = useState({ songText: "", reporterRole: "", details: "", name: "", email: "", signature: "", goodfaith: false });
+  const [params] = useSearchParams();
+  const [form, setForm] = useState({ songText: params.get("song") || "", reporterRole: "", details: "", name: "", email: "", signature: "", goodfaith: false });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 

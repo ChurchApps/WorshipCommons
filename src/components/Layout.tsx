@@ -44,6 +44,7 @@ export default function Layout() {
           <button className="nav-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}><span></span><span></span><span></span></button>
           <ul className={"nav-menu" + (open ? " open" : "")} onClick={() => setOpen(false)}>
             <li><NavLink to="/songs">{t("Songs")}</NavLink></li>
+            <li><NavLink to="/library" data-testid="nav-library">{t("Your library")}</NavLink></li>
             <li><NavLink to="/license">{t("The License")}</NavLink></li>
             <li><NavLink to="/report">{t("Report")}</NavLink></li>
             {user && <li><NavLink to="/my-songs" data-testid="my-songs">{t("My songs")}</NavLink></li>}

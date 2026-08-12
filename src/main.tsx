@@ -11,6 +11,7 @@ import PrintChart from "./pages/PrintChart";
 import Upload from "./pages/Upload";
 import License from "./pages/License";
 import Report from "./pages/Report";
+import Library from "./pages/Library";
 import Login from "./pages/Login";
 import MySongs from "./pages/MySongs";
 import Admin from "./pages/Admin";
@@ -35,6 +36,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/upload" element={<Upload />} />
               <Route path="/license" element={<License />} />
               <Route path="/report" element={<Report />} />
+              <Route path="/library" element={<Library />} />
               <Route path="/login" element={<Login />} />
               <Route path="/my-songs" element={<MySongs />} />
               <Route path="/admin" element={<Admin />} />
