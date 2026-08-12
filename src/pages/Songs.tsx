@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { loadSongs, Song, themeList } from "../songs";
+import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 
@@ -214,7 +215,7 @@ export default function Songs() {
           {list.length > 0 && (
             <div className="table" id="table">
               <div className="thead">
-                <span></span><span>Song</span><span>Themes</span><span>Key</span><span className="r">BPM</span><span className="r">Churches</span><span></span>
+                <span></span><span></span><span>Song</span><span>Themes</span><span>Key</span><span className="r">BPM</span><span className="r">Churches</span><span></span>
               </div>
               <div>
                 {slice.map(s => (
@@ -224,6 +225,7 @@ export default function Songs() {
                         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
                         : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
                     </button>
+                    <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />
                     <div className="t-main"><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {s.year}{s.stemsZipUrl ? <> · <b className="mt-flag">stems</b></> : null}</span></div>
                     <span className="t-themes">{themeList(s).join(", ")}</span>
                     <span className="t-num t-key">{s.songKey}</span>

@@ -6,6 +6,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
+import { coverSvg } from "../src/cover.mjs";
 
 const API = (process.argv[2] || "http://localhost:8098").replace(/\/$/, "");
 const SITE = (process.argv[3] || "https://worshipcommons.org").replace(/\/$/, "");
@@ -22,12 +24,13 @@ function stanzas(chordPro) {
   }).filter(s => s.lines.length > 0);
 }
 
-function page(shell, { title, description, canonical, jsonLd, body }) {
+function page(shell, { title, description, canonical, ogImage, jsonLd, body }) {
   let html = shell
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(">)/, `$1${esc(description)}$2`)
     .replace(/(<meta property="og:title" content=")[^"]*(">)/, `$1${esc(title)}$2`)
     .replace(/(<meta property="og:description" content=")[^"]*(">)/, `$1${esc(description)}$2`);
+  if (ogImage) html = html.replace(/(<meta property="og:image" content=")[^"]*(">)/, `$1${ogImage}$2`);
   let head = `<link rel="canonical" href="${canonical}">\n<meta property="og:url" content="${canonical}">\n`;
   if (jsonLd) head += `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n`;
   return html
@@ -69,12 +72,19 @@ async function run() {
     songs.push(...await Promise.all(summaries.slice(i, i + 8).map(s => fetchJson(`${API}/songs/${s.id}`))));
   }
 
+  const ogDir = path.join(BUILD, "og");
+  fs.mkdirSync(ogDir, { recursive: true });
+  await sharp(Buffer.from(coverSvg({ id: "worshipcommons", title: "Worship music, set free", themes: "Hope", songKey: "C", bpm: 88 }, 1200, 630)))
+    .png().toFile(path.join(ogDir, "site.png"));
+
   for (const song of songs) {
     const url = `${SITE}/songs/${song.id}/`;
+    await sharp(Buffer.from(coverSvg(song, 1200, 630))).png().toFile(path.join(ogDir, `${song.id}.png`));
     const html = page(shell, {
       title: `${song.title} — free chords and lyrics | WorshipCommons`,
       description: `Free chord chart, lyrics, and melody for ${song.title} (${song.writer}, ${song.year}). Transpose to any key, print it, project it, sing it — no license needed.`,
       canonical: url,
+      ogImage: `${SITE}/og/${song.id}.png`,
       jsonLd: {
         "@context": "https://schema.org",
         "@type": "MusicComposition",

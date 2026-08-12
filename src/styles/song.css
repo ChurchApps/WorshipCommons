@@ -4,9 +4,26 @@
 
   .song-layout { display: grid; grid-template-columns: 1.65fr 1fr; gap: 32px; margin-top: 24px; align-items: start; }
 
-  .sheet { padding: 44px 48px 36px; }
+  .sheet { padding: 0; overflow: hidden; }
+  .sheet-body { padding: 24px 48px 36px; }
   .song-title { font-size: clamp(2rem, 4vw, 2.875rem); margin: 14px 0 8px; }
   .byline { color: var(--text-2); font-size: 0.9843rem; }
+
+  .hero-art { position: relative; aspect-ratio: 3 / 1; min-height: 200px; }
+  .hero-cover, .hero-cover svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,18,31,0) 30%, rgba(23,18,31,0.82) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 48px 20px; }
+  .hero-scrim .song-title { color: #fff; margin: 6px 0 2px; font-size: clamp(1.8rem, 3.6vw, 2.6rem); }
+  .hero-scrim .byline { color: rgba(255,255,255,0.78); }
+  .pd-badge.on-art { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.35); }
+
+  .yt-embed { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #0d0a14; }
+  .yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  .writer-row { display: flex; gap: 16px; align-items: flex-start; }
+  .writer-photo { width: 76px; height: 76px; border-radius: 18px; object-fit: cover; object-position: top; flex: none; border: 1px solid var(--border); filter: grayscale(0.2) sepia(0.12); }
+  .writer-row b { font-family: var(--font-heading); font-size: 1.0313rem; display: block; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .writer-bio { font-size: 0.875rem; color: var(--text-2); line-height: 1.55; }
+  .writer-src { font-size: 0.7188rem; color: var(--muted); margin-top: 12px; }
   .epigraph { font-size: 0.9843rem; color: var(--muted); margin-top: 14px; max-width: 48ch; }
   .epigraph b { color: var(--text-2); font-weight: 600; }
   .meta-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
@@ -69,7 +86,8 @@
 
   @media (max-width: 920px) {
     .song-layout { grid-template-columns: 1fr; }
-    .sheet { padding: 28px 22px; }
+    .sheet-body { padding: 20px 22px 28px; }
+    .hero-scrim { padding: 18px 22px 14px; }
   }
 
 .tempo-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }

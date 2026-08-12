@@ -6,7 +6,10 @@ import { loadTune, TunePlayer } from "../midiPlayer";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
 import { usePageMeta } from "../seo";
+import { coverSvg } from "../cover.mjs";
 import "../styles/song.css";
+
+const youTubeId = (url?: string) => url?.match(/[?&]v=([\w-]{11})/)?.[1];
 
 export default function SongPage() {
   const { id } = useParams();
@@ -114,48 +117,55 @@ export default function SongPage() {
 
       <div className="song-layout">
         <article className={"card sheet" + (showChords ? "" : " hide-chords")}>
-          {song.license === "WC" ? <span className="free-badge">Free for worship</span> : <span className="pd-badge">Public domain</span>}
-          <h1 className="song-title">{song.title}</h1>
-          <p className="byline">Words and music by {song.writer} · {song.year}</p>
-          {song.scriptureText && <p className="epigraph"><b>{song.scriptureText.replace(/ — .*$/, "")}</b> — {song.scripture}</p>}
-          <div className="meta-chips">
-            <span className="s-tag">Key <b id="key-label">{keyLabel}</b></span>
-            <span className="s-tag"><b>{song.bpm}</b> BPM</span>
-            <span className="s-tag"><b>{song.timeSignature}</b></span>
-            {themeList(song).map(t => <span className="s-tag" key={t}>{t}</span>)}
+          <div className="hero-art">
+            <div className="hero-cover" dangerouslySetInnerHTML={{ __html: coverSvg(song, 900, 300) }} />
+            <div className="hero-scrim">
+              <span>{song.license === "WC" ? <span className="free-badge">Free for worship</span> : <span className="pd-badge on-art">Public domain</span>}</span>
+              <h1 className="song-title">{song.title}</h1>
+              <p className="byline">Words and music by {song.writer} · {song.year}</p>
+            </div>
           </div>
+          <div className="sheet-body">
+            {song.scriptureText && <p className="epigraph"><b>{song.scriptureText.replace(/ — .*$/, "")}</b> — {song.scripture}</p>}
+            <div className="meta-chips">
+              <span className="s-tag">Key <b id="key-label">{keyLabel}</b></span>
+              <span className="s-tag"><b>{song.bpm}</b> BPM</span>
+              <span className="s-tag"><b>{song.timeSignature}</b></span>
+              {themeList(song).map(t => <span className="s-tag" key={t}>{t}</span>)}
+            </div>
 
-          <div className="toolbar">
-            <span><label htmlFor="transpose">Key</label>
-              <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
-                {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? `${k}${keySuffix} (original)` : k + keySuffix}</option>)}
-              </select>
-            </span>
-            <label className="chk"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> Show chords</label>
-            <span className="free-note">Any key, no permission needed</span>
+            <div className="toolbar">
+              <span><label htmlFor="transpose">Key</label>
+                <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
+                  {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? `${k}${keySuffix} (original)` : k + keySuffix}</option>)}
+                </select>
+              </span>
+              <label className="chk"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> Show chords</label>
+              <span className="free-note">Any key, no permission needed</span>
+            </div>
+
+            {stanzas.map((stanza, si) => (
+              <section className="stanza" key={si}>
+                <p className="stanza-label">{stanza.label}</p>
+                {stanza.lines.map((segments, li) => (
+                  <p className="line" key={li}>
+                    {segments.map((seg, gi) => (
+                      <span className="seg" key={gi}>
+                        <b className="c">{seg.chord ? transposeChord(seg.chord, shift, useFlats) : " "}</b>
+                        <span className="t">{seg.text || " "}</span>
+                      </span>
+                    ))}
+                  </p>
+                ))}
+              </section>
+            ))}
+
+            <p className="colophon">
+              {song.license === "WC"
+                ? <>© {song.year} {song.writer} · Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer. <Link to="/license">How that works</Link></>
+                : <>Public domain — free for any use, anywhere, forever.</>}
+            </p>
           </div>
-
-          {stanzas.map((stanza, si) => (
-            <section className="stanza" key={si}>
-              <p className="stanza-label">{stanza.label}</p>
-              {stanza.lines.map((segments, li) => (
-                <p className="line" key={li}>
-                  {segments.map((seg, gi) => (
-                    <span className="seg" key={gi}>
-                      <b className="c">{seg.chord ? transposeChord(seg.chord, shift, useFlats) : " "}</b>
-                      <span className="t">{seg.text || " "}</span>
-                    </span>
-                  ))}
-                </p>
-              ))}
-            </section>
-          ))}
-
-          <p className="colophon">
-            {song.license === "WC"
-              ? <>© {song.year} {song.writer} · Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer. <Link to="/license">How that works</Link></>
-              : <>Public domain — free for any use, anywhere, forever.</>}
-          </p>
         </article>
 
         <aside>
@@ -174,6 +184,35 @@ export default function SongPage() {
                 <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>Sing along</button>
               )}
               <p className="rel-hint">Hymnal piano in {keyLabel}, played right in your browser — pick a different key or tempo and hear it there.</p>
+            </div>
+          )}
+
+          {youTubeId(song.videoUrl) && (
+            <div className="card side-card">
+              <h2>Watch</h2>
+              <div className="yt-embed">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${youTubeId(song.videoUrl)}`}
+                  title={`${song.title} — video`}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          )}
+
+          {song.writerPortraitUrl && (
+            <div className="card side-card">
+              <h2>About the writer</h2>
+              <div className="writer-row">
+                <img className="writer-photo" src={song.writerPortraitUrl} alt={`Portrait of ${song.writer}`} loading="lazy" />
+                <div>
+                  <b>{song.writer}</b>
+                  {song.writerBio && <p className="writer-bio">{song.writerBio}</p>}
+                </div>
+              </div>
+              <p className="writer-src">Public-domain portrait &amp; bio via Wikipedia.</p>
             </div>
           )}
 
