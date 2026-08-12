@@ -96,6 +96,12 @@
 .tempo-row input { flex: 1; accent-color: var(--primary); min-width: 0; }
 .tempo-val { font-size: 0.8125rem; font-weight: 600; color: var(--text-2); white-space: nowrap; }
 .sing-btn { display: block; width: 100%; text-align: center; margin-top: 14px; border: 1px solid var(--border); }
+.parts-row { margin-top: 14px; }
+.parts-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.parts-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.part-btn { padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); background: none; color: var(--text-2); font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+.part-btn:hover { border-color: var(--primary); }
+.part-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
 
 /* karaoke sing-along overlay */
 .karaoke { position: fixed; inset: 0; z-index: 100; background: #14101e; color: #cfc8de; display: flex; flex-direction: column; }

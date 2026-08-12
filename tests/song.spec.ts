@@ -110,6 +110,16 @@ test.describe("song page", () => {
     await expect(page.getByTestId("karaoke")).toHaveCount(0);
   });
 
+  test("voice parts are detected from the midi and selectable", async ({ page }) => {
+    await page.goto(ABIDE);
+    const parts = page.getByTestId("parts");
+    await expect(parts).toBeVisible();
+    await expect(parts.locator(".part-btn")).toHaveText(["All", "Soprano", "Alto", "Tenor", "Bass"]);
+    await expect(parts.locator(".part-btn.on")).toHaveText("All");
+    await parts.getByRole("button", { name: "Tenor" }).click();
+    await expect(parts.locator(".part-btn.on")).toHaveText("Tenor");
+  });
+
   test("songs without timing data get no sing-along button", async ({ page }) => {
     await page.goto(BARE_SONG);
     await expect(page.locator(".song-title")).toBeVisible();

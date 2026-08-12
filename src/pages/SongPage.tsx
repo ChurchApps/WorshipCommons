@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSong, loadSongs, Song, themeList, formatBytes } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
-import { loadTune, TunePlayer } from "../midiPlayer";
+import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import Karaoke from "../components/Karaoke";
 import { wcPost, WC_API } from "../api";
 import { inLibrary, toggleLibrary } from "../library";
@@ -27,6 +27,8 @@ export default function SongPage() {
   const [karaoke, setKaraoke] = useState(false);
   const [capo, setCapo] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [parts, setParts] = useState<string[]>([]);
+  const [solo, setSolo] = useState<number | null>(null);
   const playerRef = useRef<TunePlayer | null>(null);
 
   const stopPlayback = () => {
@@ -41,6 +43,8 @@ export default function SongPage() {
     setRate(100);
     setKaraoke(false);
     setCapo(0);
+    setParts([]);
+    setSolo(null);
   }, [id]);
 
   const [song, setSong] = useState<Song | null>(null);
@@ -60,6 +64,15 @@ export default function SongPage() {
 
   useEffect(() => { playerRef.current?.setSemitones(audioShift); }, [audioShift]);
   useEffect(() => { playerRef.current?.setRate(rate / 100); }, [rate]);
+  useEffect(() => { playerRef.current?.setSolo(solo); }, [solo]);
+
+  // parts come from the midi itself, so peek at it up front to show the picker before the first play
+  useEffect(() => {
+    if (!song?.midiUrl) return;
+    let stale = false;
+    fetch(song.midiUrl).then(r => r.arrayBuffer()).then(b => { if (!stale) setParts(parseMidi(b).parts); }).catch(() => {});
+    return () => { stale = true; };
+  }, [song?.midiUrl]);
 
   useEffect(() => {
     if (song) {
@@ -109,8 +122,10 @@ export default function SongPage() {
     try {
       const p = playerRef.current || await loadTune(song.midiUrl!);
       playerRef.current = p;
+      setParts(p.parts);
       p.setSemitones(audioShift);
       p.setRate(rate / 100);
+      p.setSolo(solo);
       p.onEnd = () => setPlayState("idle");
       p.play();
       setPlayState("playing");
@@ -229,10 +244,21 @@ export default function SongPage() {
                 <input id="tempo" type="range" min={50} max={150} step={5} value={rate} onChange={e => setRate(Number(e.target.value))} />
                 <span className="tempo-val">{song.bpm ? `${Math.round(song.bpm * rate / 100)} BPM` : `${rate}%`}</span>
               </div>
+              {parts.length > 1 && (
+                <div className="parts-row" data-testid="parts">
+                  <span className="parts-label">{t("Hear a part")}</span>
+                  <div className="parts-btns">
+                    <button className={"part-btn" + (solo === null ? " on" : "")} onClick={() => setSolo(null)}>{t("All")}</button>
+                    {parts.map((name, i) => (
+                      <button key={name} className={"part-btn" + (solo === i ? " on" : "")} onClick={() => setSolo(solo === i ? null : i)}>{t(name)}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {song.lyricsUrl && (
                 <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>{t("Sing along")}</button>
               )}
-              <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there.", { key: keyLabel })}</p>
+              <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there. Pick a part to bring that voice out front on choir tone.", { key: keyLabel })}</p>
             </div>
           )}
 
