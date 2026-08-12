@@ -178,6 +178,14 @@ export default function SongPage() {
               <span className="free-note">{t("Any key, no permission needed")}</span>
             </div>
 
+            {stanzas.length > 2 && (
+              <div className="song-map" aria-label={t("Song structure")}>
+                {stanzas.map((st, i) => (
+                  <button key={i} onClick={() => document.querySelectorAll(".stanza")[i]?.scrollIntoView({ behavior: "smooth", block: "start" })}>{st.label}</button>
+                ))}
+              </div>
+            )}
+
             {stanzas.map((stanza, si) => (
               <section className="stanza" key={si}>
                 <p className="stanza-label">{stanza.label}</p>

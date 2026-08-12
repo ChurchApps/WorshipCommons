@@ -147,6 +147,7 @@ export const es: Record<string, string> = {
   "Loading…": "Cargando…",
   "Free for worship": "Gratis para la adoración",
   "Words and music by": "Letra y música de",
+  "Song structure": "Estructura de la canción",
   "Capo": "Cejilla",
   "No capo": "Sin cejilla",
   "{n} — {root} shapes": "{n} — acordes de {root}",
