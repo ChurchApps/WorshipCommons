@@ -86,7 +86,7 @@ export default function SheetMusic() {
         )}
         <Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
       </div>
-      {abcFailed && <p>{t("No engraved score is available for this song yet.")}</p>}
+      {abcFailed && <p>{t("No engraved score is available for this song yet.")} {song.midiUrl && <Link to={`/songs/${song.id}/transcribe`}>{t("Help transcribe it →")}</Link>}</p>}
       {borrowedTune && !abcFailed && <p className="no-print" style={{ fontSize: 14, color: "#555" }}>{t("This song is sung to a shared tune — the score shows the music without words.")}</p>}
       <div ref={paperRef} data-testid="sheet-paper" />
       {abc && (

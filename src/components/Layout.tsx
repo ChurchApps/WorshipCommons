@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth";
-import { useI18n } from "../i18n";
+import { useI18n, LANGS, Lang } from "../i18n";
 
 function LogoMark() {
   return (
@@ -24,10 +24,10 @@ function LogoMark() {
 function LangToggle() {
   const { lang, setLang } = useI18n();
   return (
-    <span className="lang-toggle" role="group" aria-label="Site language">
-      <button className={lang === "en" ? "on" : ""} aria-pressed={lang === "en"} data-testid="lang-en" onClick={() => setLang("en")}>EN</button>
-      <button className={lang === "es" ? "on" : ""} aria-pressed={lang === "es"} data-testid="lang-es" onClick={() => setLang("es")}>ES</button>
-    </span>
+    <select className="lang-toggle" aria-label="Site language" data-testid="lang-select"
+      value={lang} onChange={e => setLang(e.target.value as Lang)}>
+      {Object.entries(LANGS).map(([code, l]) => <option key={code} value={code}>{l.label}</option>)}
+    </select>
   );
 }
 

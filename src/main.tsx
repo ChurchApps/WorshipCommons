@@ -16,6 +16,7 @@ import Library from "./pages/Library";
 import Login from "./pages/Login";
 import MySongs from "./pages/MySongs";
 import Admin from "./pages/Admin";
+import Transcribe from "./pages/Transcribe";
 import "./styles/style.css";
 
 function NotFound() {
@@ -35,6 +36,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
               <Route path="/songs/:id" element={<SongPage />} />
+              <Route path="/songs/:id/transcribe" element={<Transcribe />} />
               <Route path="/upload" element={<Upload />} />
               <Route path="/license" element={<License />} />
               <Route path="/report" element={<Report />} />

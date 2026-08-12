@@ -110,7 +110,7 @@ test.describe("library", () => {
     const english = songs.filter(s => s.language === "English").length;
     await expect(page.locator("#count")).toContainText(countText(english));
 
-    await page.getByTestId("lang-es").click();
+    await page.getByTestId("lang-select").selectOption("es");
     const spanish = songs.filter(s => s.language === "Spanish");
     await expect(page.locator(".t-row")).toHaveCount(firstPage(spanish.length));
     await expect(page.locator(".t-row", { hasText: "Santo, Santo, Santo" })).toBeVisible();
@@ -118,7 +118,7 @@ test.describe("library", () => {
 
     await page.reload();
     await expect(page.getByRole("heading", { name: "Encuentra lo que tu iglesia va a cantar" })).toBeVisible();
-    await page.getByTestId("lang-en").click();
+    await page.getByTestId("lang-select").selectOption("en");
     await expect(page.locator("#count")).toContainText(countText(english));
   });
 

@@ -1,4 +1,4 @@
-export const es: Record<string, string> = {
+const es: Record<string, string> = {
   // nav & footer
   "Songs": "Canciones",
   "The License": "La licencia",
@@ -35,7 +35,14 @@ export const es: Record<string, string> = {
   "English": "Inglés",
   "Spanish": "Español",
   "German": "Alemán",
+  "French": "Francés",
+  "Portuguese": "Portugués",
+  "Russian": "Ruso",
+  "Hungarian": "Húngaro",
+  "Albanian": "Albanés",
+  "Malayalam": "Malayalam",
   "Latin": "Latín",
+  "Zulu": "Zulú",
 
   // home
   "WorshipCommons — Worship music, set free": "WorshipCommons — Música de adoración, liberada",
@@ -431,3 +438,5 @@ export const es: Record<string, string> = {
   "Password must be at least 8 characters.": "La contraseña debe tener al menos 8 caracteres.",
   "Passwords don’t match.": "Las contraseñas no coinciden."
 };
+
+export default es;

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { loadSongs, Song, themeList } from "../songs";
+import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
@@ -8,6 +9,7 @@ import { useI18n, SONG_LANG } from "../i18n";
 
 const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
+const playableUrl = (s: Song) => s.demoAudioUrl || s.midiUrl;
 
 interface Filters { q: string; themes: Set<string>; key: string; tempo: string; lang: string; lic: string; audio: boolean; mt: boolean; }
 
@@ -35,9 +37,18 @@ export default function Songs() {
   const [facetsOpen, setFacetsOpen] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const tuneRef = useRef<TunePlayer | null>(null);
+  const wantRef = useRef<string | null>(null);
+
+  const stopAll = () => {
+    audioRef.current?.pause();
+    tuneRef.current?.stop();
+    tuneRef.current = null;
+    wantRef.current = null;
+  };
 
   useEffect(() => { loadSongs().then(setSongs); }, []);
-  useEffect(() => () => { audioRef.current?.pause(); }, []);
+  useEffect(() => () => stopAll(), []);
 
   const update = (patch: Partial<Filters>) => { setState(s => ({ ...s, ...patch })); setPage(1); };
 
@@ -101,19 +112,30 @@ export default function Songs() {
   const start = (curPage - 1) * PAGE_SIZE;
   const slice = list.slice(start, start + PAGE_SIZE);
 
-  const togglePlay = (s: Song) => {
-    if (!s.demoAudioUrl) return;
-    if (playingId === s.id) {
-      audioRef.current?.pause();
-      setPlayingId(null);
+  // demo recording if there is one, otherwise the midi tune
+  const togglePlay = async (s: Song) => {
+    const wasPlaying = playingId === s.id;
+    stopAll();
+    setPlayingId(null);
+    if (wasPlaying || !playableUrl(s)) return;
+    setPlayingId(s.id);
+    wantRef.current = s.id;
+    if (s.demoAudioUrl) {
+      const audio = new Audio(s.demoAudioUrl);
+      audio.onended = () => setPlayingId(null);
+      audio.play();
+      audioRef.current = audio;
       return;
     }
-    audioRef.current?.pause();
-    const audio = new Audio(s.demoAudioUrl);
-    audio.onended = () => setPlayingId(null);
-    audio.play();
-    audioRef.current = audio;
-    setPlayingId(s.id);
+    try {
+      const p = await loadTune(s.midiUrl!);
+      if (wantRef.current !== s.id) { p.stop(); return; }  // clicked elsewhere while loading
+      tuneRef.current = p;
+      p.onEnd = () => setPlayingId(null);
+      p.play();
+    } catch {
+      if (wantRef.current === s.id) setPlayingId(null);
+    }
   };
 
   const chips: { label: string; undo: () => void }[] = [];
@@ -231,7 +253,7 @@ export default function Songs() {
               <div>
                 {slice.map(s => (
                   <div className="t-row" key={s.id}>
-                    <button className={"play-btn" + (s.demoAudioUrl ? "" : " mute")} aria-label={s.demoAudioUrl ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => togglePlay(s)}>
+                    <button className={"play-btn" + (playableUrl(s) ? "" : " mute")} aria-label={playableUrl(s) ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => togglePlay(s)}>
                       {playingId === s.id
                         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
                         : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}

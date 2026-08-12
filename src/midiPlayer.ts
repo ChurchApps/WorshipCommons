@@ -1,6 +1,6 @@
 import Soundfont from "soundfont-player";
 
-interface MidiNote { t: number; d: number; n: number; v: number; p: number }
+export interface MidiNote { t: number; d: number; n: number; v: number; p: number; tk: number; dt: number }
 
 const PART_NAMES: Record<number, string[]> = {
   2: ["Treble", "Bass"],
@@ -13,7 +13,7 @@ function namePart(rank: number, total: number) {
   return PART_NAMES[total]?.[rank] || `Part ${rank + 1}`;
 }
 
-export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: number; parts: string[] } {
+export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: number; parts: string[]; tpb: number } {
   const data = new DataView(buf);
   const bytes = new Uint8Array(buf);
   let pos = 0;
@@ -74,7 +74,7 @@ export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: numb
     if (e.on) (open[k] = open[k] || []).push({ tick: e.tick, v: e.v });
     else {
       const start = open[k]?.shift();
-      if (start) notes.push({ t: toSec(start.tick), d: Math.max(toSec(e.tick) - toSec(start.tick), 0.05), n: e.n, v: start.v, p: e.tr });
+      if (start) notes.push({ t: toSec(start.tick), d: Math.max(toSec(e.tick) - toSec(start.tick), 0.05), n: e.n, v: start.v, p: e.tr, tk: start.tick, dt: Math.max(e.tick - start.tick, 1) });
     }
   }
 
@@ -90,7 +90,7 @@ export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: numb
 
   notes.sort((a, b) => a.t - b.t);
   const duration = notes.reduce((m, x) => Math.max(m, x.t + x.d), 0);
-  return { notes, duration, parts };
+  return { notes, duration, parts, tpb };
 }
 
 export interface TunePlayer {

@@ -1,52 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { wcGet, wcPost } from "../api";
+import AbcEditor from "../components/AbcEditor";
 import { Song } from "../songs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 
 interface AdminReport { id: string; songText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
+interface AdminAbcSubmission { id: string; songId: string; abc: string; songTitle: string; createdAt: string; }
+
+// editable so an admin can polish before downloading; the download is what gets
+// committed to the git master in tools/seed-assets/abc/
+function AbcSubmissionCard({ sub, act }: { sub: AdminAbcSubmission; act: (path: string) => void }) {
+  const [abc, setAbc] = useState(sub.abc);
+  const download = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([abc], { type: "text/plain" }));
+    a.download = `${sub.songId}.abc`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  return (
+    <div className="card" style={{ padding: 24, marginBottom: 16 }} data-testid="abc-submission">
+      <h3 style={{ marginBottom: 4 }}>{sub.songTitle}</h3>
+      <p className="hint" style={{ marginBottom: 12 }}>Submitted {new Date(sub.createdAt).toLocaleDateString()}</p>
+      <AbcEditor value={abc} onChange={setAbc} />
+      <p className="hint" style={{ margin: "12px 0" }}>Approving is bookkeeping — download the .abc, commit it to <code>WorshipCommonsApi/tools/seed-assets/abc/</code>, and rerun the tune pipeline.</p>
+      <div style={{ display: "flex", gap: 12 }}>
+        <button className="btn btn-ghost" onClick={download}>Download .abc</button>
+        <button className="btn btn-primary" onClick={() => act(`/admin/abc-submissions/${sub.id}/approve`)}>Approve</button>
+        <button className="btn btn-ghost" onClick={() => act(`/admin/abc-submissions/${sub.id}/reject`)}>Reject</button>
+      </div>
+    </div>
+  );
+}
 
 // curation scratchpad: paste ABC, see the engraving live, copy the fix back to
 // the git master in WorshipCommonsApi/tools/seed-assets/abc/ — nothing is saved here
 function AbcWorkbench() {
   const [text, setText] = useState("");
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const paperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!paperRef.current) return;
-    if (text.trim() === "") { paperRef.current.innerHTML = ""; setWarnings([]); return; }
-    let stale = false;
-    import("abcjs").then(m => {
-      if (stale || !paperRef.current) return;
-      const [tune] = m.default.renderAbc(paperRef.current, text, { responsive: "resize" });
-      setWarnings((tune as any)?.warnings || []);
-    });
-    return () => { stale = true; };
-  }, [text]);
-
   return (
     <section className="section">
       <h2 style={{ marginBottom: 6 }}>ABC workbench</h2>
       <p className="hint" style={{ marginBottom: 16 }}>Live engraving preview for catalog tune edits. Masters live in <code>WorshipCommonsApi/tools/seed-assets/abc/</code> — paste one here, fix it, copy it back. Nothing here is saved.</p>
       <div className="card" style={{ padding: 24 }}>
-        <textarea
-          value={text}
-          onChange={e => setText(e.target.value)}
-          rows={12}
-          placeholder={"X: 1\nT: Title\nM: 4/4\nL: 1/4\nK: D\nD E F G | A4 |\nw: words go here"}
-          spellCheck={false}
-          data-testid="abc-editor"
-          style={{ width: "100%", fontFamily: "monospace", fontSize: "0.8125rem", marginBottom: 16 }}
-        />
-        {warnings.length > 0 && (
-          <ul style={{ color: "var(--secondary)", fontSize: "0.8125rem", marginBottom: 16 }} data-testid="abc-warnings">
-            {warnings.map((w, i) => <li key={i}>{w.replace(/<[^>]+>/g, "")}</li>)}
-          </ul>
-        )}
-        <div ref={paperRef} data-testid="abc-paper" />
+        <AbcEditor value={text} onChange={setText} />
       </div>
     </section>
   );
@@ -66,6 +65,7 @@ export default function Admin() {
   const location = useLocation();
   const [pending, setPending] = useState<Song[] | null>(null);
   const [reports, setReports] = useState<AdminReport[] | null>(null);
+  const [abcSubs, setAbcSubs] = useState<AdminAbcSubmission[] | null>(null);
   const [denied, setDenied] = useState(false);
 
   const load = useCallback(async () => {
@@ -73,9 +73,10 @@ export default function Admin() {
       // first signed-in visitor on a fresh environment becomes the admin
       const boot = await wcPost("/admin/bootstrap", {}, true);
       if (!boot.admin) { setDenied(true); return; }
-      const [songs, reps] = await Promise.all([wcGet("/admin/songs", true), wcGet("/admin/reports", true)]);
+      const [songs, reps, subs] = await Promise.all([wcGet("/admin/songs", true), wcGet("/admin/reports", true), wcGet("/admin/abc-submissions", true)]);
       setPending(songs);
       setReports(reps);
+      setAbcSubs(subs);
     } catch {
       setDenied(true);
     }
@@ -132,6 +133,13 @@ export default function Admin() {
             <button className="btn btn-primary" onClick={() => act(`/admin/reports/${r.id}/resolve`)}>Mark resolved</button>
           </div>
         ))}
+      </section>
+
+      <section className="section">
+        <h2 style={{ marginBottom: 16 }}>ABC submissions</h2>
+        {!abcSubs && <p>Loading…</p>}
+        {abcSubs?.length === 0 && <p className="hint" data-testid="no-abc-submissions">No transcriptions waiting.</p>}
+        {abcSubs?.map(sub => <AbcSubmissionCard key={sub.id} sub={sub} act={act} />)}
       </section>
 
       <AbcWorkbench />
