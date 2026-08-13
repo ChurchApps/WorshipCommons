@@ -133,7 +133,10 @@
 .part-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
 
 /* karaoke sing-along overlay */
-.karaoke { position: fixed; inset: 0; z-index: 100; background: #14101e; color: #cfc8de; display: flex; flex-direction: column; }
+.karaoke { position: fixed; inset: 0; z-index: 100; background: #14101e; color: #cfc8de; display: flex; flex-direction: column; overflow: hidden; }
+/* ponytail: overscan hides the transparent bleed a large blur leaves at the edges; the overlay clips it */
+.karaoke-art { position: fixed; inset: -30px; background-size: cover; background-position: center; filter: blur(22px) saturate(1.4); }
+.karaoke-bar, .karaoke-scroll { position: relative; }
 .karaoke-bar { display: flex; align-items: center; gap: 18px; padding: 14px 22px; background: rgba(0,0,0,0.35); flex-wrap: wrap; }
 .karaoke-ctl { display: flex; align-items: center; gap: 8px; }
 .karaoke-ctl label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #8f86a8; }

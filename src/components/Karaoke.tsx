@@ -93,6 +93,12 @@ export default function Karaoke({ song, audioShift, rate, onRateChange, selRoot,
   let wordIdx = -1, lineIdx = -1;
   return (
     <div className="karaoke" data-testid="karaoke">
+      {song.artUrl && (
+        <div
+          className="karaoke-art"
+          style={{ backgroundImage: `linear-gradient(rgba(20,16,30,0.62), rgba(20,16,30,0.62)), url(${song.artUrl})` }}
+        />
+      )}
       <div className="karaoke-bar">
         <button className="btn btn-primary" data-testid="karaoke-play" disabled={!ready} onClick={toggle}>
           {!ready ? t("Loading…") : playing ? t("❚❚ Pause") : t("▶ Play")}
