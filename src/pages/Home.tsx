@@ -1,12 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { loadSongs, Song } from "../songs";
+import { loadSongs, Song, themeList } from "../songs";
+import { coverSvg } from "../cover.mjs";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 
 const PlayIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+);
+
+const NoteIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" /></svg>
+);
+
+const GlobeIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" /></svg>
+);
+
+const PeopleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /></svg>
+);
+
+const ShieldIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6z" /><path d="M9 12h6M12 9v6" /></svg>
+);
+
+const PenIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z" /></svg>
+);
+
+const ArrowIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 );
 
 const CheckIcon = () => (
@@ -52,25 +77,53 @@ export default function Home() {
               <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
               <a href="#writers" className="btn btn-ghost">{t("I write songs")}</a>
             </div>
-            <p className="hero-proof rise rise-3"><strong>{stats.songs > 0 ? t("{count} songs", { count: stats.songs.toLocaleString() }) : t("Hundreds of songs")}</strong> {t("free for your church to sing, in {langs}", { langs: stats.langs > 1 ? t("{count} languages", { count: stats.langs }) : t("any language") })}</p>
+            <p className="hero-proof rise rise-3">
+              <span><NoteIcon /><strong>{stats.songs > 0 ? t("{count} songs", { count: stats.songs.toLocaleString() }) : t("Hundreds of songs")}</strong> {t("free for your church to use")}</span>
+              <span><GlobeIcon /><strong>{t("{count} languages", { count: stats.langs })}</strong></span>
+            </p>
           </div>
-          <div className="card-stack rise rise-3" aria-hidden="true">
-            {top.slice(0, 3).map((s, i) => (
-              <div className={`song-card sc${i + 1}`} key={s.id}>
-                <button className="play-btn" aria-label={t("Play {title}", { title: s.title })}><PlayIcon /></button>
-                <div><b>{s.title}</b><span>{s.writer} · {t("Key of {key}", { key: s.songKey })}</span></div>
-                <span className="free-badge">{t("Free")}</span>
-              </div>
-            ))}
+          <div className="hero-panel rise rise-3">
+            <div className="hp-head">
+              <Link className="hp-search" to="/songs">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                {t("Search {count} songs…", { count: stats.songs.toLocaleString() })}
+              </Link>
+              <Link className="hp-filters" to="/songs">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4" /></svg>
+                {t("Filters")}
+              </Link>
+            </div>
+            <ul className="hp-list">
+              {top.slice(0, 5).map((s, i) => (
+                <li key={s.id} className={i === 0 ? "on" : ""}>
+                  <Link to={`/songs/${s.id}`}>
+                    {i === 0 && <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>}
+                    {s.artUrl
+                      ? <span className="hp-cover"><img src={s.artUrl} alt="" loading="lazy" /></span>
+                      : <span className="hp-cover" aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 88, 88) }} />}
+                    <span className="hp-main"><b>{s.title}</b><span>{s.writer} • {s.year}</span></span>
+                    <span className="hp-themes">{themeList(s).slice(0, 2).map(th => <span className="th" key={th}>{th}</span>)}</span>
+                    <span className="hp-key">{s.songKey}</span>
+                    <span className="hp-bpm">{s.bpm}</span>
+                    {s.license === "WC"
+                      ? <span className="free-badge">{t("Free")}</span>
+                      : <span className="hp-pd" title={t("Public domain")}><GlobeIcon size={15} /></span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link className="hp-all" to="/songs">{t("Browse all songs")}<ArrowIcon /></Link>
           </div>
         </div>
       </section>
 
-      <div className="ticker" aria-hidden="true">
-        <div className="ticker-track">
-          {[0, 1].map(pass => top.map(s => (
-            <span key={pass + s.id}>{s.title} <b>· {s.songKey} ·</b></span>
-          )))}
+      <div className="trust-bar">
+        <div className="wrap">
+          <span><PeopleIcon />{t("Free for churches worldwide")}</span>
+          <span><ShieldIcon />{t("Public domain & copyright-cleared songs")}</span>
+          <span><PenIcon />{t("Writers keep all commercial rights")}</span>
+          <span><GlobeIcon size={18} />{t("{count} languages and growing", { count: stats.langs })}</span>
+          <span><NoteIcon />{t("{count} songs and counting", { count: stats.songs.toLocaleString() })}</span>
         </div>
       </div>
 
@@ -85,16 +138,19 @@ export default function Home() {
               <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg></div>
               <h3>{t("Free for your church")}</h3>
               <p>{t("Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. Forever, everywhere, at no cost.")}</p>
+              <Link className="pillar-link" to="/license">{t("Learn more")}<ArrowIcon /></Link>
             </div>
             <div className="card card-hover pillar animate-on-scroll">
               <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" /></svg></div>
               <h3>{t("Writers keep the rest")}</h3>
               <p>{t("Albums, streaming royalties, sync, radio, concerts — every commercial right stays with the songwriter. Generosity shouldn't cost a career.")}</p>
+              <a className="pillar-link" href="#writers">{t("How it works")}<ArrowIcon /></a>
             </div>
             <div className="card card-hover pillar animate-on-scroll">
               <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></div>
               <h3>{t("Built by the church")}</h3>
               <p>{t("Songs come from worship leaders and writers who want them sung. Popularity comes from congregations, not algorithms.")}</p>
+              <Link className="pillar-link" to="/songs">{t("Explore the library")}<ArrowIcon /></Link>
             </div>
           </div>
         </div>

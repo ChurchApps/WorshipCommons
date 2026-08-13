@@ -23,12 +23,17 @@ function LogoMark() {
 
 function LangToggle() {
   const { lang, setLang } = useI18n();
-  // ponytail: stopPropagation keeps the mobile menu from closing (display:none) under the open picker
+  // ponytail: the native select stays — it just sits invisible over the globe + code face
   return (
-    <select className="lang-toggle" aria-label="Site language" data-testid="lang-select"
-      value={lang} onClick={e => e.stopPropagation()} onChange={e => setLang(e.target.value as Lang)}>
-      {Object.entries(LANGS).map(([code, l]) => <option key={code} value={code}>{l.label}</option>)}
-    </select>
+    <span className="lang-picker">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" /></svg>
+      <b>{lang.toUpperCase()}</b>
+      {/* stopPropagation keeps the mobile menu from closing (display:none) under the open picker */}
+      <select className="lang-toggle" aria-label="Site language" data-testid="lang-select"
+        value={lang} onClick={e => e.stopPropagation()} onChange={e => setLang(e.target.value as Lang)}>
+        {Object.entries(LANGS).map(([code, l]) => <option key={code} value={code}>{l.label}</option>)}
+      </select>
+    </span>
   );
 }
 
@@ -50,8 +55,8 @@ export default function Layout() {
             <li><NavLink to="/report">{t("Report")}</NavLink></li>
             {user && <li><NavLink to="/my-songs" data-testid="my-songs">{t("My songs")}</NavLink></li>}
             {user
-              ? <li><button className="nav-signout" data-testid="sign-out" onClick={logout}>{t("Sign out ({name})", { name: user.firstName })}</button></li>
-              : <li><NavLink to="/login" data-testid="sign-in">{t("Sign in")}</NavLink></li>}
+              ? <li className="nav-actions"><button className="nav-signout" data-testid="sign-out" onClick={logout}>{t("Sign out ({name})", { name: user.firstName })}</button></li>
+              : <li className="nav-actions"><NavLink to="/login" className="nav-signin" data-testid="sign-in">{t("Sign in")}</NavLink></li>}
             <li><LangToggle /></li>
             <li><Link to="/upload" className="btn btn-primary">{t("Share a song")}</Link></li>
           </ul>

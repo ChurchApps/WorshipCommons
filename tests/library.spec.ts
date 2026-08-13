@@ -49,6 +49,7 @@ test.describe("library", () => {
   test("theme facet filters and its chip removes the filter", async ({ page }) => {
     await openLibrary(page);
     const advent = songs.filter(s => themeOf(s).includes("Advent")).length;
+    await page.getByRole("button", { name: "Show more" }).click();  // the theme facet lists the top 5 until expanded
     await page.getByLabel(/^ Advent/).check();
     await expect(page.locator("#count")).toContainText(countText(advent));
     await expect(page.locator(".t-row", { hasText: "O Come, O Come, Emmanuel" })).toBeVisible();

@@ -15,6 +15,30 @@ import "../styles/song.css";
 
 const youTubeId = (url?: string) => url?.match(/[?&]v=([\w-]{11})/)?.[1];
 
+const ArrowLeft = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+);
+
+const ArrowRight = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+);
+
+const FileIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></svg>
+);
+
+const InfoIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
+);
+
+const ChipIcon = ({ d }: { d: string }) => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
+);
+const KEY_PATH = "M15.5 4a4.5 4.5 0 1 0-4.24 6L4 17.26V20h3v-2h2v-2h2l1.99-1.99A4.5 4.5 0 0 0 15.5 4z";
+const BPM_PATH = "M12 21a8 8 0 1 1 8-8M12 8v4l3 2";
+const TIME_PATH = "M4 6h16M4 12h16M4 18h10";
+const TAG_PATH = "M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9zM8 8h.01";
+
 export default function SongPage() {
   const { t } = useI18n();
   const { id } = useParams();
@@ -32,6 +56,7 @@ export default function SongPage() {
   const [karaoke, setKaraoke] = useState(false);
   const [capo, setCapo] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [textSize, setTextSize] = useState(1);
   const [parts, setParts] = useState<string[]>([]);
   const [solo, setSolo] = useState<number | null>(null);
   const playerRef = useRef<TunePlayer | null>(null);
@@ -122,6 +147,9 @@ export default function SongPage() {
     return FLAT_KEYS.has(FLAT[idx]) ? FLAT[idx] : SHARP[idx];
   };
   const useFlats = FLAT_KEYS.has(shapeRootAt(capo));
+  // ± stepper walks the same 12 roots the key select offers
+  const bumpKey = (n: number) => setSelectedKey(shapeRootAt(-n) + keySuffix);
+  const signedShift = shift > 6 ? shift - 12 : shift;
   const dispShift = (shift - capo + 12) % 12;
   const keyLabel = selectedKey || song.songKey;
 
@@ -180,42 +208,64 @@ export default function SongPage() {
 
   return (
     <main className="wrap">
-      <p className="crumb"><Link to="/songs">{t("← All songs")}</Link></p>
+      <p className="crumb">
+        <Link to="/songs"><ArrowLeft />{t("All songs")}</Link>
+        <span aria-hidden="true">/</span>
+        <span className="crumb-here">{song.title}</span>
+      </p>
 
       <div className="song-layout">
-        <article className={"card sheet" + (showChords ? "" : " hide-chords")}>
+        <article className={"card sheet t" + textSize + (showChords ? "" : " hide-chords")}>
           <div className="hero-art">
-            <div className="hero-cover" dangerouslySetInnerHTML={{ __html: coverSvg(song, 900, 300) }} />
+            {song.artUrl
+              ? <div className="hero-cover"><img src={song.artUrl} alt="" /></div>
+              : <div className="hero-cover" dangerouslySetInnerHTML={{ __html: coverSvg(song, 900, 300) }} />}
             <div className="hero-scrim">
-              <span>{song.license === "WC" ? <span className="free-badge">{t("Free for worship")}</span> : <span className="pd-badge on-art">{t("Public domain")}</span>}</span>
-              <h1 className="song-title">{song.title}</h1>
-              <p className="byline">{t("Words and music by")} <Link to={`/songs?q=${encodeURIComponent(song.writer)}`}>{song.writer}</Link> · {song.year}</p>
+              <span className="hero-badge">{song.license === "WC" ? <span className="free-badge">{t("Free for worship")}</span> : <span className="pd-badge on-art">{t("Public domain")}</span>}</span>
+              <div>
+                <h1 className="song-title">{song.title}</h1>
+                <p className="byline">{t("Words and music by")} <Link to={`/songs?q=${encodeURIComponent(song.writer)}`}>{song.writer}</Link> · {song.year}</p>
+                <div className="meta-chips">
+                  <span className="s-tag"><ChipIcon d={KEY_PATH} />{t("Key")} <b id="key-label">{keyLabel}</b></span>
+                  <span className="s-tag"><ChipIcon d={BPM_PATH} /><b>{song.bpm}</b> BPM</span>
+                  <span className="s-tag"><ChipIcon d={TIME_PATH} /><b>{song.timeSignature}</b></span>
+                  {themeList(song).map(th => <Link className="s-tag" key={th} to={`/songs?theme=${encodeURIComponent(th)}`}><ChipIcon d={TAG_PATH} />{th}</Link>)}
+                </div>
+              </div>
             </div>
           </div>
           <div className="sheet-body">
             {song.scriptureText && <p className="epigraph"><b>{song.scriptureText.replace(/ — .*$/, "")}</b> — {song.scripture}</p>}
-            <div className="meta-chips">
-              <span className="s-tag">{t("Key")} <b id="key-label">{keyLabel}</b></span>
-              <span className="s-tag"><b>{song.bpm}</b> BPM</span>
-              <span className="s-tag"><b>{song.timeSignature}</b></span>
-              {themeList(song).map(th => <Link className="s-tag" key={th} to={`/songs?theme=${encodeURIComponent(th)}`}>{th}</Link>)}
-            </div>
 
-            <div className="toolbar">
-              <span><label htmlFor="transpose">{t("Key")}</label>
+            <div className="controls">
+              <div className="ctl"><label htmlFor="transpose">{t("Key")}</label>
                 <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
                   {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
                 </select>
-              </span>
-              <span><label htmlFor="capo">{t("Capo")}</label>
+              </div>
+              <div className="ctl"><label htmlFor="capo">{t("Capo")}</label>
                 <select id="capo" value={capo} onChange={e => setCapo(Number(e.target.value))}>
                   <option value={0}>{t("No capo")}</option>
                   {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: shapeRootAt(n) + keySuffix })}</option>)}
                 </select>
-              </span>
-              <label className="chk"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>
+              </div>
+              <div className="ctl"><label id="transpose-label">{t("Transpose")}</label>
+                <div className="stepper" role="group" aria-labelledby="transpose-label">
+                  <button onClick={() => bumpKey(-1)} aria-label="−1">−</button>
+                  <span>{signedShift > 0 ? `+${signedShift}` : signedShift}</span>
+                  <button onClick={() => bumpKey(1)} aria-label="+1">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="controls-2">
+              <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>
               <button className="btn btn-ghost copy-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
-              <span className="free-note">{t("Any key, no permission needed")}</span>
+              <div className="text-size" role="group" aria-label={t("Text size")}>
+                {[t("Small"), t("Medium"), t("Large")].map((label, i) => (
+                  <button key={i} className={textSize === i ? "on" : ""} aria-label={label} aria-pressed={textSize === i} onClick={() => setTextSize(i)}>A</button>
+                ))}
+              </div>
             </div>
 
             {stanzas.length > 2 && (
@@ -242,11 +292,14 @@ export default function SongPage() {
               </section>
             ))}
 
-            <p className="colophon">
-              {song.license === "WC"
-                ? <>© {song.year} {song.writer} · {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                : t("Public domain — free for any use, anywhere, forever.")}
-            </p>
+            <div className="license-note">
+              <InfoIcon />
+              <p>
+                {song.license === "WC"
+                  ? <>© {song.year} {song.writer} · {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+                  : t("Public domain — free for any use, anywhere, forever.")}
+              </p>
+            </div>
           </div>
         </article>
 
@@ -336,14 +389,14 @@ export default function SongPage() {
           <div className="card side-card">
             <h2>{t("Take it to Sunday")}</h2>
             <ul className="dl-list">
-              <li><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
-              {song.abcUrl && <li><Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="size">{t("melody & parts")} · {keyLabel}</span></li>}
-              {!song.abcUrl && song.midiUrl && <li><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></li>}
-              {song.sheetPdfUrl && <li><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
-              {song.midiUrl && <li><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
-              {song.abcUrl && <li><a href={song.abcUrl} download>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
-              <li><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
-              <li><a href={`${WC_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
+              <li><FileIcon /><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
+              {song.abcUrl && <li><FileIcon /><Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="size">{t("melody & parts")} · {keyLabel}</span></li>}
+              {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></li>}
+              {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
+              {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
+              {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
+              <li><FileIcon /><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
+              <li><FileIcon /><a href={`${WC_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>
           </div>
 
@@ -362,15 +415,15 @@ export default function SongPage() {
               <h2>{t("In the commons")}</h2>
               {(parent || related.length > 0) && (
                 <ul className="rel-list">
-                  {parent && <li><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></li>}
-                  {related.map(r => <li key={r.id}><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{r.relationLabel || `${r.writer}, ${r.year}`}</span></li>)}
+                  {parent && <li><div><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></div><ArrowRight /></li>}
+                  {related.map(r => <li key={r.id}><div><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{r.relationLabel || `${r.writer}, ${r.year}`}</span></div><ArrowRight /></li>)}
                 </ul>
               )}
               {similar.length > 0 && (
                 <>
                   <p className="rel-sub">{t("Similar songs")}</p>
                   <ul className="rel-list" data-testid="similar-songs">
-                    {similar.map(s => <li key={s.id}><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {themeList(s).find(th => myThemes.has(th))}</span></li>)}
+                    {similar.map(s => <li key={s.id}><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {themeList(s).find(th => myThemes.has(th))}</span></div><ArrowRight /></li>)}
                   </ul>
                 </>
               )}
