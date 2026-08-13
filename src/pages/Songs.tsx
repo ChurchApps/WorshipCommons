@@ -101,7 +101,8 @@ export default function Songs() {
   // "OR within a facet, AND across facets" — skip excludes a facet so its own counts stay live
   const matches = (s: Song, skip?: string) => {
     const th = themeList(s);
-    return (skip === "q" || !state.q || (s.title + " " + s.writer + " " + s.scripture + " " + s.themes).toLowerCase().includes(state.q)) &&
+    const q = state.q.trim().toLowerCase();
+    return (skip === "q" || !q || (s.title + " " + s.writer + " " + s.scripture + " " + s.themes).toLowerCase().includes(q)) &&
       (skip === "themes" || !state.themes.size || th.some(t => state.themes.has(t))) &&
       (skip === "key" || !state.key || s.songKey === state.key) &&
       (skip === "tempo" || !state.tempo || tempoBucket(s.bpm) === state.tempo) &&
@@ -199,7 +200,7 @@ export default function Songs() {
           <div className="search-bar" role="search">
             <div className="search-wrap">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-              <input ref={searchRef} type="text" id="q" value={state.q} onChange={e => update({ q: e.target.value.trim().toLowerCase() })} placeholder={t("Search {count} songs by title, lyric, theme, scripture, or writer", { count: (songs.length || "").toLocaleString() })} aria-label={t("Search songs")} />
+              <input ref={searchRef} type="text" id="q" value={state.q} onChange={e => update({ q: e.target.value })} placeholder={t("Search {count} songs by title, lyric, theme, scripture, or writer", { count: (songs.length || "").toLocaleString() })} aria-label={t("Search songs")} />
               <kbd aria-hidden="true">/</kbd>
             </div>
             <div className="search-sort">
