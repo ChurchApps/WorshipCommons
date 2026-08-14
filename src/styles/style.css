@@ -131,7 +131,7 @@ fieldset { border: 0; }
 /* ===== responsive ===== */
 @media (max-width: 820px) {
   .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); flex: none; flex-direction: column; padding: 24px; gap: 18px; border-bottom: 1px solid var(--border); }
-  .nav-actions { margin-left: 0; }
+  .nav-actions, .nav-menu > li:first-child { margin-left: 0; }
   .nav-menu.open { display: flex; }
   .nav-toggle { display: block; }
   .field-row { grid-template-columns: 1fr; }

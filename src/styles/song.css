@@ -117,7 +117,10 @@
   @media (max-width: 920px) {
     .song-layout { grid-template-columns: 1fr; }
     .sheet-body { padding: 20px 22px 28px; }
-    .hero-scrim { padding: 18px 22px 14px; }
+    /* aspect-ratio transfers min-height into a 650px min-width, overflowing narrow cards —
+       let the scrim content size the hero instead */
+    .hero-art { aspect-ratio: auto; }
+    .hero-scrim { position: relative; inset: auto; padding: 18px 22px 14px; }
   }
 
 .tempo-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
