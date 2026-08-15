@@ -72,7 +72,7 @@ export default function Home() {
               {t("An open library of worship music")}
             </span>
             <h1 className="rise">{t("Worship music,")} <span className="hl">{t("set free.")}</span></h1>
-            <p className="lede rise rise-2">{t("Every song here is free for your church to sing — project it, print it, change the key, stream it. No subscriptions, no reporting, no strings. Writers keep all the commercial rights.")}</p>
+            <p className="lede rise rise-2">{t("Every song here is free for your church to sing — project it, print it, change the key, stream it. No subscriptions, no reporting. Writers keep all the commercial rights.")}</p>
             <div className="hero-ctas rise rise-2">
               <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
               <a href="#writers" className="btn btn-ghost">{t("I write songs")}</a>
@@ -119,8 +119,8 @@ export default function Home() {
 
       <div className="trust-bar">
         <div className="wrap">
-          <span><PeopleIcon />{t("Free for churches worldwide")}</span>
-          <span><ShieldIcon />{t("Public domain & copyright-cleared songs")}</span>
+          <span><PeopleIcon />{t("Free for churches")}</span>
+          <span><ShieldIcon />{t("Public domain songs")}</span>
           <span><PenIcon />{t("Writers keep all commercial rights")}</span>
           <span><GlobeIcon size={18} />{t("{count} languages and growing", { count: stats.langs })}</span>
           <span><NoteIcon />{t("{count} songs and counting", { count: stats.songs.toLocaleString() })}</span>
@@ -137,7 +137,7 @@ export default function Home() {
             <div className="card card-hover pillar animate-on-scroll">
               <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg></div>
               <h3>{t("Free for your church")}</h3>
-              <p>{t("Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. Forever, everywhere, at no cost.")}</p>
+              <p>{t("Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. No reporting, no subscription.")}</p>
               <Link className="pillar-link" to="/license">{t("Learn more")}<ArrowIcon /></Link>
             </div>
             <div className="card card-hover pillar animate-on-scroll">

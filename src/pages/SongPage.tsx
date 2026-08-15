@@ -366,7 +366,7 @@ export default function SongPage() {
                   {song.writerBio && <p className="writer-bio">{song.writerBio}</p>}
                 </div>
               </div>
-              <p className="writer-src">{t("Public-domain portrait & bio via Wikipedia.")}</p>
+              <p className="writer-src">{t("Portrait & bio via Wikipedia (CC BY-SA).")}</p>
             </div>
           )}
 

@@ -37,7 +37,7 @@ function FacetGroup({ title, children }: { title: string; children: ReactNode })
 
 export default function Songs() {
   const { t, lang } = useI18n();
-  usePageMeta(t("Song library — WorshipCommons"), t("Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key, no licenses needed."));
+  usePageMeta(t("Song library — WorshipCommons"), t("Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key."));
   const [params] = useSearchParams();
   const [songs, setSongs] = useState<Song[]>([]);
   const [state, setState] = useState<Filters>(() => ({
