@@ -99,7 +99,7 @@ export default function Home() {
                   <Link to={`/songs/${s.id}`}>
                     {i === 0 && <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>}
                     {s.artUrl
-                      ? <span className="hp-cover"><img src={s.artUrl} alt="" loading="lazy" /></span>
+                      ? <span className="hp-cover"><img src={s.artUrl.replace(/art\.webp$/, "art-thumb.webp")} alt="" loading="lazy" /></span>
                       : <span className="hp-cover" aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 88, 88) }} />}
                     <span className="hp-main"><b>{s.title}</b><span>{s.writer} • {s.year}</span></span>
                     <span className="hp-themes">{themeList(s).slice(0, 2).map(th => <span className="th" key={th}>{th}</span>)}</span>
