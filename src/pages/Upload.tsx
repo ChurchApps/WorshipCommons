@@ -178,7 +178,7 @@ export default function Upload() {
               <input type="radio" name="license" value="wc" checked={form.license === "wc"} onChange={() => set("license", "wc")} />
               <span>
                 <strong>{t("Free for worship")}</strong> <span className="free-badge">{t("Recommended")}</span>
-                <p>{t("Churches sing it free, forever. You keep every commercial right — recordings, sheet-music sales, sync, concerts, radio.")} <Link to="/license">{t("Read the license — it fits on one page.")}</Link></p>
+                <p>{t("Churches sing it free, forever. You keep every commercial right — recordings, sheet-music sales, sync, concerts, radio.")} <Link to="/license">{t("Read the license.")}</Link></p>
               </span>
             </label>
             <label className="choice">
@@ -207,7 +207,7 @@ export default function Upload() {
             <div className="certify">
               <input type="checkbox" id="certify" required checked={form.certified} onChange={e => set("certified", e.target.checked)} />
               <label htmlFor="certify" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
-                <em>{t("I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. By submitting, I grant worshippers everywhere the license I chose above, and I grant WorshipCommons permission to host these files, convert and transpose them, and deliver them to churches. If my promise turns out to be wrong, that’s on me — not the churches that trusted it.")}</em>
+                <em>{t("I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.")}</em>
                 <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</span>
               </label>
             </div>

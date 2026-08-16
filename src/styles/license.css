@@ -36,6 +36,15 @@
   details[open] summary::after { content: '–'; }
   details > p { padding: 0 24px 20px; color: var(--text-2); font-size: 0.9563rem; max-width: 70ch; }
 
+  .legal { margin-top: 20px; padding: 8px 34px 30px; }
+  .legal > summary { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); padding: 22px 0 12px; }
+  .legal > summary::after { font-size: 1.25rem; }
+  .legal > .note { padding: 0 0 16px; margin: 0; max-width: none; }
+  .legal-body { font-size: 0.9688rem; line-height: 1.7; color: var(--text-2); }
+  .legal-body h4 { font-family: var(--font-heading); font-size: 0.875rem; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); margin: 22px 0 10px; }
+  .legal-body h4:first-child { margin-top: 0; font-size: 1.0625rem; letter-spacing: 0; }
+  .legal-body p + p { margin-top: 12px; }
+
   @media (max-width: 820px) {
     .split { grid-template-columns: 1fr; }
     .big-quote { padding: 44px 24px; }
