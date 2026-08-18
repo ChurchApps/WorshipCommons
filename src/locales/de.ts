@@ -75,7 +75,7 @@ const de: Record<string, string> = {
   "One simple idea": "Eine einfache Idee",
   "Music made for worship should be free to use in worship — and songwriters should still make a living from everything else.": "Musik, die für den Lobpreis gemacht ist, sollte im Lobpreis kostenlos sein — und Liedautoren sollten von allem anderen weiterhin leben können.",
   "Free for your church": "Kostenlos für deine Gemeinde",
-  "Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. No reporting, no subscription.": "Leinwände, Gemeindebriefe, neue Tonarten, Übersetzungen, Livestreams — wenn es im Lobpreis geschieht, ist es abgedeckt. Für immer, überall, kostenlos.",
+  "Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. No reporting, no subscription.": "Leinwände, Gemeindebriefe, neue Tonarten, Übersetzungen, Livestreams — wenn es im Lobpreis geschieht, ist es abgedeckt. Keine Meldungen, kein Abo.",
   "Writers keep the rest": "Die Autoren behalten den Rest",
   "Albums, streaming royalties, sync, radio, concerts — every commercial right stays with the songwriter. Generosity shouldn't cost a career.": "Alben, Streaming-Tantiemen, Sync, Radio, Konzerte — jedes kommerzielle Recht bleibt beim Liedautor. Großzügigkeit sollte keine Karriere kosten.",
   "Built by the church": "Von der Gemeinde gebaut",
@@ -112,7 +112,7 @@ const de: Record<string, string> = {
 
   // library
   "Song library — WorshipCommons": "Liederbibliothek — WorshipCommons",
-  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Suche kostenlose Lobpreislieder nach Thema, Bibelstelle, Tonart, Tempo oder Sprache. Akkordblätter und Texte in jeder Tonart, ohne Lizenzen.",
+  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Suche kostenlose Lobpreislieder nach Thema, Bibelstelle, Tonart, Tempo oder Sprache. Akkordblätter und Texte in jeder Tonart.",
   "The library": "Die Bibliothek",
   "Find what your church will sing": "Finde, was deine Gemeinde singen wird",
   "Discover and license the best songs for your services.": "Entdecke und lizenziere die besten Lieder für eure Gottesdienste.",

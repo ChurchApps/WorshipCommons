@@ -112,7 +112,7 @@ const fr: Record<string, string> = {
 
   // library
   "Song library — WorshipCommons": "Bibliothèque de chants — WorshipCommons",
-  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Cherchez des chants de louange gratuits par thème, passage biblique, tonalité, tempo ou langue. Grilles d’accords et paroles dans toutes les tonalités, sans licence.",
+  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Cherchez des chants de louange gratuits par thème, passage biblique, tonalité, tempo ou langue. Grilles d’accords et paroles dans toutes les tonalités.",
   "The library": "La bibliothèque",
   "Find what your church will sing": "Trouvez ce que votre église va chanter",
   "Discover and license the best songs for your services.": "Découvrez et obtenez la licence des meilleurs chants pour vos cultes.",
