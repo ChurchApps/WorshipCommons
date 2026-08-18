@@ -75,7 +75,7 @@ const de: Record<string, string> = {
   "One simple idea": "Eine einfache Idee",
   "Music made for worship should be free to use in worship — and songwriters should still make a living from everything else.": "Musik, die für den Lobpreis gemacht ist, sollte im Lobpreis kostenlos sein — und Liedautoren sollten von allem anderen weiterhin leben können.",
   "Free for your church": "Kostenlos für deine Gemeinde",
-  "Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. No reporting, no subscription.": "Leinwände, Gemeindebriefe, neue Tonarten, Übersetzungen, Livestreams — wenn es im Lobpreis geschieht, ist es abgedeckt. Für immer, überall, kostenlos.",
+  "Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. No reporting, no subscription.": "Leinwände, Gemeindebriefe, neue Tonarten, Übersetzungen, Livestreams — wenn es im Lobpreis geschieht, ist es abgedeckt. Keine Meldungen, kein Abo.",
   "Writers keep the rest": "Die Autoren behalten den Rest",
   "Albums, streaming royalties, sync, radio, concerts — every commercial right stays with the songwriter. Generosity shouldn't cost a career.": "Alben, Streaming-Tantiemen, Sync, Radio, Konzerte — jedes kommerzielle Recht bleibt beim Liedautor. Großzügigkeit sollte keine Karriere kosten.",
   "Built by the church": "Von der Gemeinde gebaut",
@@ -112,7 +112,7 @@ const de: Record<string, string> = {
 
   // library
   "Song library — WorshipCommons": "Liederbibliothek — WorshipCommons",
-  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Suche kostenlose Lobpreislieder nach Thema, Bibelstelle, Tonart, Tempo oder Sprache. Akkordblätter und Texte in jeder Tonart, ohne Lizenzen.",
+  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Suche kostenlose Lobpreislieder nach Thema, Bibelstelle, Tonart, Tempo oder Sprache. Akkordblätter und Texte in jeder Tonart.",
   "The library": "Die Bibliothek",
   "Find what your church will sing": "Finde, was deine Gemeinde singen wird",
   "Discover and license the best songs for your services.": "Entdecke und lizenziere die besten Lieder für eure Gottesdienste.",
@@ -191,7 +191,7 @@ const de: Record<string, string> = {
   "Any key, no permission needed": "Jede Tonart, ohne um Erlaubnis zu fragen",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "Geteilt über WorshipCommons — überall und immer kostenlos für den Lobpreis. Die kommerzielle Nutzung bleibt beim Autor.",
   "How that works": "Wie das funktioniert",
-  "Public domain — free for any use, anywhere, forever.": "Gemeinfrei — frei für jede Nutzung, überall, für immer.",
+  "Public domain. Free for churches.": "Gemeinfrei. Kostenlos für Gemeinden.",
   "Listen": "Anhören",
   "▶ Play piano": "▶ Klavier abspielen",
   "■ Stop": "■ Stopp",
@@ -254,7 +254,7 @@ const de: Record<string, string> = {
   "All parts": "Alle Stimmen",
   "No engraved score is available for this song yet.": "Für dieses Lied gibt es noch keinen gesetzten Notensatz.",
   "This song is sung to a shared tune — the score shows the music without words.": "Dieses Lied wird auf eine geteilte Melodie gesungen — die Noten zeigen die Musik ohne Text.",
-  "Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.": "In deinem Browser aus dem Notensatz des Open Hymnal Project gesetzt — gemeinfrei, frei für jede Nutzung.",
+  "Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.": "In deinem Browser aus dem Notensatz des Open Hymnal Project gesetzt — gemeinfrei. Kostenlos für Gemeinden.",
 
   // license page
   "The WorshipCommons License — WorshipCommons": "Die WorshipCommons-Lizenz — WorshipCommons",
@@ -317,7 +317,7 @@ const de: Record<string, string> = {
   "Our worship band got invited to a ticketed festival. Covered?": "Unsere Lobpreisband wurde zu einem Festival mit Eintritt eingeladen. Abgedeckt?",
   "That’s a concert, not a service — ask the writer, exactly as you would for any song. The license is careful to bless worship without quietly becoming a free commercial license.": "Das ist ein Konzert, kein Gottesdienst — fragt den Autor, genau wie bei jedem anderen Lied. Die Lizenz segnet den Lobpreis bewusst, ohne heimlich zu einer kostenlosen kommerziellen Lizenz zu werden.",
   "What’s the difference between “Free” and “Public domain” here?": "Was ist hier der Unterschied zwischen „Kostenlos“ und „Gemeinfrei“?",
-  "A public-domain song is free for every purpose, commercial included — the hymns fall here. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "Ein gemeinfreies Lied ist für jeden Zweck frei, auch kommerziell — dazu gehören die Choräle. Ein „kostenloses“ (WorshipCommons-)Lied ist für den Lobpreis kostenlos, während der Autor die kommerziellen Rechte behält. Die Bibliothek kennzeichnet jedes Lied.",
+  "A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "Ein gemeinfreies Lied ist in den Vereinigten Staaten gemeinfrei — kostenlos für Gemeinden. Ein „kostenloses“ (WorshipCommons-)Lied ist für den Lobpreis kostenlos, während der Autor die kommerziellen Rechte behält. Die Bibliothek kennzeichnet jedes Lied.",
   "I co-wrote my song with someone. Can I add it?": "Ich habe mein Lied mit jemandem zusammen geschrieben. Kann ich es hinzufügen?",
   "Only with every co-writer’s (and your publisher’s, if you have one) agreement. The upload promise is made on behalf of everyone with a stake in the song.": "Nur mit dem Einverständnis jedes Mitautors (und deines Verlags, falls du einen hast). Das Upload-Versprechen wird im Namen aller abgegeben, die Anteil an dem Lied haben.",
 
@@ -397,7 +397,7 @@ const de: Record<string, string> = {
   "No — nobody else administers my songs": "Nein — niemand sonst verwaltet meine Lieder",
   "Yes — ASCAP, BMI, or SESAC": "Ja — ASCAP, BMI oder SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "Ja — GEMA, PRS oder eine andere Gesellschaft außerhalb der USA",
-  "Yes — CCLI or a publisher administers this song": "Ja — CCLI oder ein Verlag verwaltet dieses Lied",
+  "Yes — a publisher or licensing admin administers this song": "Ja — ein Verlag oder eine Lizenzverwaltung verwaltet dieses Lied",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "Gesellschaften nach US-Vorbild lassen dir die Freiheit, dein eigenes Lied zu verschenken. Viele Gesellschaften anderswo (GEMA und andere) übernehmen mit dem Beitritt deine Aufführungsrechte — wenn das auf dich zutrifft, prüfe deine Mitgliedschaftsbedingungen vor dem Teilen, sonst steht dir diese Rechteeinräumung vielleicht gar nicht zu.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "Ich habe dieses Lied geschrieben oder kontrolliere sein Urheberrecht — Text, Musik und jede Datei, die ich hochlade — und jeder Mitautor, Verlag und Aufnahmeinhaber ist einverstanden. Keine Verwertungsgesellschaft, kein Verlag und kein Verwalter hat mir das Recht genommen, diese Einräumung zu machen. Ich gebe das Lied unter der von mir gewählten Lizenz frei, dauerhaft. Ich erlaube WorshipCommons, diese Dateien zu hosten, umzuwandeln, zu transponieren, meinen Namen zu zeigen und sie auszuliefern, auch an die Werkzeuge, die Gemeinden nutzen. Ich kann bitten, das Hosting zu beenden; bereits verbreitete Kopien behalten die Lizenz. Wenn ich falsch lag, geht das auf mich — nicht auf die Gemeinden, die ihm vertraut haben, und nicht auf WorshipCommons.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "Dieses Versprechen ist das gesamte Vertrauensmodell des Commons. Wird ein Lied von jemandem geteilt, dem es nicht gehört, bringt das",

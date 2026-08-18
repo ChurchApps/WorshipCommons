@@ -297,7 +297,7 @@ export default function SongPage() {
               <p>
                 {song.license === "WC"
                   ? <>© {song.year} {song.writer} · {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                  : t("Public domain — free for any use, anywhere, forever.")}
+                  : t("Public domain. Free for churches.")}
               </p>
             </div>
           </div>

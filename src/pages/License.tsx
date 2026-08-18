@@ -184,7 +184,7 @@ export default function License() {
         </details>
         <details>
           <summary>{t("What’s the difference between “Free” and “Public domain” here?")}</summary>
-          <p>{t("A public-domain song is free for every purpose, commercial included — the hymns fall here. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.")}</p>
+          <p>{t("A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.")}</p>
         </details>
         <details>
           <summary>{t("I co-wrote my song with someone. Can I add it?")}</summary>

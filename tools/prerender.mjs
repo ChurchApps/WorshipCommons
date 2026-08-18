@@ -51,7 +51,7 @@ function songBody(song) {
     parts.push(`<p>${st.lines.map(esc).join("<br>")}</p></section>`);
   }
   parts.push(song.license === "PD"
-    ? `<p>Public domain — free for any use, anywhere, forever.</p>`
+    ? `<p>Public domain. Free for churches.</p>`
     : `<p>© ${esc(song.year)} ${esc(song.writer)} · Shared through WorshipCommons — free for worship everywhere, always.</p>`);
   parts.push(`</main>`);
   return parts.join("\n");

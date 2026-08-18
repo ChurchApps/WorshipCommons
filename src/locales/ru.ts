@@ -191,7 +191,7 @@ const ru: Record<string, string> = {
   "Any key, no permission needed": "Любая тональность — без разрешения",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "Опубликовано через WorshipCommons — бесплатно для поклонения везде и всегда. Коммерческое использование остаётся за автором.",
   "How that works": "Как это работает",
-  "Public domain — free for any use, anywhere, forever.": "Общественное достояние — свободно для любого использования, везде, навсегда.",
+  "Public domain. Free for churches.": "Общественное достояние. Бесплатно для церквей.",
   "Listen": "Слушать",
   "▶ Play piano": "▶ Играть на пианино",
   "■ Stop": "■ Стоп",
@@ -254,7 +254,7 @@ const ru: Record<string, string> = {
   "All parts": "Все партии",
   "No engraved score is available for this song yet.": "Для этой песни пока нет набранных нот.",
   "This song is sung to a shared tune — the score shows the music without words.": "Эта песня поётся на общий напев — в нотах показана музыка без слов.",
-  "Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.": "Набрано в вашем браузере по нотам Open Hymnal Project — общественное достояние, свободно для любого использования.",
+  "Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.": "Набрано в вашем браузере по нотам Open Hymnal Project — общественное достояние. Бесплатно для церквей.",
 
   // license page
   "The WorshipCommons License — WorshipCommons": "Лицензия WorshipCommons — WorshipCommons",
@@ -317,7 +317,7 @@ const ru: Record<string, string> = {
   "Our worship band got invited to a ticketed festival. Covered?": "Нашу группу прославления пригласили на платный фестиваль. Это покрыто?",
   "That’s a concert, not a service — ask the writer, exactly as you would for any song. The license is careful to bless worship without quietly becoming a free commercial license.": "Это концерт, а не служение — спросите автора, как и в случае любой другой песни. Лицензия намеренно благословляет поклонение, не превращаясь тихо в бесплатную коммерческую лицензию.",
   "What’s the difference between “Free” and “Public domain” here?": "В чём здесь разница между «Бесплатно» и «Общественным достоянием»?",
-  "A public-domain song is free for every purpose, commercial included — the hymns fall here. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "Песня из общественного достояния свободна для любых целей, включая коммерческие, — сюда относятся гимны. Песня «Бесплатно» (WorshipCommons) бесплатна для поклонения, а коммерческие права остаются у автора. Библиотека помечает каждую песню.",
+  "A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "Песня из общественного достояния является таковой в Соединённых Штатах — бесплатно для церквей. Песня «Бесплатно» (WorshipCommons) бесплатна для поклонения, а коммерческие права остаются у автора. Библиотека помечает каждую песню.",
   "I co-wrote my song with someone. Can I add it?": "Я написал песню в соавторстве. Могу ли я её добавить?",
   "Only with every co-writer’s (and your publisher’s, if you have one) agreement. The upload promise is made on behalf of everyone with a stake in the song.": "Только с согласия каждого соавтора (и вашего издателя, если он есть). Обещание при загрузке даётся от имени всех, у кого есть доля в песне.",
 
@@ -397,7 +397,7 @@ const ru: Record<string, string> = {
   "No — nobody else administers my songs": "Нет — моими песнями никто не управляет",
   "Yes — ASCAP, BMI, or SESAC": "Да — ASCAP, BMI или SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "Да — РАО, GEMA, PRS или другое общество за пределами США",
-  "Yes — CCLI or a publisher administers this song": "Да — этой песней управляет CCLI или издатель",
+  "Yes — a publisher or licensing admin administers this song": "Да — эту песню администрирует издатель или лицензионный управляющий",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "Общества американского типа оставляют вам свободу подарить собственную песню. Многие общества в других странах (РАО, GEMA и другие) при вступлении забирают ваши права на публичное исполнение — если это ваш случай, проверьте условия членства перед публикацией, иначе давать это разрешение вы, возможно, не вправе.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "Я написал(а) эту песню или контролирую права на неё — слова, музыку и каждый загружаемый файл, — и все соавторы, издатели и владельцы записей согласны. Ни общество, ни издатель, ни администратор не лишили меня права дать это разрешение. Я выпускаю песню по выбранной мной лицензии, навсегда. Я разрешаю WorshipCommons хранить, преобразовывать, транспонировать, показывать моё имя и доставлять эти файлы, в том числе в инструменты, которыми пользуются церкви. Я могу попросить прекратить размещение; уже распространённые копии сохраняют лицензию. Если я ошибся(лась), отвечать мне — не церквям, которые этому доверились, и не WorshipCommons.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "На этом обещании держится вся модель доверия. Если песней поделился тот, кому она не принадлежит,",

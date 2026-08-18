@@ -91,7 +91,7 @@ export default function SheetMusic() {
       <div ref={paperRef} data-testid="sheet-paper" />
       {abc && (
         <p style={{ marginTop: 32, fontSize: 13, color: "#555" }}>
-          {t("Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.")}
+          {t("Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.")}
         </p>
       )}
     </main>
