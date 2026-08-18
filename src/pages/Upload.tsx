@@ -212,7 +212,7 @@ export default function Upload() {
               <select id="pro" required value={form.proAnswer} onChange={e => set("proAnswer", e.target.value)}>
                 <option value="">{t("Are you a member of one?…")}</option>
                 {/* value stays English so submissions read the same for reviewers */}
-                {["No — nobody else administers my songs", "Yes — ASCAP, BMI, or SESAC", "Yes — GEMA, PRS, or another society outside the U.S.", "Yes — CCLI or a publisher administers this song"]
+                {["No — nobody else administers my songs", "Yes — ASCAP, BMI, or SESAC", "Yes — GEMA, PRS, or another society outside the U.S.", "Yes — a publisher or licensing admin administers this song"]
                   .map(o => <option key={o} value={o}>{t(o)}</option>)}
               </select>
               <p className="hint">{t("U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.")}</p>

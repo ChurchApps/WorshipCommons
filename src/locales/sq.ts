@@ -191,7 +191,7 @@ const sq: Record<string, string> = {
   "Any key, no permission needed": "Çdo tonalitet, pa kërkuar leje",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "Ndarë përmes WorshipCommons — falas për adhurim kudo, gjithmonë. Përdorimi tregtar i mbetet autorit.",
   "How that works": "Si funksionon kjo",
-  "Public domain — free for any use, anywhere, forever.": "Domen publik — e lirë për çdo përdorim, kudo, përgjithmonë.",
+  "Public domain. Free for churches.": "Domen publik. Falas për kishat.",
   "Listen": "Dëgjo",
   "▶ Play piano": "▶ Luaj pianon",
   "■ Stop": "■ Ndalo",
@@ -254,7 +254,7 @@ const sq: Record<string, string> = {
   "All parts": "Të gjithë zërat",
   "No engraved score is available for this song yet.": "Për këtë këngë ende nuk ka partiturë të shtypur.",
   "This song is sung to a shared tune — the score shows the music without words.": "Kjo këngë këndohet me një melodi të përbashkët — partitura e tregon muzikën pa fjalë.",
-  "Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.": "E shtypur në shfletuesin tuaj nga partitura e Open Hymnal Project — domen publik, e lirë për çdo përdorim.",
+  "Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.": "E shtypur në shfletuesin tuaj nga partitura e Open Hymnal Project — domen publik. Falas për kishat.",
 
   // license page
   "The WorshipCommons License — WorshipCommons": "Licenca WorshipCommons — WorshipCommons",
@@ -317,7 +317,7 @@ const sq: Record<string, string> = {
   "Our worship band got invited to a ticketed festival. Covered?": "Grupin tonë të adhurimit e ftuan në një festival me bileta. A mbulohet?",
   "That’s a concert, not a service — ask the writer, exactly as you would for any song. The license is careful to bless worship without quietly becoming a free commercial license.": "Ai është koncert, jo shërbesë — pyeteni autorin, pikërisht si do të bënit për çdo këngë tjetër. Licenca kujdeset ta bekojë adhurimin pa u kthyer në heshtje në një licencë tregtare falas.",
   "What’s the difference between “Free” and “Public domain” here?": "Cili është këtu ndryshimi mes “Falas” dhe “Domen publik”?",
-  "A public-domain song is free for every purpose, commercial included — the hymns fall here. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "Një këngë e domenit publik është e lirë për çdo qëllim, përfshirë atë tregtar — këtu bëjnë pjesë himnet. Një këngë “Falas” (WorshipCommons) është falas për adhurim, ndërsa autori i mban të drejtat tregtare. Biblioteka e etiketon çdo këngë.",
+  "A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "Një këngë e domenit publik është e tillë në Shtetet e Bashkuara — falas për kishat. Një këngë “Falas” (WorshipCommons) është falas për adhurim, ndërsa autori i mban të drejtat tregtare. Biblioteka e etiketon çdo këngë.",
   "I co-wrote my song with someone. Can I add it?": "E shkrova këngën bashkë me dikë tjetër. A mund ta shtoj?",
   "Only with every co-writer’s (and your publisher’s, if you have one) agreement. The upload promise is made on behalf of everyone with a stake in the song.": "Vetëm me pëlqimin e çdo bashkautori (dhe të botuesit tuaj, nëse keni një të tillë). Premtimi i ngarkimit bëhet në emër të të gjithëve që kanë pjesë në këngë.",
 
@@ -397,7 +397,7 @@ const sq: Record<string, string> = {
   "No — nobody else administers my songs": "Jo — askush tjetër nuk i administron këngët e mia",
   "Yes — ASCAP, BMI, or SESAC": "Po — ASCAP, BMI ose SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "Po — GEMA, PRS ose një shoqatë tjetër jashtë SHBA-së",
-  "Yes — CCLI or a publisher administers this song": "Po — CCLI ose një botues e administron këtë këngë",
+  "Yes — a publisher or licensing admin administers this song": "Po — një botues ose administrator licencash e administron këtë këngë",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "Shoqatat e tipit amerikan ju lënë të lirë ta dhuroni këngën tuaj. Shumë shoqata gjetkë (GEMA dhe të tjera) i marrin përsipër të drejtat tuaja të interpretimit kur anëtarësoheni — nëse ky është rasti juaj, kontrolloni kushtet e anëtarësimit para se ta ndani, përndryshe kjo e drejtë mund të mos jetë e juaja për ta dhënë.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "Unë e shkrova këtë këngë ose kontrolloj të drejtat e saj — fjalët, muzikën dhe çdo skedar që po ngarkoj — dhe çdo bashkautor, botues e zotërues regjistrimi është dakord. Asnjë shoqatë, botues apo administrator nuk ma ka hequr të drejtën për ta bërë këtë dhënie. E liroj këngën sipas licencës që zgjodha, përgjithmonë. I lejoj WorshipCommons t’i strehojë, t’i konvertojë, t’i transpozojë, të tregojë emrin tim dhe t’i dorëzojë këta skedarë, edhe te mjetet që përdorin kishat. Mund të kërkoj të ndalojë strehimin; kopjet që tashmë janë jashtë e mbajnë licencën. Nëse gabova, përgjegjësia është imja — jo e kishave që i besuan, as e WorshipCommons.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "Ky premtim është i gjithë modeli i besimit i të përbashkëtës. Nëse një këngë ndahet nga dikush që nuk e zotëron,",

@@ -191,7 +191,7 @@ const hu: Record<string, string> = {
   "Any key, no permission needed": "Bármely hangnem, engedély nélkül",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "A WorshipCommonson keresztül megosztva — ingyenes a dicsőítéshez mindenhol, mindig. A kereskedelmi használat a szerzőé marad.",
   "How that works": "Hogyan működik",
-  "Public domain — free for any use, anywhere, forever.": "Közkincs — szabadon használható bármire, bárhol, örökre.",
+  "Public domain. Free for churches.": "Közkincs. Ingyenes a gyülekezeteknek.",
   "Listen": "Hallgasd meg",
   "▶ Play piano": "▶ Zongora lejátszása",
   "■ Stop": "■ Leállítás",
@@ -254,7 +254,7 @@ const hu: Record<string, string> = {
   "All parts": "Minden szólam",
   "No engraved score is available for this song yet.": "Ehhez az énekhez még nincs kottakép.",
   "This song is sung to a shared tune — the score shows the music without words.": "Ezt az éneket közös dallamra éneklik — a kotta a zenét szöveg nélkül mutatja.",
-  "Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.": "A böngésződben szedve az Open Hymnal Project kottájából — közkincs, szabadon használható bármire.",
+  "Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.": "A böngésződben szedve az Open Hymnal Project kottájából — közkincs. Ingyenes a gyülekezeteknek.",
 
   // license page
   "The WorshipCommons License — WorshipCommons": "A WorshipCommons licenc — WorshipCommons",
@@ -317,7 +317,7 @@ const hu: Record<string, string> = {
   "Our worship band got invited to a ticketed festival. Covered?": "A dicsőítő zenekarunkat meghívták egy jegyes fesztiválra. Ez bele tartozik?",
   "That’s a concert, not a service — ask the writer, exactly as you would for any song. The license is careful to bless worship without quietly becoming a free commercial license.": "Az koncert, nem istentisztelet — kérdezd meg a szerzőt, ahogy bármely más ének esetében tennéd. A licenc szándékosan úgy áldja meg a dicsőítést, hogy közben ne váljon észrevétlenül ingyenes kereskedelmi licenccé.",
   "What’s the difference between “Free” and “Public domain” here?": "Mi a különbség itt az „Ingyenes” és a „Közkincs” között?",
-  "A public-domain song is free for every purpose, commercial included — the hymns fall here. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "A közkincs ének minden célra szabad, a kereskedelmire is — ide tartoznak a régi énekek. Az „Ingyenes” (WorshipCommons) ének a dicsőítéshez ingyenes, miközben a kereskedelmi jogok a szerzőnél maradnak. A könyvtár minden éneket megjelöl.",
+  "A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "A közkincs ének az Egyesült Államokban közkincs — ingyenes a gyülekezeteknek. Az „Ingyenes” (WorshipCommons) ének a dicsőítéshez ingyenes, miközben a kereskedelmi jogok a szerzőnél maradnak. A könyvtár minden éneket megjelöl.",
   "I co-wrote my song with someone. Can I add it?": "Az énekemet valakivel közösen írtam. Hozzáadhatom?",
   "Only with every co-writer’s (and your publisher’s, if you have one) agreement. The upload promise is made on behalf of everyone with a stake in the song.": "Csak minden szerzőtárs (és ha van, a kiadód) beleegyezésével. A feltöltéskor tett ígéret mindenki nevében szól, akinek része van az énekben.",
 
@@ -397,7 +397,7 @@ const hu: Record<string, string> = {
   "No — nobody else administers my songs": "Nem — az énekeimet senki más nem kezeli",
   "Yes — ASCAP, BMI, or SESAC": "Igen — ASCAP, BMI vagy SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "Igen — Artisjus, GEMA, PRS vagy más, USA-n kívüli jogkezelő",
-  "Yes — CCLI or a publisher administers this song": "Igen — ezt az éneket a CCLI vagy egy kiadó kezeli",
+  "Yes — a publisher or licensing admin administers this song": "Igen — ezt az éneket egy kiadó vagy licenckezelő kezeli",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "Az amerikai típusú jogkezelőknél szabadon elajándékozhatod a saját énekedet. Máshol sok jogkezelő (az Artisjus, a GEMA és mások) belépéskor átveszi az előadási jogaidat — ha ez a helyzeted, a megosztás előtt nézd át a tagsági feltételeidet, különben lehet, hogy nincs jogod ezt az engedélyt megadni.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "Én írtam ezt az éneket, vagy én rendelkezem a szerzői jogaival — szöveg, zene és minden feltöltött fájl —, és minden szerzőtárs, kiadó és felvételtulajdonos egyetért. Sem jogkezelő, sem kiadó, sem adminisztrátor nem vette el tőlem a jogot, hogy ezt az engedélyt megadjam. Az éneket a választott licenc alatt adom ki, véglegesen. Engedem, hogy a WorshipCommons tárolja, átalakítsa, transzponálja, a nevemet mutassa, és ezeket a fájlokat eljuttassa, a gyülekezetek eszközeihez is. Kérhetem a tárolás leállítását; a már kint lévő másolatok megtartják a licencet. Ha tévedtem, az az én felelősségem — nem a gyülekezeteké, amelyek megbíztak benne, és nem a WorshipCommonsé.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "Ezen az ígéreten áll az egész bizalmi modell. Ha egy éneket olyan valaki oszt meg, akié nem az,",

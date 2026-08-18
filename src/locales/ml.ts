@@ -191,7 +191,7 @@ const ml: Record<string, string> = {
   "Any key, no permission needed": "ഏതു കീയും, അനുമതി വേണ്ട",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "WorshipCommons വഴി പങ്കുവച്ചത് — എവിടെയും എപ്പോഴും ആരാധനയ്ക്ക് സൗജന്യം. വാണിജ്യ ഉപയോഗം രചയിതാവിനൊപ്പം.",
   "How that works": "അത് എങ്ങനെ പ്രവർത്തിക്കുന്നു",
-  "Public domain — free for any use, anywhere, forever.": "പൊതുസഞ്ചയം — ഏതു ഉപയോഗത്തിനും, എവിടെയും, എന്നേക്കും സ്വതന്ത്രം.",
+  "Public domain. Free for churches.": "പൊതുസഞ്ചയം. സഭകൾക്ക് സൗജന്യം.",
   "Listen": "കേൾക്കുക",
   "▶ Play piano": "▶ പിയാനോ വായിക്കുക",
   "■ Stop": "■ നിർത്തുക",
@@ -254,7 +254,7 @@ const ml: Record<string, string> = {
   "All parts": "എല്ലാ ശബ്ദങ്ങളും",
   "No engraved score is available for this song yet.": "ഈ പാട്ടിന് ഇതുവരെ നോട്ടേഷൻ ലഭ്യമല്ല.",
   "This song is sung to a shared tune — the score shows the music without words.": "ഈ പാട്ട് പൊതുവായ ഒരു ഈണത്തിലാണ് പാടുന്നത് — നോട്ടേഷനിൽ വരികളില്ലാതെ സംഗീതം മാത്രം.",
-  "Engraved in your browser from the Open Hymnal Project score — public domain, free for any use.": "Open Hymnal Project-ന്റെ നോട്ടേഷനിൽനിന്ന് നിങ്ങളുടെ ബ്രൗസറിൽ തയ്യാറാക്കിയത് — പൊതുസഞ്ചയം, ഏതു ഉപയോഗത്തിനും സ്വതന്ത്രം.",
+  "Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.": "Open Hymnal Project-ന്റെ നോട്ടേഷനിൽനിന്ന് നിങ്ങളുടെ ബ്രൗസറിൽ തയ്യാറാക്കിയത് — പൊതുസഞ്ചയം. സഭകൾക്ക് സൗജന്യം.",
 
   // license page
   "The WorshipCommons License — WorshipCommons": "WorshipCommons ലൈസൻസ് — WorshipCommons",
@@ -317,7 +317,7 @@ const ml: Record<string, string> = {
   "Our worship band got invited to a ticketed festival. Covered?": "ഞങ്ങളുടെ ആരാധനാ സംഘത്തെ ടിക്കറ്റുള്ള ഒരു ഉത്സവത്തിലേക്ക് ക്ഷണിച്ചു. അത് ഉൾപ്പെടുമോ?",
   "That’s a concert, not a service — ask the writer, exactly as you would for any song. The license is careful to bless worship without quietly becoming a free commercial license.": "അത് ഒരു കൺസേർട്ടാണ്, ശുശ്രൂഷയല്ല — മറ്റേതു പാട്ടിന്റെയും കാര്യത്തിലെന്നപോലെ രചയിതാവിനോട് ചോദിക്കുക. ആരാധനയെ അനുഗ്രഹിക്കുമ്പോൾത്തന്നെ നിശ്ശബ്ദമായി ഒരു സൗജന്യ വാണിജ്യ ലൈസൻസായി മാറാതിരിക്കാൻ ഈ ലൈസൻസ് ശ്രദ്ധിക്കുന്നു.",
   "What’s the difference between “Free” and “Public domain” here?": "ഇവിടെ “സൗജന്യം”, “പൊതുസഞ്ചയം” എന്നിവ തമ്മിലുള്ള വ്യത്യാസമെന്ത്?",
-  "A public-domain song is free for every purpose, commercial included — the hymns fall here. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "പൊതുസഞ്ചയത്തിലുള്ള പാട്ട് വാണിജ്യമടക്കം എല്ലാ ആവശ്യത്തിനും സ്വതന്ത്രമാണ് — കീർത്തനങ്ങൾ ഇതിൽപ്പെടും. “സൗജന്യം” (WorshipCommons) പാട്ട് ആരാധനയ്ക്ക് സൗജന്യമാണ്, വാണിജ്യ അവകാശങ്ങൾ രചയിതാവിനൊപ്പം നിൽക്കും. ലൈബ്രറി ഓരോ പാട്ടിനും ലേബൽ നൽകുന്നു.",
+  "A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.": "പൊതുസഞ്ചയത്തിലുള്ള പാട്ട് അമേരിക്കൻ ഐക്യനാടുകളിൽ പൊതുസഞ്ചയമാണ് — സഭകൾക്ക് സൗജന്യം. “സൗജന്യം” (WorshipCommons) പാട്ട് ആരാധനയ്ക്ക് സൗജന്യമാണ്, വാണിജ്യ അവകാശങ്ങൾ രചയിതാവിനൊപ്പം നിൽക്കും. ലൈബ്രറി ഓരോ പാട്ടിനും ലേബൽ നൽകുന്നു.",
   "I co-wrote my song with someone. Can I add it?": "ഞാൻ എന്റെ പാട്ട് മറ്റൊരാളുമായി ചേർന്നാണ് എഴുതിയത്. ചേർക്കാമോ?",
   "Only with every co-writer’s (and your publisher’s, if you have one) agreement. The upload promise is made on behalf of everyone with a stake in the song.": "ഓരോ സഹരചയിതാവിന്റെയും (ഉണ്ടെങ്കിൽ നിങ്ങളുടെ പ്രസാധകന്റെയും) സമ്മതത്തോടെ മാത്രം. അപ്‌ലോഡ് ചെയ്യുമ്പോൾ നൽകുന്ന വാക്ക് ആ പാട്ടിൽ പങ്കുള്ള എല്ലാവർക്കുംവേണ്ടിയുള്ളതാണ്.",
 
@@ -397,7 +397,7 @@ const ml: Record<string, string> = {
   "No — nobody else administers my songs": "അല്ല — എന്റെ പാട്ടുകൾ മറ്റാരും കൈകാര്യം ചെയ്യുന്നില്ല",
   "Yes — ASCAP, BMI, or SESAC": "അതെ — ASCAP, BMI അല്ലെങ്കിൽ SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "അതെ — IPRS, GEMA, PRS അല്ലെങ്കിൽ അമേരിക്കയ്ക്ക് പുറത്തുള്ള മറ്റൊരു സൊസൈറ്റി",
-  "Yes — CCLI or a publisher administers this song": "അതെ — CCLI അല്ലെങ്കിൽ ഒരു പ്രസാധകൻ ഈ പാട്ട് കൈകാര്യം ചെയ്യുന്നു",
+  "Yes — a publisher or licensing admin administers this song": "അതെ — ഒരു പ്രസാധകനോ ലൈസൻസ് കാര്യനിർവാഹകനോ ഈ പാട്ട് കൈകാര്യം ചെയ്യുന്നു",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "അമേരിക്കൻ രീതിയിലുള്ള സൊസൈറ്റികൾ സ്വന്തം പാട്ട് ദാനം ചെയ്യാൻ നിങ്ങളെ അനുവദിക്കുന്നു. മറ്റിടങ്ങളിലെ പല സൊസൈറ്റികളും (GEMA പോലുള്ളവ) അംഗമാകുമ്പോൾ നിങ്ങളുടെ അവതരണ അവകാശങ്ങൾ ഏറ്റെടുക്കുന്നു — അങ്ങനെയെങ്കിൽ, പങ്കുവയ്ക്കുംമുമ്പ് അംഗത്വ വ്യവസ്ഥകൾ പരിശോധിക്കുക, അല്ലെങ്കിൽ ഈ അനുവാദം നൽകാൻ നിങ്ങൾക്ക് അവകാശമുണ്ടാകില്ല.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "ഈ പാട്ട് ഞാൻ എഴുതിയതാണ് അല്ലെങ്കിൽ അതിന്റെ പകർപ്പവകാശം എനിക്കുണ്ട് — വരികൾ, സംഗീതം, ഞാൻ അപ്‌ലോഡ് ചെയ്യുന്ന ഓരോ ഫയലും — ഒപ്പം ഓരോ സഹരചയിതാവും പ്രസാധകനും റെക്കോർഡിങ് ഉടമയും സമ്മതിച്ചിട്ടുണ്ട്. ഒരു സൊസൈറ്റിയോ പ്രസാധകനോ അഡ്‌മിനോ ഈ അനുവാദം നൽകാനുള്ള അവകാശം എന്നിൽ നിന്ന് എടുത്തിട്ടില്ല. സമർപ്പിക്കുന്നതിലൂടെ, മുകളിൽ ഞാൻ തിരഞ്ഞെടുത്ത ലൈസൻസ് ലോകമെമ്പാടുമുള്ള ആരാധകർക്ക് നൽകുന്നു, ഈ ഫയലുകൾ ഹോസ്റ്റ് ചെയ്യാനും പരിവർത്തനം ചെയ്യാനും കീ മാറ്റാനും സഭകൾക്ക് എത്തിക്കാനും WorshipCommons-ന് അനുമതി നൽകുന്നു. എന്റെ വാക്ക് തെറ്റാണെന്ന് തെളിഞ്ഞാൽ, അതിന്റെ ഉത്തരവാദിത്വം എനിക്കാണ് — അതിനെ വിശ്വസിച്ച സഭകൾക്കല്ല, WorshipCommons-ന്റേതുമല്ല.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "ഈ വാക്കാണ് പൊതുശേഖരത്തിന്റെ മുഴുവൻ വിശ്വാസ മാതൃകയും. ഉടമയല്ലാത്ത ആരെങ്കിലും ഒരു പാട്ട് പങ്കുവച്ചാൽ,",
