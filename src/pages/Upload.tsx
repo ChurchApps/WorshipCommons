@@ -40,7 +40,7 @@ export default function Upload() {
   usePageMeta(t("Share your song — WorshipCommons"));
   const { user } = useAuth();
   const location = useLocation();
-  const [form, setForm] = useState({ title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language: SONG_LANG[lang], scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false });
+  const [form, setForm] = useState({ title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language: SONG_LANG[lang], scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false, recordingOwned: false });
   const [files, setFiles] = useState<{ demoAudio?: Attached; sheetPdf?: Attached; stemsZip?: Attached }>({});
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +52,10 @@ export default function Upload() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (files.demoAudio && !form.recordingOwned) {
+      setError(t("Please confirm you own this recording (or have the owner's permission to share it)."));
+      return;
+    }
     try {
       await wcPost("/songs", {
         title: form.title,
@@ -66,6 +70,7 @@ export default function Upload() {
         license: form.license === "pd" ? "PD" : "WC",
         proAnswer: form.proAnswer,
         certified: form.certified,
+        recordingOwned: !!files.demoAudio && form.recordingOwned,
         files: {
           demoAudio: files.demoAudio && { name: files.demoAudio.name, contentType: files.demoAudio.contentType, base64: files.demoAudio.base64 },
           sheetPdf: files.sheetPdf && { name: files.sheetPdf.name, contentType: files.sheetPdf.contentType, base64: files.sheetPdf.base64 },
@@ -168,6 +173,14 @@ export default function Upload() {
             <Dropzone label="Multitracks" hint="ZIP of stems — one WAV or MP3 per part, every file starting at bar 1 · include click & guide if you have them" accept=".zip" testId="file-stems" onFile={f => setFiles(x => ({ ...x, stemsZip: f }))} />
           </div>
           <p className="hint" style={{ margin: "10px 0 0 52px" }}>{t("Files up to ~35 MB each. Upload stems once, in the recorded key.")}</p>
+          {files.demoAudio && (
+            <div className="certify" style={{ margin: "16px 0 0 52px" }}>
+              <input type="checkbox" id="recording-owned" data-testid="recording-owned" required checked={form.recordingOwned} onChange={e => set("recordingOwned", e.target.checked)} />
+              <label htmlFor="recording-owned" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
+                {t("This recording is mine (or I have the owner’s permission to share it).")}
+              </label>
+            </div>
+          )}
         </section>
 
         <section className="step">
