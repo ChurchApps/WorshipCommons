@@ -112,7 +112,7 @@ const fr: Record<string, string> = {
 
   // library
   "Song library — WorshipCommons": "Bibliothèque de chants — WorshipCommons",
-  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Cherchez des chants de louange gratuits par thème, passage biblique, tonalité, tempo ou langue. Grilles d’accords et paroles dans toutes les tonalités, sans licence.",
+  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Cherchez des chants de louange gratuits par thème, passage biblique, tonalité, tempo ou langue. Grilles d’accords et paroles dans toutes les tonalités.",
   "The library": "La bibliothèque",
   "Find what your church will sing": "Trouvez ce que votre église va chanter",
   "Discover and license the best songs for your services.": "Découvrez et obtenez la licence des meilleurs chants pour vos cultes.",
@@ -191,7 +191,7 @@ const fr: Record<string, string> = {
   "Any key, no permission needed": "Toute tonalité, sans demander la permission",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "Partagé via WorshipCommons — gratuit pour la louange partout, toujours. L’usage commercial reste à l’auteur.",
   "How that works": "Comment ça marche",
-  "Public domain — free for any use, anywhere, forever.": "Domaine public — libre pour tout usage, partout, pour toujours.",
+  "Public domain. Free for churches.": "Domaine public. Gratuit pour les églises.",
   "Listen": "Écouter",
   "▶ Play piano": "▶ Jouer au piano",
   "■ Stop": "■ Arrêter",
@@ -397,7 +397,7 @@ const fr: Record<string, string> = {
   "No — nobody else administers my songs": "Non — personne d’autre ne gère mes chants",
   "Yes — ASCAP, BMI, or SESAC": "Oui — ASCAP, BMI ou SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "Oui — SACEM, GEMA, PRS ou une autre société hors des États-Unis",
-  "Yes — CCLI or a publisher administers this song": "Oui — CCLI ou un éditeur gère ce chant",
+  "Yes — CCLI or a publisher administers this song": "Oui — un éditeur ou un administrateur de licences gère ce chant",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "Les sociétés à l’américaine vous laissent libre de donner votre propre chant. Beaucoup de sociétés ailleurs (SACEM, GEMA et d’autres) reprennent vos droits d’exécution dès l’adhésion — si c’est votre cas, vérifiez vos conditions d’adhésion avant de partager, sinon cette concession n’est peut-être pas la vôtre à faire.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "J’ai écrit ce chant ou j’en contrôle le droit d’auteur — paroles, musique et chaque fichier que je dépose — et chaque coauteur, éditeur et propriétaire d’enregistrement est d’accord. Aucune société, aucun éditeur ni administrateur ne m’a retiré le droit de faire cette concession. Je libère le chant sous la licence que j’ai choisie, de façon permanente. Je laisse WorshipCommons héberger, convertir, transposer, afficher mon nom et délivrer ces fichiers, y compris aux outils que les églises utilisent. Je peux demander d’arrêter l’hébergement ; les copies déjà en circulation gardent la licence. Si j’avais tort, c’est à moi — pas aux églises qui s’y sont fiées, ni à WorshipCommons.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "Cette promesse est tout le modèle de confiance du commun. Si un chant est partagé par quelqu’un à qui il n’appartient pas, la",

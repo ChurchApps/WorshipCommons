@@ -112,7 +112,7 @@ const es: Record<string, string> = {
 
   // library
   "Song library — WorshipCommons": "Biblioteca de canciones — WorshipCommons",
-  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Busca canciones de adoración gratuitas por tema, pasaje bíblico, tono, tempo o idioma. Cifrados y letras en cualquier tono, sin licencias.",
+  "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.": "Busca canciones de adoración gratuitas por tema, pasaje bíblico, tono, tempo o idioma. Cifrados y letras en cualquier tono.",
   "The library": "La biblioteca",
   "Find what your church will sing": "Encuentra lo que tu iglesia va a cantar",
   "Discover and license the best songs for your services.": "Descubre y licencia las mejores canciones para tus servicios.",
@@ -191,7 +191,7 @@ const es: Record<string, string> = {
   "Any key, no permission needed": "Cualquier tono, sin pedir permiso",
   "Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.": "Compartida por medio de WorshipCommons: gratis para la adoración en todas partes, siempre. El uso comercial queda con el autor.",
   "How that works": "Cómo funciona",
-  "Public domain — free for any use, anywhere, forever.": "Dominio público: libre para cualquier uso, en cualquier lugar, para siempre.",
+  "Public domain. Free for churches.": "Dominio público. Gratis para iglesias.",
   "Listen": "Escuchar",
   "▶ Play piano": "▶ Tocar piano",
   "■ Stop": "■ Detener",
@@ -397,7 +397,7 @@ const es: Record<string, string> = {
   "No — nobody else administers my songs": "No — nadie más administra mis canciones",
   "Yes — ASCAP, BMI, or SESAC": "Sí — ASCAP, BMI o SESAC",
   "Yes — GEMA, PRS, or another society outside the U.S.": "Sí — GEMA, PRS u otra sociedad fuera de EE. UU.",
-  "Yes — CCLI or a publisher administers this song": "Sí — CCLI o una editorial administra esta canción",
+  "Yes — CCLI or a publisher administers this song": "Sí — una editorial o un administrador de licencias administra esta canción",
   "U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.": "Las sociedades al estilo estadounidense te dejan libre para regalar tu propia canción. Muchas sociedades en otros países (GEMA y otras) asumen tus derechos de ejecución al afiliarte; si ese es tu caso, revisa los términos de tu membresía antes de compartir, o esta concesión podría no ser tuya para hacerla.",
   "I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.": "Yo escribí esta canción o controlo sus derechos —letra, música y cada archivo que estoy subiendo— y cada coautor, editorial y dueño de grabación está de acuerdo. Ninguna sociedad, editorial o administrador me ha quitado el derecho de hacer esta concesión. Libero la canción bajo la licencia que elegí, de forma permanente. Dejo que WorshipCommons aloje, convierta, transporte, muestre mi nombre y entregue estos archivos, también a las herramientas que usan las iglesias. Puedo pedir que dejen de alojarla; las copias que ya circulan conservan la licencia. Si me equivoqué, es mi responsabilidad — no la de las iglesias que confiaron en ella, ni la de WorshipCommons.",
   "This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the": "Esta promesa es todo el modelo de confianza del común. Si alguien comparte una canción que no le pertenece, el",
