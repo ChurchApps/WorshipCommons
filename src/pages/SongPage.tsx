@@ -5,7 +5,7 @@ import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_K
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { abcKeyRoot } from "../abc";
 import Karaoke from "../components/Karaoke";
-import { wcPost, WC_API } from "../api";
+import { wcPost, COMMONS_API } from "../api";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -153,8 +153,9 @@ export default function SongPage() {
   const dispShift = (shift - capo + 12) % 12;
   const keyLabel = selectedKey || song.songKey;
 
-  const related = songs.filter(s => s.parentSongId === song.id);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
+  // family = own children plus siblings under the same canonical, so translations link both ways
+  const related = songs.filter(s => s.id !== song.id && (s.parentSongId === song.id || (parent && s.parentSongId === parent.id)));
   const relIds = new Set([song.id, parent?.id, ...related.map(r => r.id)]);
   const myThemes = new Set(themeList(song));
   const similar = songs
@@ -395,8 +396,8 @@ export default function SongPage() {
               {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
               {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
               {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
-              <li><FileIcon /><a href={`${WC_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
-              <li><FileIcon /><a href={`${WC_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
+              <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
+              <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>
           </div>
 

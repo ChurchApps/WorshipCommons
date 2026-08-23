@@ -7,7 +7,7 @@ import { Song } from "../songs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 
-interface AdminReport { id: string; songText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
+interface AdminReport { id: string; contentType: string; contentId: string; contentText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
 interface AdminAbcSubmission { id: string; songId: string; abc: string; songTitle: string; createdAt: string; }
 
 // editable so an admin can polish before downloading; the download is what gets
@@ -70,9 +70,8 @@ export default function Admin() {
 
   const load = useCallback(async () => {
     try {
-      // first signed-in visitor on a fresh environment becomes the admin
-      const boot = await wcPost("/admin/bootstrap", {}, true);
-      if (!boot.admin) { setDenied(true); return; }
+      const status = await wcGet("/admin/status", true);
+      if (!status.admin) { setDenied(true); return; }
       const [songs, reps, subs] = await Promise.all([wcGet("/admin/songs", true), wcGet("/admin/reports", true), wcGet("/admin/abc-submissions", true)]);
       setPending(songs);
       setReports(reps);
@@ -127,7 +126,7 @@ export default function Admin() {
         {reports?.length === 0 && <p className="hint" data-testid="no-reports">No open reports.</p>}
         {reports?.map(r => (
           <div className="card" key={r.id} style={{ padding: 24, marginBottom: 16 }} data-testid="open-report">
-            <h3 style={{ marginBottom: 4 }}>{r.songText}</h3>
+            <h3 style={{ marginBottom: 4 }}>{r.contentText}</h3>
             <p className="hint" style={{ marginBottom: 8 }}>{r.reporterRole} · {r.name} · {r.email}</p>
             <p style={{ fontSize: "0.9375rem", marginBottom: 14 }}>{r.details}</p>
             <button className="btn btn-primary" onClick={() => act(`/admin/reports/${r.id}/resolve`)}>Mark resolved</button>
