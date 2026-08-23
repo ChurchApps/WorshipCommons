@@ -77,11 +77,40 @@ async function checkCommonsModule() {
   }
 }
 
+// Admin specs need demo@b1.church to carry the Server/Admin claim (church-0 Server Admins
+// membership seeded by core Api's populateData.sql). The demo membership DB is shared mutable
+// state, so fail fast with the remedy instead of letting every admin spec time out.
+async function checkDemoServerAdmin() {
+  let login;
+  try {
+    const res = await fetch(`${CORE_API}/membership/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "demo@b1.church", password: "password", appName: "WorshipCommons" })
+    });
+    if (!res.ok) refuse(`Demo login returned HTTP ${res.status}.`);
+    login = await res.json();
+  } catch (err) {
+    if (err instanceof VerifyEnvError) throw err;
+    refuse([`Demo login failed: ${err instanceof Error ? err.message : String(err)}`]);
+  }
+  const hasAdmin = (login.userChurches ?? []).some((uc) =>
+    (uc.apis ?? []).some((api) => (api.permissions ?? []).some((p) => p.contentType === "Server" && p.action === "Admin"))
+  );
+  if (!hasAdmin) {
+    refuse([
+      "demo@b1.church has no Server/Admin claim, so every admin spec would fail.",
+      "The demo membership DB has drifted. Fix: run `yarn reset-demo` in the core Api repo, restart the Api, and re-run."
+    ]);
+  }
+}
+
 export async function verifyEnv({ fullCheck } = {}) {
   checkBaseUrl();
   if (fullCheck) {
     await checkCoreApi();
     await checkCommonsModule();
+    await checkDemoServerAdmin();
   }
 }
 
