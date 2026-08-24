@@ -49,7 +49,7 @@ export default function MySongs() {
               <span className={s.status === "approved" ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{t(st.label)}</span>
             </h3>
             <p className="hint" style={{ marginBottom: 8 }}>{s.writer} · {t("Key")} {s.songKey}{s.bpm ? ` · ${s.bpm} BPM` : ""}{s.createdAt ? t(" · submitted {date}", { date: new Date(s.createdAt).toLocaleDateString() }) : ""}</p>
-            <p style={{ fontSize: "0.9375rem" }}>{t(st.note)}{s.status === "approved" && s.churchCount > 0 ? t(" {count} churches sing it.", { count: s.churchCount.toLocaleString() }) : ""}</p>
+            <p style={{ fontSize: "0.9375rem" }}>{t(st.note)}{s.status === "approved" && s.downloadCount > 0 ? t(" {count} downloads.", { count: s.downloadCount.toLocaleString() }) : ""}</p>
           </div>
         );
       })}

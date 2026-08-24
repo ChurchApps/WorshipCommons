@@ -44,11 +44,11 @@ export default function Home() {
   const [songs, setSongs] = useState<Song[]>([]);
   useEffect(() => { loadSongs().then(setSongs); }, []);
 
-  // /songs arrives sorted by churchCount desc
+  // /songs arrives sorted by downloadCount desc
   const top = songs.filter(s => s.language === SONG_LANG[lang]).slice(0, 10);
   const stats = {
     songs: songs.length,
-    sings: songs.reduce((n, s) => n + s.churchCount, 0),
+    downloads: songs.reduce((n, s) => n + s.downloadCount, 0),
     langs: new Set(songs.map(s => s.language)).size
   };
 
@@ -175,7 +175,7 @@ export default function Home() {
               <Link className="chip" to="/songs?lang=Spanish">En español</Link>
             </div>
             <div className="row-head">
-              <h3>{t("Most sung in the commons")}</h3>
+              <h3>{t("Most downloaded in the commons")}</h3>
               <Link to="/songs">{t("See all →")}</Link>
             </div>
             <ul className="row-list">
@@ -183,7 +183,7 @@ export default function Home() {
                 <li key={s.id}>
                   <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
                   <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
-                  <span className="kv">{s.songKey} · {s.bpm} BPM{s.churchCount > 0 ? t(" · {count} churches", { count: s.churchCount.toLocaleString() }) : ""}</span>
+                  <span className="kv">{s.songKey} · {s.bpm} BPM{s.downloadCount > 0 ? t(" · {count} downloads", { count: s.downloadCount.toLocaleString() }) : ""}</span>
                   <span className="free-badge">{t("Free")}</span>
                 </li>
               ))}
@@ -240,7 +240,7 @@ export default function Home() {
       <section className="block">
         <div className="wrap stats-band">
           <div className="stat animate-on-scroll"><b>{stats.songs.toLocaleString()}</b><span>{t("songs, growing weekly")}</span></div>
-          <div className="stat animate-on-scroll"><b>{stats.sings.toLocaleString()}</b><span>{t("times a church said “we sing this”")}</span></div>
+          <div className="stat animate-on-scroll"><b>{stats.downloads.toLocaleString()}</b><span>{t("downloads across the library")}</span></div>
           <div className="stat animate-on-scroll"><b>{stats.langs}</b><span>{t("languages and counting")}</span></div>
         </div>
       </section>

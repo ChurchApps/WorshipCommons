@@ -49,7 +49,6 @@ export default function SongPage() {
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [showChords, setShowChords] = useState(true);
   const [count, setCount] = useState<number | null>(null);
-  const [sung, setSung] = useState(false);
   const [inLib, setInLib] = useState(false);
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
   const [rate, setRate] = useState(100);
@@ -119,8 +118,7 @@ export default function SongPage() {
   useEffect(() => {
     if (song) {
       setSelectedKey(song.songKey);
-      setCount(song.churchCount);
-      setSung(!!localStorage.getItem("wcSung_" + song.id));
+      setCount(song.downloadCount);
       if (user) libraryIds().then(ids => setInLib(ids.includes(song.id)));
       else setInLib(false);
     }
@@ -160,7 +158,7 @@ export default function SongPage() {
   const myThemes = new Set(themeList(song));
   const similar = songs
     .filter(s => !relIds.has(s.id) && s.language === song.language && themeList(s).some(th => myThemes.has(th)))
-    .sort((a, b) => b.churchCount - a.churchCount)
+    .sort((a, b) => b.downloadCount - a.downloadCount)
     .slice(0, 4);
 
   const playPiano = async () => {
@@ -195,16 +193,12 @@ export default function SongPage() {
 
   const toggleLib = async () => {
     if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
-    const churchCount = await setInLibrary(song.id, !inLib);
-    if (churchCount != null) setCount(churchCount);
+    await setInLibrary(song.id, !inLib);
     setInLib(!inLib);
   };
 
-  const weSing = async () => {
-    const resp = await wcPost(`/songs/${song.id}/sing`, {});
-    setCount(resp.churchCount);
-    setSung(true);
-    localStorage.setItem("wcSung_" + song.id, "1");
+  const recordDownload = () => {
+    wcPost(`/assets/${song.id}/download`, {}).then(resp => { if (resp?.downloadCount != null) setCount(resp.downloadCount); }).catch(() => {});
   };
 
   return (
@@ -382,7 +376,7 @@ export default function SongPage() {
           {song.stemsZipUrl && (
             <div className="card side-card">
               <h2>{t("Multitracks")}</h2>
-              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download>{t("All stems")} · ZIP · {formatBytes(song.stemsZipBytes)}</a>
+              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download onClick={recordDownload}>{t("All stems")} · ZIP · {formatBytes(song.stemsZipBytes)}</a>
               <p className="rel-hint">{t("One master set, recorded in {key} at {bpm} BPM — every file starts at bar 1. Works in Prime, Playback, Ableton, or any DAW.", { key: song.songKey, bpm: song.bpm })}</p>
             </div>
           )}
@@ -393,22 +387,18 @@ export default function SongPage() {
               <li><FileIcon /><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
               {song.abcUrl && <li><FileIcon /><Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="size">{t("melody & parts")} · {keyLabel}</span></li>}
               {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></li>}
-              {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
-              {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
-              {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
+              {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
+              {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
+              {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>
           </div>
 
           <div className="card side-card">
-            <h2>{t("Who’s singing it")}</h2>
-            <div className="sung-count" data-testid="cong-count">{(count ?? song.churchCount).toLocaleString()}</div>
-            <p className="sung-note">{t("churches")}</p>
-            <button className="btn btn-primary we-sing" data-testid="we-sing" disabled={sung} style={sung ? { opacity: 0.65 } : undefined} onClick={weSing}>
-              {sung ? t("Counted — thank you") : t("We sing this")}
-            </button>
-            <p className="sung-hint">{t("Counts come from churches, not play counts — the real measure of a song is who sings it.")}</p>
+            <h2>{t("Downloads")}</h2>
+            <div className="sung-count" data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</div>
+            <p className="sung-note">{t("downloads")}</p>
           </div>
 
           {(related.length > 0 || parent || similar.length > 0) && (

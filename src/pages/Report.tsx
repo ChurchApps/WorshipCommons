@@ -20,7 +20,6 @@ export default function Report() {
     setError("");
     try {
       await wcPost("/reports", {
-        contentType: "song",
         contentText: form.songText,
         reporterRole: form.reporterRole,
         details: form.details,

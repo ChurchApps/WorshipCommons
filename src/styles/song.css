@@ -93,8 +93,6 @@
 
   .sung-count { font-family: var(--font-heading); font-size: 2.625rem; font-weight: 700; letter-spacing: -0.02em; background: linear-gradient(120deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .sung-note { font-size: 0.8438rem; color: var(--muted); margin: 0 0 16px; }
-  .we-sing { width: 100%; text-align: center; }
-  .sung-hint { font-size: 0.8125rem; color: var(--muted); margin-top: 12px; }
 
   .rel-list { list-style: none; }
   .rel-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }

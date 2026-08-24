@@ -96,5 +96,5 @@
     .thead { display: none; }
     .t-row { grid-template-columns: 44px 40px 1fr 90px; }
     .t-cover { width: 40px; height: 40px; }
-    .t-row .t-themes, .t-row .t-key, .t-row .t-bpm, .t-row .t-cong { display: none; }
+    .t-row .t-themes, .t-row .t-key, .t-row .t-bpm, .t-row .t-downloads { display: none; }
   }

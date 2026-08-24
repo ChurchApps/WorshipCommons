@@ -7,7 +7,7 @@ import { Song } from "../songs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 
-interface AdminReport { id: string; contentType: string; contentId: string; contentText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
+interface AdminReport { id: string; contentId: string; contentText: string; reporterRole: string; details: string; name: string; email: string; createdAt: string; }
 interface AdminAbcSubmission { id: string; songId: string; abc: string; songTitle: string; createdAt: string; }
 
 // editable so an admin can polish before downloading; the download is what gets

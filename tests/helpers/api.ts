@@ -25,6 +25,6 @@ export async function createPendingSong(request: APIRequestContext, jwt: string,
 }
 
 export async function createReport(request: APIRequestContext, contentText: string) {
-  const resp = await request.post(`${WC_API}/reports`, { data: { contentType: "song", contentText, reporterRole: "The copyright owner (writer or publisher)", details: "Spec-created report", name: "Spec Tester", email: "spec@example.com", signature: "Spec Tester" } });
+  const resp = await request.post(`${WC_API}/reports`, { data: { contentText, reporterRole: "The copyright owner (writer or publisher)", details: "Spec-created report", name: "Spec Tester", email: "spec@example.com", signature: "Spec Tester" } });
   return await resp.json();
 }
