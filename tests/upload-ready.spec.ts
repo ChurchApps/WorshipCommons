@@ -138,8 +138,8 @@ test.describe.serial("pending is private then reject deletes files", () => {
     expect((await request.get(`${WC_API}/songs/${songId}/chordpro`)).status()).toBe(404);
     expect((await request.get(`${WC_API}/songs/${songId}/lyrics`)).status()).toBe(404);
 
-    const guessedPublic = `${WC_API}/content/songs/en/wc-license/${slugify(TITLE)}--${songId}/tiny.wav`;
-    const guessedPending = `${WC_API}/content/pending/${songId}/tiny.wav`;
+    const guessedPublic = `${WC_API}/content/songs/en/wc-license/${slugify(TITLE)}--${songId}/demoAudio.wav`;
+    const guessedPending = `${WC_API}/content/pending/${songId}/demoAudio.wav`;
     expect((await request.get(guessedPublic)).status()).not.toBe(200);
     expect((await request.get(guessedPending)).status()).not.toBe(200);
 
@@ -166,7 +166,7 @@ test.describe.serial("pending is private then reject deletes files", () => {
     expect(list.find((s: { title: string }) => s.title === TITLE)).toBeFalsy();
 
     expect((await request.get(pendingAudioSrc)).status()).toBe(404);
-    expect((await request.get(`${WC_API}/content/pending/${songId}/tiny.wav`)).status()).not.toBe(200);
+    expect((await request.get(`${WC_API}/content/pending/${songId}/demoAudio.wav`)).status()).not.toBe(200);
   });
 });
 
@@ -215,7 +215,7 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     await expect(page.locator(".sheet .pd-badge")).toHaveCount(0);
     await expect(page.getByText(/copyright-cleared/i)).toHaveCount(0);
 
-    await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /tiny\.wav/);
+    await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /demoAudio\.wav/);
     const src = await page.getByTestId("demo-audio").getAttribute("src");
     const audio = await request.get(src as string);
     expect(audio.ok()).toBeTruthy();

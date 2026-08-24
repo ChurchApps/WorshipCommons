@@ -1,7 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import { WC_API } from "./helpers/api";
 
-interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; downloadCount: number; demoAudioUrl?: string; stemsZipUrl?: string; }
+interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; downloadCount: number; fileUrls?: Record<string, string>; }
 
 // expectations are computed from the live seed so the catalog can grow without breaking specs
 let songs: SeedSong[] = [];
@@ -76,11 +76,11 @@ test.describe("library", () => {
     await expect(page.locator("#count")).toContainText(countText(pd));
     await page.getByLabel(/All songs/).check();
 
-    const audio = songs.filter(s => s.demoAudioUrl).length;
+    const audio = songs.filter(s => s.fileUrls?.demoAudio).length;
     await page.getByLabel(/Has demo recording/).check();
     await expect(page.locator("#count")).toContainText(countText(audio));
 
-    const audioAndStems = songs.filter(s => s.demoAudioUrl && s.stemsZipUrl).length;
+    const audioAndStems = songs.filter(s => s.fileUrls?.demoAudio && s.fileUrls?.stemsZip).length;
     await page.getByLabel(/Has multitracks/).check();
     await expect(page.locator("#count")).toContainText(countText(audioAndStems));
   });
