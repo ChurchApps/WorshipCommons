@@ -2,17 +2,16 @@ import { wcDelete, wcGet, wcPost } from "./api";
 
 let cache: Promise<string[]> | null = null;
 
+// the endpoint returns full song objects; the site only needs ids
 export const libraryIds = (): Promise<string[]> => {
-  if (!cache) cache = wcGet("/songs/library", true).catch(() => [] as string[]);
+  if (!cache) cache = wcGet("/songs/library", true).then((songs: { id: string }[]) => (songs || []).map(s => s.id)).catch(() => [] as string[]);
   return cache;
 };
 
 export const clearLibraryCache = () => { cache = null; };
 
-// returns the song's updated churchCount when a save added one
-export const setInLibrary = async (id: string, add: boolean): Promise<number | undefined> => {
-  const resp = add ? await wcPost(`/songs/${id}/library`, {}, true) : await wcDelete(`/songs/${id}/library`, true);
+export const setInLibrary = async (id: string, add: boolean): Promise<void> => {
+  if (add) await wcPost(`/songs/${id}/library`, {}, true); else await wcDelete(`/songs/${id}/library`, true);
   const current = await libraryIds();
   cache = Promise.resolve(add ? [id, ...current.filter(i => i !== id)] : current.filter(i => i !== id));
-  return resp?.churchCount;
 };

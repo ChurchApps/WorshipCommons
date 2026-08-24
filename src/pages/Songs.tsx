@@ -50,7 +50,7 @@ export default function Songs() {
     audio: false,
     mt: false
   }));
-  const [sort, setSort] = useState("cong");
+  const [sort, setSort] = useState("downloads");
   const [page, setPage] = useState(1);
   // ponytail: sidebar starts open on desktop, closed on phones — one boolean, no resize listener
   const [facetsOpen, setFacetsOpen] = useState(() => window.innerWidth > 900);
@@ -131,10 +131,10 @@ export default function Songs() {
   const list = useMemo(() => {
     const filtered = songs.filter(s => matches(s));
     // usage dominates, quality is a kicker; unscored songs sit at a neutral 50
-    const maxCC = Math.max(1, ...songs.map(s => s.churchCount));
-    const blend = (s: Song) => (s.churchCount / maxCC) * 60 + ((s.qualityScore ?? 50) / 100) * 40;
+    const maxDl = Math.max(1, ...songs.map(s => s.downloadCount));
+    const blend = (s: Song) => (s.downloadCount / maxDl) * 60 + ((s.qualityScore ?? 50) / 100) * 40;
     filtered.sort((a, b) =>
-      sort === "cong" ? blend(b) - blend(a) :
+      sort === "downloads" ? blend(b) - blend(a) :
         sort === "new" ? b.year - a.year :
           a.title.localeCompare(b.title));
     return filtered;
@@ -205,7 +205,7 @@ export default function Songs() {
             </div>
             <div className="search-sort">
               <select id="sort" aria-label={t("Sort by")} value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}>
-                <option value="cong">{t("Most sung")}</option>
+                <option value="downloads">{t("Most downloaded")}</option>
                 <option value="new">{t("Newest")}</option>
                 <option value="az">{t("Title A–Z")}</option>
               </select>
@@ -287,7 +287,7 @@ export default function Songs() {
           {list.length > 0 && (
             <div className="table" id="table">
               <div className="thead">
-                <span></span><span></span><span>{t("Song")}</span><span>{t("Themes")}</span><span className="c">{t("Key")}</span><span className="c">{t("BPM")}</span><span className="c">{t("Used by")}</span><span>{t("Source")}</span>
+                <span></span><span></span><span>{t("Song")}</span><span>{t("Themes")}</span><span className="c">{t("Key")}</span><span className="c">{t("BPM")}</span><span className="c">{t("Downloads")}</span><span>{t("Source")}</span>
               </div>
               <div>
                 {slice.map(s => (
@@ -304,7 +304,7 @@ export default function Songs() {
                     <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="t-num t-key c">{s.songKey}</span>
                     <span className="t-num t-bpm c">{s.bpm}</span>
-                    <span className="t-num t-cong c">{s.churchCount.toLocaleString()}</span>
+                    <span className="t-num t-downloads c">{s.downloadCount.toLocaleString()}</span>
                     <span className="t-badge">{s.license === "WC" ? <span className="free-badge">{t("Free")}</span> : <span className="pd-badge"><GlobeIcon />{t("Public domain")}</span>}</span>
                   </div>
                 ))}

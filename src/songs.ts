@@ -13,7 +13,8 @@ export interface Song {
   scripture: string;
   scriptureText?: string;
   license: "WC" | "PD";
-  churchCount: number;
+  downloadCount: number;
+  likeCount: number;
   chordPro?: string;
   demoAudioUrl?: string;
   demoAudioBytes?: number;

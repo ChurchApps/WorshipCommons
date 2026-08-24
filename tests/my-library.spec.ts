@@ -13,14 +13,12 @@ test.describe.serial("saved library", () => {
     await expect(page).toHaveURL(/\/login\?next=/);
   });
 
-  test("saving persists to the account and counts a church", async ({ page, request }) => {
+  test("saving persists to the account", async ({ page, request }) => {
     const id = await songIdByTitle(request, "Be Thou My Vision");
     await page.goto(`/songs/${id}`);
-    const before = Number((await page.getByTestId("cong-count").textContent()).replace(/\D/g, ""));
 
     await page.getByTestId("library-toggle").click();
     await expect(page.getByTestId("library-toggle")).toContainText("In your library");
-    await expect(page.getByTestId("cong-count")).toHaveText(String(before + 1));
 
     // survives a reload with localStorage wiped — it lives on the server now
     await page.evaluate(() => localStorage.removeItem("wcLibrary"));

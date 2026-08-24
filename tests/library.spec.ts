@@ -1,7 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import { WC_API } from "./helpers/api";
 
-interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; churchCount: number; demoAudioUrl?: string; stemsZipUrl?: string; }
+interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; downloadCount: number; demoAudioUrl?: string; stemsZipUrl?: string; }
 
 // expectations are computed from the live seed so the catalog can grow without breaking specs
 let songs: SeedSong[] = [];
@@ -21,14 +21,14 @@ async function openLibrary(page: Page) {
 }
 
 test.describe("library", () => {
-  test("shows the full catalog with badges, most-sung first", async ({ page }) => {
+  test("shows the full catalog with badges, most-downloaded first", async ({ page }) => {
     await openLibrary(page);
     await expect(page.locator(".t-row")).toHaveCount(firstPage(songs.length));
 
-    const mostSung = [...songs].sort((a, b) => b.churchCount - a.churchCount)[0];
-    await expect(page.locator(".t-row").first()).toContainText(mostSung.title);
+    const mostDownloaded = [...songs].sort((a, b) => b.downloadCount - a.downloadCount)[0];
+    await expect(page.locator(".t-row").first()).toContainText(mostDownloaded.title);
 
-    const topPd = [...songs].sort((a, b) => b.churchCount - a.churchCount).find(s => s.license === "PD");
+    const topPd = [...songs].sort((a, b) => b.downloadCount - a.downloadCount).find(s => s.license === "PD");
     await expect(page.locator(".t-row", { hasText: topPd.title }).locator(".pd-badge")).toHaveText("Public domain");
 
     await page.fill("#q", "amazing grace");
