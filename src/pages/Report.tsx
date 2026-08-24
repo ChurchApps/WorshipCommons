@@ -9,9 +9,10 @@ export default function Report() {
   const { t } = useI18n();
   usePageMeta(t("Report a song — WorshipCommons"));
   const [params] = useSearchParams();
-  const [form, setForm] = useState({ songText: params.get("song") || "", reporterRole: "", details: "", name: "", email: "", signature: "", goodfaith: false });
+  const [form, setForm] = useState({ songText: params.get("song") || "", reason: "copyright", reporterRole: "", details: "", name: "", email: "", signature: "", goodfaith: false });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const ownership = form.reason === "copyright";
 
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
@@ -21,11 +22,13 @@ export default function Report() {
     try {
       await wcPost("/reports", {
         contentText: form.songText,
-        reporterRole: form.reporterRole,
+        assetId: form.songText.match(/\/songs\/([\w-]+)/)?.[1],
+        reason: form.reason,
+        reporterRole: ownership ? form.reporterRole : undefined,
         details: form.details,
-        name: form.name,
-        email: form.email,
-        signature: form.signature
+        name: ownership ? form.name : undefined,
+        email: ownership ? form.email : undefined,
+        signature: ownership ? form.signature : undefined
       });
       setSubmitted(true);
       window.scrollTo({ top: 0 });
@@ -62,6 +65,16 @@ export default function Report() {
             <input type="text" id="song" placeholder={t("Title or the song page's address")} required value={form.songText} onChange={e => set("songText", e.target.value)} />
           </div>
           <div className="field">
+            <label htmlFor="reason">{t("What’s the problem?")}</label>
+            <select id="reason" value={form.reason} onChange={e => set("reason", e.target.value)}>
+              {/* value stays English so reports read the same for reviewers */}
+              <option value="copyright">{t("Someone shared a song they don’t own")}</option>
+              <option value="policy">{t("It breaks the community rules")}</option>
+              <option value="quality">{t("The chart or files are wrong")}</option>
+              <option value="other">{t("Something else")}</option>
+            </select>
+          </div>
+          {ownership && <div className="field">
             <label htmlFor="relation">{t("Who are you?")}</label>
             <select id="relation" required value={form.reporterRole} onChange={e => set("reporterRole", e.target.value)}>
               <option value="">{t("Choose one…")}</option>
@@ -69,11 +82,12 @@ export default function Report() {
               {["The copyright owner (writer or publisher)", "Someone authorized by the copyright owner", "A co-writer who never agreed to this", "Someone who recognizes this song and suspects a problem"]
                 .map(o => <option key={o} value={o}>{t(o)}</option>)}
             </select>
-          </div>
+          </div>}
           <div className="field">
             <label htmlFor="details">{t("What’s wrong?")}</label>
             <textarea id="details" rows={6} placeholder={t("Tell us what this song is, who actually owns it, and how you know. Links to registrations, releases, or publisher catalogs help us move fast.")} required value={form.details} onChange={e => set("details", e.target.value)} />
           </div>
+          {ownership && <>
           <div className="field-row field" style={{ gridTemplateColumns: "1fr 1fr" }}>
             <div>
               <label htmlFor="name">{t("Your name")}</label>
@@ -97,6 +111,7 @@ export default function Report() {
             <label htmlFor="signature">{t("Signature")}</label>
             <input type="text" id="signature" placeholder={t("Type your full legal name")} required value={form.signature} onChange={e => set("signature", e.target.value)} />
           </div>
+          </>}
 
           {error && <p className="hint" style={{ color: "var(--secondary)", fontWeight: 600 }}>{error}</p>}
           <button type="submit" className="btn btn-primary">{t("Send the report")}</button>

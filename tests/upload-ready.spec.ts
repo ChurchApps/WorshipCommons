@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
+import * as fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { userJwt, WC_API } from "./helpers/api";
+import { approveSubmission, CONTENT, mySubmissionFor, pendingSubmissionFor, rejectSubmission, submissionDetail, userJwt, WC_API } from "./helpers/api";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WAV = path.join(__dirname, "fixtures", "tiny.wav");
@@ -9,13 +10,6 @@ const PDF = path.join(__dirname, "fixtures", "tiny.pdf");
 const ZIP = path.join(__dirname, "fixtures", "tiny.zip");
 
 const LYRICS = "Verse 1\n[G]Sing a new song [C]to the [G]Lord,\nall the [Em]earth lift [D]up your [G]voice.\n\nChorus\n[C]Glory, [D]glory to the [G]King,\n[C]let the [D]whole creation [G]sing.";
-
-function slugify(title: string): string {
-  return title.normalize("NFC").toLowerCase()
-    .replace(/['’ʼ]/gu, "")
-    .replace(/[^\p{L}\p{M}\p{N}]+/gu, "-")
-    .replace(/^-+|-+$/g, "") || "untitled";
-}
 
 async function fillSongFields(page: import("@playwright/test").Page, title: string, themes = "Praise, Hope") {
   await page.fill("#title", title);
@@ -27,14 +21,6 @@ async function fillSongFields(page: import("@playwright/test").Page, title: stri
   await page.fill("#scripture", "Psalm 96:1");
   await page.fill("#lyrics", LYRICS);
   await page.selectOption("#pro", { index: 1 });
-}
-
-async function songIdByMine(request: import("@playwright/test").APIRequestContext, title: string): Promise<{ id: string; status: string }> {
-  const jwt = await userJwt(request);
-  const mine = await (await request.get(`${WC_API}/songs/mine`, { headers: { Authorization: `Bearer ${jwt}` } })).json();
-  const song = mine.find((s: { title: string }) => s.title === title);
-  if (!song) throw new Error(`Uploaded song not in /songs/mine: ${title}`);
-  return song;
 }
 
 test.describe("upload sign-in gate", () => {
@@ -95,26 +81,30 @@ test.describe("upload required fields", () => {
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
   });
 
-  test("API refuses a demo without recordingOwned", async ({ request }) => {
+  test("API refuses a demo without the recordingOwned attestation", async ({ request }) => {
     const jwt = await userJwt(request);
-    const resp = await request.post(`${WC_API}/songs`, {
-      headers: { Authorization: `Bearer ${jwt}` },
-      data: {
-        title: "API Demo Without Flag",
-        writer: "Spec Writer",
-        songKey: "C",
-        chordPro: "Verse 1\n[C]A line",
-        certified: true,
-        files: { demoAudio: { name: "tiny.wav", contentType: "audio/wav", base64: "UklGRiQAAABXQVZF" } }
-      }
+    const headers = { Authorization: `Bearer ${jwt}` };
+    const draft = await (await request.post(`${WC_API}/submissions`, {
+      headers,
+      data: { assetType: "song", payload: { name: "API Demo Without Flag", language: "English", license: "WC", detail: { writer: "Spec Writer", songKey: "C", chordPro: "Verse 1\n[C]A line", certified: true } } }
+    })).json();
+    const stored = await request.post(`${WC_API}/submissions/${draft.submissionId}/files`, {
+      headers,
+      data: { name: "demoAudio.wav", contentType: "audio/wav", base64: fs.readFileSync(WAV).toString("base64") }
     });
+    expect(stored.ok()).toBeTruthy();
+
+    const resp = await request.post(`${WC_API}/submissions/${draft.submissionId}/submit`, { headers, data: {} });
     expect(resp.status()).toBe(400);
+    expect(JSON.stringify(await resp.json())).toContain("recordingOwned");
+    await request.delete(`${WC_API}/submissions/${draft.submissionId}`, { headers });
   });
 });
 
 test.describe.serial("pending is private then reject deletes files", () => {
   const TITLE = "Pending Private Demo Song";
-  let songId = "";
+  let submissionId = "";
+  let assetId = "";
   let pendingAudioSrc = "";
 
   test("after upload, public list and guessed content URLs hide the demo", async ({ page, request }) => {
@@ -132,31 +122,26 @@ test.describe.serial("pending is private then reject deletes files", () => {
     await page.goto("/my-songs");
     await expect(page.getByTestId("my-song").filter({ hasText: TITLE })).toContainText("In review");
 
-    const song = await songIdByMine(request, TITLE);
-    songId = song.id;
-    expect((await request.get(`${WC_API}/songs/${songId}`)).status()).toBe(404);
-    expect((await request.get(`${WC_API}/songs/${songId}/chordpro`)).status()).toBe(404);
-    expect((await request.get(`${WC_API}/songs/${songId}/lyrics`)).status()).toBe(404);
+    const mine = await mySubmissionFor(request, TITLE);
+    submissionId = mine.id;
+    assetId = mine.assetId;
+    expect((await request.get(`${WC_API}/songs/${assetId}`)).status()).toBe(404);
+    expect((await request.get(`${WC_API}/songs/${assetId}/chordpro`)).status()).toBe(404);
+    expect((await request.get(`${WC_API}/songs/${assetId}/lyrics`)).status()).toBe(404);
 
-    const guessedPublic = `${WC_API}/content/songs/en/wc-license/${slugify(TITLE)}--${songId}/demoAudio.wav`;
-    const guessedPending = `${WC_API}/content/pending/${songId}/demoAudio.wav`;
-    expect((await request.get(guessedPublic)).status()).not.toBe(200);
-    expect((await request.get(guessedPending)).status()).not.toBe(200);
+    // neither the pending key nor the live key is publicly reachable while it waits
+    expect((await request.get(`${CONTENT}/pending/${submissionId}/demoAudio.wav`)).status()).not.toBe(200);
+    expect((await request.get(`${CONTENT}/assets/song/${assetId}/demoAudio.wav`)).status()).not.toBe(200);
 
-    await page.goto("/admin");
-    const card = page.getByTestId("pending-song").filter({ hasText: TITLE });
-    await expect(card).toBeVisible();
-    const audio = card.locator("audio");
-    await expect(audio).toHaveAttribute("src", /.+/);
-    pendingAudioSrc = (await audio.getAttribute("src")) as string;
+    // the reviewer hears it through a signed, expiring url instead
+    const detail = await submissionDetail(request, submissionId);
+    pendingAudioSrc = detail.files[0].url;
+    expect(pendingAudioSrc).toBeTruthy();
     expect((await request.get(pendingAudioSrc)).ok()).toBeTruthy();
   });
 
   test("reject removes the song and pending file URLs 404", async ({ page, request }) => {
-    await page.goto("/admin");
-    const card = page.getByTestId("pending-song").filter({ hasText: TITLE });
-    await card.getByRole("button", { name: "Reject" }).click();
-    await expect(card).toHaveCount(0);
+    await rejectSubmission(request, submissionId);
 
     await page.goto("/songs");
     await page.fill("#q", TITLE.toLowerCase());
@@ -166,7 +151,14 @@ test.describe.serial("pending is private then reject deletes files", () => {
     expect(list.find((s: { title: string }) => s.title === TITLE)).toBeFalsy();
 
     expect((await request.get(pendingAudioSrc)).status()).toBe(404);
-    expect((await request.get(`${WC_API}/content/pending/${songId}/demoAudio.wav`)).status()).not.toBe(200);
+    expect((await request.get(`${CONTENT}/pending/${submissionId}/demoAudio.wav`)).status()).not.toBe(200);
+  });
+
+  test("my songs shows the reviewer's note", async ({ page }) => {
+    await page.goto("/my-songs");
+    const card = page.getByTestId("my-song").filter({ hasText: TITLE });
+    await expect(card).toContainText("Not accepted");
+    await expect(card.getByTestId("review-note")).toContainText("spec");
   });
 });
 
@@ -187,16 +179,12 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
   });
 
-  test("admin approves", async ({ page, request }) => {
-    await page.goto("/admin");
-    const card = page.getByTestId("pending-song").filter({ hasText: TITLE });
-    await expect(card).toBeVisible();
-    await card.getByRole("button", { name: "Approve" }).click();
-    await expect(card).toHaveCount(0);
-
-    const song = await songIdByMine(request, TITLE);
-    expect(song.status).toBe("approved");
-    songId = song.id;
+  test("a reviewer approves", async ({ request }) => {
+    const pending = await pendingSubmissionFor(request, TITLE);
+    await approveSubmission(request, pending.id);
+    const mine = await mySubmissionFor(request, TITLE);
+    expect(mine.status).toBe("approved");
+    songId = mine.assetId;
   });
 
   test("public page has chart, writer, themes, WC label, demo, sheet, stems, downloads", async ({ page, request }) => {
@@ -253,13 +241,9 @@ test.describe.serial("PD submit label", () => {
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
   });
 
-  test("admin approves the PD song", async ({ page }) => {
-    await page.goto("/admin");
-    const card = page.getByTestId("pending-song").filter({ hasText: TITLE });
-    await expect(card).toBeVisible();
-    await expect(card).toContainText("Public domain");
-    await card.getByRole("button", { name: "Approve" }).click();
-    await expect(card).toHaveCount(0);
+  test("a reviewer approves the PD song", async ({ request }) => {
+    const pending = await pendingSubmissionFor(request, TITLE);
+    await approveSubmission(request, pending.id);
   });
 
   test("public page label is Public domain, never copyright-cleared", async ({ page }) => {

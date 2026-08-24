@@ -5,7 +5,7 @@ import { parseChordPro } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { draftAbc } from "../abcDraft";
 import AbcEditor from "../components/AbcEditor";
-import { wcPost } from "../api";
+import { wcDelete, wcGet, wcPost } from "../api";
 import { useAuth } from "../auth";
 import { useI18n } from "../i18n";
 import { usePageMeta } from "../seo";
@@ -107,11 +107,18 @@ export default function Transcribe() {
 
   const submit = async () => {
     setError("");
+    let subId = "";
     try {
-      await wcPost(`/songs/${song.id}/abc`, { abc }, true);
+      const payload = await wcGet(`/assets/${song.id}/editable`, true);
+      const created = await wcPost("/submissions", { assetId: song.id, payload, note: "ABC transcription" }, true);
+      subId = created.submissionId;
+      const base64 = btoa(Array.from(new TextEncoder().encode(abc), b => String.fromCharCode(b)).join(""));
+      await wcPost(`/submissions/${subId}/files`, { name: "tune.abc", contentType: "text/plain; charset=utf-8", base64 }, true);
+      await wcPost(`/submissions/${subId}/submit`, {}, true);
       setSubmitted(true);
     } catch (e) {
       setError((e as Error).message);
+      if (subId) await wcDelete(`/submissions/${subId}`, true).catch(() => {});
     }
   };
 

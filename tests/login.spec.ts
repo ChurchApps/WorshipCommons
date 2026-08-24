@@ -24,7 +24,7 @@ test.describe("auth", () => {
   });
 
   test("admin routes reject anonymous API calls", async ({ request }) => {
-    const resp = await request.get("http://localhost:8084/commons/admin/songs");
+    const resp = await request.get("http://localhost:8084/commons/admin/submissions");
     expect(resp.status()).toBe(401);
   });
 });

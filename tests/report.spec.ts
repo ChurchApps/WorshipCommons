@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { songIdByTitle } from "./helpers/api";
 
-test("report form submits and thanks the reporter", async ({ page }) => {
+test("copyright report needs the signed ownership claim", async ({ page }) => {
   await page.goto("/report");
   await expect(page.getByRole("heading", { name: "Report a song" })).toBeVisible();
 
@@ -15,4 +16,18 @@ test("report form submits and thanks the reporter", async ({ page }) => {
 
   await expect(page.getByTestId("report-thanks")).toBeVisible();
   await expect(page.getByTestId("report-thanks")).toContainText("Thanks for guarding the commons");
+});
+
+test("a policy report needs no signature", async ({ page, request }) => {
+  const id = await songIdByTitle(request, "Amazing Grace");
+  await page.goto(`/report?song=${encodeURIComponent(`Amazing Grace — /songs/${id}`)}`);
+
+  await expect(page.locator("#song")).toHaveValue(new RegExp(id));
+  await page.selectOption("#reason", "policy");
+  await expect(page.locator("#signature")).toHaveCount(0);
+  await expect(page.locator("#relation")).toHaveCount(0);
+
+  await page.fill("#details", "This one doesn't belong in a worship library.");
+  await page.getByRole("button", { name: "Send the report" }).click();
+  await expect(page.getByTestId("report-thanks")).toBeVisible();
 });

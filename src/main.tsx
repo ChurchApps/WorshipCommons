@@ -15,8 +15,9 @@ import Report from "./pages/Report";
 import Library from "./pages/Library";
 import Login from "./pages/Login";
 import MySongs from "./pages/MySongs";
-import Admin from "./pages/Admin";
 import Transcribe from "./pages/Transcribe";
+import EditSong from "./pages/EditSong";
+import PreviewSubmission from "./pages/PreviewSubmission";
 import "./styles/style.css";
 
 function NotFound() {
@@ -32,18 +33,19 @@ createRoot(document.getElementById("root")).render(
           <Routes>
             <Route path="/songs/:id/print" element={<PrintChart />} />
             <Route path="/songs/:id/sheet" element={<SheetMusic />} />
+            <Route path="/preview/submission/:id" element={<PreviewSubmission />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
               <Route path="/songs/:id" element={<SongPage />} />
               <Route path="/songs/:id/transcribe" element={<Transcribe />} />
+              <Route path="/songs/:id/edit" element={<EditSong />} />
               <Route path="/upload" element={<Upload />} />
               <Route path="/license" element={<License />} />
               <Route path="/report" element={<Report />} />
               <Route path="/library" element={<Library />} />
               <Route path="/login" element={<Login />} />
               <Route path="/my-songs" element={<MySongs />} />
-              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

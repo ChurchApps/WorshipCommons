@@ -5,7 +5,7 @@ import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_K
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { abcKeyRoot } from "../abc";
 import Karaoke from "../components/Karaoke";
-import { wcPost, COMMONS_API } from "../api";
+import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -14,6 +14,8 @@ import { useI18n } from "../i18n";
 import "../styles/song.css";
 
 const youTubeId = (url?: string) => url?.match(/[?&]v=([\w-]{11})/)?.[1];
+
+interface HistoryEntry { submissionId: string; submittedByName?: string; approvedAt?: string; note?: string; filesChanged?: { name: string; action: string }[] }
 
 const ArrowLeft = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
@@ -78,7 +80,18 @@ export default function SongPage() {
 
   const [song, setSong] = useState<Song | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [asset, setAsset] = useState<{ ratingAverage?: number | null; ratingCount?: number; myRating?: number | null } | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [rateError, setRateError] = useState("");
   useEffect(() => { loadSongs().then(setSongs); }, []);
+  useEffect(() => {
+    setAsset(null);
+    setHistory([]);
+    setRateError("");
+    if (!id) return;
+    wcGet(`/assets/${id}`, true).then(setAsset).catch(() => {});
+    wcGet(`/assets/${id}/history`).then(h => setHistory(h || [])).catch(() => {});
+  }, [id, user]);
   useEffect(() => {
     setSong(null);
     setNotFound(false);
@@ -197,6 +210,17 @@ export default function SongPage() {
     setInLib(!inLib);
   };
 
+  const setRating = async (stars: number) => {
+    if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
+    setRateError("");
+    try {
+      const result = await wcPut(`/assets/${song.id}/rating`, { stars: asset?.myRating === stars ? null : stars }, true);
+      setAsset(a => ({ ...a, ...result }));
+    } catch (e) {
+      setRateError((e as Error).message);
+    }
+  };
+
   const recordDownload = () => {
     wcPost(`/assets/${song.id}/download`, {}).then(resp => { if (resp?.downloadCount != null) setCount(resp.downloadCount); }).catch(() => {});
   };
@@ -305,6 +329,20 @@ export default function SongPage() {
             </button>
             {!user && <p className="rel-hint" style={{ marginTop: 10 }}>{t("Sign in to save it to your account.")}</p>}
             {inLib && <p className="rel-hint" style={{ marginTop: 10 }}><Link to="/library">{t("View your library →")}</Link></p>}
+            <p className="rel-hint" style={{ marginTop: 10 }}><Link to={`/songs/${song.id}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link></p>
+          </div>
+
+          <div className="card side-card">
+            <h2>{t("How is it?")}</h2>
+            <div className="stepper" role="group" aria-label={t("Rate this song")} data-testid="rating-stars">
+              {[1, 2, 3, 4, 5].map(n => (
+                <button key={n} aria-label={t("{n} stars", { n })} aria-pressed={(asset?.myRating || 0) >= n} data-testid={`rating-star-${n}`} onClick={() => setRating(n)}>
+                  {(asset?.myRating || 0) >= n ? "★" : "☆"}
+                </button>
+              ))}
+            </div>
+            {asset?.ratingAverage != null && <p className="rel-hint" style={{ marginTop: 10 }} data-testid="rating-average">{asset.ratingAverage} ★ ({asset.ratingCount})</p>}
+            {rateError && <p className="rel-hint" style={{ marginTop: 10, color: "var(--secondary)" }} data-testid="rating-error">{rateError}</p>}
           </div>
 
           {song.midiUrl && (
@@ -419,6 +457,23 @@ export default function SongPage() {
                 </>
               )}
               <p className="rel-hint">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>
+            </div>
+          )}
+
+          {history.length > 0 && (
+            <div className="card side-card" data-testid="history">
+              <h2>{t("Contributors & changes")}</h2>
+              <ul className="rel-list">
+                {history.map(h => (
+                  <li key={h.submissionId} data-testid="history-entry">
+                    <div>
+                      <b>{h.submittedByName || t("a community member")}</b>
+                      <span>{h.approvedAt ? new Date(h.approvedAt).toLocaleDateString() : ""}{h.note ? ` · ${h.note}` : ""}{h.filesChanged?.length ? ` · ${h.filesChanged.map(f => f.name).join(", ")}` : ""}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="rel-hint">{t("Anyone signed in can propose an edit; a reviewer decides.")}</p>
             </div>
           )}
 
