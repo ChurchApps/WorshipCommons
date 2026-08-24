@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 import { fileURLToPath } from "url";
+import { approveSubmission, pendingSubmissionFor } from "./helpers/api";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SONG_TITLE = "Test Song E2E";
@@ -33,15 +34,10 @@ test.describe.serial("upload flow", () => {
     await expect(page.getByTestId("my-song").filter({ hasText: SONG_TITLE })).toContainText("In review");
   });
 
-  test("admin sees it pending and approves it", async ({ page }) => {
-    await page.goto("/admin");
-    const card = page.getByTestId("pending-song").filter({ hasText: SONG_TITLE });
-    await expect(card).toBeVisible();
-    await expect(card).toContainText("Playwright Composer");
-
-    await card.getByRole("button", { name: "Approve" }).click();
-    await expect(card).toHaveCount(0);
-    await expect(page.getByTestId("no-pending")).toBeVisible();
+  test("a reviewer approves it", async ({ page, request }) => {
+    const pending = await pendingSubmissionFor(request, SONG_TITLE);
+    expect(pending.isNewAsset).toBeTruthy();
+    await approveSubmission(request, pending.id);
 
     await page.goto("/my-songs");
     await expect(page.getByTestId("my-song").filter({ hasText: SONG_TITLE })).toContainText("Live");

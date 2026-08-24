@@ -26,10 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const resp = await corePost("/membership/users/login", { email, password, appName: "WorshipCommons" });
     const u = resp?.user;
     if (!u?.jwt) throw new Error("Login failed");
-    const userChurches: Array<{ jwt?: string; apis?: Array<{ permissions?: Array<{ contentType?: string; action?: string }> }> }> = resp?.userChurches || [];
-    // admin endpoints require a church jwt carrying the Server/Admin permission claim; the plain user jwt doesn't
-    const adminChurch = userChurches.find((uc) => uc.jwt && uc.apis?.some((api) => api.permissions?.some((p) => p.contentType === "Server" && p.action === "Admin")));
-    localStorage.setItem("wcJwt", adminChurch?.jwt || u.jwt);
+    localStorage.setItem("wcJwt", u.jwt);
     localStorage.setItem("wcUser", JSON.stringify({ id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName }));
     clearLibraryCache();
     setUser({ id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName });

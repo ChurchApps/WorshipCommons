@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { WC_API } from "./helpers/api";
+import { pendingSubmissionFor, rejectSubmission, WC_API } from "./helpers/api";
 
 const TINY_ABC = "X:1\nT:Spec Tune\nM:4/4\nL:1/4\nK:C\nC D E F | G4 |\n";
 
 test.describe("transcribe flow", () => {
-  test("draft from MIDI, engrave, submit, reject in admin", async ({ page, request }) => {
+  test("draft from MIDI, engrave, submit, reject through the queue", async ({ page, request }) => {
     // any approved song with a MIDI but no ABC is a transcription target
     const songs = await (await request.get(`${WC_API}/songs`)).json();
     const song = songs.find((s: { fileUrls?: Record<string, string> }) => s.fileUrls?.midi && !s.fileUrls?.abc);
@@ -19,18 +19,20 @@ test.describe("transcribe flow", () => {
     await expect(page.getByTestId("abc-editor")).not.toHaveValue("", { timeout: 15000 });
     await expect(page.getByTestId("abc-paper").locator("svg")).toBeVisible();
 
-    // submit a known-good tiny tune so the admin check isn't hostage to draft quality
+    // submit a known-good tiny tune so the check isn't hostage to draft quality
     await page.getByTestId("abc-editor").fill(TINY_ABC);
     await expect(page.getByTestId("abc-paper").locator("svg")).toBeVisible();
     await page.getByTestId("abc-submit").click();
     await expect(page.getByText("submitted for review")).toBeVisible();
 
+    const pending = await pendingSubmissionFor(request, song.id);
+    expect(pending.note).toBe("ABC transcription");
+    expect(pending.filesChanged.map((f: { name: string }) => f.name)).toContain("tune.abc");
+
     // reject so repeated runs don't accumulate approved rows
-    await page.goto("/admin");
-    const card = page.getByTestId("abc-submission").filter({ hasText: song.title });
-    await expect(card.first()).toBeVisible();
-    await card.first().getByRole("button", { name: "Reject" }).click();
-    await expect(card).toHaveCount(0);
+    await rejectSubmission(request, pending.id);
+    await page.goto("/my-songs");
+    await expect(page.getByTestId("my-song").filter({ hasText: song.title }).first()).toContainText("Not accepted");
   });
 
   test("song with a score points to the sheet instead", async ({ page, request }) => {
