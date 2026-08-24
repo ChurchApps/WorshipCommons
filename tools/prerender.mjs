@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 import { coverSvg } from "../src/cover.mjs";
 
-const API = (process.argv[2] || "http://localhost:8098").replace(/\/$/, "");
+const API = (process.argv[2] || "http://localhost:8084").replace(/\/$/, "") + "/commons";
 const SITE = (process.argv[3] || "https://worshipcommons.org").replace(/\/$/, "");
 const BUILD = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "build");
 

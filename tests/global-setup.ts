@@ -1,5 +1,6 @@
 import { chromium, type FullConfig } from "@playwright/test";
 import { execSync } from "child_process";
+import * as fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { verifyEnv } from "./setup/verify-env.mjs";
@@ -7,13 +8,22 @@ import { verifyEnv } from "./setup/verify-env.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORAGE_STATE_PATH = path.join(__dirname, ".auth-state.json");
 
+function firstExisting(paths: string[]): string {
+  const found = paths.find((p) => fs.existsSync(p));
+  if (!found) throw new Error(`Could not find WorshipCommonsContent in any of:\n  ${paths.join("\n  ")}`);
+  return found;
+}
+
 async function globalSetup(config: FullConfig) {
   await verifyEnv({ fullCheck: true });
 
-  // fresh demo data every run — migrate then seed is the reset
-  const apiDir = path.join(__dirname, "..", "..", "WorshipCommonsApi");
-  execSync("yarn migrate:up", { cwd: apiDir, stdio: "inherit" });
-  execSync("yarn seed", { cwd: apiDir, stdio: "inherit" });
+  // fresh demo data every run — reset-commons is the reset
+  const coreApiDir = process.env.CORE_API_DIR || path.resolve(__dirname, "..", "..", "Api");
+  const contentRepo = process.env.COMMONS_CONTENT_REPO || firstExisting([
+    path.resolve(__dirname, "../../WorshipCommonsContent"),
+    path.resolve(__dirname, "../../../WorshipCommonsContent")
+  ]);
+  execSync("yarn reset-commons", { cwd: coreApiDir, stdio: "inherit", env: { ...process.env, COMMONS_CONTENT_REPO: contentRepo } });
 
   const baseURL = (config.projects[0].use.baseURL as string) || process.env.BASE_URL || "http://localhost:3104";
 

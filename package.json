@@ -21,14 +21,14 @@
     "lint": "eslint --fix src/ tests/",
     "lint:check": "eslint src/ tests/",
     "test": "playwright test",
-    "predeploy-staging": "VITE_WC_API=https://api.staging.worshipcommons.org VITE_CORE_API=https://api.staging.churchapps.org yarn build",
+    "predeploy-staging": "VITE_CORE_API=https://api.staging.churchapps.org yarn build",
     "exec-deploy-staging": "aws s3 sync build/ s3://staging-worshipcommons-app --delete",
     "postdeploy-staging": "aws cloudfront create-invalidation --distribution-id E3T6JKTGXHBUG6 --paths \"/*\"",
-    "deploy-staging": "yarn predeploy-staging && node tools/prerender.mjs https://api.staging.worshipcommons.org https://staging.worshipcommons.org && yarn exec-deploy-staging && yarn postdeploy-staging",
-    "predeploy-prod": "VITE_WC_API=https://api.worshipcommons.org VITE_CORE_API=https://api.churchapps.org yarn build",
+    "deploy-staging": "yarn predeploy-staging && node tools/prerender.mjs https://api.staging.churchapps.org https://staging.worshipcommons.org && yarn exec-deploy-staging && yarn postdeploy-staging",
+    "predeploy-prod": "VITE_CORE_API=https://api.churchapps.org yarn build",
     "exec-deploy-prod": "aws s3 sync build/ s3://worshipcommons-app --delete",
     "postdeploy-prod": "aws cloudfront create-invalidation --distribution-id E363E9V6GH4TVJ --paths \"/*\"",
-    "deploy-prod": "yarn predeploy-prod && node tools/prerender.mjs https://api.worshipcommons.org https://worshipcommons.org && yarn exec-deploy-prod && yarn postdeploy-prod",
+    "deploy-prod": "yarn predeploy-prod && node tools/prerender.mjs https://api.churchapps.org https://worshipcommons.org && yarn exec-deploy-prod && yarn postdeploy-prod",
     "prerender": "node tools/prerender.mjs"
   },
   "devDependencies": {

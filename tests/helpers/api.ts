@@ -1,7 +1,7 @@
 import { APIRequestContext } from "@playwright/test";
 
 export const CORE_API = "http://localhost:8084";
-export const WC_API = "http://localhost:8098";
+export const WC_API = "http://localhost:8084/commons";
 
 export async function songIdByTitle(request: APIRequestContext, title: string): Promise<string> {
   const list = await (await request.get(`${WC_API}/songs`)).json();
@@ -24,7 +24,7 @@ export async function createPendingSong(request: APIRequestContext, jwt: string,
   return await resp.json();
 }
 
-export async function createReport(request: APIRequestContext, songText: string) {
-  const resp = await request.post(`${WC_API}/reports`, { data: { songText, reporterRole: "The copyright owner (writer or publisher)", details: "Spec-created report", name: "Spec Tester", email: "spec@example.com", signature: "Spec Tester" } });
+export async function createReport(request: APIRequestContext, contentText: string) {
+  const resp = await request.post(`${WC_API}/reports`, { data: { contentType: "song", contentText, reporterRole: "The copyright owner (writer or publisher)", details: "Spec-created report", name: "Spec Tester", email: "spec@example.com", signature: "Spec Tester" } });
   return await resp.json();
 }

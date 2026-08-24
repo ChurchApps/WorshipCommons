@@ -32,16 +32,8 @@ export default defineConfig({
 
   webServer: [
     {
-      command: "npm --prefix ../Api run dev",
+      command: `npm --prefix ${process.env.CORE_API_DIR || "../Api"} run dev`,
       url: "http://localhost:8084/health",
-      reuseExistingServer: true,
-      timeout: 60 * 1000,
-      stdout: "pipe",
-      stderr: "pipe"
-    },
-    {
-      command: "yarn --cwd ../WorshipCommonsApi dev:ts",
-      url: "http://localhost:8098/",
       reuseExistingServer: true,
       timeout: 60 * 1000,
       stdout: "pipe",
