@@ -56,7 +56,7 @@ test.describe.serial("upload flow", () => {
     await row.getByRole("link").click();
     await expect(page.getByRole("heading", { name: SONG_TITLE })).toBeVisible();
     await expect(page.locator(".stanza-label", { hasText: "Chorus" })).toBeVisible();
-    await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /tiny\.wav/);
+    await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /demoAudio\.wav/);
 
     // uploaded demo really serves from the API's content store
     const src = await page.getByTestId("demo-audio").getAttribute("src");

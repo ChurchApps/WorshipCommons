@@ -50,24 +50,25 @@ export default function Login() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === "signin") run(() => finish(form.email, form.password), t("That email and password didn’t match — try again."));
-    else if (mode === "register") run(async () => {
-      const resp = await corePost("/membership/users/register", { firstName: form.firstName, lastName: form.lastName, email: form.email, ...APP });
-      if (resp.errors?.length) setError(resp.errors[0]);
-      else if (resp.mailConfigured === false && resp.authGuid) { setAuthGuid(resp.authGuid); setMode("setpw"); }
-      else setMode("code");
-    });
-    else if (mode === "forgot") run(async () => {
-      const resp = await corePost("/membership/users/forgot", { userEmail: form.email });
-      if (resp.errors?.length) setError(resp.errors[0]);
-      else if (resp.emailed) setMode("code");
-      else setError(t("We couldn’t find an account with that email."));
-    });
-    else if (mode === "code") run(async () => {
-      const resp = await corePost("/membership/users/verifyCode", { email: form.email, code: form.code });
-      if (resp.authGuid) { setAuthGuid(resp.authGuid); setMode("setpw"); }
-      else setError(t("That code didn’t match — check the email and try again."));
-    }, t("That code didn’t match — check the email and try again."));
-    else if (mode === "setpw") {
+    else if (mode === "register") {
+      run(async () => {
+        const resp = await corePost("/membership/users/register", { firstName: form.firstName, lastName: form.lastName, email: form.email, ...APP });
+        if (resp.errors?.length) setError(resp.errors[0]);
+        else if (resp.mailConfigured === false && resp.authGuid) { setAuthGuid(resp.authGuid); setMode("setpw"); } else setMode("code");
+      });
+    } else if (mode === "forgot") {
+      run(async () => {
+        const resp = await corePost("/membership/users/forgot", { userEmail: form.email });
+        if (resp.errors?.length) setError(resp.errors[0]);
+        else if (resp.emailed) setMode("code");
+        else setError(t("We couldn’t find an account with that email."));
+      });
+    } else if (mode === "code") {
+      run(async () => {
+        const resp = await corePost("/membership/users/verifyCode", { email: form.email, code: form.code });
+        if (resp.authGuid) { setAuthGuid(resp.authGuid); setMode("setpw"); } else setError(t("That code didn’t match — check the email and try again."));
+      }, t("That code didn’t match — check the email and try again."));
+    } else if (mode === "setpw") {
       if (form.newPassword.length < 8) { setError(t("Password must be at least 8 characters.")); return; }
       if (form.newPassword !== form.verifyPassword) { setError(t("Passwords don’t match.")); return; }
       run(async () => {

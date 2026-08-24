@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { loadSong, loadSongs, Song, themeList, formatBytes } from "../songs";
+import { loadSong, loadSongs, Song, themeList } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { abcKeyRoot } from "../abc";
@@ -376,7 +376,7 @@ export default function SongPage() {
           {song.stemsZipUrl && (
             <div className="card side-card">
               <h2>{t("Multitracks")}</h2>
-              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download onClick={recordDownload}>{t("All stems")} · ZIP · {formatBytes(song.stemsZipBytes)}</a>
+              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download onClick={recordDownload}>{t("All stems")} · ZIP</a>
               <p className="rel-hint">{t("One master set, recorded in {key} at {bpm} BPM — every file starts at bar 1. Works in Prime, Playback, Ableton, or any DAW.", { key: song.songKey, bpm: song.bpm })}</p>
             </div>
           )}
@@ -387,8 +387,8 @@ export default function SongPage() {
               <li><FileIcon /><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
               {song.abcUrl && <li><FileIcon /><Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="size">{t("melody & parts")} · {keyLabel}</span></li>}
               {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></li>}
-              {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a> <span className="size">{formatBytes(song.sheetPdfBytes)}</span></li>}
-              {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a> <span className="size">{formatBytes(song.midiBytes)}</span></li>}
+              {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a></li>}
+              {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a></li>}
               {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>

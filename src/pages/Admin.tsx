@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { wcGet, wcPost } from "../api";
 import AbcEditor from "../components/AbcEditor";
-import { Song } from "../songs";
+import { Song, songFromApi } from "../songs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 
@@ -73,7 +73,7 @@ export default function Admin() {
       const status = await wcGet("/admin/status", true);
       if (!status.admin) { setDenied(true); return; }
       const [songs, reps, subs] = await Promise.all([wcGet("/admin/songs", true), wcGet("/admin/reports", true), wcGet("/admin/abc-submissions", true)]);
-      setPending(songs);
+      setPending((songs as any[]).map(songFromApi));
       setReports(reps);
       setAbcSubs(subs);
     } catch {

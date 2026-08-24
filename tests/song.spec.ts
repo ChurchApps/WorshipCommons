@@ -11,7 +11,7 @@ test.beforeAll(async ({ request }) => {
   SILENT_NIGHT = `/songs/${await songIdByTitle(request, "Silent Night")}`;
   ABIDE = `/songs/${await songIdByTitle(request, "Abide, O Dearest Jesus")}`;
   const list = await (await request.get(`${WC_API}/songs`)).json();
-  const bare = list.find((s: { midiUrl?: string; lyricsUrl?: string; demoAudioUrl?: string }) => !s.midiUrl && !s.lyricsUrl && !s.demoAudioUrl);
+  const bare = list.find((s: { fileUrls?: Record<string, string> }) => !s.fileUrls?.midi && !s.fileUrls?.timing && !s.fileUrls?.demoAudio);
   if (!bare) throw new Error("No seeded song without media found");
   BARE_SONG = `/songs/${bare.id}`;
 });

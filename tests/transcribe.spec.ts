@@ -7,7 +7,7 @@ test.describe("transcribe flow", () => {
   test("draft from MIDI, engrave, submit, reject in admin", async ({ page, request }) => {
     // any approved song with a MIDI but no ABC is a transcription target
     const songs = await (await request.get(`${WC_API}/songs`)).json();
-    const song = songs.find((s: { midiUrl?: string; abcUrl?: string }) => s.midiUrl && !s.abcUrl);
+    const song = songs.find((s: { fileUrls?: Record<string, string> }) => s.fileUrls?.midi && !s.fileUrls?.abc);
     test.skip(!song, "no MIDI-only song in the seed catalog");
 
     await page.goto(`/songs/${song.id}`);
@@ -35,7 +35,7 @@ test.describe("transcribe flow", () => {
 
   test("song with a score points to the sheet instead", async ({ page, request }) => {
     const songs = await (await request.get(`${WC_API}/songs`)).json();
-    const song = songs.find((s: { abcUrl?: string }) => s.abcUrl);
+    const song = songs.find((s: { fileUrls?: Record<string, string> }) => s.fileUrls?.abc);
     test.skip(!song, "no ABC song in the seed catalog");
     await page.goto(`/songs/${song.id}/transcribe`);
     await expect(page.getByText("already has an engraved score")).toBeVisible();
