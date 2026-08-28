@@ -133,6 +133,7 @@ fieldset { border: 0; }
   .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); flex: none; flex-direction: column; padding: 24px; gap: 18px; border-bottom: 1px solid var(--border); }
   .nav-actions, .nav-menu > li:first-child { margin-left: 0; }
   .nav-menu.open { display: flex; }
+  .nav-account-menu { position: static; box-shadow: none; border: 0; padding: 4px 0 0; min-width: 0; }
   .nav-toggle { display: block; }
   .field-row { grid-template-columns: 1fr; }
   .foot-grid { grid-template-columns: 1fr; gap: 28px; }
@@ -147,6 +148,27 @@ fieldset { border: 0; }
 /* react app additions */
 .nav-signout { background: none; border: none; cursor: pointer; font: inherit; color: var(--text-2); padding: 8px 0; }
 .nav-signout:hover { color: var(--primary); }
+
+.nav-account { position: relative; }
+.nav-account > summary {
+  list-style: none; cursor: pointer; font-weight: 500; font-size: 0.9375rem; color: var(--text-2);
+  padding: 6px 0; display: flex; align-items: center; gap: 6px;
+}
+.nav-account > summary::-webkit-details-marker { display: none; }
+.nav-account > summary::marker { content: none; }
+.nav-account > summary::after {
+  content: ""; width: 0; height: 0;
+  border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor;
+  opacity: 0.55;
+}
+.nav-account > summary:hover { color: var(--ink); }
+.nav-account-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 8px; min-width: 148px; box-shadow: 0 12px 32px rgba(23,18,31,0.1);
+}
+.nav-account-menu .nav-signout { width: 100%; text-align: left; padding: 8px 12px; border-radius: 8px; }
+.nav-account-menu .nav-signout:hover { background: rgba(108,43,217,0.08); }
 
 .lang-picker { position: relative; display: inline-flex; align-items: center; gap: 8px; color: var(--text-2); }
 .lang-picker b { font-size: 0.8125rem; font-weight: 700; background: rgba(108,43,217,0.08); color: var(--primary); border-radius: 8px; padding: 5px 10px; }

@@ -254,7 +254,13 @@ export default function SongPage() {
             </div>
           </div>
           <div className="sheet-body">
-            {song.scriptureText && <p className="epigraph"><b>{song.scriptureText.replace(/ — .*$/, "")}</b> — {song.scripture}</p>}
+            {(song.scriptureText || song.scripture) && (
+              <p className="epigraph">
+                {song.scriptureText
+                  ? <><b>{song.scriptureText.replace(/ — .*$/, "")}</b>{song.scripture ? ` — ${song.scripture}` : ""}</>
+                  : song.scripture}
+              </p>
+            )}
 
             <div className="controls">
               <div className="ctl"><label htmlFor="transpose">{t("Key")}</label>

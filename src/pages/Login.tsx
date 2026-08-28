@@ -9,12 +9,14 @@ type Mode = "signin" | "register" | "forgot" | "code" | "setpw";
 const APP = { appName: "WorshipCommons", appUrl: window.location.origin };
 
 const HEADS: Record<Mode, { eyebrow: string; title: string; lede: string }> = {
-  signin: { eyebrow: "Sign in", title: "Welcome back", lede: "Sign in with your ChurchApps account to share a song or review submissions." },
+  signin: { eyebrow: "Sign in", title: "Welcome back", lede: "Sign in to share a song or track submissions." },
   register: { eyebrow: "Create account", title: "Join the commons", lede: "One free account to share songs and track your submissions." },
   forgot: { eyebrow: "Reset password", title: "Forgot your password?", lede: "Enter your email and we'll send you a 6-digit code." },
   code: { eyebrow: "Check your email", title: "Enter the code", lede: "We emailed a 6-digit code — type it below." },
   setpw: { eyebrow: "Almost there", title: "Set your password", lede: "Pick a password of at least 8 characters." }
 };
+
+const nextIsUpload = (next: string | null) => /^\/upload(\/|\?|$)/.test(next || "");
 
 export default function Login() {
   const { t } = useI18n();
@@ -22,7 +24,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(nextIsUpload(params.get("next")) ? "register" : "signin");
   const [form, setForm] = useState({ email: "", password: "", firstName: "", lastName: "", code: "", newPassword: "", verifyPassword: "" });
   const [authGuid, setAuthGuid] = useState("");
   const [error, setError] = useState("");
@@ -155,6 +157,9 @@ export default function Login() {
           </p>
         )}
       </form>
+      {(mode === "signin" || mode === "register") && (
+        <p className="hint" style={{ textAlign: "center", marginTop: 16 }}>{t("Accounts are provided by ChurchApps.")}</p>
+      )}
     </main>
   );
 }

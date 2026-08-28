@@ -14,13 +14,17 @@ test.describe("auth", () => {
   test("upload requires sign-in and login flows back to it", async ({ page }) => {
     await page.goto("/upload");
     await expect(page).toHaveURL(/\/login\?next=%2Fupload/);
+    await expect(page.getByRole("heading", { name: "Join the commons" })).toBeVisible();
 
+    await page.getByTestId("signin-link").click();
     await page.fill("#email", "demo@b1.church");
     await page.fill("#password", "password");
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/\/upload$/);
     await expect(page.getByRole("heading", { name: "Give the church something to sing" })).toBeVisible();
-    await expect(page.getByTestId("sign-out")).toContainText("Demo");
+    await expect(page.getByTestId("nav-account")).toContainText("Demo");
+    await page.getByTestId("nav-account").click();
+    await expect(page.getByTestId("sign-out")).toBeVisible();
   });
 
   test("admin routes reject anonymous API calls", async ({ request }) => {

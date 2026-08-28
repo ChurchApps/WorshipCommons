@@ -36,6 +36,7 @@ export interface Song {
   qualityDetail?: string;
   status?: string;
   createdAt?: string;
+  publishedAt?: string;
 }
 
 let cache: Song[] | null = null;
@@ -61,6 +62,13 @@ export function songFromApi(raw: any): Song {
 }
 
 // list payload is summaries only — no chordPro/scriptureText; use loadSong for the full record
+export function clearSongCache() {
+  cache = null;
+  songCache.clear();
+}
+
+if (typeof window !== "undefined") window.addEventListener("focus", clearSongCache);
+
 export async function loadSongs(): Promise<Song[]> {
   if (!cache) cache = (await wcGet("/songs") as any[]).map(songFromApi);
   return cache;
@@ -78,3 +86,8 @@ export async function loadSong(id: string): Promise<Song | null> {
 }
 
 export const themeList = (song: Song) => (song.themes || "").split(",").map(t => t.trim()).filter(Boolean);
+
+export const songRecency = (s: Song) => {
+  const t = Date.parse(s.publishedAt || s.createdAt || "");
+  return Number.isNaN(t) ? s.year || 0 : t;
+};

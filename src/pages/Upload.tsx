@@ -45,7 +45,10 @@ export default function Upload() {
           <span className="free-badge">{t("Received")}</span>
           <h2 style={{ marginTop: 16 }}>{t("Thank you — it’s in review")}</h2>
           <p>{t("A human reviews every song — usually within a few days. Track it on")} <Link to="/my-songs">{t("My songs")}</Link>. {t("The church will be glad to sing it.")}</p>
-          <Link to="/songs" className="btn btn-ghost">{t("Back to the library")}</Link>
+          <div className="thanks-actions">
+            <Link to="/my-songs" className="btn btn-primary">{t("My songs")}</Link>
+            <Link to="/songs" className="btn btn-ghost">{t("Back to the library")}</Link>
+          </div>
         </div>
       </main>
     );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { loadSongs, Song, themeList } from "../songs";
+import { loadSongs, Song, songRecency, themeList } from "../songs";
 import { coverSvg } from "../cover.mjs";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
@@ -46,21 +46,12 @@ export default function Home() {
 
   // /songs arrives sorted by downloadCount desc
   const top = songs.filter(s => s.language === SONG_LANG[lang]).slice(0, 10);
+  const fromWriters = songs.filter(s => s.license === "WC").sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
   const stats = {
     songs: songs.length,
     downloads: songs.reduce((n, s) => n + s.downloadCount, 0),
     langs: new Set(songs.map(s => s.language)).size
   };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); }
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-    document.querySelectorAll(".animate-on-scroll").forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <main>
@@ -188,6 +179,24 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            {fromWriters.length > 0 && (
+              <>
+                <div className="row-head">
+                  <h3>{t("New from writers")}</h3>
+                  <Link to="/songs">{t("See all →")}</Link>
+                </div>
+                <ul className="row-list">
+                  {fromWriters.map(s => (
+                    <li key={s.id}>
+                      <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
+                      <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
+                      <span className="kv">{s.songKey} · {s.bpm} BPM{s.year ? ` · ${s.year}` : ""}</span>
+                      <span className="free-badge">{t("Free")}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         </div>
       </section>

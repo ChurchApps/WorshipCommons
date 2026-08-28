@@ -1,7 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import { WC_API } from "./helpers/api";
 
-interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; downloadCount: number; fileUrls?: Record<string, string>; }
+interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; downloadCount: number; publishedAt?: string; createdAt?: string; fileUrls?: Record<string, string>; }
 
 // expectations are computed from the live seed so the catalog can grow without breaking specs
 let songs: SeedSong[] = [];
@@ -101,7 +101,11 @@ test.describe("library", () => {
     await page.selectOption("#sort", "az");
     await expect(page.locator(".t-row").first()).toContainText(azFirst.title);
 
-    const newFirst = [...songs].sort((a, b) => b.year - a.year)[0];
+    const recency = (s: SeedSong) => {
+      const t = Date.parse(s.publishedAt || s.createdAt || "");
+      return Number.isNaN(t) ? s.year || 0 : t;
+    };
+    const newFirst = [...songs].sort((a, b) => recency(b) - recency(a))[0];
     await page.selectOption("#sort", "new");
     await expect(page.locator(".t-row").first()).toContainText(newFirst.title);
   });

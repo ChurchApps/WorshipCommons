@@ -81,7 +81,7 @@
   .row-list .kv { margin-left: auto; font-size: 0.8125rem; color: rgba(255,255,255,0.65); font-variant-numeric: tabular-nums; }
 
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
-  .step::before { counter-increment: step; content: counter(step); font-family: var(--font-heading); font-weight: 700; font-size: 3.5rem; line-height: 1; color: transparent; -webkit-text-stroke: 2px var(--primary-light); display: block; margin-bottom: 18px; }
+  .steps .step::before { counter-increment: step; content: counter(step); font-family: var(--font-heading); font-weight: 700; font-size: 3.5rem; line-height: 1; color: transparent; -webkit-text-stroke: 2px var(--primary-light); display: block; margin-bottom: 18px; }
   .step h3 { font-size: 1.25rem; margin-bottom: 8px; }
   .step p { color: var(--text-2); font-size: 0.9375rem; }
 
@@ -107,9 +107,7 @@
   .cta h2 { font-size: clamp(2.25rem, 5vw, 3.5rem); margin-bottom: 16px; }
   .cta p { font-size: 1.125rem; color: var(--text-2); max-width: 44em; margin: 0 auto 36px; }
 
-  .animate-on-scroll { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-  .animate-on-scroll.visible { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { .animate-on-scroll { opacity: 1; transform: none; } }
+  .animate-on-scroll { opacity: 1; transform: none; }
 
   @media (max-width: 1024px) {
     .hero-grid { grid-template-columns: 1fr; }
@@ -128,6 +126,7 @@
   }
 
 .row-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+.row-list + .row-head { margin-top: 32px; }
 .row-head h3 { font-family: var(--font-heading); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
 .row-head a { font-size: 0.8125rem; color: var(--accent); text-decoration: none; }
 .row-head a:hover { text-decoration: underline; }

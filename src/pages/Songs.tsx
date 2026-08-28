@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { loadSongs, Song, themeList } from "../songs";
+import { loadSongs, Song, songRecency, themeList } from "../songs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
@@ -116,15 +116,17 @@ export default function Songs() {
     const themeCounts: Record<string, number> = {};
     const langCounts: Record<string, number> = {};
     songs.forEach(s => {
-      themeList(s).forEach(t => themeCounts[t] = (themeCounts[t] || 0) + 1);
       langCounts[s.language] = (langCounts[s.language] || 0) + 1;
+      if (matches(s, "themes")) themeList(s).forEach(t => themeCounts[t] = (themeCounts[t] || 0) + 1);
     });
+    const themes = Object.entries(themeCounts).sort((a, b) => b[1] - a[1]).map(([t]) => t);
+    state.themes.forEach(th => { if (!themes.includes(th)) themes.unshift(th); });
     return {
-      themes: Object.entries(themeCounts).sort((a, b) => b[1] - a[1]).map(([t]) => t),
+      themes,
       keys: [...new Set(songs.map(s => s.songKey))].sort(),
       langs: Object.entries(langCounts).sort((a, b) => b[1] - a[1])
     };
-  }, [songs]);
+  }, [songs, state]);
 
   const count = (skip: string, pred: (s: Song) => boolean) => songs.filter(s => matches(s, skip) && pred(s)).length;
 
@@ -135,7 +137,7 @@ export default function Songs() {
     const blend = (s: Song) => (s.downloadCount / maxDl) * 60 + ((s.qualityScore ?? 50) / 100) * 40;
     filtered.sort((a, b) =>
       sort === "downloads" ? blend(b) - blend(a) :
-        sort === "new" ? b.year - a.year :
+        sort === "new" ? songRecency(b) - songRecency(a) :
           a.title.localeCompare(b.title));
     return filtered;
 
@@ -196,7 +198,7 @@ export default function Songs() {
       <div className="cat-hero">
         <div className="wrap">
           <h1>{t("Find what your church will sing")}</h1>
-          <p className="cat-sub">{t("Discover and license the best songs for your services.")}</p>
+          <p className="cat-sub">{t("Find and sing the best songs for your services.")}</p>
           <div className="search-bar" role="search">
             <div className="search-wrap">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
@@ -223,7 +225,7 @@ export default function Songs() {
         <aside className={"facets" + (facetsOpen ? " open" : "")} aria-label={t("Filter songs")}>
           <FacetGroup title={t("Theme")}>
             <ul className="facet-list">
-              {(allThemes ? facets.themes : facets.themes.slice(0, 5)).map(th => (
+              {(allThemes ? facets.themes : [...new Set([...facets.themes.slice(0, 5), ...state.themes])]).map(th => (
                 <li key={th}><label><input type="checkbox" checked={state.themes.has(th)} onChange={e => toggleTheme(th, e.target.checked)} /> {th} <span className="cnt">{count("themes", s => themeList(s).includes(th)).toLocaleString()}</span></label></li>
               ))}
             </ul>
@@ -300,7 +302,7 @@ export default function Songs() {
                     {s.artUrl || s.writerPortraitUrl
                       ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={s.artUrl ? "art" : ""} src={s.artUrl ? s.artUrl.replace(/art\.webp$/, "art-thumb.webp") : s.writerPortraitUrl} alt="" loading="lazy" /></Link>
                       : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
-                    <div className="t-main"><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} • {s.year}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span></div>
+                    <div className="t-main"><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span></div>
                     <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="t-num t-key c">{s.songKey}</span>
                     <span className="t-num t-bpm c">{s.bpm}</span>

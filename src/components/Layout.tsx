@@ -50,12 +50,21 @@ export default function Layout() {
           <button className="nav-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}><span></span><span></span><span></span></button>
           <ul className={"nav-menu" + (open ? " open" : "")} onClick={() => setOpen(false)}>
             <li><NavLink to="/songs">{t("Songs")}</NavLink></li>
-            <li><NavLink to="/library" data-testid="nav-library">{t("Your library")}</NavLink></li>
+            <li><NavLink to="/library" data-testid="nav-library">{t("Saved songs")}</NavLink></li>
             <li><NavLink to="/license">{t("The License")}</NavLink></li>
             <li><NavLink to="/report">{t("Report")}</NavLink></li>
-            {user && <li><NavLink to="/my-songs" data-testid="my-songs">{t("My songs")}</NavLink></li>}
+            {user && <li><NavLink to="/my-songs" data-testid="my-songs">{t("My submissions")}</NavLink></li>}
             {user
-              ? <li className="nav-actions"><button className="nav-signout" data-testid="sign-out" onClick={logout}>{t("Sign out ({name})", { name: user.firstName })}</button></li>
+              ? (
+                <li className="nav-actions">
+                  <details className="nav-account">
+                    <summary data-testid="nav-account" onClick={e => e.stopPropagation()}>{user.firstName}</summary>
+                    <div className="nav-account-menu">
+                      <button type="button" className="nav-signout" data-testid="sign-out" onClick={logout}>{t("Sign out")}</button>
+                    </div>
+                  </details>
+                </li>
+              )
               : <li className="nav-actions"><NavLink to="/login" className="nav-signin" data-testid="sign-in">{t("Sign in")}</NavLink></li>}
             <li><LangToggle /></li>
             <li><Link to="/upload" className="btn btn-primary">{t("Share a song")}</Link></li>

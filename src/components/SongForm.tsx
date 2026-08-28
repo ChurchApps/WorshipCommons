@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import ChordProPreview from "./ChordProPreview";
 import "../styles/upload.css";
-import { useI18n } from "../i18n";
+import { useI18n, SONG_LANG } from "../i18n";
+
+const SONG_LANGS = Object.values(SONG_LANG);
 
 export interface SongFormValues {
   title: string;
@@ -119,7 +121,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
           <div className="field-row field">
             <div>
               <label htmlFor="year">{t("Year written")}</label>
-              <input type="number" id="year" min={1000} max={2026} placeholder="2025" value={form.year} onChange={e => set("year", e.target.value)} />
+              <input type="number" id="year" min={1000} max={new Date().getFullYear()} placeholder={t("e.g. 2025")} value={form.year} onChange={e => set("year", e.target.value)} />
             </div>
             <div>
               <label htmlFor="key">{t("Original key")}</label>
@@ -131,7 +133,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             </div>
             <div>
               <label htmlFor="bpm">{t("Tempo (BPM)")}</label>
-              <input type="number" id="bpm" min={30} max={220} placeholder="72" value={form.bpm} onChange={e => set("bpm", e.target.value)} />
+              <input type="number" id="bpm" min={30} max={220} placeholder={t("e.g. 72")} value={form.bpm} onChange={e => set("bpm", e.target.value)} />
             </div>
           </div>
           <div className="field-row field">
@@ -141,7 +143,11 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             </div>
             <div>
               <label htmlFor="lang">{t("Language")}</label>
-              <input type="text" id="lang" value={form.language} onChange={e => set("language", e.target.value)} />
+              <select id="lang" value={form.language} onChange={e => set("language", e.target.value)}>
+                {(SONG_LANGS.includes(form.language) ? SONG_LANGS : [...SONG_LANGS, form.language]).filter(Boolean).map(l => (
+                  <option key={l} value={l}>{t(l)}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label htmlFor="scripture">{t("Scripture reference")}</label>

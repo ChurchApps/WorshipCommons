@@ -29,7 +29,8 @@ test.describe("upload sign-in gate", () => {
   test("unauthenticated /upload asks the writer to sign in", async ({ page }) => {
     await page.goto("/upload");
     await expect(page).toHaveURL(/\/login\?next=%2Fupload/);
-    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Join the commons" })).toBeVisible();
+    await expect(page.getByTestId("signin-link")).toBeVisible();
   });
 });
 
