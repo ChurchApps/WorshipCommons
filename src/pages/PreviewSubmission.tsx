@@ -7,7 +7,7 @@ import "../styles/song.css";
 interface PreviewFile { name: string; action?: string; url?: string }
 interface Preview { payload?: { name?: string; tags?: string; language?: string; license?: string; detail?: Record<string, any> }; note?: string; files?: PreviewFile[] }
 
-// read-only render of a proposed submission for the B1Admin review drawer — token-gated, no chrome
+// read-only render of a proposed submission — token-gated for reviewers, owner JWT when no token
 export default function PreviewSubmission() {
   const { id } = useParams();
   const [params] = useSearchParams();
@@ -16,11 +16,17 @@ export default function PreviewSubmission() {
   const abcRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (id) wcGet(`/submissions/${id}/preview?token=${encodeURIComponent(params.get("token") || "")}`).then(setPreview).catch(() => setError(true));
+    if (!id) return;
+    const token = params.get("token");
+    const req = params.has("token")
+      ? wcGet(`/submissions/${id}/preview?token=${encodeURIComponent(token || "")}`)
+      : wcGet(`/submissions/${id}`, true);
+    req.then(setPreview).catch(() => setError(true));
   }, [id, params]);
 
-  const abcUrl = preview?.files?.find(f => f.name === "tune.abc" && f.action !== "remove")?.url;
-  const audio = preview?.files?.find(f => f.name.startsWith("demoAudio.") && f.action !== "remove");
+  const files = Array.isArray(preview?.files) ? preview.files : [];
+  const abcUrl = files.find(f => f.name === "tune.abc" && f.action !== "remove")?.url;
+  const audio = files.find(f => f.name.startsWith("demoAudio.") && f.action !== "remove");
 
   useEffect(() => {
     if (!abcUrl || !abcRef.current) return;

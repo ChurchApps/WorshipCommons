@@ -11,6 +11,11 @@
 
   .cp-preview-box { border: 1px solid #E4DEF2; border-radius: 16px; background: var(--surface); padding: 20px 24px; max-height: 420px; overflow-y: auto; }
 
+  .license-recap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin: 10px 0 4px; }
+  .license-recap b { display: block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 4px; }
+  .license-recap ul { list-style: disc; padding-left: 1.15em; margin: 0; }
+  .license-recap li { font-size: 0.8125rem; color: var(--text-2); line-height: 1.4; padding: 1px 0; }
+
   .submit-row { margin-top: 40px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
   .submit-row .hint { margin: 0; }
   .thanks { display: none; margin-top: 48px; text-align: center; padding: 64px 40px; }
@@ -23,4 +28,5 @@
   @media (max-width: 820px) {
     .dz-row { grid-template-columns: 1fr; }
     .step > p.hint, .step-body { margin-left: 0; }
+    .license-recap { grid-template-columns: 1fr; }
   }

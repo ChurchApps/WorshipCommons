@@ -321,8 +321,8 @@ export default function SongPage() {
               <InfoIcon />
               <p>
                 {song.license === "WC"
-                  ? <>© {song.year} {song.writer} · {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                  : t("Public domain. Free for churches.")}
+                  ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+                  : <>{t("Public domain. Free for churches.")} {t("CC0.")}</>}
               </p>
             </div>
           </div>

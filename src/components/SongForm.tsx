@@ -52,6 +52,9 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
   tags: form.themes,
   language: form.language,
   license: form.license === "pd" ? "PD" : "WC",
+  licenseVersion: form.license === "pd" ? "CC0" : "1.0",
+  attestationVersion: "1.0",
+  attestedAt: new Date().toISOString(),
   detail: {
     ...base?.detail,
     writer: form.writer,
@@ -68,6 +71,22 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
 });
 
 export const conventionalName = (role: string, file: File) => `${role}.${(file.name.split(".").pop() || "").toLowerCase()}`;
+
+function LicenseRecap({ churches, keep }: { churches: string[]; keep: string[] }) {
+  const { t } = useI18n();
+  return (
+    <div className="license-recap">
+      <div>
+        <b>{t("Churches get:")}</b>
+        <ul>{churches.map(item => <li key={item}>{item}</li>)}</ul>
+      </div>
+      <div>
+        <b>{t("You keep:")}</b>
+        <ul>{keep.map(item => <li key={item}>{item}</li>)}</ul>
+      </div>
+    </div>
+  );
+}
 
 function Dropzone({ label, hint, accept, testId, onFile }: { label: string; hint: string; accept: string; testId: string; onFile: (f: File) => void }) {
   const { t } = useI18n();
@@ -195,14 +214,21 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <input type="radio" name="license" value="wc" checked={form.license === "wc"} onChange={() => set("license", "wc")} />
             <span>
               <strong>{t("Free for worship")}</strong> <span className="free-badge">{t("Recommended")}</span>
-              <p>{t("Churches sing it free, forever. You keep every commercial right — recordings, sheet-music sales, sync, concerts, radio.")} <Link to="/license">{t("Read the license.")}</Link></p>
+              <LicenseRecap
+                churches={[t("Sing it free, forever"), t("Project, print, stream worship"), t("Transpose, arrange, translate")]}
+                keep={[t("Recordings & sheet-music sales"), t("Sync, concerts, radio"), t("Ownership of the song")]}
+              />
+              <p><Link to="/license">{t("Read the license.")}</Link></p>
             </span>
           </label>
           <label className="choice">
             <input type="radio" name="license" value="pd" checked={form.license === "pd"} onChange={() => set("license", "pd")} />
             <span>
               <strong>{t("Public domain")}</strong> <span className="pd-badge">{t("Everything, everyone")}</span>
-              <p>{t("You give up every right, everywhere, for every use — worship, commercial, all of it, permanently, via the CC0 public-domain dedication so it holds even where local law resists. The song joins the same commons as the hymns.")}</p>
+              <LicenseRecap
+                churches={[t("Every use — worship and commercial"), t("Same commons as the hymns")]}
+                keep={[t("Nothing"), t("CC0 dedication, permanent, everywhere")]}
+              />
             </span>
           </label>
         </div>
@@ -225,6 +251,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <input type="checkbox" id="certify" required checked={form.certified} onChange={e => set("certified", e.target.checked)} />
             <label htmlFor="certify" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
               <em>{t("I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.")}</em>
+              <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This grant is the recap above — the license you chose.")}</span>
               <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</span>
             </label>
           </div>

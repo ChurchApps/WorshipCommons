@@ -158,7 +158,15 @@ export default function Login() {
         )}
       </form>
       {(mode === "signin" || mode === "register") && (
-        <p className="hint" style={{ textAlign: "center", marginTop: 16 }}>{t("Accounts are provided by ChurchApps.")}</p>
+        <p className="hint" style={{ textAlign: "center", marginTop: 16 }}>
+          {mode === "register"
+            ? <>{t("By creating an account you agree to the")} <a href="https://churchapps.org/privacy">{t("Privacy")}</a> {t("and")} <a href="https://churchapps.org/terms">{t("Terms")}</a>. </>
+            : null}
+          {t("Accounts are provided by ChurchApps.")}
+          {mode === "signin"
+            ? <>{" "}<a href="https://churchapps.org/privacy">{t("Privacy")}</a>{" · "}<a href="https://churchapps.org/terms">{t("Terms")}</a></>
+            : null}
+        </p>
       )}
     </main>
   );

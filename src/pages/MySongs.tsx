@@ -43,6 +43,7 @@ export default function MySongs() {
   const [subs, setSubs] = useState<Submission[] | null>(null);
   const [downloads, setDownloads] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState("");
+  const [confirming, setConfirming] = useState("");
 
   const load = useCallback(async () => {
     const [mine, assets] = await Promise.all([wcGet("/submissions/mine", true), wcGet("/assets/mine", true).catch((): { id: string; downloadCount: number }[] => [])]);
@@ -56,13 +57,14 @@ export default function MySongs() {
 
   const withdraw = async (id: string) => {
     await wcPost(`/submissions/${id}/withdraw`, {}, true);
+    setConfirming("");
     load();
   };
 
   return (
     <main className="wrap-narrow">
       <div className="page-head">
-        <span className="eyebrow">{t("My songs")}</span>
+        <span className="eyebrow">{t("My submissions")}</span>
         <h1>{t("What you’ve shared")}</h1>
         <p className="lede">{t("Every song you’ve submitted and where it stands.")}</p>
       </div>
@@ -80,10 +82,13 @@ export default function MySongs() {
         const count = downloads[s.assetId] ?? 0;
         const liveUrl = s.status === "approved" && s.assetId ? `${window.location.origin}/songs/${s.assetId}` : "";
         const reason = s.reviewReason ? t(REVIEW_REASONS[s.reviewReason] || REVIEW_REASONS.other) : "";
+        let titleTo = "";
+        if (s.status === "approved") titleTo = `/songs/${s.assetId}`;
+        else if (s.status === "pending" || s.status === "draft") titleTo = `/preview/submission/${s.id}`;
         return (
           <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16 }} data-testid="my-song">
             <h3 style={{ marginBottom: 4 }}>
-              {s.status === "approved" ? <Link to={`/songs/${s.assetId}`}>{s.assetName}</Link> : s.assetName}
+              {titleTo ? <Link to={titleTo}>{s.assetName}</Link> : s.assetName}
               <span className={s.status === "approved" ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{t(st.label)}</span>
             </h3>
             <p className="hint" style={{ marginBottom: 8 }}>{detail.writer}{detail.songKey ? ` · ${t("Key")} ${detail.songKey}` : ""}{s.note ? ` · ${s.note}` : ""}{s.createdAt ? t(" · submitted {date}", { date: new Date(s.createdAt).toLocaleDateString() }) : ""}</p>
@@ -102,7 +107,15 @@ export default function MySongs() {
               <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="review-note">{reason}{reason && s.reviewNote ? " — " : ""}{s.reviewNote}</p>
             )}
             {s.status === "pending" && (
-              <button className="btn btn-ghost" style={{ marginTop: 12 }} data-testid="withdraw" onClick={() => withdraw(s.id)}>{t("Withdraw")}</button>
+              confirming === s.id ? (
+                <div style={{ marginTop: 12 }}>
+                  <p className="hint" style={{ marginBottom: 10 }}>{t("Your files stay. This goes back to a draft.")}</p>
+                  <button className="btn btn-primary" style={{ marginRight: 8 }} data-testid="withdraw-confirm" onClick={() => withdraw(s.id)}>{t("Withdraw")}</button>
+                  <button className="btn btn-ghost" data-testid="withdraw-cancel" onClick={() => setConfirming("")}>{t("Cancel")}</button>
+                </div>
+              ) : (
+                <button className="btn btn-ghost" style={{ marginTop: 12 }} data-testid="withdraw" onClick={() => setConfirming(s.id)}>{t("Withdraw")}</button>
+              )
             )}
           </div>
         );
