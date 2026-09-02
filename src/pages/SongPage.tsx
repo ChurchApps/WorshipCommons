@@ -495,17 +495,17 @@ export default function SongPage() {
             </div>
           )}
 
-          {song.writerPortraitUrl && (
-            <div className="card side-card">
+          {(song.writerPortraitUrl || song.writerBio) && (
+            <div className="card side-card" data-testid="about-the-writer">
               <h2>{t("About the writer")}</h2>
               <div className="writer-row">
-                <img className="writer-photo" src={song.writerPortraitUrl} alt={t("Portrait of {writer}", { writer: song.writer })} loading="lazy" />
+                {song.writerPortraitUrl && <img className="writer-photo" src={song.writerPortraitUrl} alt={t("Portrait of {writer}", { writer: song.writer })} loading="lazy" />}
                 <div>
                   <b>{song.writer}</b>
-                  {song.writerBio && <p className="writer-bio">{song.writerBio}</p>}
+                  {song.writerBio && <p className="writer-bio" data-testid="song-writer-bio">{song.writerBio}</p>}
                 </div>
               </div>
-              <p className="writer-src">{t("Portrait & bio via Wikipedia (CC BY-SA).")}</p>
+              <p className="writer-src">{song.writerPortraitUrl ? t("Portrait & bio via Wikipedia (CC BY-SA).") : t("Bio via Wikipedia (CC BY-SA).")}</p>
             </div>
           )}
 

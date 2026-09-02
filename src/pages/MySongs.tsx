@@ -86,6 +86,7 @@ export default function MySongs() {
         <span className="eyebrow">{t("My submissions")}</span>
         <h1>{t("What you’ve shared")}</h1>
         <p className="lede">{t("Every song you’ve submitted and where it stands.")}</p>
+        <p className="hint" style={{ marginTop: 12 }}><Link to="/profile" data-testid="writer-profile-link">{t("Writer profile")}</Link></p>
       </div>
 
       {!subs && <p>{t("Loading…")}</p>}
