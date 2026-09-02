@@ -56,3 +56,67 @@ export const toNashville = (chord: string, keyRoot: string) => {
   if (!m) return chord;
   return nashRoot(m[1], keyRoot) + m[2] + (m[3] ? "/" + nashRoot(m[3], keyRoot) : "");
 };
+
+export interface LintIssue { level: "error" | "warn"; line: number; message: string; vars?: Record<string, string>; }
+
+const SECTION_DIRECTIVE = /^\s*\{\s*(verse|chorus|bridge|sov|soc|sob|start_of_\w+)\b/i;
+const SECTION_LABEL = /^\s*(verse|chorus|bridge|refrain|pre[- ]?chorus|intro|outro|tag|interlude|ending|coda)\b/i;
+const KEY_DIRECTIVE = /^\s*\{\s*k(?:ey)?\s*:\s*([^}]*)\}/i;
+const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
+const MINOR_STEPS = [0, 2, 3, 5, 7, 8, 10];
+
+const isMinor = (suffix: string) => /^m(?!aj)/.test(suffix);
+
+// pitch classes of the diatonic triad roots — major scale, or natural minor for an "m" key
+const diatonic = (key: string) => {
+  const { root, suffix } = splitKey(key);
+  const base = noteIndex(root);
+  if (base < 0) return null;
+  return new Set((isMinor(suffix) ? MINOR_STEPS : MAJOR_STEPS).map(s => (base + s) % 12));
+};
+
+const sameKey = (a: string, b: string) => {
+  const x = splitKey(a), y = splitKey(b);
+  return noteIndex(x.root) === noteIndex(y.root) && isMinor(x.suffix) === isMinor(y.suffix);
+};
+
+// Advisory checks for the submit form: bracket damage is an error, everything else is a nudge.
+export function lintChordPro(text: string, key?: string): LintIssue[] {
+  const issues: LintIssue[] = [];
+  const lines = (text || "").split(/\r?\n/);
+  const scale = key ? diatonic(key) : null;
+  const outside = new Map<string, number>();
+  let hasSection = false;
+
+  lines.forEach((line, i) => {
+    const n = i + 1;
+    let open = false, broken = false;
+    for (const ch of line) {
+      if (ch === "[") { if (open) { broken = true; break; } open = true; } else if (ch === "]") { if (!open) { broken = true; break; } open = false; }
+    }
+    if (broken || open) issues.push({ level: "error", line: n, message: "Unmatched bracket — every [ needs a closing ]." });
+
+    if (SECTION_DIRECTIVE.test(line) || SECTION_LABEL.test(line)) hasSection = true;
+
+    const declared = line.match(KEY_DIRECTIVE);
+    if (declared && key && declared[1].trim() && !sameKey(declared[1].trim(), key)) {
+      issues.push({ level: "warn", line: n, message: "Key directive {declared} disagrees with the song key {key}.", vars: { declared: declared[1].trim(), key } });
+    }
+
+    if (!scale) return;
+    for (const m of line.matchAll(/\[([^\]]+)\]/g)) {
+      const chord = m[1].trim();
+      const root = chord.match(/^([A-G][#b]?)/);
+      if (!root || scale.has(noteIndex(root[1]))) continue;
+      if (!outside.has(chord)) outside.set(chord, n);
+    }
+  });
+
+  if (!hasSection && lines.length > 8) issues.push({ level: "warn", line: 1, message: "No section labels — start each section with its name (Verse 1, Chorus…)." });
+
+  if (outside.size > 2) {
+    issues.push({ level: "warn", line: Math.min(...outside.values()), message: "Chords outside {key}: {chords}", vars: { key: key || "", chords: [...outside.keys()].join(", ") } });
+  }
+
+  return issues.sort((a, b) => a.line - b.line);
+}

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import ChordProPreview from "./ChordProPreview";
 import { wcGet } from "../api";
-import { parseChordPro } from "../chordpro";
+import { parseChordPro, lintChordPro } from "../chordpro";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
 import { THEMES, loadSongs, Song } from "../songs";
@@ -188,6 +188,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
   const themeChips = [...new Set([...THEMES, ...selectedThemes])];
   const knownKeys = new Set([...MAJOR_KEYS, ...MINOR_KEYS]);
   const proWarn = /GEMA|PRS|publisher|licensing admin/i.test(form.proAnswer);
+  const lint = useMemo(() => lintChordPro(form.chordPro, form.songKey), [form.chordPro, form.songKey]);
 
   const parentSong = catalog.find(s => s.id === form.parentSongId) || null;
   const query = parentQuery.trim().toLowerCase();
@@ -211,6 +212,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
     if (!form.title.trim()) gaps.push(t("Title"));
     if (!form.writer.trim()) gaps.push(t("Writer(s)"));
     if (!form.chordPro.trim()) gaps.push(t("Lyrics and chords"));
+    else if (lint.some(i => i.level === "error")) gaps.push(t("Lyrics and chords — fix the errors listed under the preview"));
     // the society question is the writer's to answer; an edit to a live song (noteLabel set) inherits whatever the song already carries
     if (!form.proAnswer && !noteLabel) gaps.push(t("Collecting societies & licensing admins"));
     if (!form.certified) gaps.push(t("Your word"));
@@ -329,6 +331,13 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <div className="field">
               <label>{t("Chart preview — how churches will see it")}</label>
               <div className="cp-preview-box"><ChordProPreview chordPro={form.chordPro} /></div>
+              {lint.length > 0 && (
+                <ul className="cp-lint" data-testid="chordpro-lint">
+                  {lint.map((issue, i) => (
+                    <li key={i} className={issue.level}>{t("Line {line}", { line: issue.line })} — {t(issue.message, issue.vars)}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
         </div>
