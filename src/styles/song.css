@@ -175,3 +175,14 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 .song-map { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
 .song-map button { font-size: 0.75rem; font-weight: 600; color: var(--text-2); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
 .song-map button:hover { border-color: var(--primary); color: var(--primary); }
+
+/* chord diagrams — hover/focus/tap popover on a chord */
+.seg { position: relative; }
+.seg .c[tabindex] { cursor: help; border-radius: 4px; }
+.seg .c[tabindex]:hover, .seg .c[tabindex]:focus-visible { background: var(--bg); outline: none; }
+.chord-pop { position: absolute; left: 0; bottom: calc(100% + 4px); z-index: 20; display: flex; gap: 14px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(23,18,31,0.14); color: var(--text-2); white-space: nowrap; }
+/* the card clips overflow, so the last chords on a line open leftward */
+.line .seg:nth-last-child(-n+2) .chord-pop { left: auto; right: 0; }
+.cd-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cd-col b { font-family: 'Space Grotesk', monospace; font-size: 0.875rem; color: var(--primary); }
+.cd-col small { font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
