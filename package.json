@@ -22,6 +22,7 @@
     "lint:check": "eslint src/ tests/",
     "test": "playwright test",
     "test:prerender": "node --test tools/prerender.test.mjs",
+    "test:feed": "node --test tools/feed.test.mjs",
     "predeploy-staging": "VITE_CORE_API=https://api.staging.churchapps.org yarn build",
     "exec-deploy-staging": "aws s3 sync build/ s3://staging-worshipcommons-app --delete",
     "postdeploy-staging": "aws cloudfront create-invalidation --distribution-id E3T6JKTGXHBUG6 --paths \"/*\"",

@@ -1,5 +1,5 @@
 // Post-build prerender: stamps out static, crawlable HTML for every song page
-// plus /songs, sitemap.xml, robots.txt, and llms.txt. React replaces the static
+// plus /songs, sitemap.xml, robots.txt, llms.txt, and feed.xml. React replaces the static
 // content on load (createRoot, not hydrate), so markup only needs to be good for
 // crawlers and no-JS readers.
 // The page/sitemap/llms builders are exported so tools/prerender.test.mjs can
@@ -127,6 +127,7 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
   const entries = [
     { loc: `${site}/` },
     { loc: `${site}/songs/` },
+    { loc: `${site}/new` },
     { loc: `${site}/license` },
     { loc: `${site}/terms` },
     { loc: `${site}/report` },
@@ -186,6 +187,34 @@ async function writeOgImage(song, dest) {
   await sharp(Buffer.from(coverSvg(song, 1200, 630))).png().toFile(dest);
 }
 
+// Atom changelog of the newest songs, mirroring the /new page. Exported so
+// tools/feed.test.mjs can assert on it without touching the network.
+export function feedXml(songs, site, limit = 50) {
+  const stamp = (s) => {
+    const t = Date.parse(s.publishedAt || s.createdAt || "");
+    return Number.isNaN(t) ? null : new Date(t).toISOString();
+  };
+  const recent = songs.filter(stamp).sort((a, b) => stamp(b).localeCompare(stamp(a))).slice(0, limit);
+  const entries = recent.map(s => [
+    `  <entry>`,
+    `    <title>${esc(s.title)}</title>`,
+    `    <link href="${site}/songs/${s.id}/"/>`,
+    `    <id>${site}/songs/${s.id}/</id>`,
+    `    <updated>${stamp(s)}</updated>`,
+    `    <author><name>${esc(s.writer)}</name></author>`,
+    `    <summary>${esc(`${s.title} by ${s.writer} — ${s.license === "PD" ? "public domain" : "free for worship"}, key of ${s.songKey}.`)}</summary>`,
+    `  </entry>`
+  ].join("\n")).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<feed xmlns="http://www.w3.org/2005/Atom">\n` +
+    `  <title>WorshipCommons — new songs</title>\n` +
+    `  <subtitle>Songs newly added to the commons.</subtitle>\n` +
+    `  <id>${site}/feed.xml</id>\n` +
+    `  <link rel="self" href="${site}/feed.xml"/>\n` +
+    `  <link href="${site}/new"/>\n` +
+    `  <updated>${recent.length ? stamp(recent[0]) : new Date(0).toISOString()}</updated>\n` +
+    (entries ? entries + `\n` : "") + `</feed>\n`;
+}
+
 async function run() {
   const API = (process.argv[2] || "http://localhost:8084").replace(/\/$/, "") + "/commons";
   const SITE = (process.argv[3] || DEFAULT_SITE).replace(/\/$/, "");
@@ -222,11 +251,11 @@ async function run() {
 
   fs.writeFileSync(path.join(BUILD, "sitemap.xml"), sitemapXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "robots.txt"), robotsTxt(SITE));
-  fs.writeFileSync(path.join(BUILD, "llms.txt"), llmsTxt(songs, SITE, fs.existsSync(path.join(BUILD, "feed.xml"))));
+  fs.writeFileSync(path.join(BUILD, "feed.xml"), feedXml(songs, SITE));
+  fs.writeFileSync(path.join(BUILD, "llms.txt"), llmsTxt(songs, SITE, true));
 
-  console.log(`Prerendered ${songs.length} song pages + /songs, sitemap.xml, robots.txt, llms.txt (${SITE})`);
+  console.log(`Prerendered ${songs.length} song pages + /songs, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
 }
-
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   run().catch(err => { console.error("Prerender failed:", err.message || err); process.exit(1); });
 }
