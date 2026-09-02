@@ -36,7 +36,7 @@ export default function EditSong() {
     setBusy(true);
     setProgress("");
     let subId = "";
-    const labels: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks" };
+    const labels: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody" };
     try {
       const draft = await wcPost("/submissions", { assetId: id, payload: payloadFrom(form, !!files.demoAudio, base), note }, true);
       subId = draft.submissionId;
