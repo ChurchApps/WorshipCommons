@@ -232,6 +232,7 @@ export default function Home() {
             <p>{t("Sharing your song with the church doesn't mean giving up your career. The commons covers worship use only — the revenue that actually pays writers stays 100% yours.")}</p>
             <p>{t("Upload your song, confirm you own it, and watch churches around the world start singing it.")}</p>
             <Link to="/upload" className="btn btn-primary">{t("Share your song")}</Link>
+            <p><Link to="/call-for-songs">{t("For students and seminaries →")}</Link></p>
           </div>
           <div className="writers-card animate-on-scroll">
             <h3>{t("You keep:")}</h3>

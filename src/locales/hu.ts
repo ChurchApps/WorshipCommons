@@ -486,7 +486,36 @@ const hu: Record<string, string> = {
   "That code didn’t match — check the email and try again.": "A kód nem egyezik — nézd meg az e-mailt, és próbáld újra.",
   "That code has expired — request a new one.": "A kód lejárt — kérj újat.",
   "Password must be at least 8 characters.": "A jelszónak legalább 8 karakteresnek kell lennie.",
-  "Passwords don’t match.": "A jelszavak nem egyeznek."
+  "Passwords don’t match.": "A jelszavak nem egyeznek.",
+
+  // call for songs
+  "Call for songs": "Dalpályázat",
+  "For students and seminaries →": "Diákoknak és teológiáknak →",
+  "Call for songs — WorshipCommons": "Dalpályázat — WorshipCommons",
+  "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.": "Dalpályázat dicsőítés-, zene- és teológushallgatóknak: add ki, amit írsz, a WorshipCommons licenc alatt, hogy a gyülekezetek bárhol ingyen énekelhessék, miközben minden kereskedelmi jog a tiéd marad.",
+  "For students and seminaries": "Diákoknak és teológiáknak",
+  "Write a song the church can actually sing.": "Írj olyan dalt, amit a gyülekezet tényleg el tud énekelni.",
+  "You are writing in a practicum, a chapel band, or a songwriting elective — and most of those songs are heard once and filed. Put one in the commons instead, and congregations anywhere can pick it up for free while every commercial right stays yours.": "Gyakorlaton, a kápolnazenekarban vagy egy dalszerzés-kurzuson írsz — és a legtöbb ilyen dal egyszer hangzik el, aztán irattárba kerül. Tedd be az egyiket a közösbe, és bárhol felkaphatják ingyen, miközben minden kereskedelmi jog a tiéd marad.",
+  "“Your first published song shouldn’t need a publisher.”": "„Az első kiadott dalodhoz nem kellene kiadó.”",
+  "WorshipCommons is an open library of worship music. Student and seminary writers are exactly who it was built for.": "A WorshipCommons nyílt dicsőítőzenei könyvtár. A diák és teológus szerzők pontosan azok, akikért készült.",
+  "What WorshipCommons is": "Mi a WorshipCommons",
+  "An open library": "Egy nyílt könyvtár",
+  "Free to use, clear to reuse.": "Szabadon használható, világosan újrahasznosítható.",
+  "Free — no subscription, no reporting, no per-song fee": "Ingyenes — nincs előfizetés, nincs jelentés, nincs dalonkénti díj",
+  "Legally clear — one page you can read out loud to your team": "Jogilag világos — egy oldal, amit felolvashatsz a csapatodnak",
+  "Remixable — new keys, new arrangements, new translations": "Átalakítható — új hangnem, új hangszerelés, új fordítás",
+  "Permanent — released under the WorshipCommons License, Version 1.0": "Végleges — a WorshipCommons licenc 1.0 verziója alatt kiadva",
+  "Four quick steps": "Négy gyors lépés",
+  "The song — title, key, tempo, themes, and the words and chords.": "A dal — cím, hangnem, tempó, témák, valamint a szöveg és az akkordok.",
+  "The files — a chord chart, a demo recording, stems if you have them.": "A fájlok — akkordlap, demófelvétel, sávok, ha vannak.",
+  "What you’re giving — worship use, and nothing else.": "Amit adsz — istentiszteleti használat, és semmi más.",
+  "Your word that it’s yours to give — you wrote it, and every co-writer agrees.": "A szavad, hogy a tiéd — te írtad, és minden szerzőtárs egyetért.",
+  "A human reviews every song before it goes live — usually within a few days.": "Minden dalt ember néz át, mielőtt megjelenik — általában néhány napon belül.",
+  "Bring it to your department": "Vidd be a tanszékedre",
+  "If your program has a songwriting class, a chapel band, or a capstone project, this works as an assignment: write it, record it, release it, and watch where it goes. Forward the paragraph below to your professor.": "Ha a képzésedben van dalszerzés-kurzus, kápolnazenekar vagy záróprojekt, ez feladatnak is jó: írd meg, vedd fel, add ki, és nézd meg, hová jut el. Küldd tovább az alábbi bekezdést a tanárodnak.",
+  "Copy this": "Másold ezt",
+  "WorshipCommons is a free, open library of worship music. Students can release what they write under the WorshipCommons License — free for churches to sing, project, print, translate, and stream, with every commercial right kept by the writer. It costs nothing, asks nothing of the churches that use it, and gives a class a real congregation instead of only a grade.": "A WorshipCommons ingyenes, nyílt dicsőítőzenei könyvtár. A hallgatók a WorshipCommons licenc alatt adhatják ki, amit írnak — a gyülekezetek ingyen énekelhetik, kivetíthetik, kinyomtathatják, lefordíthatják és streamelhetik, miközben minden kereskedelmi jog a szerzőnél marad. Semmibe nem kerül, semmit nem kér a gyülekezetektől, és egy kurzusnak valódi gyülekezetet ad, nem csak egy jegyet.",
+  "Prefer to release a song without uploading it?": "Inkább feltöltés nélkül adnád ki a dalt?"
 };
 
 export default hu;

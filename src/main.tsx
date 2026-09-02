@@ -22,6 +22,7 @@ import EditSong from "./pages/EditSong";
 import PreviewSubmission from "./pages/PreviewSubmission";
 import Terms from "./pages/Terms";
 import Writer from "./pages/Writer";
+import CallForSongs from "./pages/CallForSongs";
 import "./styles/style.css";
 
 function NotFound() {
@@ -47,6 +48,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/songs/:id/edit" element={<EditSong />} />
               <Route path="/upload" element={<Upload />} />
               <Route path="/license" element={<License />} />
+              <Route path="/call-for-songs" element={<CallForSongs />} />
               <Route path="/report" element={<Report />} />
               <Route path="/library" element={<Library />} />
               <Route path="/login" element={<Login />} />
