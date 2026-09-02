@@ -5,6 +5,7 @@ import { wcGet } from "../api";
 import { parseChordPro } from "../chordpro";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
+import { THEMES } from "../songs";
 
 interface SimilarSong { id: string; title: string; writer: string; }
 
@@ -15,9 +16,6 @@ const MAJOR_KEYS = [
 ];
 const MINOR_KEYS = [
   "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "Abm", "Am", "Bbm", "Bm"
-];
-const THEME_SEEDS = [
-  "Praise", "Communion", "Advent", "Easter", "Comfort", "Justice", "Hope", "Mercy", "Invitation", "Adoration", "Trust", "Grace"
 ];
 
 export interface SongFormValues {
@@ -168,7 +166,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
   }, [isNewSong, form.title, form.writer, form.chordPro]);
 
   const selectedThemes = parseThemes(form.themes);
-  const themeChips = [...new Set([...THEME_SEEDS, ...selectedThemes])];
+  const themeChips = [...new Set([...THEMES, ...selectedThemes])];
   const knownKeys = new Set([...MAJOR_KEYS, ...MINOR_KEYS]);
   const proWarn = /GEMA|PRS|publisher|licensing admin/i.test(form.proAnswer);
 
@@ -246,25 +244,12 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             </div>
           </div>
           <div className="field">
-            <label htmlFor="themes">{t("Themes")}</label>
-            <div className="theme-chips" data-testid="theme-chips">
+            <label id="themes-label">{t("Themes")}</label>
+            <div className="theme-chips" data-testid="theme-chips" role="group" aria-labelledby="themes-label">
               {themeChips.map(th => (
                 <button key={th} type="button" className={"chip" + (selectedThemes.includes(th) ? " on" : "")} aria-pressed={selectedThemes.includes(th)} onClick={() => toggleTheme(th)}>{th}</button>
               ))}
             </div>
-            <input
-              type="text"
-              id="themes"
-              placeholder="Advent, Comfort, Hope"
-              value={form.themes}
-              onChange={e => set("themes", e.target.value)}
-              onKeyDown={e => {
-                if (e.key !== "Enter") return;
-                e.preventDefault();
-                const parts = parseThemes(form.themes);
-                if (parts.length) setThemes(parts);
-              }}
-            />
           </div>
           <div className="field-row field">
             <div>

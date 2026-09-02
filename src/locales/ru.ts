@@ -85,6 +85,7 @@ const ru: Record<string, string> = {
   "Search by theme, scripture, key, tempo, or language. Download chords, slides, ChordPro — and stems for the full band.": "Ищите по теме, месту Писания, тональности, темпу или языку. Скачивайте аккорды, слайды, ChordPro — и отдельные дорожки для всей группы.",
   "Try “communion”, “Isaiah 40”, or “key of G”…": "Попробуйте «причастие», «Исаия 40» или «тональность G»…",
   "All songs": "Все песни",
+  "Songs for kids and VBS": "Песни для детей и детского лагеря",
   " · {count} churches": " · {count} церквей",
   "Sunday-ready in three steps": "Готово к воскресенью за три шага",
   "No accounts to manage, no licenses to buy, nothing to report back.": "Не нужно вести учётные записи, покупать лицензии и отчитываться.",

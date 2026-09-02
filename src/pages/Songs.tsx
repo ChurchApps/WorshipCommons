@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { loadSongs, Song, songRecency, themeList } from "../songs";
+import { loadSongs, Song, songRecency, THEMES, themeList } from "../songs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
@@ -121,7 +121,10 @@ export default function Songs() {
       langCounts[s.language] = (langCounts[s.language] || 0) + 1;
       if (matches(s, "themes")) themeList(s).forEach(t => themeCounts[t] = (themeCounts[t] || 0) + 1);
     });
-    const themes = Object.entries(themeCounts).sort((a, b) => b[1] - a[1]).map(([t]) => t);
+    const rank = (t: string) => { const i = THEMES.indexOf(t); return i < 0 ? THEMES.length : i; };
+    const themes = Object.entries(themeCounts)
+      .sort((a, b) => rank(a[0]) - rank(b[0]) || b[1] - a[1])
+      .map(([t]) => t);
     state.themes.forEach(th => { if (!themes.includes(th)) themes.unshift(th); });
     return {
       themes,
@@ -226,7 +229,7 @@ export default function Songs() {
       <div className="wrap cat-layout">
         <aside className={"facets" + (facetsOpen ? " open" : "")} aria-label={t("Filter songs")}>
           <FacetGroup title={t("Theme")}>
-            <ul className="facet-list">
+            <ul className="facet-list" data-testid="theme-facet">
               {(allThemes ? facets.themes : [...new Set([...facets.themes.slice(0, 5), ...state.themes])]).map(th => (
                 <li key={th}><label><input type="checkbox" checked={state.themes.has(th)} onChange={e => toggleTheme(th, e.target.checked)} /> {th} <span className="cnt">{count("themes", s => themeList(s).includes(th)).toLocaleString()}</span></label></li>
               ))}

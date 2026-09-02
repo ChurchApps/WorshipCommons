@@ -16,7 +16,7 @@ test.describe.serial("upload flow", () => {
     await page.fill("#year", "2026");
     await page.selectOption("#key", "G");
     await page.fill("#bpm", "90");
-    await page.fill("#themes", "Praise, Hope");
+    for (const th of ["Praise", "Hope"]) await page.getByTestId("theme-chips").getByRole("button", { name: th, exact: true }).click();
     await page.fill("#scripture", "Psalm 96:1");
     await page.fill("#lyrics", "Verse 1\n[G]Sing a new song [C]to the [G]Lord,\nall the [Em]earth lift [D]up your [G]voice.\n\nChorus\n[C]Glory, [D]glory to the [G]King,\n[C]let the [D]whole creation [G]sing.");
 
