@@ -7,6 +7,7 @@ import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, ti
 import Karaoke from "../components/Karaoke";
 import ChordDiagram from "../components/ChordDiagram";
 import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
+import { makeZip } from "../zip";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -60,6 +61,7 @@ export default function SongPage() {
   const [karaoke, setKaraoke] = useState(false);
   const [capo, setCapo] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [packing, setPacking] = useState(false);
   const [textSize, setTextSize] = useState(1);
   const [parts, setParts] = useState<string[]>([]);
   const [solo, setSolo] = useState<number | null>(null);
@@ -244,6 +246,30 @@ export default function SongPage() {
 
   const recordDownload = () => {
     wcPost(`/assets/${song.id}/download`, {}).then(resp => { if (resp?.downloadCount != null) setCount(resp.downloadCount); }).catch(() => {});
+  };
+
+  // one zip: chart, lyrics, melody, art, and the license line — built in the browser from files already on the page
+  const downloadPack = async () => {
+    if (packing) return;
+    setPacking(true);
+    try {
+      const slug = song.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "song";
+      const fetchBytes = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer());
+      const sources: [string, string][] = [[`${slug}.cho`, `${COMMONS_API}/songs/${song.id}/chordpro`], [`${slug}-lyrics.txt`, `${COMMONS_API}/songs/${song.id}/lyrics`]];
+      if (song.midiUrl) sources.push([`${slug}.mid`, song.midiUrl]);
+      if (song.artUrl) sources.push([`${slug}-art${song.artUrl.match(/\.\w+$/)?.[0] || ".jpg"}`, song.artUrl]);
+      const files = await Promise.all(sources.map(async ([name, url]) => ({ name, data: await fetchBytes(url) })));
+      const license = song.license === "WC" ? `© ${song.year} ${song.writer} · WorshipCommons License v1.0 — free for worship everywhere, always. https://worshipcommons.org/license` : "Public domain. Free for churches.";
+      files.push({ name: "LICENSE.txt", data: new TextEncoder().encode(`${song.title} — ${song.writer}, ${song.year}\n${license}\nhttps://worshipcommons.org/songs/${song.id}\n`) });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(makeZip(files));
+      a.download = `${slug}.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      recordDownload();
+    } finally {
+      setPacking(false);
+    }
   };
 
   return (
@@ -480,6 +506,7 @@ export default function SongPage() {
               {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a></li>}
               {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a></li>}
               {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
+              <li><FileIcon /><button className="link-btn" data-testid="download-pack" disabled={packing} onClick={downloadPack}>{packing ? t("Packing…") : t("Download pack (.zip)")}</button> <span className="size">{t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })}</span></li>
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>
