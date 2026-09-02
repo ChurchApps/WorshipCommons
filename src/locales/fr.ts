@@ -25,6 +25,7 @@ const fr: Record<string, string> = {
   "Report a song": "Signaler un chant",
   "Who qualifies": "Qui est concerné",
   "Questions": "Questions",
+  "Copyright / DMCA": "Droits d’auteur / DMCA",
   "Privacy": "Confidentialité",
   "Terms": "Conditions",
   "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. Les chants appartiennent à leurs auteurs. Le chant appartient à tous.",

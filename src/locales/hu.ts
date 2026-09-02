@@ -25,6 +25,7 @@ const hu: Record<string, string> = {
   "Report a song": "Ének bejelentése",
   "Who qualifies": "Kire vonatkozik",
   "Questions": "Kérdések",
+  "Copyright / DMCA": "Szerzői jog / DMCA",
   "Privacy": "Adatvédelem",
   "Terms": "Feltételek",
   "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. Az énekek a szerzőiké. Az éneklés mindenkié.",

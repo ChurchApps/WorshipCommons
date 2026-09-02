@@ -25,6 +25,7 @@ const sq: Record<string, string> = {
   "Report a song": "Raporto një këngë",
   "Who qualifies": "Kush përfshihet",
   "Questions": "Pyetje",
+  "Copyright / DMCA": "Të drejtat e autorit / DMCA",
   "Privacy": "Privatësia",
   "Terms": "Kushtet",
   "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. Këngët u përkasin autorëve të tyre. Kënduarit i përket të gjithëve.",
