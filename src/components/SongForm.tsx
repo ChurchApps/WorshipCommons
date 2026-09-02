@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ChordProPreview from "./ChordProPreview";
 import { wcGet } from "../api";
 import { parseChordPro, lintChordPro } from "../chordpro";
+import { prepareArt } from "../artThumb";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
 import { THEMES, loadSongs, Song } from "../songs";
@@ -38,7 +39,7 @@ export interface SongFormValues {
   recordingOwned: boolean;
 }
 
-export type SongFiles = { demoAudio?: File; sheetPdf?: File; stemsZip?: File; midi?: File };
+export type SongFiles = { demoAudio?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File };
 
 export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false, recordingOwned: false });
 
@@ -95,8 +96,8 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
   }
 });
 
-// the registry names most roles <role>.<ext>, but the midi role is always tune.mid
-const FIXED_NAMES: Record<string, string> = { midi: "tune.mid" };
+// a few roles have a fixed storage name in the asset registry rather than one derived from the role
+const FIXED_NAMES: Record<string, string> = { midi: "tune.mid", thumb: "art-thumb.webp" };
 export const conventionalName = (role: string, file: File) => FIXED_NAMES[role] || `${role}.${(file.name.split(".").pop() || "").toLowerCase()}`;
 
 const parseThemes = (raw: string) => raw.split(",").map(s => s.trim()).filter(Boolean);
@@ -120,7 +121,7 @@ function LicenseRecap({ churches, keep }: { churches: string[]; keep: string[] }
   );
 }
 
-function Dropzone({ label, hint, accept, testId, onFile }: { label: string; hint: string; accept: string; testId: string; onFile: (f: File) => void }) {
+function Dropzone({ label, hint, accept, testId, preview, onFile }: { label: string; hint: string; accept: string; testId: string; preview?: string; onFile: (f: File) => void }) {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
   const [attached, setAttached] = useState<File | null>(null);
@@ -133,6 +134,7 @@ function Dropzone({ label, hint, accept, testId, onFile }: { label: string; hint
   return (
     <div className="dropzone" tabIndex={0} role="button" aria-label={t("Upload {label}", { label: t(label) })} onClick={() => inputRef.current?.click()} onKeyDown={e => { if (e.key === "Enter") inputRef.current?.click(); }}>
       <input ref={inputRef} type="file" accept={accept} data-testid={testId} style={{ display: "none" }} onChange={e => { if (e.target.files?.[0]) pick(e.target.files[0]); }} />
+      {preview && <img className="dz-art" src={preview} alt="" />}
       {attached
         ? <><b>{t("Attached ✓")}</b>{attached.name} · {(attached.size / 1024).toFixed(0)} KB</>
         : <><b>{t(label)}</b>{t(hint)}</>}
@@ -160,13 +162,17 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
   const [similar, setSimilar] = useState<SimilarSong[]>([]);
   const [catalog, setCatalog] = useState<Song[]>([]);
   const [parentQuery, setParentQuery] = useState("");
+  const [artPreview, setArtPreview] = useState("");
   const lock = useRef(false);
   // an edit is already aimed at one song — only a brand new submission can duplicate the library
   const isNewSong = !noteLabel;
+  // encoding the cover art is async — submit waits on it so a fast click can't drop the file
+  const artJob = useRef<Promise<SongFiles> | null>(null);
 
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
   useEffect(() => { onChange?.(form); }, [form]);
+  useEffect(() => () => { if (artPreview) URL.revokeObjectURL(artPreview); }, [artPreview]);
   useEffect(() => { if (!busy) lock.current = false; }, [busy]);
   // the parent picker searches the published catalog — only fetched once a relation is claimed
   useEffect(() => { if (form.submissionType !== "new" && !catalog.length) loadSongs().then(setCatalog).catch(() => { }); }, [form.submissionType]);
@@ -231,7 +237,9 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
       setMissing(gaps);
       if (gaps.length) return;
       lock.current = true;
-      onSubmit(form, files, note);
+      const go = (extra: SongFiles) => onSubmit(form, { ...files, ...extra }, note);
+      if (artJob.current) artJob.current.then(go, () => go({}));
+      else go({});
     }}>
       <section className="step">
         <h2><span className="n">1</span>{t("The song")}</h2>
@@ -351,6 +359,14 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
           <Dropzone label="Sheet music" hint="Lead sheet or vocal score · PDF or MusicXML" accept=".pdf,.xml,.musicxml" testId="file-sheet" onFile={f => setFiles(x => ({ ...x, sheetPdf: f }))} />
           <Dropzone label="MIDI melody" hint="A .mid file of the tune · churches play it in the browser" accept=".mid,.midi,audio/midi" testId="file-midi" onFile={f => setFiles(x => ({ ...x, midi: f }))} />
           <Dropzone label="Multitracks" hint="ZIP of stems — one WAV or MP3 per part, every file starting at bar 1 · include click & guide if you have them" accept=".zip" testId="file-stems" onFile={f => setFiles(x => ({ ...x, stemsZip: f }))} />
+          <Dropzone label="Cover art" hint="JPG, PNG or WebP · we shrink it and make the thumbnail here in your browser" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" testId="file-art" preview={artPreview} onFile={f => {
+            const job: Promise<SongFiles> = prepareArt(f).catch(() => ({ art: f }));
+            artJob.current = job;
+            job.then(art => {
+              setFiles(x => ({ ...x, ...art }));
+              setArtPreview(URL.createObjectURL((art.thumb || art.art) as File));
+            });
+          }} />
         </div>
         <p className="hint" style={{ margin: "10px 0 0 52px" }}>{t("Files up to ~35 MB each. Upload stems once, in the recorded key.")}</p>
         {files.demoAudio && (
