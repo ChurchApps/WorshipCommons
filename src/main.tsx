@@ -15,6 +15,7 @@ import Report from "./pages/Report";
 import Library from "./pages/Library";
 import Login from "./pages/Login";
 import MySongs from "./pages/MySongs";
+import Profile from "./pages/Profile";
 import Transcribe from "./pages/Transcribe";
 import EditSong from "./pages/EditSong";
 import PreviewSubmission from "./pages/PreviewSubmission";
@@ -48,6 +49,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/library" element={<Library />} />
               <Route path="/login" element={<Login />} />
               <Route path="/my-songs" element={<MySongs />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/writers/:name" element={<Writer />} />
               <Route path="*" element={<NotFound />} />

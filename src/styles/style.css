@@ -76,6 +76,13 @@ h2 { font-size: clamp(1.75rem, 3.5vw, 2.625rem); font-weight: 700; }
 .play-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--primary); color: #fff; display: grid; place-items: center; cursor: pointer; flex: none; transition: transform 0.2s, background 0.2s; }
 .play-btn:hover { transform: scale(1.08); background: var(--primary-dark); }
 
+/* ===== writer block (song page sidebar + writer page) ===== */
+.writer-row { display: flex; gap: 16px; align-items: flex-start; }
+.writer-photo { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; object-position: top; flex: none; border: 1px solid var(--border); filter: grayscale(0.2) sepia(0.12); }
+.writer-row b { font-family: var(--font-heading); font-size: 1.0313rem; display: block; letter-spacing: -0.01em; margin-bottom: 4px; }
+.writer-bio { font-size: 0.875rem; color: var(--text-2); line-height: 1.55; }
+.writer-src { font-size: 0.7188rem; color: var(--muted); margin-top: 12px; }
+
 /* ===== forms ===== */
 label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 7px; }
 .hint { font-size: 0.8438rem; color: var(--muted); font-weight: 400; margin-top: 5px; }
