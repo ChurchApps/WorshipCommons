@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, loadSongs, Song, themeList } from "../songs";
-import { parseChordPro, transposeChord, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
+import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { abcKeyRoot } from "../abc";
 import Karaoke from "../components/Karaoke";
@@ -50,6 +50,7 @@ export default function SongPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [showChords, setShowChords] = useState(true);
+  const [nashville, setNashville] = useState(false);
   const [count, setCount] = useState<number | null>(null);
   const [inLib, setInLib] = useState(false);
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
@@ -163,6 +164,7 @@ export default function SongPage() {
   const signedShift = shift > 6 ? shift - 12 : shift;
   const dispShift = (shift - capo + 12) % 12;
   const keyLabel = selectedKey || song.songKey;
+  const showChord = (chord: string) => nashville ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
 
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
   // family = own children plus siblings under the same canonical, so translations link both ways
@@ -285,6 +287,7 @@ export default function SongPage() {
 
             <div className="controls-2">
               <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>
+              <label className="switch"><input type="checkbox" id="nashville-toggle" checked={nashville} disabled={!showChords} onChange={e => setNashville(e.target.checked)} /> {t("Nashville numbers")}</label>
               <button className="btn btn-ghost copy-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
               <div className="text-size" role="group" aria-label={t("Text size")}>
                 {[t("Small"), t("Medium"), t("Large")].map((label, i) => (
@@ -308,7 +311,7 @@ export default function SongPage() {
                   <p className="line" key={li}>
                     {segments.map((seg, gi) => (
                       <span className="seg" key={gi}>
-                        <b className="c">{seg.chord ? transposeChord(seg.chord, dispShift, useFlats) : " "}</b>
+                        <b className="c">{seg.chord ? showChord(seg.chord) : " "}</b>
                         <span className="t">{seg.text || " "}</span>
                       </span>
                     ))}

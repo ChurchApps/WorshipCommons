@@ -44,3 +44,15 @@ export function parseChordPro(chordPro: string): Stanza[] {
   }
   return stanzas;
 }
+
+// Nashville numbers: chord root → scale degree of the original key (flats for non-diatonic roots); invariant under transpose and capo.
+// ponytail: degrees are always major-scale relative to the tonic — a minor key reads 1m, b3, 4m, 5m, b6, b7, which is how most Nashville charts write minor
+const DEGREES = [
+  "1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"
+];
+const nashRoot = (note: string, keyRoot: string) => DEGREES[(noteIndex(note) - noteIndex(keyRoot) + 12) % 12];
+export const toNashville = (chord: string, keyRoot: string) => {
+  const m = chord.match(/^([A-G][#b]?)([^/]*)(?:\/([A-G][#b]?))?$/);
+  if (!m) return chord;
+  return nashRoot(m[1], keyRoot) + m[2] + (m[3] ? "/" + nashRoot(m[3], keyRoot) : "");
+};
