@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import ChordProPreview from "./ChordProPreview";
+import { wcGet } from "../api";
+import { parseChordPro } from "../chordpro";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
+
+interface SimilarSong { id: string; title: string; writer: string; }
 
 const SONG_LANGS = Object.values(SONG_LANG);
 
@@ -84,6 +88,9 @@ export const conventionalName = (role: string, file: File) => `${role}.${(file.n
 
 const parseThemes = (raw: string) => raw.split(",").map(s => s.trim()).filter(Boolean);
 
+// first sung line — the stanza label and the [chords] are not part of it
+const firstLyricLine = (chordPro: string) => (parseChordPro(chordPro)[0]?.lines[0] || []).map(s => s.text).join("").trim();
+
 function LicenseRecap({ churches, keep }: { churches: string[]; keep: string[] }) {
   const { t } = useI18n();
   return (
@@ -137,12 +144,28 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
   const [files, setFiles] = useState<SongFiles>({});
   const [note, setNote] = useState("");
   const [missing, setMissing] = useState<string[]>([]);
+  const [similar, setSimilar] = useState<SimilarSong[]>([]);
   const lock = useRef(false);
+  // an edit is already aimed at one song — only a brand new submission can duplicate the library
+  const isNewSong = !noteLabel;
 
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
   useEffect(() => { onChange?.(form); }, [form]);
   useEffect(() => { if (!busy) lock.current = false; }, [busy]);
+
+  useEffect(() => {
+    if (!isNewSong) return;
+    const title = form.title.trim();
+    const firstLine = firstLyricLine(form.chordPro);
+    if (title.length < 3 && !firstLine) { setSimilar([]); return; }
+    let live = true;
+    const timer = setTimeout(() => {
+      const query = new URLSearchParams({ title, writer: form.writer.trim(), firstLine });
+      wcGet(`/songs/similar?${query}`).then(rows => { if (live) setSimilar(rows || []); }).catch(() => { if (live) setSimilar([]); });
+    }, 500);
+    return () => { live = false; clearTimeout(timer); };
+  }, [isNewSong, form.title, form.writer, form.chordPro]);
 
   const selectedThemes = parseThemes(form.themes);
   const themeChips = [...new Set([...THEME_SEEDS, ...selectedThemes])];
@@ -189,6 +212,17 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <label htmlFor="writers">{t("Writer(s) — as it should appear publicly")}</label>
             <input type="text" id="writers" placeholder={t("Every co-writer, exactly as it should appear on chord charts")} required value={form.writer} onChange={e => set("writer", e.target.value)} />
           </div>
+          {similar.length > 0 && (
+            <div className="dup-warning" data-testid="duplicate-warning">
+              <b>{t("This looks like {title} by {writer}, already in the library", { title: similar[0].title, writer: similar[0].writer })}</b>
+              <ul>
+                {similar.map(s => (
+                  <li key={s.id}><Link to={`/songs/${s.id}`}>{s.writer ? t("{title} — {writer}", { title: s.title, writer: s.writer }) : s.title}</Link></li>
+                ))}
+              </ul>
+              <p>{t("If it is the same song, propose an edit there instead.")}</p>
+            </div>
+          )}
           <div className="field-row field">
             <div>
               <label htmlFor="year">{t("Year written")}</label>

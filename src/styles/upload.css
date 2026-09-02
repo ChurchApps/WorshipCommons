@@ -19,6 +19,9 @@
   .theme-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
   .theme-chips .chip { min-height: 36px; padding: 6px 14px; font-size: 0.8125rem; }
   .pro-warning { color: var(--secondary); font-weight: 600; margin-top: 8px; }
+  .dup-warning { border: 1px solid #E4DEF2; border-left: 4px solid var(--secondary); border-radius: 12px; background: var(--surface); padding: 14px 18px; margin-bottom: 18px; font-size: 0.9375rem; }
+  .dup-warning ul { list-style: disc; padding-left: 1.15em; margin: 8px 0; }
+  .dup-warning p { margin: 0; color: var(--text-2); font-size: 0.875rem; }
   .upload-missing ul { margin: 0 0 4px 1.2em; }
 
   .submit-row { margin-top: 40px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
