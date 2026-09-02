@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, loadSongs, scriptureBook, Song, themeList } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
+import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import Karaoke from "../components/Karaoke";
 import ChordDiagram from "../components/ChordDiagram";
@@ -81,6 +82,7 @@ export default function SongPage() {
   const [textSize, setTextSize] = useState(1);
   const [parts, setParts] = useState<string[]>([]);
   const [solo, setSolo] = useState<number | null>(null);
+  const [metro, setMetro] = useState(false);
   const playerRef = useRef<TunePlayer | null>(null);
 
   const stopPlayback = () => {
@@ -97,6 +99,8 @@ export default function SongPage() {
     setCapo(0);
     setParts([]);
     setSolo(null);
+    stopMetronome();
+    setMetro(false);
   }, [id]);
 
   const [song, setSong] = useState<Song | null>(null);
@@ -156,6 +160,7 @@ export default function SongPage() {
     return () => { stale = true; };
   }, [melody, audioShift]);
   useEffect(() => { playerRef.current?.setRate(rate / 100); }, [rate]);
+  useEffect(() => { if (metro) setMetronomeBpm(Math.round((song?.bpm || 100) * rate / 100)); }, [metro, song?.bpm, rate]);
   useEffect(() => { playerRef.current?.setSolo(solo); }, [solo]);
 
   // parts come from the midi itself, so peek at it up front to show the picker before the first play
@@ -201,6 +206,14 @@ export default function SongPage() {
   const signedShift = shift > 6 ? shift - 12 : shift;
   const dispShift = (shift - capo + 12) % 12;
   const keyLabel = selectedKey || song.songKey;
+  // metronome follows the tempo slider when the Listen card is there; rate is 100 otherwise
+  const practiceBpm = Math.round((song.bpm || 100) * rate / 100);
+  const beatsPerBar = Number(song.timeSignature?.split("/")[0]) || 4;
+  const toggleMetronome = () => {
+    if (metro) stopMetronome();
+    else startMetronome(practiceBpm, beatsPerBar);
+    setMetro(!metro);
+  };
   const showChord = (chord: string) => nashville ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
 
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
@@ -480,6 +493,18 @@ export default function SongPage() {
               <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there. Pick a part to bring that voice out front on choir tone.", { key: keyLabel })}</p>
             </div>
           )}
+
+          <div className="card side-card" data-testid="practice-card">
+            <h2>{t("Practice")}</h2>
+            <div className="practice-row">
+              <button className={"btn" + (metro ? " btn-primary" : "")} data-testid="metronome-toggle" onClick={toggleMetronome}>
+                {metro ? t("■ Stop metronome") : t("▶ Metronome")}
+              </button>
+              <span className="tempo-val" data-testid="metronome-bpm">{practiceBpm} BPM</span>
+            </div>
+            <button className="btn practice-pitch" data-testid="pitch-pipe" onClick={() => playPitch(60 + noteIndex(selRoot))}>{t("Play {note}", { note: selRoot })}</button>
+            <p className="rel-hint">{t("A click in {time} at the tempo above, plus the starting note of {key} to pitch the room.", { time: song.timeSignature, key: keyLabel })}</p>
+          </div>
 
           {melody && (
             <div className="card side-card" data-testid="melody-card">
