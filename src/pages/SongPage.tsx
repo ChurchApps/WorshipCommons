@@ -5,6 +5,7 @@ import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CH
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { abcKeyRoot } from "../abc";
 import Karaoke from "../components/Karaoke";
+import ChordDiagram from "../components/ChordDiagram";
 import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
@@ -51,6 +52,7 @@ export default function SongPage() {
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [showChords, setShowChords] = useState(true);
   const [nashville, setNashville] = useState(false);
+  const [pop, setPop] = useState("");
   const [count, setCount] = useState<number | null>(null);
   const [inLib, setInLib] = useState(false);
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
@@ -309,12 +311,19 @@ export default function SongPage() {
                 <p className="stanza-label">{stanza.label}</p>
                 {stanza.lines.map((segments, li) => (
                   <p className="line" key={li}>
-                    {segments.map((seg, gi) => (
-                      <span className="seg" key={gi}>
-                        <b className="c">{seg.chord ? showChord(seg.chord) : " "}</b>
-                        <span className="t">{seg.text || " "}</span>
-                      </span>
-                    ))}
+                    {segments.map((seg, gi) => {
+                      const k = `${si}-${li}-${gi}`;
+                      return (
+                        <span className="seg" key={gi}>
+                          {seg.chord
+                            ? <b className="c" tabIndex={0} onMouseEnter={() => setPop(k)} onMouseLeave={() => setPop("")} onFocus={() => setPop(k)} onBlur={() => setPop("")} onClick={() => setPop(pop === k ? "" : k)}>{showChord(seg.chord)}</b>
+                            : <b className="c"> </b>}
+                          {/* guitar gets the capo shape on the page; piano gets the sounding chord */}
+                          {pop === k && seg.chord && <ChordDiagram guitar={transposeChord(seg.chord, dispShift, useFlats)} piano={transposeChord(seg.chord, shift, FLAT_KEYS.has(selRoot))} />}
+                          <span className="t">{seg.text || " "}</span>
+                        </span>
+                      );
+                    })}
                   </p>
                 ))}
               </section>
