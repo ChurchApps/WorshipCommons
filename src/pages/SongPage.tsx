@@ -454,6 +454,15 @@ export default function SongPage() {
             </div>
           )}
 
+          {song.sheetPdfUrl && (
+            <div className="card side-card" data-testid="sheet-pdf-card">
+              <h2>{t("Sheet music")}</h2>
+              {/* the browser's own PDF viewer; toolbar hidden so the card reads as a page, not an app */}
+              <iframe className="pdf-embed" src={`${song.sheetPdfUrl}#toolbar=0&view=FitH`} title={t("{title} — sheet music", { title: song.title })} loading="lazy" data-testid="sheet-pdf-embed" />
+              <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Download PDF")}</a></p>
+            </div>
+          )}
+
           {song.stemsZipUrl && (
             <div className="card side-card">
               <h2>{t("Multitracks")}</h2>

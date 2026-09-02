@@ -190,3 +190,6 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 /* inline melody — abcjs paper inside the side card */
 .melody-paper { margin: 0 -8px; overflow: hidden; }
 .melody-paper svg { max-width: 100%; height: auto; }
+
+/* sheet PDF: the browser's native viewer in a letter-shaped frame */
+.pdf-embed { display: block; width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid var(--border); border-radius: 12px; background: #fff; }
