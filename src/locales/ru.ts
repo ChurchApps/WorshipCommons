@@ -486,7 +486,36 @@ const ru: Record<string, string> = {
   "That code didn’t match — check the email and try again.": "Код не подошёл — проверьте письмо и попробуйте снова.",
   "That code has expired — request a new one.": "Срок действия кода истёк — запросите новый.",
   "Password must be at least 8 characters.": "Пароль должен содержать не менее 8 символов.",
-  "Passwords don’t match.": "Пароли не совпадают."
+  "Passwords don’t match.": "Пароли не совпадают.",
+
+  // call for songs
+  "Call for songs": "Приём песен",
+  "For students and seminaries →": "Для студентов и семинарий →",
+  "Call for songs — WorshipCommons": "Приём песен — WorshipCommons",
+  "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.": "Приём песен от студентов музыкальных и богословских программ: опубликуйте написанное под лицензией WorshipCommons, чтобы церкви по всему миру могли петь её бесплатно, а все коммерческие права остались у вас.",
+  "For students and seminaries": "Для студентов и семинарий",
+  "Write a song the church can actually sing.": "Напишите песню, которую церковь действительно сможет петь.",
+  "You are writing in a practicum, a chapel band, or a songwriting elective — and most of those songs are heard once and filed. Put one in the commons instead, and congregations anywhere can pick it up for free while every commercial right stays yours.": "Вы пишете на практике, в группе капеллы или на курсе по написанию песен — и большинство таких песен звучат один раз и ложатся в архив. Отдайте одну в общее достояние, и общины по всему миру смогут петь её бесплатно, а все коммерческие права останутся вашими.",
+  "“Your first published song shouldn’t need a publisher.”": "«Первая опубликованная песня не должна требовать издателя».",
+  "WorshipCommons is an open library of worship music. Student and seminary writers are exactly who it was built for.": "WorshipCommons — открытая библиотека музыки для поклонения. Студенты и авторы из семинарий — именно те, для кого она создана.",
+  "What WorshipCommons is": "Что такое WorshipCommons",
+  "An open library": "Открытая библиотека",
+  "Free to use, clear to reuse.": "Свободно использовать, ясно переиспользовать.",
+  "Free — no subscription, no reporting, no per-song fee": "Бесплатно — без подписки, без отчётов, без платы за песню",
+  "Legally clear — one page you can read out loud to your team": "Юридически ясно — одна страница, которую можно прочитать команде вслух",
+  "Remixable — new keys, new arrangements, new translations": "Можно менять — новые тональности, аранжировки, переводы",
+  "Permanent — released under the WorshipCommons License, Version 1.0": "Навсегда — опубликовано под лицензией WorshipCommons, версия 1.0",
+  "Four quick steps": "Четыре быстрых шага",
+  "The song — title, key, tempo, themes, and the words and chords.": "Песня — название, тональность, темп, темы, слова и аккорды.",
+  "The files — a chord chart, a demo recording, stems if you have them.": "Файлы — аккордовый лист, демозапись, дорожки, если они есть.",
+  "What you’re giving — worship use, and nothing else.": "Что вы отдаёте — использование в поклонении, и ничего больше.",
+  "Your word that it’s yours to give — you wrote it, and every co-writer agrees.": "Ваше слово, что песня ваша — вы её написали, и все соавторы согласны.",
+  "A human reviews every song before it goes live — usually within a few days.": "Каждую песню проверяет человек, обычно в течение нескольких дней.",
+  "Bring it to your department": "Расскажите об этом на своей кафедре",
+  "If your program has a songwriting class, a chapel band, or a capstone project, this works as an assignment: write it, record it, release it, and watch where it goes. Forward the paragraph below to your professor.": "Если в вашей программе есть курс написания песен, группа капеллы или выпускной проект, это работает как задание: напишите, запишите, опубликуйте и смотрите, куда она дойдёт. Перешлите абзац ниже вашему преподавателю.",
+  "Copy this": "Скопируйте это",
+  "WorshipCommons is a free, open library of worship music. Students can release what they write under the WorshipCommons License — free for churches to sing, project, print, translate, and stream, with every commercial right kept by the writer. It costs nothing, asks nothing of the churches that use it, and gives a class a real congregation instead of only a grade.": "WorshipCommons — бесплатная открытая библиотека музыки для поклонения. Студенты могут опубликовать написанное под лицензией WorshipCommons: церкви бесплатно поют, проецируют, печатают, переводят и транслируют, а все коммерческие права остаются у автора. Это ничего не стоит, ничего не требует от церквей и даёт курсу настоящую общину, а не только оценку.",
+  "Prefer to release a song without uploading it?": "Хотите опубликовать песню, не загружая её?"
 };
 
 export default ru;

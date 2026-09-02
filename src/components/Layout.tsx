@@ -87,6 +87,7 @@ export default function Layout() {
                 <li><Link to="/songs">{t("Song library")}</Link></li>
                 <li><Link to="/new">{t("New songs")}</Link></li>
                 <li><Link to="/upload">{t("Share a song")}</Link></li>
+                <li><Link to="/call-for-songs">{t("Call for songs")}</Link></li>
                 <li><Link to="/license">{t("How the license works")}</Link></li>
               </ul>
             </div>

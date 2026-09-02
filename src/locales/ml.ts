@@ -486,7 +486,36 @@ const ml: Record<string, string> = {
   "That code didn’t match — check the email and try again.": "ആ കോഡ് യോജിക്കുന്നില്ല — ഇമെയിൽ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.",
   "That code has expired — request a new one.": "ആ കോഡിന്റെ കാലാവധി കഴിഞ്ഞു — പുതിയത് ആവശ്യപ്പെടുക.",
   "Password must be at least 8 characters.": "പാസ്‌വേഡിന് കുറഞ്ഞത് 8 അക്ഷരങ്ങൾ വേണം.",
-  "Passwords don’t match.": "പാസ്‌വേഡുകൾ യോജിക്കുന്നില്ല."
+  "Passwords don’t match.": "പാസ്‌വേഡുകൾ യോജിക്കുന്നില്ല.",
+
+  // call for songs
+  "Call for songs": "പാട്ടുകൾക്കായുള്ള ആഹ്വാനം",
+  "For students and seminaries →": "വിദ്യാർഥികൾക്കും സെമിനാരികൾക്കും →",
+  "Call for songs — WorshipCommons": "പാട്ടുകൾക്കായുള്ള ആഹ്വാനം — WorshipCommons",
+  "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.": "ആരാധന, സംഗീത, സെമിനാരി വിദ്യാർഥികൾക്കായുള്ള ഒരു ആഹ്വാനം: നിങ്ങൾ എഴുതുന്നത് WorshipCommons ലൈസൻസിനു കീഴിൽ പുറത്തിറക്കുക — എവിടെയുമുള്ള സഭകൾക്ക് അത് സൗജന്യമായി പാടാം, എല്ലാ വാണിജ്യാവകാശങ്ങളും നിങ്ങളുടേതായി തുടരും.",
+  "For students and seminaries": "വിദ്യാർഥികൾക്കും സെമിനാരികൾക്കും",
+  "Write a song the church can actually sing.": "സഭയ്ക്ക് ശരിക്കും പാടാവുന്ന ഒരു പാട്ട് എഴുതൂ.",
+  "You are writing in a practicum, a chapel band, or a songwriting elective — and most of those songs are heard once and filed. Put one in the commons instead, and congregations anywhere can pick it up for free while every commercial right stays yours.": "പ്രാക്ടിക്കത്തിലോ ചാപ്പൽ ബാൻഡിലോ ഗാനരചനാ കോഴ്സിലോ നിങ്ങൾ എഴുതുന്നു — അവയിൽ മിക്കതും ഒരിക്കൽ കേട്ട് ഫയലിൽ പോകുന്നു. പകരം ഒന്ന് പൊതുശേഖരത്തിൽ നൽകൂ; എവിടെയുമുള്ള സഭകൾക്ക് അത് സൗജന്യമായി എടുക്കാം, എല്ലാ വാണിജ്യാവകാശങ്ങളും നിങ്ങളുടേതായി തുടരും.",
+  "“Your first published song shouldn’t need a publisher.”": "“നിങ്ങളുടെ ആദ്യ പ്രസിദ്ധീകൃത പാട്ടിന് ഒരു പ്രസാധകൻ വേണ്ടതില്ല.”",
+  "WorshipCommons is an open library of worship music. Student and seminary writers are exactly who it was built for.": "WorshipCommons ആരാധനാ സംഗീതത്തിന്റെ ഒരു തുറന്ന ശേഖരമാണ്. വിദ്യാർഥികളും സെമിനാരി രചയിതാക്കളുമാണ് ഇത് ആർക്കുവേണ്ടി നിർമിച്ചത് എന്നതിന്റെ കൃത്യമായ ഉത്തരം.",
+  "What WorshipCommons is": "WorshipCommons എന്താണ്",
+  "An open library": "ഒരു തുറന്ന ശേഖരം",
+  "Free to use, clear to reuse.": "ഉപയോഗിക്കാൻ സ്വതന്ത്രം, വീണ്ടും ഉപയോഗിക്കാൻ വ്യക്തം.",
+  "Free — no subscription, no reporting, no per-song fee": "സൗജന്യം — സബ്സ്ക്രിപ്ഷനില്ല, റിപ്പോർട്ടിങ്ങില്ല, പാട്ടിന് ഫീസില്ല",
+  "Legally clear — one page you can read out loud to your team": "നിയമപരമായി വ്യക്തം — നിങ്ങളുടെ ടീമിനോട് ഉറക്കെ വായിക്കാവുന്ന ഒരു പേജ്",
+  "Remixable — new keys, new arrangements, new translations": "പുനർരൂപപ്പെടുത്താം — പുതിയ കീ, പുതിയ ക്രമീകരണം, പുതിയ പരിഭാഷ",
+  "Permanent — released under the WorshipCommons License, Version 1.0": "സ്ഥിരം — WorshipCommons ലൈസൻസ്, പതിപ്പ് 1.0 പ്രകാരം പുറത്തിറക്കിയത്",
+  "Four quick steps": "നാല് വേഗമുള്ള ഘട്ടങ്ങൾ",
+  "The song — title, key, tempo, themes, and the words and chords.": "പാട്ട് — തലക്കെട്ട്, കീ, ടെമ്പോ, പ്രമേയങ്ങൾ, വരികളും കോഡുകളും.",
+  "The files — a chord chart, a demo recording, stems if you have them.": "ഫയലുകൾ — ഒരു കോഡ് ചാർട്ട്, ഒരു ഡെമോ റെക്കോർഡിങ്, ഉണ്ടെങ്കിൽ സ്റ്റെമുകൾ.",
+  "What you’re giving — worship use, and nothing else.": "നിങ്ങൾ നൽകുന്നത് — ആരാധനാ ഉപയോഗം, അതിൽ കൂടുതലൊന്നുമില്ല.",
+  "Your word that it’s yours to give — you wrote it, and every co-writer agrees.": "അത് നിങ്ങളുടേതാണെന്ന ഉറപ്പ് — നിങ്ങൾ എഴുതി, എല്ലാ സഹരചയിതാക്കളും സമ്മതിക്കുന്നു.",
+  "A human reviews every song before it goes live — usually within a few days.": "ഓരോ പാട്ടും പ്രസിദ്ധീകരിക്കും മുമ്പ് ഒരു വ്യക്തി പരിശോധിക്കുന്നു — സാധാരണ ഏതാനും ദിവസങ്ങൾക്കുള്ളിൽ.",
+  "Bring it to your department": "നിങ്ങളുടെ ഡിപ്പാർട്ട്മെന്റിൽ ഇത് അവതരിപ്പിക്കൂ",
+  "If your program has a songwriting class, a chapel band, or a capstone project, this works as an assignment: write it, record it, release it, and watch where it goes. Forward the paragraph below to your professor.": "നിങ്ങളുടെ പ്രോഗ്രാമിൽ ഗാനരചനാ ക്ലാസോ ചാപ്പൽ ബാൻഡോ ക്യാപ്സ്റ്റോൺ പ്രോജക്ടോ ഉണ്ടെങ്കിൽ ഇത് ഒരു അസൈൻമെന്റായി പ്രവർത്തിക്കും: എഴുതുക, റെക്കോർഡ് ചെയ്യുക, പുറത്തിറക്കുക, അത് എവിടെയെത്തുന്നു എന്ന് കാണുക. താഴെയുള്ള ഖണ്ഡിക നിങ്ങളുടെ അധ്യാപകന് അയയ്ക്കുക.",
+  "Copy this": "ഇത് പകർത്തുക",
+  "WorshipCommons is a free, open library of worship music. Students can release what they write under the WorshipCommons License — free for churches to sing, project, print, translate, and stream, with every commercial right kept by the writer. It costs nothing, asks nothing of the churches that use it, and gives a class a real congregation instead of only a grade.": "WorshipCommons ആരാധനാ സംഗീതത്തിന്റെ സൗജന്യവും തുറന്നതുമായ ഒരു ശേഖരമാണ്. വിദ്യാർഥികൾക്ക് തങ്ങൾ എഴുതുന്നത് WorshipCommons ലൈസൻസിനു കീഴിൽ പുറത്തിറക്കാം — സഭകൾക്ക് സൗജന്യമായി പാടാനും പ്രൊജക്റ്റ് ചെയ്യാനും അച്ചടിക്കാനും പരിഭാഷപ്പെടുത്താനും സ്ട്രീം ചെയ്യാനും കഴിയും, എല്ലാ വാണിജ്യാവകാശങ്ങളും രചയിതാവിനൊപ്പം നിലനിൽക്കും. ഇതിന് ചെലവില്ല, ഉപയോഗിക്കുന്ന സഭകളോട് ഒന്നും ആവശ്യപ്പെടുന്നില്ല, ഒരു ക്ലാസിന് വെറും ഗ്രേഡിനു പകരം യഥാർഥ സഭയെ നൽകുന്നു.",
+  "Prefer to release a song without uploading it?": "അപ്‌ലോഡ് ചെയ്യാതെ ഒരു പാട്ട് പുറത്തിറക്കാനാണോ താൽപര്യം?"
 };
 
 export default ml;

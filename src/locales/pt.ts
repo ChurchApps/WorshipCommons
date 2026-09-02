@@ -486,7 +486,36 @@ const pt: Record<string, string> = {
   "That code didn’t match — check the email and try again.": "Esse código não confere — confira o e-mail e tente de novo.",
   "That code has expired — request a new one.": "Esse código expirou — peça um novo.",
   "Password must be at least 8 characters.": "A senha deve ter pelo menos 8 caracteres.",
-  "Passwords don’t match.": "As senhas não coincidem."
+  "Passwords don’t match.": "As senhas não coincidem.",
+
+  // call for songs
+  "Call for songs": "Chamada de canções",
+  "For students and seminaries →": "Para estudantes e seminários →",
+  "Call for songs — WorshipCommons": "Chamada de canções — WorshipCommons",
+  "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.": "Uma chamada de canções para estudantes de adoração, música e seminário: publique o que você escreve sob a Licença WorshipCommons para que igrejas de qualquer lugar possam cantar de graça, enquanto você mantém todos os direitos comerciais.",
+  "For students and seminaries": "Para estudantes e seminários",
+  "Write a song the church can actually sing.": "Escreva uma canção que a igreja realmente possa cantar.",
+  "You are writing in a practicum, a chapel band, or a songwriting elective — and most of those songs are heard once and filed. Put one in the commons instead, and congregations anywhere can pick it up for free while every commercial right stays yours.": "Você escreve num estágio, na banda da capela ou numa eletiva de composição — e a maioria dessas canções é ouvida uma vez e arquivada. Coloque uma no bem comum e congregações de qualquer lugar poderão usá-la de graça, enquanto todos os direitos comerciais continuam seus.",
+  "“Your first published song shouldn’t need a publisher.”": "“Sua primeira canção publicada não deveria precisar de uma editora.”",
+  "WorshipCommons is an open library of worship music. Student and seminary writers are exactly who it was built for.": "O WorshipCommons é uma biblioteca aberta de música de adoração. Estudantes e autores de seminário são exatamente para quem ela foi criada.",
+  "What WorshipCommons is": "O que é o WorshipCommons",
+  "An open library": "Uma biblioteca aberta",
+  "Free to use, clear to reuse.": "Livre para usar, clara para reutilizar.",
+  "Free — no subscription, no reporting, no per-song fee": "Grátis — sem assinatura, sem relatórios, sem taxa por canção",
+  "Legally clear — one page you can read out loud to your team": "Juridicamente clara — uma página que você pode ler em voz alta para sua equipe",
+  "Remixable — new keys, new arrangements, new translations": "Remixável — novos tons, novos arranjos, novas traduções",
+  "Permanent — released under the WorshipCommons License, Version 1.0": "Permanente — publicada sob a Licença WorshipCommons, versão 1.0",
+  "Four quick steps": "Quatro passos rápidos",
+  "The song — title, key, tempo, themes, and the words and chords.": "A canção — título, tom, andamento, temas, e a letra e os acordes.",
+  "The files — a chord chart, a demo recording, stems if you have them.": "Os arquivos — uma cifra, uma gravação demo, os stems se você tiver.",
+  "What you’re giving — worship use, and nothing else.": "O que você está dando — uso em adoração, e nada mais.",
+  "Your word that it’s yours to give — you wrote it, and every co-writer agrees.": "Sua palavra de que é sua para dar — você a escreveu, e cada coautor concorda.",
+  "A human reviews every song before it goes live — usually within a few days.": "Uma pessoa revisa cada canção antes de publicá-la — normalmente em poucos dias.",
+  "Bring it to your department": "Leve isso ao seu departamento",
+  "If your program has a songwriting class, a chapel band, or a capstone project, this works as an assignment: write it, record it, release it, and watch where it goes. Forward the paragraph below to your professor.": "Se o seu curso tem uma disciplina de composição, uma banda de capela ou um projeto final, isto funciona como trabalho: escreva, grave, publique e veja aonde chega. Encaminhe o parágrafo abaixo ao seu professor.",
+  "Copy this": "Copie isto",
+  "WorshipCommons is a free, open library of worship music. Students can release what they write under the WorshipCommons License — free for churches to sing, project, print, translate, and stream, with every commercial right kept by the writer. It costs nothing, asks nothing of the churches that use it, and gives a class a real congregation instead of only a grade.": "O WorshipCommons é uma biblioteca aberta e gratuita de música de adoração. Estudantes podem publicar o que escrevem sob a Licença WorshipCommons — grátis para as igrejas cantarem, projetarem, imprimirem, traduzirem e transmitirem, com todos os direitos comerciais mantidos pelo autor. Não custa nada, não exige nada das igrejas que usam, e dá a uma turma uma congregação de verdade em vez de apenas uma nota.",
+  "Prefer to release a song without uploading it?": "Prefere publicar uma canção sem enviá-la?"
 };
 
 export default pt;

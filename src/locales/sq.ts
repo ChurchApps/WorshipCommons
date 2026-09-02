@@ -486,7 +486,36 @@ const sq: Record<string, string> = {
   "That code didn’t match — check the email and try again.": "Ky kod nuk përputhet — kontrolloni email-in dhe provoni sërish.",
   "That code has expired — request a new one.": "Ky kod ka skaduar — kërkoni një të ri.",
   "Password must be at least 8 characters.": "Fjalëkalimi duhet të ketë të paktën 8 karaktere.",
-  "Passwords don’t match.": "Fjalëkalimet nuk përputhen."
+  "Passwords don’t match.": "Fjalëkalimet nuk përputhen.",
+
+  // call for songs
+  "Call for songs": "Thirrje për këngë",
+  "For students and seminaries →": "Për studentë dhe seminare →",
+  "Call for songs — WorshipCommons": "Thirrje për këngë — WorshipCommons",
+  "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.": "Një thirrje për këngë nga studentët e adhurimit, muzikës dhe seminarit: publikoje atë që shkruan nën Licencën WorshipCommons, që kishat kudo ta këndojnë falas, ndërsa ti mban çdo të drejtë tregtare.",
+  "For students and seminaries": "Për studentë dhe seminare",
+  "Write a song the church can actually sing.": "Shkruaj një këngë që kisha vërtet mund ta këndojë.",
+  "You are writing in a practicum, a chapel band, or a songwriting elective — and most of those songs are heard once and filed. Put one in the commons instead, and congregations anywhere can pick it up for free while every commercial right stays yours.": "Ti shkruan në praktikë, në grupin e kapelës ose në një lëndë me zgjedhje për shkrim këngësh — dhe shumica e atyre këngëve dëgjohen një herë e pastaj arkivohen. Vendose njërën në të përbashkëtat dhe bashkësitë kudo mund ta marrin falas, ndërsa çdo e drejtë tregtare mbetet e jotja.",
+  "“Your first published song shouldn’t need a publisher.”": "“Kënga jote e parë e publikuar nuk duhet të ketë nevojë për një botues.”",
+  "WorshipCommons is an open library of worship music. Student and seminary writers are exactly who it was built for.": "WorshipCommons është një bibliotekë e hapur e muzikës së adhurimit. Studentët dhe shkrimtarët e seminarit janë pikërisht ata për të cilët u ndërtua.",
+  "What WorshipCommons is": "Çfarë është WorshipCommons",
+  "An open library": "Një bibliotekë e hapur",
+  "Free to use, clear to reuse.": "E lirë për t’u përdorur, e qartë për t’u ripërdorur.",
+  "Free — no subscription, no reporting, no per-song fee": "Falas — pa abonim, pa raportim, pa tarifë për këngë",
+  "Legally clear — one page you can read out loud to your team": "Ligjërisht e qartë — një faqe që mund t’ia lexosh me zë ekipit tënd",
+  "Remixable — new keys, new arrangements, new translations": "E ripërpunueshme — tonalitete të reja, aranzhime të reja, përkthime të reja",
+  "Permanent — released under the WorshipCommons License, Version 1.0": "E përhershme — publikuar nën Licencën WorshipCommons, versioni 1.0",
+  "Four quick steps": "Katër hapa të shpejtë",
+  "The song — title, key, tempo, themes, and the words and chords.": "Kënga — titulli, tonaliteti, tempoja, temat, fjalët dhe akordet.",
+  "The files — a chord chart, a demo recording, stems if you have them.": "Skedarët — një fletë akordesh, një regjistrim demo, pistat nëse i ke.",
+  "What you’re giving — worship use, and nothing else.": "Çfarë po jep — përdorimin në adhurim, dhe asgjë më shumë.",
+  "Your word that it’s yours to give — you wrote it, and every co-writer agrees.": "Fjalën tënde se është e jotja për ta dhënë — e shkrove ti dhe çdo bashkautor pajtohet.",
+  "A human reviews every song before it goes live — usually within a few days.": "Çdo këngë e shqyrton një person para se të publikohet — zakonisht brenda pak ditësh.",
+  "Bring it to your department": "Çoje te departamenti yt",
+  "If your program has a songwriting class, a chapel band, or a capstone project, this works as an assignment: write it, record it, release it, and watch where it goes. Forward the paragraph below to your professor.": "Nëse programi yt ka një lëndë për shkrim këngësh, një grup kapele ose një projekt përfundimtar, kjo funksionon si detyrë: shkruaje, regjistroje, publikoje dhe shih ku shkon. Përcille paragrafin më poshtë te profesori yt.",
+  "Copy this": "Kopjoje këtë",
+  "WorshipCommons is a free, open library of worship music. Students can release what they write under the WorshipCommons License — free for churches to sing, project, print, translate, and stream, with every commercial right kept by the writer. It costs nothing, asks nothing of the churches that use it, and gives a class a real congregation instead of only a grade.": "WorshipCommons është një bibliotekë e hapur dhe falas e muzikës së adhurimit. Studentët mund të publikojnë atë që shkruajnë nën Licencën WorshipCommons — falas që kishat ta këndojnë, ta projektojnë, ta shtypin, ta përkthejnë dhe ta transmetojnë, ndërsa çdo e drejtë tregtare mbetet te autori. Nuk kushton asgjë, nuk kërkon asgjë nga kishat që e përdorin, dhe i jep një klase një bashkësi të vërtetë në vend të vetëm një note.",
+  "Prefer to release a song without uploading it?": "Preferon ta publikosh një këngë pa e ngarkuar?"
 };
 
 export default sq;

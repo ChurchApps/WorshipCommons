@@ -128,6 +128,7 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
     { loc: `${site}/` },
     { loc: `${site}/songs/` },
     { loc: `${site}/new` },
+    { loc: `${site}/call-for-songs/` },
     { loc: `${site}/license` },
     { loc: `${site}/terms` },
     { loc: `${site}/report` },
@@ -163,6 +164,20 @@ export function llmsTxt(songs, site = DEFAULT_SITE, hasFeed = false) {
 export function robotsTxt(site = DEFAULT_SITE) {
   const agents = ["*", "GPTBot", "ClaudeBot", "CCBot", "Google-Extended", "PerplexityBot"];
   return agents.map(a => `User-agent: ${a}\nAllow: /\n`).join("\n") + `\nSitemap: ${site}/sitemap.xml\n`;
+}
+
+function callForSongsBody() {
+  return `<main style="max-width:700px;margin:0 auto;padding:40px 24px">
+<h1>Call for songs</h1>
+<p>For worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while every commercial right stays yours.</p>
+<h2>What WorshipCommons is</h2>
+<ul><li>Free — no subscription, no reporting, no per-song fee.</li><li>Legally clear — one page you can read out loud to your team.</li><li>Remixable — new keys, new arrangements, new translations.</li><li>Permanent — released under the WorshipCommons License, Version 1.0.</li></ul>
+<h2>You keep</h2>
+<ul><li>Album sales &amp; streaming royalties</li><li>Sync — film, TV, and advertising</li><li>Radio &amp; broadcast royalties</li><li>Ticketed concerts &amp; tours</li><li>Sheet music &amp; songbook sales</li><li>Full ownership of your song</li></ul>
+<h2>How it works</h2>
+<ol><li>The song — title, key, tempo, themes, and the words and chords.</li><li>The files — a chord chart, a demo recording, stems if you have them.</li><li>What you are giving — worship use, and nothing else.</li><li>Your word that it is yours to give — you wrote it, and every co-writer agrees.</li></ol>
+<p><a href="/upload">Share your song</a> · <a href="/license">Read the license</a></p>
+</main>`;
 }
 
 async function fetchJson(url) {
@@ -246,6 +261,16 @@ async function run() {
     description: "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key, no licenses needed.",
     canonical: `${SITE}/songs/`,
     body: listBody,
+    site: SITE
+  }));
+
+  const cfsDir = path.join(BUILD, "call-for-songs");
+  fs.mkdirSync(cfsDir, { recursive: true });
+  fs.writeFileSync(path.join(cfsDir, "index.html"), page(shell, {
+    title: "Call for songs — WorshipCommons",
+    description: "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.",
+    canonical: `${SITE}/call-for-songs/`,
+    body: callForSongsBody(),
     site: SITE
   }));
 
