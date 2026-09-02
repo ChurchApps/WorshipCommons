@@ -198,3 +198,14 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 .dl-list .link-btn { border: 0; background: none; padding: 0; font: inherit; font-weight: 500; font-size: 0.9375rem; color: var(--primary); cursor: pointer; margin-right: auto; text-align: left; }
 .dl-list .link-btn:hover { text-decoration: underline; }
 .dl-list .link-btn:disabled { color: var(--muted); cursor: progress; }
+
+/* license note: plain-language you may / you may not */
+.license-note > div { flex: 1; min-width: 0; }
+.may-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin-top: 12px; }
+.may-grid ul { list-style: none; margin: 0; padding: 0; }
+.may-grid li { position: relative; padding-left: 20px; margin-bottom: 4px; line-height: 1.4; }
+.may-grid li:first-child { padding-left: 0; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.6875rem; margin-bottom: 6px; }
+.may-grid li:not(:first-child)::before { position: absolute; left: 0; font-weight: 700; }
+.may li:not(:first-child)::before { content: "✓"; color: var(--primary); }
+.may-not li:not(:first-child)::before { content: "✕"; color: var(--secondary); }
+@media (max-width: 560px) { .may-grid { grid-template-columns: 1fr; } }
