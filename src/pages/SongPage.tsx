@@ -49,6 +49,15 @@ const MAY_NOT_WC = ["Sell recordings or sheet music", "Release it as a track, al
 const MAY_PD = ["Sing, print, project, record, and stream it", "Arrange, transpose, and translate it", "Sell your own arrangement or recording", "Use it in any media"];
 const MAY_NOT_PD = ["Claim the original words or tune as your own copyright"];
 
+const FILE_LABELS: [RegExp, string][] = [
+  [/^demoAudio\./i, "demo recording"],
+  [/^sheetPdf\./i, "sheet music"],
+  [/^stemsZip\./i, "multitracks"],
+  [/^tune\.abc$/i, "notation"]
+];
+
+const fileChangeLabel = (name: string) => FILE_LABELS.find(([re]) => re.test(name))?.[1] || name;
+
 export default function SongPage() {
   const { t } = useI18n();
   const { id } = useParams();
@@ -200,8 +209,11 @@ export default function SongPage() {
   const myThemes = new Set(themeList(song));
   const similar = songs
     .filter(s => !relIds.has(s.id) && s.language === song.language && themeList(s).some(th => myThemes.has(th)))
-    .sort((a, b) => b.downloadCount - a.downloadCount)
+    .sort((a, b) => (a.license === "WC" ? 0 : 1) - (b.license === "WC" ? 0 : 1) || b.downloadCount - a.downloadCount)
     .slice(0, 4);
+  const writerHref = song.authorId || song.writerId
+    ? `/writers/${encodeURIComponent(song.authorId || song.writerId || "")}`
+    : `/songs?q=${encodeURIComponent(song.writer)}`;
 
   const playPiano = async () => {
     if (playState === "playing") { stopPlayback(); return; }
@@ -296,7 +308,7 @@ export default function SongPage() {
               <span className="hero-badge">{song.license === "WC" ? <span className="free-badge">{t("Free for worship")}</span> : <span className="pd-badge on-art">{t("Public domain")}</span>}</span>
               <div>
                 <h1 className="song-title">{song.title}</h1>
-                <p className="byline">{t("Words and music by")} <Link to={`/songs?q=${encodeURIComponent(song.writer)}`}>{song.writer}</Link> · {song.year}</p>
+                <p className="byline">{t("Words and music by")} <Link to={writerHref}>{song.writer}</Link> · {song.year}</p>
                 <div className="meta-chips">
                   <span className="s-tag"><ChipIcon d={KEY_PATH} />{t("Key")} <b id="key-label">{keyLabel}</b></span>
                   <span className="s-tag"><ChipIcon d={BPM_PATH} /><b>{song.bpm}</b> BPM</span>
@@ -398,6 +410,12 @@ export default function SongPage() {
                   </ul>
                 </div>
               </div>
+
+              <p>
+                {song.license === "WC"
+                  ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+                  : <>{t("Public domain. Free for churches.")} {t("Dedicated CC0 — free for every use, including commercial.")}</>}
+              </p>
             </div>
           </div>
         </article>
@@ -421,7 +439,7 @@ export default function SongPage() {
                 </button>
               ))}
             </div>
-            {asset?.ratingAverage != null && <p className="rel-hint" style={{ marginTop: 10 }} data-testid="rating-average">{asset.ratingAverage} ★ ({asset.ratingCount})</p>}
+            {asset?.ratingAverage != null && (asset.ratingCount ?? 0) >= 3 && <p className="rel-hint" style={{ marginTop: 10 }} data-testid="rating-average">{asset.ratingAverage} ★ ({asset.ratingCount})</p>}
             {rateError && <p className="rel-hint" style={{ marginTop: 10, color: "var(--secondary)" }} data-testid="rating-error">{rateError}</p>}
           </div>
 
@@ -566,7 +584,7 @@ export default function SongPage() {
                   <li key={h.submissionId} data-testid="history-entry">
                     <div>
                       <b>{h.submittedByName || t("a community member")}</b>
-                      <span>{h.approvedAt ? new Date(h.approvedAt).toLocaleDateString() : ""}{h.note ? ` · ${h.note}` : ""}{h.filesChanged?.length ? ` · ${h.filesChanged.map(f => f.name).join(", ")}` : ""}</span>
+                      <span>{h.approvedAt ? new Date(h.approvedAt).toLocaleDateString() : ""}{h.note ? ` · ${h.note}` : ""}{h.filesChanged?.length ? ` · ${h.filesChanged.map(f => t(fileChangeLabel(f.name))).join(", ")}` : ""}</span>
                     </div>
                   </li>
                 ))}

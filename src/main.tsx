@@ -18,6 +18,8 @@ import MySongs from "./pages/MySongs";
 import Transcribe from "./pages/Transcribe";
 import EditSong from "./pages/EditSong";
 import PreviewSubmission from "./pages/PreviewSubmission";
+import Terms from "./pages/Terms";
+import Writer from "./pages/Writer";
 import "./styles/style.css";
 
 function NotFound() {
@@ -46,6 +48,8 @@ createRoot(document.getElementById("root")).render(
               <Route path="/library" element={<Library />} />
               <Route path="/login" element={<Login />} />
               <Route path="/my-songs" element={<MySongs />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/writers/:name" element={<Writer />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

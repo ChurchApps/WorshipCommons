@@ -1,10 +1,20 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import ChordProPreview from "./ChordProPreview";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
 
 const SONG_LANGS = Object.values(SONG_LANG);
+
+const MAJOR_KEYS = [
+  "C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"
+];
+const MINOR_KEYS = [
+  "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "Abm", "Am", "Bbm", "Bm"
+];
+const THEME_SEEDS = [
+  "Praise", "Communion", "Advent", "Easter", "Comfort", "Justice", "Hope", "Mercy", "Invitation", "Adoration", "Trust", "Grace"
+];
 
 export interface SongFormValues {
   title: string;
@@ -72,6 +82,8 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
 
 export const conventionalName = (role: string, file: File) => `${role}.${(file.name.split(".").pop() || "").toLowerCase()}`;
 
+const parseThemes = (raw: string) => raw.split(",").map(s => s.trim()).filter(Boolean);
+
 function LicenseRecap({ churches, keep }: { churches: string[]; keep: string[] }) {
   const { t } = useI18n();
   return (
@@ -108,23 +120,63 @@ function Dropzone({ label, hint, accept, testId, onFile }: { label: string; hint
   );
 }
 
-export default function SongForm({ initial, noteLabel, error, submitLabel, submitHint, onSubmit }: {
+export default function SongForm({ initial, noteLabel, error, submitLabel, submitHint, busy, busyLabel, progress, onChange, onSubmit }: {
   initial: SongFormValues;
   noteLabel?: string;
   error?: string;
   submitLabel: string;
   submitHint: string;
+  busy?: boolean;
+  busyLabel?: string;
+  progress?: string;
+  onChange?: (form: SongFormValues) => void;
   onSubmit: (form: SongFormValues, files: SongFiles, note: string) => void;
 }) {
   const { t } = useI18n();
   const [form, setForm] = useState<SongFormValues>(initial);
   const [files, setFiles] = useState<SongFiles>({});
   const [note, setNote] = useState("");
+  const [missing, setMissing] = useState<string[]>([]);
+  const lock = useRef(false);
 
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
+  useEffect(() => { onChange?.(form); }, [form]);
+  useEffect(() => { if (!busy) lock.current = false; }, [busy]);
+
+  const selectedThemes = parseThemes(form.themes);
+  const themeChips = [...new Set([...THEME_SEEDS, ...selectedThemes])];
+  const knownKeys = new Set([...MAJOR_KEYS, ...MINOR_KEYS]);
+  const proWarn = /GEMA|PRS|publisher|licensing admin/i.test(form.proAnswer);
+
+  const setThemes = (list: string[]) => set("themes", [...new Set(list)].join(", "));
+  const toggleTheme = (th: string) => {
+    setThemes(selectedThemes.includes(th) ? selectedThemes.filter(x => x !== th) : [...selectedThemes, th]);
+  };
+
+  const validate = () => {
+    const gaps: string[] = [];
+    if (!form.title.trim()) gaps.push(t("Title"));
+    if (!form.writer.trim()) gaps.push(t("Writer(s)"));
+    if (!form.chordPro.trim()) gaps.push(t("Lyrics and chords"));
+    // the society question is the writer's to answer; an edit to a live song (noteLabel set) inherits whatever the song already carries
+    if (!form.proAnswer && !noteLabel) gaps.push(t("Collecting societies & licensing admins"));
+    if (!form.certified) gaps.push(t("Your word"));
+    if (files.demoAudio && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
+    if (noteLabel && !note.trim()) gaps.push(t(noteLabel));
+    return gaps;
+  };
+
   return (
-    <form onSubmit={e => { e.preventDefault(); onSubmit(form, files, note); }}>
+    <form noValidate onSubmit={e => {
+      e.preventDefault();
+      if (busy || lock.current) return;
+      const gaps = validate();
+      setMissing(gaps);
+      if (gaps.length) return;
+      lock.current = true;
+      onSubmit(form, files, note);
+    }}>
       <section className="step">
         <h2><span className="n">1</span>{t("The song")}</h2>
         <p className="hint">{t("What a worship leader needs to find it and decide if it fits Sunday.")}</p>
@@ -134,7 +186,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <input type="text" id="title" required value={form.title} onChange={e => set("title", e.target.value)} />
           </div>
           <div className="field">
-            <label htmlFor="writers">{t("Writer(s)")}</label>
+            <label htmlFor="writers">{t("Writer(s) — as it should appear publicly")}</label>
             <input type="text" id="writers" placeholder={t("Every co-writer, exactly as it should appear on chord charts")} required value={form.writer} onChange={e => set("writer", e.target.value)} />
           </div>
           <div className="field-row field">
@@ -145,9 +197,13 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <div>
               <label htmlFor="key">{t("Original key")}</label>
               <select id="key" value={form.songKey} onChange={e => set("songKey", e.target.value)}>
-                {[
-                  "C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "Am", "Bm", "Cm", "Dm", "Em", "F#m", "Gm"
-                ].map(k => <option key={k}>{k}</option>)}
+                <optgroup label={t("Major")}>
+                  {MAJOR_KEYS.map(k => <option key={k} value={k}>{k}</option>)}
+                </optgroup>
+                <optgroup label={t("Minor")}>
+                  {MINOR_KEYS.map(k => <option key={k} value={k}>{k}</option>)}
+                </optgroup>
+                {!knownKeys.has(form.songKey) && form.songKey && <option value={form.songKey}>{form.songKey}</option>}
               </select>
             </div>
             <div>
@@ -155,11 +211,28 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
               <input type="number" id="bpm" min={30} max={220} placeholder={t("e.g. 72")} value={form.bpm} onChange={e => set("bpm", e.target.value)} />
             </div>
           </div>
-          <div className="field-row field">
-            <div>
-              <label htmlFor="themes">{t("Themes")}</label>
-              <input type="text" id="themes" placeholder="Advent, Comfort, Hope" value={form.themes} onChange={e => set("themes", e.target.value)} />
+          <div className="field">
+            <label htmlFor="themes">{t("Themes")}</label>
+            <div className="theme-chips" data-testid="theme-chips">
+              {themeChips.map(th => (
+                <button key={th} type="button" className={"chip" + (selectedThemes.includes(th) ? " on" : "")} aria-pressed={selectedThemes.includes(th)} onClick={() => toggleTheme(th)}>{th}</button>
+              ))}
             </div>
+            <input
+              type="text"
+              id="themes"
+              placeholder="Advent, Comfort, Hope"
+              value={form.themes}
+              onChange={e => set("themes", e.target.value)}
+              onKeyDown={e => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                const parts = parseThemes(form.themes);
+                if (parts.length) setThemes(parts);
+              }}
+            />
+          </div>
+          <div className="field-row field">
             <div>
               <label htmlFor="lang">{t("Language")}</label>
               <select id="lang" value={form.language} onChange={e => set("language", e.target.value)}>
@@ -245,6 +318,9 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
               {["No — nobody else administers my songs", "Yes — ASCAP, BMI, or SESAC", "Yes — GEMA, PRS, or another society outside the U.S.", "Yes — a publisher or licensing admin administers this song"]
                 .map(o => <option key={o} value={o}>{t(o)}</option>)}
             </select>
+            {proWarn && (
+              <p className="pro-warning" data-testid="pro-warning">{t("Check your membership terms — this grant may not be yours to make.")}</p>
+            )}
             <p className="hint">{t("U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.")}</p>
           </div>
           <div className="certify">
@@ -264,10 +340,17 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
         </div>
       </section>
 
-      {error && <p className="hint" style={{ color: "var(--secondary)", fontWeight: 600 }} data-testid="upload-error">{error}</p>}
+      {(missing.length > 0 || error) && (
+        <div className="hint upload-missing" style={{ color: "var(--secondary)", fontWeight: 600 }} data-testid="upload-error">
+          {missing.length > 0 && (
+            <ul>{missing.map(item => <li key={item}>{item}</li>)}</ul>
+          )}
+          {error && <p style={{ margin: missing.length ? "8px 0 0" : 0 }}>{error}</p>}
+        </div>
+      )}
       <div className="submit-row">
-        <button type="submit" className="btn btn-primary">{t(submitLabel)}</button>
-        <p className="hint">{t(submitHint)}</p>
+        <button type="submit" className="btn btn-primary" disabled={!!busy}>{busy ? t(busyLabel || "Please wait…") : t(submitLabel)}</button>
+        <p className="hint" data-testid={progress ? "upload-progress" : undefined}>{progress || t(submitHint)}</p>
       </div>
     </form>
   );

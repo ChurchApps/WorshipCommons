@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { uploadFile, wcDelete, wcGet, wcPost } from "../api";
@@ -16,6 +16,9 @@ export default function EditSong() {
   const [notFound, setNotFound] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState("");
+  const busyRef = useRef(false);
 
   useEffect(() => {
     if (id && user) wcGet(`/assets/${id}/editable`, true).then(setBase).catch(() => setNotFound(true));
@@ -27,18 +30,32 @@ export default function EditSong() {
   if (notFound) return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
 
   const submit = async (form: SongFormValues, files: SongFiles, note: string) => {
+    if (busyRef.current) return;
     setError("");
+    busyRef.current = true;
+    setBusy(true);
+    setProgress("");
     let subId = "";
+    const labels: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks" };
     try {
       const draft = await wcPost("/submissions", { assetId: id, payload: payloadFrom(form, !!files.demoAudio, base), note }, true);
       subId = draft.submissionId;
-      for (const [role, file] of Object.entries(files)) if (file) await uploadFile(subId, file, conventionalName(role, file));
+      for (const [role, file] of Object.entries(files)) {
+        if (!file) continue;
+        setProgress(t("Uploading {name}…", { name: t(labels[role] || role) }));
+        await uploadFile(subId, file, conventionalName(role, file));
+      }
+      setProgress("");
       await wcPost(`/submissions/${subId}/submit`, {}, true);
       setSubmitted(true);
       window.scrollTo({ top: 0 });
     } catch (err) {
       setError((err as Error).message);
+      setProgress("");
       if (subId) await wcDelete(`/submissions/${subId}`, true).catch(() => {});
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
     }
   };
 
@@ -69,6 +86,9 @@ export default function EditSong() {
         initial={songFromPayload(base)}
         noteLabel="What changed, and why?"
         error={error}
+        busy={busy}
+        busyLabel="Please wait…"
+        progress={progress}
         submitLabel="Propose this edit"
         submitHint="A reviewer reads every edit before it goes live."
         onSubmit={submit}
