@@ -51,8 +51,8 @@ test("hreflang alternates cover the translated family", () => {
   assert.match(translation, /hreflang="x-default" href="https:\/\/example\.test\/songs\/rock-of-ages\/"/);
   assert.match(translation, /<link rel="canonical" href="https:\/\/example\.test\/songs\/roca-de-la-eternidad\/">/);
 
-  // a song with no siblings gets no alternates at all
-  assert.doesNotMatch(songPage(shell, SONGS[2], SONGS, SITE), /rel="alternate"/);
+  // a song with no siblings gets no hreflang alternates (the shell still has the Atom feed link)
+  assert.doesNotMatch(songPage(shell, SONGS[2], SONGS, SITE), /rel="alternate" hreflang=/);
 });
 
 test("JSON-LD carries the translation graph and licensing", () => {
