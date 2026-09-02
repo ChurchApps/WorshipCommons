@@ -186,3 +186,7 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 .cd-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .cd-col b { font-family: 'Space Grotesk', monospace; font-size: 0.875rem; color: var(--primary); }
 .cd-col small { font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* inline melody — abcjs paper inside the side card */
+.melody-paper { margin: 0 -8px; overflow: hidden; }
+.melody-paper svg { max-width: 100%; height: auto; }

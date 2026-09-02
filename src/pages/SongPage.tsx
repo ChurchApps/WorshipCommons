@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, loadSongs, Song, themeList } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
-import { abcKeyRoot } from "../abc";
+import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import Karaoke from "../components/Karaoke";
 import ChordDiagram from "../components/ChordDiagram";
 import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
@@ -103,12 +103,13 @@ export default function SongPage() {
 
   // 44 curated charts are keyed for congregational singing while the OH tune file
   // stays in its hymnal key — the ABC's K: is the audio's true base, not songKey
-  const [tuneRoot, setTuneRoot] = useState("");
+  const [abc, setAbc] = useState("");
+  const tuneRoot = useMemo(() => abcKeyRoot(abc), [abc]);
   useEffect(() => {
-    setTuneRoot("");
+    setAbc("");
     if (!song?.abcUrl) return;
     let stale = false;
-    fetch(song.abcUrl).then(r => r.ok ? r.text() : "").then(t => { if (!stale && t) setTuneRoot(abcKeyRoot(t)); }).catch(() => {});
+    fetch(song.abcUrl).then(r => r.ok ? r.text() : "").then(t => { if (!stale && t) setAbc(t); }).catch(() => {});
     return () => { stale = true; };
   }, [song?.abcUrl]);
 
@@ -120,6 +121,22 @@ export default function SongPage() {
   }, [song, selectedKey, tuneRoot]);
 
   useEffect(() => { playerRef.current?.setSemitones(audioShift); }, [audioShift]);
+
+  // melody line on the page: top voice, first verse only; lyrics dropped when the tune is borrowed from another hymn
+  const melodyRef = useRef<HTMLDivElement>(null);
+  const melody = useMemo(() => {
+    if (!abc || !song) return "";
+    const voices = abcVoices(abc);
+    const text = melodyOnly(voices.length > 1 ? soloVoice(abc, voices[0]) : abc);
+    return titlesMatch(song.title, abcTitle(abc)) ? text : stripLyrics(text);
+  }, [abc, song]);
+  useEffect(() => {
+    if (!melody) return;
+    let stale = false;
+    // abcjs is heavy — loaded as its own chunk only when a song has a score
+    import("abcjs").then(m => { if (!stale && melodyRef.current) m.default.renderAbc(melodyRef.current, melody, { visualTranspose: audioShift, responsive: "resize", paddingtop: 0, paddingbottom: 0 }); });
+    return () => { stale = true; };
+  }, [melody, audioShift]);
   useEffect(() => { playerRef.current?.setRate(rate / 100); }, [rate]);
   useEffect(() => { playerRef.current?.setSolo(solo); }, [solo]);
 
@@ -389,6 +406,14 @@ export default function SongPage() {
                 <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>{t("Sing along")}</button>
               )}
               <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there. Pick a part to bring that voice out front on choir tone.", { key: keyLabel })}</p>
+            </div>
+          )}
+
+          {melody && (
+            <div className="card side-card" data-testid="melody-card">
+              <h2>{t("Melody")}</h2>
+              <div ref={melodyRef} className="melody-paper" />
+              <p className="rel-hint">{t("Engraved in {key}.", { key: keyLabel })} <Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`}>{t("Full score with all parts →")}</Link></p>
             </div>
           )}
 

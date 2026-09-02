@@ -60,3 +60,15 @@ export function soloVoice(abc: string, voice: string): string {
   }
   return out.join("\n");
 }
+
+// Compact melody for the song page: drop title, credits, notes, and free-text verses; keep the first w: verse only.
+export function melodyOnly(abc: string): string {
+  const out: string[] = [];
+  let prevW = false;
+  for (const line of abc.split(/\r?\n/)) {
+    if (/^[TCWSHNZOBDFGR]:/.test(line)) { prevW = false; continue; }
+    if (/^w:/.test(line)) { if (prevW) continue; prevW = true; } else prevW = false;
+    out.push(line);
+  }
+  return out.join("\n");
+}
