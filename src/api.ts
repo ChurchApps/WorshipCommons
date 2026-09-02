@@ -11,7 +11,8 @@ const request = async (base: string, method: string, path: string, data?: unknow
     let message = `Request failed (${response.status})`;
     try {
       const body = await response.json();
-      message = body?.errors?.[0] || body?.error?.message || message;
+      const errs = body?.errors;
+      message = (Array.isArray(errs) && errs.length ? errs.join(" · ") : body?.error?.message) || message;
     } catch { /* keep default */ }
     throw new Error(message);
   }
@@ -24,8 +25,26 @@ export const wcDelete = (path: string, authed = false) => request(COMMONS_API, "
 export const corePost = (path: string, data?: unknown) => request(CORE_API, "POST", path, data);
 export const wcPut = (path: string, data?: unknown, authed = false) => request(COMMONS_API, "PUT", path, data, authed);
 
+const postForm = (url: string, body: FormData, headers: Record<string, string>, name: string, onProgress?: (pct: number) => void) =>
+  new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    for (const [key, value] of Object.entries(headers)) xhr.setRequestHeader(key, value);
+    if (onProgress) {
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+      };
+    }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve();
+      else reject(new Error(`Couldn’t upload ${name} (${xhr.status})`));
+    };
+    xhr.onerror = () => reject(new Error(`Couldn’t upload ${name}`));
+    xhr.send(body);
+  });
+
 // presigned POST (S3) or the disk-store counterpart — same multipart shape, then record the file on the draft
-export const uploadFile = async (submissionId: string, file: File, name: string) => {
+export const uploadFile = async (submissionId: string, file: File, name: string, onProgress?: (pct: number) => void) => {
   const post = await wcPost(`/submissions/${submissionId}/postUrl`, { name, contentType: file.type || undefined }, true);
   const form = new FormData();
   for (const [key, value] of Object.entries(post.fields || {})) form.append(key, String(value));
@@ -33,7 +52,6 @@ export const uploadFile = async (submissionId: string, file: File, name: string)
   const headers: Record<string, string> = {};
   const jwt = localStorage.getItem("wcJwt");
   if (post.authRequired && jwt) headers.Authorization = `Bearer ${jwt}`;
-  const response = await fetch(post.url, { method: "POST", body: form, headers });
-  if (!response.ok) throw new Error(`Couldn’t upload ${name} (${response.status})`);
+  await postForm(post.url, form, headers, name, onProgress);
   await wcPost(`/submissions/${submissionId}/files`, { name, sizeBytes: file.size }, true);
 };

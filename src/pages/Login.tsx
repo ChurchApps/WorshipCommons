@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { corePost } from "../api";
 import { usePageMeta } from "../seo";
@@ -160,11 +160,11 @@ export default function Login() {
       {(mode === "signin" || mode === "register") && (
         <p className="hint" style={{ textAlign: "center", marginTop: 16 }}>
           {mode === "register"
-            ? <>{t("By creating an account you agree to the")} <a href="https://churchapps.org/privacy">{t("Privacy")}</a> {t("and")} <a href="https://churchapps.org/terms">{t("Terms")}</a>. </>
+            ? <>{t("By creating an account you agree to the")} <a href="https://churchapps.org/privacy">{t("Privacy")}</a> {t("and")} <Link to="/terms">{t("Terms")}</Link>. </>
             : null}
           {t("Accounts are provided by ChurchApps.")}
           {mode === "signin"
-            ? <>{" "}<a href="https://churchapps.org/privacy">{t("Privacy")}</a>{" · "}<a href="https://churchapps.org/terms">{t("Terms")}</a></>
+            ? <>{" "}<a href="https://churchapps.org/privacy">{t("Privacy")}</a>{" · "}<Link to="/terms">{t("Terms")}</Link></>
             : null}
         </p>
       )}

@@ -31,6 +31,8 @@ export interface Song {
   artUrl?: string;
   parentSongId?: string;
   relationLabel?: string;
+  authorId?: string;
+  writerId?: string;
   proAnswer?: string;
   qualityScore?: number;
   qualityDetail?: string;
