@@ -84,6 +84,7 @@ const ml: Record<string, string> = {
   "Search by theme, scripture, key, tempo, or language. Download chords, slides, ChordPro — and stems for the full band.": "വിഷയം, വേദഭാഗം, കീ, വേഗത അല്ലെങ്കിൽ ഭാഷ അനുസരിച്ച് തിരയുക. കോർഡുകൾ, സ്ലൈഡുകൾ, ChordPro — ഒപ്പം മുഴുവൻ ബാൻഡിനുമുള്ള പ്രത്യേക ട്രാക്കുകളും ഡൗൺലോഡ് ചെയ്യുക.",
   "Try “communion”, “Isaiah 40”, or “key of G”…": "“കുർബാന”, “യെശയ്യാവ് 40”, അല്ലെങ്കിൽ “G കീ” എന്നു നോക്കൂ…",
   "All songs": "എല്ലാ പാട്ടുകളും",
+  "Songs for kids and VBS": "കുട്ടികൾക്കും വി.ബി.എസിനുമുള്ള പാട്ടുകൾ",
   " · {count} churches": " · {count} സഭകൾ",
   "Sunday-ready in three steps": "മൂന്ന് ചുവടിൽ ഞായറാഴ്ചയ്ക്ക് തയ്യാർ",
   "No accounts to manage, no licenses to buy, nothing to report back.": "കൈകാര്യം ചെയ്യാൻ അക്കൗണ്ടില്ല, വാങ്ങാൻ ലൈസൻസില്ല, റിപ്പോർട്ട് ചെയ്യാൻ ഒന്നുമില്ല.",

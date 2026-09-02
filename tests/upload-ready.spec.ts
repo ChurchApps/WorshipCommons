@@ -11,13 +11,13 @@ const ZIP = path.join(__dirname, "fixtures", "tiny.zip");
 
 const LYRICS = "Verse 1\n[G]Sing a new song [C]to the [G]Lord,\nall the [Em]earth lift [D]up your [G]voice.\n\nChorus\n[C]Glory, [D]glory to the [G]King,\n[C]let the [D]whole creation [G]sing.";
 
-async function fillSongFields(page: import("@playwright/test").Page, title: string, themes = "Praise, Hope") {
+async function fillSongFields(page: import("@playwright/test").Page, title: string, themes = ["Praise", "Hope"]) {
   await page.fill("#title", title);
   await page.fill("#writers", "Playwright Composer");
   await page.fill("#year", "2026");
   await page.selectOption("#key", "G");
   await page.fill("#bpm", "90");
-  await page.fill("#themes", themes);
+  for (const th of themes) await page.getByTestId("theme-chips").getByRole("button", { name: th, exact: true }).click();
   await page.fill("#scripture", "Psalm 96:1");
   await page.fill("#lyrics", LYRICS);
   await page.selectOption("#pro", { index: 1 });
@@ -169,7 +169,7 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
 
   test("writer uploads wav, sheet, and stems as Free for worship", async ({ page }) => {
     await page.goto("/upload");
-    await fillSongFields(page, TITLE, "Advent, Comfort");
+    await fillSongFields(page, TITLE, ["Advent", "Comfort"]);
     await expect(page.locator('input[name="license"][value="wc"]')).toBeChecked();
     await page.getByTestId("file-demo").setInputFiles(WAV);
     await page.getByTestId("file-sheet").setInputFiles(PDF);

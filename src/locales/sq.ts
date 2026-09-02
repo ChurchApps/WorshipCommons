@@ -84,6 +84,7 @@ const sq: Record<string, string> = {
   "Search by theme, scripture, key, tempo, or language. Download chords, slides, ChordPro — and stems for the full band.": "Kërkoni sipas temës, vargut biblik, tonalitetit, tempos ose gjuhës. Shkarkoni akorde, sllajde, ChordPro — dhe pistat e ndara për të gjithë grupin.",
   "Try “communion”, “Isaiah 40”, or “key of G”…": "Provoni “kungimi”, “Isaia 40” ose “tonaliteti G”…",
   "All songs": "Të gjitha këngët",
+  "Songs for kids and VBS": "Këngë për fëmijë dhe shkollë verore biblike",
   " · {count} churches": " · {count} kisha",
   "Sunday-ready in three steps": "Gati për të dielën në tre hapa",
   "No accounts to manage, no licenses to buy, nothing to report back.": "Pa llogari për të mbajtur, pa licenca për të blerë, pa asgjë për të raportuar.",

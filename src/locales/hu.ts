@@ -84,6 +84,7 @@ const hu: Record<string, string> = {
   "Search by theme, scripture, key, tempo, or language. Download chords, slides, ChordPro — and stems for the full band.": "Keress téma, igehely, hangnem, tempó vagy nyelv szerint. Tölts le akkordokat, diákat, ChordPro-t — és külön sávokat az egész zenekarnak.",
   "Try “communion”, “Isaiah 40”, or “key of G”…": "Próbáld: „úrvacsora”, „Ézsaiás 40” vagy „G hangnem”…",
   "All songs": "Minden ének",
+  "Songs for kids and VBS": "Énekek gyerekeknek és bibliai napközire",
   " · {count} churches": " · {count} gyülekezet",
   "Sunday-ready in three steps": "Három lépésben kész vasárnapra",
   "No accounts to manage, no licenses to buy, nothing to report back.": "Nincs fiók, amit kezelni kell, nincs licenc, amit venni kell, nincs mit jelenteni.",

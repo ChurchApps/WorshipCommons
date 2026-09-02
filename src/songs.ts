@@ -1,4 +1,5 @@
 import { wcGet } from "./api";
+import themeVocabulary from "./themes.json";
 
 export interface Song {
   id: string;
@@ -86,6 +87,12 @@ export async function loadSong(id: string): Promise<Song | null> {
   }
   return songCache.get(id) ?? null;
 }
+
+// the controlled vocabulary, in the order it should be offered and faceted
+export const THEMES: string[] = themeVocabulary.themes;
+
+// the six the home page leads with — all drawn from THEMES
+export const HOME_THEMES = ["Praise", "Advent", "Christmas", "Easter", "Communion", "Comfort"];
 
 export const themeList = (song: Song) => (song.themes || "").split(",").map(t => t.trim()).filter(Boolean);
 

@@ -84,6 +84,7 @@ const fr: Record<string, string> = {
   "Search by theme, scripture, key, tempo, or language. Download chords, slides, ChordPro — and stems for the full band.": "Cherchez par thème, passage biblique, tonalité, tempo ou langue. Téléchargez accords, diapositives, ChordPro — et les pistes séparées pour tout le groupe.",
   "Try “communion”, “Isaiah 40”, or “key of G”…": "Essayez « communion », « Ésaïe 40 » ou « tonalité de Sol »…",
   "All songs": "Tous les chants",
+  "Songs for kids and VBS": "Chants pour enfants et clubs bibliques",
   " · {count} churches": " · {count} églises",
   "Sunday-ready in three steps": "Prêt pour dimanche en trois étapes",
   "No accounts to manage, no licenses to buy, nothing to report back.": "Aucun compte à gérer, aucune licence à acheter, rien à déclarer.",

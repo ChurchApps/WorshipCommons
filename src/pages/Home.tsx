@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { loadSongs, Song, songRecency, themeList } from "../songs";
+import { HOME_THEMES, loadSongs, Song, songRecency, themeList } from "../songs";
 import { coverSvg } from "../cover.mjs";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
@@ -160,9 +160,10 @@ export default function Home() {
             </Link>
             <div className="chips">
               <span className="chip on">{t("All songs")}</span>
-              {["Praise", "Communion", "Advent", "Easter", "Comfort", "Justice"].map(th => (
+              {HOME_THEMES.map(th => (
                 <Link key={th} className="chip" to={`/songs?theme=${th}`}>{th}</Link>
               ))}
+              <Link className="chip" to="/songs?theme=Kids" data-testid="kids-chip">{t("Songs for kids and VBS")}</Link>
               <Link className="chip" to="/songs?lang=Spanish">En español</Link>
             </div>
             <div className="row-head">
