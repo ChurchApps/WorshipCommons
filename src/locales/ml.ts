@@ -25,6 +25,7 @@ const ml: Record<string, string> = {
   "Report a song": "ഒരു പാട്ട് റിപ്പോർട്ട് ചെയ്യുക",
   "Who qualifies": "ആർക്കൊക്കെ ബാധകം",
   "Questions": "ചോദ്യങ്ങൾ",
+  "Copyright / DMCA": "പകർപ്പവകാശം / DMCA",
   "Privacy": "സ്വകാര്യത",
   "Terms": "നിബന്ധനകൾ",
   "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. പാട്ടുകൾ അവയുടെ രചയിതാക്കളുടേത്. പാടുന്നത് എല്ലാവരുടേതും.",

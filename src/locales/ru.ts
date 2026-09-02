@@ -25,6 +25,7 @@ const ru: Record<string, string> = {
   "Report a song": "Сообщить о песне",
   "Who qualifies": "Кому это подходит",
   "Questions": "Вопросы",
+  "Copyright / DMCA": "Авторские права / DMCA",
   "Privacy": "Конфиденциальность",
   "Terms": "Условия",
   "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. Песни принадлежат их авторам. Пение принадлежит всем.",

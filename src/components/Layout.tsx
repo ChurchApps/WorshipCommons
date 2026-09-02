@@ -95,6 +95,7 @@ export default function Layout() {
                 <li><Link to="/report">{t("Report a song")}</Link></li>
                 <li><Link to="/license#who">{t("Who qualifies")}</Link></li>
                 <li><Link to="/license#faq">{t("Questions")}</Link></li>
+                <li><Link to="/terms#copyright" data-testid="foot-dmca">{t("Copyright / DMCA")}</Link></li>
                 <li><a href="https://churchapps.org/privacy">{t("Privacy")}</a></li>
                 <li><Link to="/terms">{t("Terms")}</Link></li>
               </ul>
