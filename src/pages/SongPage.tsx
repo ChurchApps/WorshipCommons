@@ -43,6 +43,12 @@ const BPM_PATH = "M12 21a8 8 0 1 1 8-8M12 8v4l3 2";
 const TIME_PATH = "M4 6h16M4 12h16M4 18h10";
 const TAG_PATH = "M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9zM8 8h.01";
 
+// mirrors the deed on /license (Worship Use vs. what stays with the writer) and the public-domain FAQ
+const MAY_WC = ["Sing, play, project, and print it in worship", "Transpose, arrange, and translate it", "Record or stream your service, live or later", "Skip a verse or repeat a part"];
+const MAY_NOT_WC = ["Sell recordings or sheet music", "Release it as a track, album, or music video", "Use it in film, TV, ads, podcasts, or games", "Change what the song means"];
+const MAY_PD = ["Sing, print, project, record, and stream it", "Arrange, transpose, and translate it", "Sell your own arrangement or recording", "Use it in any media"];
+const MAY_NOT_PD = ["Claim the original words or tune as your own copyright"];
+
 export default function SongPage() {
   const { t } = useI18n();
   const { id } = useParams();
@@ -374,11 +380,24 @@ export default function SongPage() {
 
             <div className="license-note">
               <InfoIcon />
-              <p>
-                {song.license === "WC"
-                  ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                  : <>{t("Public domain. Free for churches.")} {t("CC0.")}</>}
-              </p>
+              <div>
+                <p>
+                  {song.license === "WC"
+                    ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+                    : <>{t("Public domain. Free for churches.")} {t("CC0.")}</>}
+                </p>
+                {/* plain-language summary of the deed on /license — the legal code there controls */}
+                <div className="may-grid">
+                  <ul className="may" data-testid="you-may" aria-label={t("You may")}>
+                    <li>{t("You may")}</li>
+                    {(song.license === "WC" ? MAY_WC : MAY_PD).map(k => <li key={k}>{t(k)}</li>)}
+                  </ul>
+                  <ul className="may-not" data-testid="you-may-not" aria-label={t("You may not")}>
+                    <li>{t("You may not")}</li>
+                    {(song.license === "WC" ? MAY_NOT_WC : MAY_NOT_PD).map(k => <li key={k}>{t(k)}</li>)}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </article>
