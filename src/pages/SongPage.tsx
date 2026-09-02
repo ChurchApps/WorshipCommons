@@ -49,7 +49,6 @@ const TAG_PATH = "M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9zM8 8h.01";
 const MAY_WC = ["Sing, play, project, and print it in worship", "Transpose, arrange, and translate it", "Record or stream your service, live or later", "Skip a verse or repeat a part"];
 const MAY_NOT_WC = ["Sell recordings or sheet music", "Release it as a track, album, or music video", "Use it in film, TV, ads, podcasts, or games", "Change what the song means"];
 const MAY_PD = ["Sing, print, project, record, and stream it", "Arrange, transpose, and translate it", "Sell your own arrangement or recording", "Use it in any media"];
-const MAY_NOT_PD = ["Claim the original words or tune as your own copyright"];
 
 const FILE_LABELS: [RegExp, string][] = [
   [/^demoAudio\./i, "demo recording"],
@@ -181,6 +180,8 @@ export default function SongPage() {
   }, [song, user]);
 
   const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
+  // lyrics-only sheets have nothing to transpose — the key, capo, and chord switches only add noise
+  const hasChords = useMemo(() => stanzas.some(st => st.lines.some(line => line.some(seg => seg.chord))), [stanzas]);
 
   usePageMeta(
     song ? t("{title} — free chords and lyrics | WorshipCommons", { title: song.title }) : "WorshipCommons",
@@ -298,7 +299,7 @@ export default function SongPage() {
       if (song.midiUrl) sources.push([`${slug}.mid`, song.midiUrl]);
       if (song.artUrl) sources.push([`${slug}-art${song.artUrl.match(/\.\w+$/)?.[0] || ".jpg"}`, song.artUrl]);
       const files = await Promise.all(sources.map(async ([name, url]) => ({ name, data: await fetchBytes(url) })));
-      const license = song.license === "WC" ? `© ${song.year} ${song.writer} · WorshipCommons License v1.0 — free for worship everywhere, always. https://worshipcommons.org/license` : "Public domain. Free for churches.";
+      const license = song.license === "WC" ? `© ${song.year} ${song.writer} · WorshipCommons License v1.0 — free for worship everywhere, always. https://worshipcommons.org/license` : "Public domain. Free for every use, including commercial.";
       files.push({ name: "LICENSE.txt", data: new TextEncoder().encode(`${song.title} — ${song.writer}, ${song.year}\n${license}\nhttps://worshipcommons.org/songs/${song.id}\n`) });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(makeZip(files));
@@ -349,7 +350,7 @@ export default function SongPage() {
               </p>
             )}
 
-            <div className="controls">
+            {hasChords && <div className="controls">
               <div className="ctl"><label htmlFor="transpose">{t("Key")}</label>
                 <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
                   {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
@@ -368,11 +369,11 @@ export default function SongPage() {
                   <button onClick={() => bumpKey(1)} aria-label="+1">+</button>
                 </div>
               </div>
-            </div>
+            </div>}
 
             <div className="controls-2">
-              <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>
-              <label className="switch"><input type="checkbox" id="nashville-toggle" checked={nashville} disabled={!showChords} onChange={e => setNashville(e.target.checked)} /> {t("Nashville numbers")}</label>
+              {hasChords && <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>}
+              {hasChords && <label className="switch"><input type="checkbox" id="nashville-toggle" checked={nashville} disabled={!showChords} onChange={e => setNashville(e.target.checked)} /> {t("Nashville numbers")}</label>}
               <button className="btn btn-ghost copy-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
               <div className="text-size" role="group" aria-label={t("Text size")}>
                 {[t("Small"), t("Medium"), t("Large")].map((label, i) => (
@@ -418,26 +419,23 @@ export default function SongPage() {
                 <p>
                   {song.license === "WC"
                     ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                    : <>{t("Public domain. Free for churches.")} {t("CC0.")}</>}
+                    : t("Public domain. Free for every use, including commercial — no license needed.")}
                 </p>
                 {/* plain-language summary of the deed on /license — the legal code there controls */}
+                {/* public domain has nothing to forbid, so it gets the one list, full width */}
                 <div className="may-grid">
                   <ul className="may" data-testid="you-may" aria-label={t("You may")}>
                     <li>{t("You may")}</li>
                     {(song.license === "WC" ? MAY_WC : MAY_PD).map(k => <li key={k}>{t(k)}</li>)}
                   </ul>
-                  <ul className="may-not" data-testid="you-may-not" aria-label={t("You may not")}>
-                    <li>{t("You may not")}</li>
-                    {(song.license === "WC" ? MAY_NOT_WC : MAY_NOT_PD).map(k => <li key={k}>{t(k)}</li>)}
-                  </ul>
+                  {song.license === "WC" && (
+                    <ul className="may-not" data-testid="you-may-not" aria-label={t("You may not")}>
+                      <li>{t("You may not")}</li>
+                      {MAY_NOT_WC.map(k => <li key={k}>{t(k)}</li>)}
+                    </ul>
+                  )}
                 </div>
               </div>
-
-              <p>
-                {song.license === "WC"
-                  ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                  : <>{t("Public domain. Free for churches.")} {t("Dedicated CC0 — free for every use, including commercial.")}</>}
-              </p>
             </div>
           </div>
         </article>

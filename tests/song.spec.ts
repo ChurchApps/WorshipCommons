@@ -27,7 +27,7 @@ test.describe("song page", () => {
     await expect(page.locator("#key-label")).toHaveText("G");
     await expect(page.locator(".sheet .pd-badge")).toContainText("Public domain");
     await expect(page.locator(".license-note")).toContainText("Public domain");
-    await expect(page.locator(".license-note")).toContainText("Free for churches");
+    await expect(page.locator(".license-note")).toContainText("including commercial");
     await expect(page.locator(".license-note")).not.toContainText("anywhere");
     await expect(page.locator(".license-note")).not.toContainText("worldwide");
   });
