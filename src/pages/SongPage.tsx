@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { loadSong, loadSongs, Song, themeList } from "../songs";
+import { loadSong, loadSongs, scriptureBook, Song, themeList } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
@@ -41,6 +41,7 @@ const ChipIcon = ({ d }: { d: string }) => (
 const KEY_PATH = "M15.5 4a4.5 4.5 0 1 0-4.24 6L4 17.26V20h3v-2h2v-2h2l1.99-1.99A4.5 4.5 0 0 0 15.5 4z";
 const BPM_PATH = "M12 21a8 8 0 1 1 8-8M12 8v4l3 2";
 const TIME_PATH = "M4 6h16M4 12h16M4 18h10";
+const METER_PATH = "M3 8h18v8H3zM8 8v4M13 8v4M18 8v4";
 const TAG_PATH = "M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9zM8 8h.01";
 
 // mirrors the deed on /license (Worship Use vs. what stays with the writer) and the public-domain FAQ
@@ -207,10 +208,17 @@ export default function SongPage() {
   const related = songs.filter(s => s.id !== song.id && (s.parentSongId === song.id || (parent && s.parentSongId === parent.id)));
   const relIds = new Set([song.id, parent?.id, ...related.map(r => r.id)]);
   const myThemes = new Set(themeList(song));
+  const myBook = scriptureBook(song);
+  // same language only, then scored: a shared meter or scripture book counts double a shared theme
+  const score = (s: Song) =>
+    (song.meter && s.meter === song.meter ? 2 : 0) +
+    (myBook && scriptureBook(s) === myBook ? 2 : 0) +
+    themeList(s).filter(th => myThemes.has(th)).length;
   const similar = songs
-    .filter(s => !relIds.has(s.id) && s.language === song.language && themeList(s).some(th => myThemes.has(th)))
-    .sort((a, b) => (a.license === "WC" ? 0 : 1) - (b.license === "WC" ? 0 : 1) || b.downloadCount - a.downloadCount)
+    .filter(s => !relIds.has(s.id) && s.language === song.language && score(s) > 0)
+    .sort((a, b) => score(b) - score(a) || (a.license === "WC" ? 0 : 1) - (b.license === "WC" ? 0 : 1) || b.downloadCount - a.downloadCount)
     .slice(0, 4);
+  const why = (s: Song) => themeList(s).find(th => myThemes.has(th)) || (s.meter === song.meter ? s.meter : "") || scriptureBook(s);
   const writerHref = song.authorId || song.writerId
     ? `/writers/${encodeURIComponent(song.authorId || song.writerId || "")}`
     : `/songs?q=${encodeURIComponent(song.writer)}`;
@@ -313,6 +321,7 @@ export default function SongPage() {
                   <span className="s-tag"><ChipIcon d={KEY_PATH} />{t("Key")} <b id="key-label">{keyLabel}</b></span>
                   <span className="s-tag"><ChipIcon d={BPM_PATH} /><b>{song.bpm}</b> BPM</span>
                   <span className="s-tag"><ChipIcon d={TIME_PATH} /><b>{song.timeSignature}</b></span>
+                  {song.meter && <Link className="s-tag" data-testid="meter-chip" to={`/songs?meter=${encodeURIComponent(song.meter)}`}><ChipIcon d={METER_PATH} />{t("Meter")} <b>{song.meter}</b></Link>}
                   {themeList(song).map(th => <Link className="s-tag" key={th} to={`/songs?theme=${encodeURIComponent(th)}`}><ChipIcon d={TAG_PATH} />{th}</Link>)}
                 </div>
               </div>
@@ -568,7 +577,7 @@ export default function SongPage() {
                 <>
                   <p className="rel-sub">{t("Similar songs")}</p>
                   <ul className="rel-list" data-testid="similar-songs">
-                    {similar.map(s => <li key={s.id}><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {themeList(s).find(th => myThemes.has(th))}</span></div><ArrowRight /></li>)}
+                    {similar.map(s => <li key={s.id}><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {why(s)}</span></div><ArrowRight /></li>)}
                   </ul>
                 </>
               )}

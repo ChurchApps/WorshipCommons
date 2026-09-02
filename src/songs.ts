@@ -9,6 +9,7 @@ export interface Song {
   songKey: string;
   bpm: number;
   timeSignature: string;
+  meter?: string;
   language: string;
   scripture: string;
   scriptureText?: string;
@@ -88,6 +89,9 @@ export async function loadSong(id: string): Promise<Song | null> {
 }
 
 export const themeList = (song: Song) => (song.themes || "").split(",").map(t => t.trim()).filter(Boolean);
+
+// leading book name of a reference — "1 John 3:16" → "1 John", "Psalm 23" → "Psalm"
+export const scriptureBook = (song: Song) => (song.scripture || "").replace(/\s+\d+.*$/, "").trim();
 
 export const songRecency = (s: Song) => {
   const t = Date.parse(s.publishedAt || s.createdAt || "");

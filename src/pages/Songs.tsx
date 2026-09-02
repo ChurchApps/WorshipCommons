@@ -11,7 +11,7 @@ const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
 const playableUrl = (s: Song) => s.demoAudioUrl || s.midiUrl;
 
-interface Filters { q: string; themes: Set<string>; key: string; tempo: string; lang: string; lic: string; audio: boolean; mt: boolean; }
+interface Filters { q: string; themes: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; audio: boolean; mt: boolean; }
 
 const XIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -44,6 +44,7 @@ export default function Songs() {
     q: (params.get("q") || "").trim().toLowerCase(),
     themes: new Set(params.get("theme") ? [params.get("theme")] : []),
     key: "",
+    meter: params.get("meter") || "",
     tempo: "",
     lang: params.get("lang") || SONG_LANG[lang],
     lic: "",
@@ -105,6 +106,7 @@ export default function Songs() {
     return (skip === "q" || !q || (s.title + " " + s.writer + " " + s.scripture + " " + s.themes).toLowerCase().includes(q)) &&
       (skip === "themes" || !state.themes.size || th.some(t => state.themes.has(t))) &&
       (skip === "key" || !state.key || s.songKey === state.key) &&
+      (skip === "meter" || !state.meter || s.meter === state.meter) &&
       (skip === "tempo" || !state.tempo || tempoBucket(s.bpm) === state.tempo) &&
       (skip === "lang" || !state.lang || s.language === state.lang) &&
       (skip === "lic" || !state.lic || s.license === state.lic) &&
@@ -124,6 +126,7 @@ export default function Songs() {
     return {
       themes,
       keys: [...new Set(songs.map(s => s.songKey))].sort(),
+      meters: [...new Set(songs.filter(s => s.meter).map(s => s.meter as string))].sort(),
       langs: Object.entries(langCounts).sort((a, b) => b[1] - a[1])
     };
   }, [songs, state]);
@@ -177,13 +180,14 @@ export default function Songs() {
   const chips: { label: string; undo: () => void }[] = [];
   state.themes.forEach(th => chips.push({ label: th, undo: () => toggleTheme(th, false) }));
   if (state.key) chips.push({ label: t("Key of {key}", { key: state.key }), undo: () => update({ key: "" }) });
+  if (state.meter) chips.push({ label: t("Meter {meter}", { meter: state.meter }), undo: () => update({ meter: "" }) });
   if (state.tempo) chips.push({ label: t({ slow: "Slow", mid: "Moderate", fast: "Upbeat" }[state.tempo]), undo: () => update({ tempo: "" }) });
   if (state.lang) chips.push({ label: t(state.lang), undo: () => update({ lang: "" }) });
   if (state.lic) chips.push({ label: state.lic === "WC" ? t("Shared by writers") : t("Public domain"), undo: () => update({ lic: "" }) });
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
   if (state.mt) chips.push({ label: t("Has multitracks"), undo: () => update({ mt: false }) });
 
-  const clearAll = () => update({ q: "", themes: new Set(), key: "", tempo: "", lang: "", lic: "", audio: false, mt: false });
+  const clearAll = () => update({ q: "", themes: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", audio: false, mt: false });
 
   const pagerNums = useMemo(() => {
     const nums = [...new Set([1, 2, curPage - 1, curPage, curPage + 1, pages - 1, pages].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);
@@ -241,6 +245,14 @@ export default function Songs() {
               {facets.keys.map(k => <option key={k}>{k}</option>)}
             </select>
           </FacetGroup>
+          {facets.meters.length > 0 && (
+            <FacetGroup title={t("Meter")}>
+              <select value={state.meter} onChange={e => update({ meter: e.target.value })} aria-label={t("Meter")} data-testid="meter-filter">
+                <option value="">{t("Any meter")}</option>
+                {facets.meters.map(m => <option key={m}>{m}</option>)}
+              </select>
+            </FacetGroup>
+          )}
           <FacetGroup title={t("Tempo")}>
             <ul className="facet-list">
               <li><label><input type="radio" name="tempo" checked={state.tempo === ""} onChange={() => update({ tempo: "" })} /> {t("Any tempo")}</label></li>
