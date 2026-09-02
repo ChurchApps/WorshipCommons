@@ -135,11 +135,9 @@ export default function Songs() {
 
   const list = useMemo(() => {
     const filtered = songs.filter(s => matches(s));
-    // usage dominates, quality is a kicker; unscored songs sit at a neutral 50
-    const maxDl = Math.max(1, ...songs.map(s => s.downloadCount));
-    const blend = (s: Song) => (s.downloadCount / maxDl) * 60 + ((s.qualityScore ?? 50) / 100) * 40;
+    // the API blends usage with moderation quality into rank; ties keep the API's order
     filtered.sort((a, b) =>
-      sort === "downloads" ? blend(b) - blend(a) :
+      sort === "downloads" ? (b.rank ?? 0) - (a.rank ?? 0) :
         sort === "new" ? songRecency(b) - songRecency(a) :
           a.title.localeCompare(b.title));
     return filtered;

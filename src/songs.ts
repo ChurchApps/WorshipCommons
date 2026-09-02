@@ -35,8 +35,8 @@ export interface Song {
   authorId?: string;
   writerId?: string;
   proAnswer?: string;
-  qualityScore?: number;
-  qualityDetail?: string;
+  /** opaque popularity/quality blend from the API; the moderation quality score stays reviewer-only */
+  rank?: number;
   status?: string;
   createdAt?: string;
   publishedAt?: string;
