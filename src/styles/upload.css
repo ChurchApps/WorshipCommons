@@ -16,6 +16,10 @@
   .license-recap ul { list-style: disc; padding-left: 1.15em; margin: 0; }
   .license-recap li { font-size: 0.8125rem; color: var(--text-2); line-height: 1.4; padding: 1px 0; }
 
+  .sub-type { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  .sub-type label { display: flex; align-items: center; gap: 7px; font-weight: 400; font-size: 0.9375rem; margin: 0; cursor: pointer; }
+  .sub-type input { accent-color: var(--primary); width: 16px; height: 16px; }
+
   .theme-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
   .theme-chips .chip { min-height: 36px; padding: 6px 14px; font-size: 0.8125rem; }
   .pro-warning { color: var(--secondary); font-weight: 600; margin-top: 8px; }

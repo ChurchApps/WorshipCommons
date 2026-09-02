@@ -7,7 +7,7 @@ import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 
-const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks" };
+const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody" };
 
 export default function Upload() {
   const { t, lang } = useI18n();

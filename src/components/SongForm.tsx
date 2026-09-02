@@ -5,7 +5,7 @@ import { wcGet } from "../api";
 import { parseChordPro } from "../chordpro";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
-import { THEMES } from "../songs";
+import { THEMES, loadSongs, Song } from "../songs";
 
 interface SimilarSong { id: string; title: string; writer: string; }
 
@@ -18,7 +18,11 @@ const MINOR_KEYS = [
   "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "Abm", "Am", "Bbm", "Bm"
 ];
 
+export type SubmissionType = "new" | "translation" | "arrangement";
+
 export interface SongFormValues {
+  submissionType: SubmissionType;
+  parentSongId: string;
   title: string;
   writer: string;
   year: string;
@@ -34,13 +38,16 @@ export interface SongFormValues {
   recordingOwned: boolean;
 }
 
-export type SongFiles = { demoAudio?: File; sheetPdf?: File; stemsZip?: File };
+export type SongFiles = { demoAudio?: File; sheetPdf?: File; stemsZip?: File; midi?: File };
 
-export const blankSong = (language: string): SongFormValues => ({ title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false, recordingOwned: false });
+export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false, recordingOwned: false });
 
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
+  const parentSongId = d.parentSongId || "";
   return {
+    submissionType: parentSongId ? (/^Translation/i.test(d.relationLabel || "") ? "translation" : "arrangement") : "new",
+    parentSongId,
     title: payload?.name || "",
     writer: d.writer || "",
     year: d.year ? String(d.year) : "",
@@ -57,6 +64,10 @@ export const songFromPayload = (payload: any): SongFormValues => {
   };
 };
 
+// free text the song page shows under the related song; "" when this is a standalone song
+export const relationLabelFor = (form: SongFormValues) =>
+  !form.parentSongId ? "" : form.submissionType === "translation" ? `Translation (${form.language})` : form.submissionType === "arrangement" ? "Arrangement" : "";
+
 // base keeps the fields this form doesn't edit (scriptureText, videoUrl…) when proposing an edit
 export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) => ({
   ...base,
@@ -70,6 +81,8 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
   detail: {
     ...base?.detail,
     writer: form.writer,
+    parentSongId: form.parentSongId || undefined,
+    relationLabel: relationLabelFor(form) || undefined,
     year: form.year ? Number(form.year) : undefined,
     songKey: form.songKey,
     bpm: form.bpm ? Number(form.bpm) : undefined,
@@ -82,7 +95,9 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
   }
 });
 
-export const conventionalName = (role: string, file: File) => `${role}.${(file.name.split(".").pop() || "").toLowerCase()}`;
+// the registry names most roles <role>.<ext>, but the midi role is always tune.mid
+const FIXED_NAMES: Record<string, string> = { midi: "tune.mid" };
+export const conventionalName = (role: string, file: File) => FIXED_NAMES[role] || `${role}.${(file.name.split(".").pop() || "").toLowerCase()}`;
 
 const parseThemes = (raw: string) => raw.split(",").map(s => s.trim()).filter(Boolean);
 
@@ -143,6 +158,8 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
   const [note, setNote] = useState("");
   const [missing, setMissing] = useState<string[]>([]);
   const [similar, setSimilar] = useState<SimilarSong[]>([]);
+  const [catalog, setCatalog] = useState<Song[]>([]);
+  const [parentQuery, setParentQuery] = useState("");
   const lock = useRef(false);
   // an edit is already aimed at one song — only a brand new submission can duplicate the library
   const isNewSong = !noteLabel;
@@ -151,6 +168,8 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
 
   useEffect(() => { onChange?.(form); }, [form]);
   useEffect(() => { if (!busy) lock.current = false; }, [busy]);
+  // the parent picker searches the published catalog — only fetched once a relation is claimed
+  useEffect(() => { if (form.submissionType !== "new" && !catalog.length) loadSongs().then(setCatalog).catch(() => { }); }, [form.submissionType]);
 
   useEffect(() => {
     if (!isNewSong) return;
@@ -170,6 +189,18 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
   const knownKeys = new Set([...MAJOR_KEYS, ...MINOR_KEYS]);
   const proWarn = /GEMA|PRS|publisher|licensing admin/i.test(form.proAnswer);
 
+  const parentSong = catalog.find(s => s.id === form.parentSongId) || null;
+  const query = parentQuery.trim().toLowerCase();
+  const parentChoices = catalog.filter(s => !query || s.title.toLowerCase().includes(query)).slice(0, 50);
+  if (parentSong && !parentChoices.some(s => s.id === parentSong.id)) parentChoices.unshift(parentSong);
+
+  const setType = (submissionType: SubmissionType) => setForm(f => ({ ...f, submissionType, parentSongId: submissionType === "new" ? "" : f.parentSongId }));
+  // an arrangement keeps the original's title, credit and key unless the writer changes them
+  const pickParent = (id: string) => {
+    const picked = catalog.find(s => s.id === id);
+    setForm(f => ({ ...f, parentSongId: id, ...(picked && f.submissionType === "arrangement" ? { title: picked.title, writer: picked.writer || "", songKey: picked.songKey || f.songKey } : {}) }));
+  };
+
   const setThemes = (list: string[]) => set("themes", [...new Set(list)].join(", "));
   const toggleTheme = (th: string) => {
     setThemes(selectedThemes.includes(th) ? selectedThemes.filter(x => x !== th) : [...selectedThemes, th]);
@@ -185,6 +216,8 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
     if (!form.certified) gaps.push(t("Your word"));
     if (files.demoAudio && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
     if (noteLabel && !note.trim()) gaps.push(t(noteLabel));
+    if (form.submissionType !== "new" && !form.parentSongId) gaps.push(t("The original song"));
+    if (form.submissionType === "translation" && parentSong && parentSong.language === form.language) gaps.push(t("A translation has to be in a different language than the original."));
     return gaps;
   };
 
@@ -202,6 +235,28 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
         <h2><span className="n">1</span>{t("The song")}</h2>
         <p className="hint">{t("What a worship leader needs to find it and decide if it fits Sunday.")}</p>
         <div className="step-body">
+          <div className="field">
+            <label>{t("What are you adding?")}</label>
+            <div className="sub-type" data-testid="submission-type">
+              {([["new", "New song"], ["translation", "Translation of an existing hymn"], ["arrangement", "Arrangement of an existing song"]] as [SubmissionType, string][]).map(([value, label]) => (
+                <label key={value}>
+                  <input type="radio" name="submission-type" value={value} checked={form.submissionType === value} onChange={() => setType(value)} />
+                  {t(label)}
+                </label>
+              ))}
+            </div>
+          </div>
+          {form.submissionType !== "new" && (
+            <div className="field">
+              <label htmlFor="parent-song">{t("The original song")}</label>
+              <input type="search" id="parent-search" data-testid="parent-search" placeholder={t("Search the library by title")} value={parentQuery} onChange={e => setParentQuery(e.target.value)} />
+              <select id="parent-song" data-testid="parent-song" value={form.parentSongId} onChange={e => pickParent(e.target.value)} style={{ marginTop: 8 }}>
+                <option value="">{catalog.length ? t("Choose the original…") : t("Loading…")}</option>
+                {parentChoices.map(s => <option key={s.id} value={s.id}>{`${s.title} — ${s.writer || "?"} (${s.language})`}</option>)}
+              </select>
+              <p className="hint">{t("We link the two song pages together, both ways.")}</p>
+            </div>
+          )}
           <div className="field">
             <label htmlFor="title">{t("Title")}</label>
             <input type="text" id="title" required value={form.title} onChange={e => set("title", e.target.value)} />
@@ -285,6 +340,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
         <div className="step-body dz-row">
           <Dropzone label="Demo recording" hint="Drop an MP3 or WAV, or click to choose · a phone recording is fine" accept="audio/*,.mp3,.wav" testId="file-demo" onFile={f => setFiles(x => ({ ...x, demoAudio: f }))} />
           <Dropzone label="Sheet music" hint="Lead sheet or vocal score · PDF or MusicXML" accept=".pdf,.xml,.musicxml" testId="file-sheet" onFile={f => setFiles(x => ({ ...x, sheetPdf: f }))} />
+          <Dropzone label="MIDI melody" hint="A .mid file of the tune · churches play it in the browser" accept=".mid,.midi,audio/midi" testId="file-midi" onFile={f => setFiles(x => ({ ...x, midi: f }))} />
           <Dropzone label="Multitracks" hint="ZIP of stems — one WAV or MP3 per part, every file starting at bar 1 · include click & guide if you have them" accept=".zip" testId="file-stems" onFile={f => setFiles(x => ({ ...x, stemsZip: f }))} />
         </div>
         <p className="hint" style={{ margin: "10px 0 0 52px" }}>{t("Files up to ~35 MB each. Upload stems once, in the recorded key.")}</p>
