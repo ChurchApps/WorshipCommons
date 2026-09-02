@@ -30,6 +30,7 @@ const REVIEW_REASONS: Record<string, string> = {
   quality: "The review team felt this one isn’t ready for the library yet.",
   duplicate: "This looks like a song that’s already in the library.",
   licensing: "There’s a rights or licensing issue with this submission.",
+  ccli: "This looks like a song in the CCLI catalog, so it can’t be released here.",
   offtopic: "This doesn’t fit the worship-song library.",
   incomplete: "This submission is missing something we need to publish it.",
   other: "This one didn’t make it into the library."
@@ -101,6 +102,7 @@ export default function MySongs() {
         const count = downloads[s.assetId] ?? 0;
         const liveUrl = s.status === "approved" && s.assetId ? `${window.location.origin}/songs/${s.assetId}` : "";
         const reason = s.reviewReason ? t(REVIEW_REASONS[s.reviewReason] || REVIEW_REASONS.other) : "";
+        const songSelectUrl = s.reviewReason === "ccli" ? `https://songselect.ccli.com/search/results?SearchText=${encodeURIComponent(s.assetName || "")}` : "";
         let titleTo = "";
         if (s.status === "approved") titleTo = `/songs/${s.assetId}`;
         else if (s.status === "pending" || s.status === "draft") titleTo = `/preview/submission/${s.id}`;
@@ -126,7 +128,7 @@ export default function MySongs() {
               </p>
             )}
             {s.status === "rejected" && (reason || s.reviewNote) && (
-              <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="review-note">{reason}{reason && s.reviewNote ? " — " : ""}{s.reviewNote}</p>
+              <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="review-note">{reason}{reason && s.reviewNote ? " — " : ""}{s.reviewNote}{songSelectUrl ? " " : ""}{songSelectUrl && <a href={songSelectUrl} target="_blank" rel="noreferrer" data-testid="songselect-link">{t("Find it on SongSelect")}</a>}</p>
             )}
             {s.status === "draft" && (
               <Link to={`/upload?draft=${encodeURIComponent(s.id)}`} className="btn btn-primary" style={{ marginTop: 12 }} data-testid="continue-draft">{t("Continue")}</Link>
