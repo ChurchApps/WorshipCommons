@@ -183,8 +183,8 @@ export default function Home() {
             {fromWriters.length > 0 && (
               <>
                 <div className="row-head">
-                  <h3>{t("New from writers")}</h3>
-                  <Link to="/songs">{t("See all →")}</Link>
+                  <h3><Link to="/new">{t("New from writers")}</Link></h3>
+                  <Link to="/new">{t("See all →")}</Link>
                 </div>
                 <ul className="row-list">
                   {fromWriters.map(s => (

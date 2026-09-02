@@ -6,6 +6,7 @@ import { I18nProvider, useI18n } from "./i18n";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Songs from "./pages/Songs";
+import New from "./pages/New";
 import SongPage from "./pages/SongPage";
 import PrintChart from "./pages/PrintChart";
 import SheetMusic from "./pages/SheetMusic";
@@ -40,6 +41,7 @@ createRoot(document.getElementById("root")).render(
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
+              <Route path="/new" element={<New />} />
               <Route path="/songs/:id" element={<SongPage />} />
               <Route path="/songs/:id/transcribe" element={<Transcribe />} />
               <Route path="/songs/:id/edit" element={<EditSong />} />

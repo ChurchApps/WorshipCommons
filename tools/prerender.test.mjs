@@ -100,9 +100,10 @@ test("sitemap lists every page with lastmod", () => {
   assert.match(xml, /<url><loc>https:\/\/example\.test\/songs\/rock-of-ages\/<\/loc><lastmod>2024-03-01<\/lastmod><\/url>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/songs\/roca-de-la-eternidad\/<\/loc><lastmod>2024-04-02<\/lastmod>/); // falls back to createdAt
   assert.match(xml, /<loc>https:\/\/example\.test\/terms<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/new<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance<\/loc>/);
-  assert.equal(xml.match(/<loc>/g).length, 5 + SONGS.length + 2);
+  assert.equal(xml.match(/<loc>/g).length, 6 + SONGS.length + 2);
 });
 
 test("llms.txt and robots.txt invite the AI crawlers", () => {
