@@ -13,6 +13,7 @@ export default function PrintChart() {
   const [notFound, setNotFound] = useState(false);
   const [size, setSize] = useState(16);
   const [cols, setCols] = useState(1);
+  const [chords, setChords] = useState(params.get("chords") !== "0");
   useEffect(() => {
     if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
   }, [id]);
@@ -51,6 +52,7 @@ export default function PrintChart() {
           </select>
         </label>
         <label><input type="checkbox" checked={cols === 2} onChange={e => setCols(e.target.checked ? 2 : 1)} /> {t("2 columns")}</label>
+        <label><input type="checkbox" data-testid="print-chords" checked={chords} onChange={e => setChords(e.target.checked)} /> {t("Show chords")}</label>
         <Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
       </div>
       <h1 style={{ marginBottom: 4 }}>{song.title}</h1>
@@ -63,7 +65,7 @@ export default function PrintChart() {
               <p key={li} style={{ margin: "0 0 6px" }}>
                 {segments.map((seg, gi) => (
                   <span className="print-seg" key={gi}>
-                    <span className="print-chord">{seg.chord ? transposeChord(seg.chord, dispShift, useFlats) : " "}</span>
+                    {chords && <span className="print-chord">{seg.chord ? transposeChord(seg.chord, dispShift, useFlats) : " "}</span>}
                     <span>{seg.text || " "}</span>
                   </span>
                 ))}
