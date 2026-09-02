@@ -8,6 +8,7 @@
   .dropzone:hover { border-color: var(--primary); background: rgba(108,43,217,0.03); }
   .dropzone b { display: block; font-family: var(--font-heading); font-size: 1.0625rem; color: var(--ink); margin-bottom: 4px; }
   .dz-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+  .dropzone .dz-art { display: block; width: 96px; height: 96px; object-fit: cover; border-radius: 12px; margin: 0 auto 10px; }
 
   .cp-preview-box { border: 1px solid #E4DEF2; border-radius: 16px; background: var(--surface); padding: 20px 24px; max-height: 420px; overflow-y: auto; }
   .cp-lint { list-style: none; margin: 10px 0 0; padding: 0; font-size: 0.8125rem; line-height: 1.5; }
