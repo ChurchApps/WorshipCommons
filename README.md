@@ -10,7 +10,7 @@ yarn lint
 
 ## Deployment
 
-Static build to S3 + CloudFront, same pattern as B1Admin:
+Static build to S3 + CloudFront, same pattern as B1Admin. GitHub Actions runs `yarn deploy-staging` on push to `main` (or `workflow_dispatch`); production is `workflow_dispatch` or a GitHub release.
 
 ```bash
 yarn deploy-staging   # VITE_* env baked at build → s3 sync build/ → CloudFront invalidation
