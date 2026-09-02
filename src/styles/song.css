@@ -193,3 +193,8 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 
 /* sheet PDF: the browser's native viewer in a letter-shaped frame */
 .pdf-embed { display: block; width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid var(--border); border-radius: 12px; background: #fff; }
+
+/* download pack: a button that sits in the file list like a link */
+.dl-list .link-btn { border: 0; background: none; padding: 0; font: inherit; font-weight: 500; font-size: 0.9375rem; color: var(--primary); cursor: pointer; margin-right: auto; text-align: left; }
+.dl-list .link-btn:hover { text-decoration: underline; }
+.dl-list .link-btn:disabled { color: var(--muted); cursor: progress; }
