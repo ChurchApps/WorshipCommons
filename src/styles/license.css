@@ -49,3 +49,11 @@
     .split { grid-template-columns: 1fr; }
     .big-quote { padding: 44px 24px; }
   }
+
+/* "Other licenses in this library" cards: the deed as three short lists, legal code linked underneath */
+.deed { list-style: none; margin: 10px 0 0; padding: 0; font-size: 0.9063rem; }
+.deed li { display: flex; gap: 8px; align-items: flex-start; padding: 3px 0; color: var(--text-2); }
+.deed li svg { flex: none; margin-top: 3px; color: var(--primary); }
+.deed .deed-head { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-top: 10px; }
+.deed .no::before { content: "✕"; color: var(--secondary); font-weight: 700; }
+.deed .must::before { content: "!"; color: #8A4B08; font-weight: 700; }

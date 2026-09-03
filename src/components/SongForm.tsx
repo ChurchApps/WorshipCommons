@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ChordProPreview from "./ChordProPreview";
 import { wcGet } from "../api";
 import { parseChordPro, lintChordPro } from "../chordpro";
+import { licenseById, UPLOADABLE } from "../licenses";
 import { prepareArt } from "../artThumb";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -41,7 +42,7 @@ export interface SongFormValues {
 
 export type SongFiles = { demoAudio?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File };
 
-export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "wc", proAnswer: "", certified: false, recordingOwned: false });
+export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "WC", proAnswer: "", certified: false, recordingOwned: false });
 
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
@@ -58,7 +59,7 @@ export const songFromPayload = (payload: any): SongFormValues => {
     language: payload?.language || "English",
     scripture: d.scripture || "",
     chordPro: d.chordPro || "",
-    license: payload?.license === "PD" ? "pd" : "wc",
+    license: UPLOADABLE.some(l => l.id === payload?.license) ? payload.license : "WC",
     proAnswer: d.proAnswer || "",
     certified: true,
     recordingOwned: false
@@ -75,8 +76,8 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
   name: form.title,
   tags: form.themes,
   language: form.language,
-  license: form.license === "pd" ? "PD" : "WC",
-  licenseVersion: form.license === "pd" ? "CC0" : "1.0",
+  license: form.license,
+  licenseVersion: licenseById(form.license).versionDefault, // WC 1.0 · CC BY 4.0 · PD is a CC0 dedication
   attestationVersion: "1.0",
   attestedAt: new Date().toISOString(),
   detail: {
@@ -381,10 +382,11 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
 
       <section className="step">
         <h2><span className="n">3</span>{t("What you’re giving")}</h2>
-        <p className="hint">{t("Both options make the song free for worship forever. They differ in what you keep.")}</p>
-        <div className="step-body">
+        <p className="hint">{t("Every option makes the song free for worship forever. They differ in what you keep.")}</p>
+        {/* radio values are the registry ids in licenses.json; only uploadable licenses are offered (SA and NC are harvest-only) */}
+        <div className="step-body" data-testid="license-choice">
           <label className="choice">
-            <input type="radio" name="license" value="wc" checked={form.license === "wc"} onChange={() => set("license", "wc")} />
+            <input type="radio" name="license" value="WC" checked={form.license === "WC"} onChange={() => set("license", "WC")} />
             <span>
               <strong>{t("Free for worship")}</strong> <span className="free-badge">{t("Recommended")}</span>
               <LicenseRecap
@@ -395,7 +397,18 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             </span>
           </label>
           <label className="choice">
-            <input type="radio" name="license" value="pd" checked={form.license === "pd"} onChange={() => set("license", "pd")} />
+            <input type="radio" name="license" value="CC-BY" checked={form.license === "CC-BY"} onChange={() => set("license", "CC-BY")} />
+            <span>
+              <strong>{t("CC BY 4.0")}</strong> <span className="cc-badge">{t("Credit required")}</span>
+              <LicenseRecap
+                churches={[t("Every use, worship and commercial, if they credit you"), t("Same rules as the wider Creative Commons world")]}
+                keep={[t("Copyright and the right to be credited"), t("Not exclusivity — anyone may sell recordings or sheet music with credit")]}
+              />
+              <p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener">{t("Read the license.")}</a></p>
+            </span>
+          </label>
+          <label className="choice">
+            <input type="radio" name="license" value="PD" checked={form.license === "PD"} onChange={() => set("license", "PD")} />
             <span>
               <strong>{t("Public domain")}</strong> <span className="pd-badge">{t("Everything, everyone")}</span>
               <LicenseRecap
@@ -428,6 +441,7 @@ export default function SongForm({ initial, noteLabel, error, submitLabel, submi
             <label htmlFor="certify" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
               <em>{t("I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.")}</em>
               <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This grant is the recap above — the license you chose.")}</span>
+              {form.license === "CC-BY" && <span className="hint" style={{ display: "block", marginTop: 6 }} data-testid="cc-by-hint">{t("CC BY grants commercial use to everyone, not only churches: anyone may sell recordings or sheet music of this song as long as they credit you.")}</span>}
               <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</span>
             </label>
           </div>

@@ -1,0 +1,186 @@
+{
+  "_comment": "Registry of the six content licenses WorshipCommons hosts. song.json \"license\" must be one of the ids below and the song must live under songs/<lang>/<section>/. tools/validate.mjs enforces that. may / mayNot / must are the church-facing deed shown on the song page; for CC licenses the legal code at legalUrl controls and is never restated. This file is vendored into WorshipCommons/src/licenses.json — keep the two copies byte-identical. Placeholders in \"notice\": {year} {writer} {version} {licenseUrl} (a song's own licenseUrl, else deedUrl).",
+  "licenses": [
+    {
+      "id": "PD",
+      "spdx": null,
+      "label": "Public domain",
+      "versionDefault": "CC0",
+      "section": "public-domain",
+      "deedUrl": "https://worshipcommons.org/license#pd",
+      "legalUrl": null,
+      "attributionRequired": false,
+      "shareAlike": false,
+      "nonCommercial": false,
+      "derivativesAllowed": true,
+      "uploadable": true,
+      "may": [
+        "Sing, print, project, record, and stream it",
+        "Arrange, transpose, and translate it",
+        "Sell your own arrangement or recording",
+        "Use it in any media"
+      ],
+      "mayNot": [],
+      "must": [],
+      "notice": "Public domain. Free for every use, including commercial.",
+      "badge": "pd"
+    },
+    {
+      "id": "WC",
+      "spdx": "LicenseRef-WorshipCommons-1.0",
+      "label": "Free for worship",
+      "versionDefault": "1.0",
+      "section": "wc-license",
+      "deedUrl": "https://worshipcommons.org/license",
+      "legalUrl": "https://worshipcommons.org/license#legal",
+      "attributionRequired": false,
+      "shareAlike": false,
+      "nonCommercial": false,
+      "derivativesAllowed": true,
+      "uploadable": true,
+      "may": [
+        "Sing, play, project, and print it in worship",
+        "Transpose, arrange, and translate it",
+        "Record or stream your service, live or later",
+        "Skip a verse or repeat a part"
+      ],
+      "mayNot": [
+        "Sell recordings or sheet music",
+        "Release it as a track, album, or music video",
+        "Use it in film, TV, ads, podcasts, or games",
+        "Change what the song means"
+      ],
+      "must": [],
+      "notice": "© {year} {writer} · WorshipCommons License v{version} — free for worship everywhere, always. https://worshipcommons.org/license",
+      "badge": "wc"
+    },
+    {
+      "id": "CC-BY",
+      "spdx": "CC-BY-4.0",
+      "label": "CC BY",
+      "versionDefault": "4.0",
+      "section": "cc-by",
+      "deedUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "legalUrl": "https://creativecommons.org/licenses/by/4.0/legalcode",
+      "attributionRequired": true,
+      "shareAlike": false,
+      "nonCommercial": false,
+      "derivativesAllowed": true,
+      "uploadable": true,
+      "may": [
+        "Sing, print, project, record, and stream it",
+        "Arrange, transpose, and translate it",
+        "Sell your own arrangement or recording",
+        "Use it in any media"
+      ],
+      "mayNot": [
+        "Remove the credit",
+        "Pretend you wrote it"
+      ],
+      "must": [
+        "Credit the writer",
+        "Name the license (CC BY, with its version)",
+        "Keep a link to the license on every copy you make — slides, charts, streams, zips"
+      ],
+      "notice": "© {year} {writer}. Licensed under CC BY {version}: {licenseUrl}",
+      "badge": "cc-by"
+    },
+    {
+      "id": "CC-BY-SA",
+      "spdx": "CC-BY-SA-4.0",
+      "label": "CC BY-SA",
+      "versionDefault": "4.0",
+      "section": "cc-by-sa",
+      "deedUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "legalUrl": "https://creativecommons.org/licenses/by-sa/4.0/legalcode",
+      "attributionRequired": true,
+      "shareAlike": true,
+      "nonCommercial": false,
+      "derivativesAllowed": true,
+      "uploadable": false,
+      "may": [
+        "Sing, print, project, record, and stream it",
+        "Arrange, transpose, and translate it",
+        "Sell your own arrangement or recording",
+        "Use it in any media"
+      ],
+      "mayNot": [
+        "Remove the credit",
+        "Pretend you wrote it",
+        "Release a translation or arrangement under a tighter license"
+      ],
+      "must": [
+        "Credit the writer",
+        "Name the license (CC BY-SA, with its version)",
+        "Keep a link to the license on every copy you make — slides, charts, streams, zips",
+        "Share your derivatives (translations, arrangements you distribute) under CC BY-SA too"
+      ],
+      "notice": "© {year} {writer}. Licensed under CC BY-SA {version}: {licenseUrl}",
+      "badge": "cc-by-sa"
+    },
+    {
+      "id": "CC-BY-NC",
+      "spdx": "CC-BY-NC-4.0",
+      "label": "CC BY-NC",
+      "versionDefault": "4.0",
+      "section": "cc-by-nc",
+      "deedUrl": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "legalUrl": "https://creativecommons.org/licenses/by-nc/4.0/legalcode",
+      "attributionRequired": true,
+      "shareAlike": false,
+      "nonCommercial": true,
+      "derivativesAllowed": true,
+      "uploadable": false,
+      "may": [
+        "Sing, project, print, transpose, arrange, and translate it in a worship gathering that is not sold as a product",
+        "Take an ordinary offering during the service"
+      ],
+      "mayNot": [
+        "Sell recordings or sheet music",
+        "Use it in ads",
+        "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)",
+        "Use it in a conference or product people pay to attend as the product"
+      ],
+      "must": [
+        "Credit the writer",
+        "Name the license (CC BY-NC, with its version)",
+        "Keep a link to the license on every copy you make — slides, charts, streams, zips"
+      ],
+      "notice": "© {year} {writer}. Licensed under CC BY-NC {version} (non-commercial): {licenseUrl}",
+      "badge": "cc-by-nc"
+    },
+    {
+      "id": "CC-BY-NC-SA",
+      "spdx": "CC-BY-NC-SA-4.0",
+      "label": "CC BY-NC-SA",
+      "versionDefault": "4.0",
+      "section": "cc-by-nc-sa",
+      "deedUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "legalUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode",
+      "attributionRequired": true,
+      "shareAlike": true,
+      "nonCommercial": true,
+      "derivativesAllowed": true,
+      "uploadable": false,
+      "may": [
+        "Sing, project, print, transpose, arrange, and translate it in a worship gathering that is not sold as a product",
+        "Take an ordinary offering during the service"
+      ],
+      "mayNot": [
+        "Sell recordings or sheet music",
+        "Use it in ads",
+        "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)",
+        "Use it in a conference or product people pay to attend as the product",
+        "Release a translation or arrangement under a tighter license"
+      ],
+      "must": [
+        "Credit the writer",
+        "Name the license (CC BY-NC-SA, with its version)",
+        "Keep a link to the license on every copy you make — slides, charts, streams, zips",
+        "Share your derivatives (translations, arrangements you distribute) under CC BY-NC-SA too"
+      ],
+      "notice": "© {year} {writer}. Licensed under CC BY-NC-SA {version} (non-commercial): {licenseUrl}",
+      "badge": "cc-by-nc-sa"
+    }
+  ]
+}

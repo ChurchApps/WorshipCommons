@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { loadSongs, Song, songRecency } from "../songs";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import { licenseOf } from "../licenses";
 
 // Only songs carrying a real publish/create date belong on a changelog — songRecency
 // falls back to the copyright year, which would file 1763 hymns under January 1970.
@@ -50,7 +51,7 @@ export default function New() {
                   <h3 style={{ marginBottom: 4 }}><Link to={`/songs/${s.id}`}>{s.title}</Link></h3>
                   <p className="hint">
                     {s.writer}
-                    {" · "}{s.license === "WC" ? t("Free for worship") : t("Public domain")}
+                    {" · "}{t(licenseOf(s).label)}
                     {" · "}{s.language}
                     {" · "}{new Date(songRecency(s)).toLocaleDateString(lang, { year: "numeric", month: "long", day: "numeric" })}
                   </p>

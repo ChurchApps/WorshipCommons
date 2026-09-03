@@ -4,6 +4,7 @@ import { loadSong, Song } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import { licenseNotice } from "../licenses";
 
 export default function PrintChart() {
   const { t } = useI18n();
@@ -75,7 +76,8 @@ export default function PrintChart() {
         ))}
       </div>
       <p style={{ marginTop: 32, fontSize: 13, color: "#555" }}>
-        {song.license === "WC" ? `© ${song.year} ${song.writer} · ${t("Shared through WorshipCommons — free for worship everywhere, always.")}` : t("Public domain.")}
+        {/* the registry notice: for CC songs the credit + license + link is a condition of the grant, so it prints on every chart */}
+        {licenseNotice(song)}
       </p>
     </main>
   );

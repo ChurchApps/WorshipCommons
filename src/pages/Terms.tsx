@@ -26,7 +26,7 @@ export default function Terms() {
 
       <section className="card" style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: "1.25rem", marginBottom: 10 }}>{t("The license is the grant")}</h2>
-        <p>{t("When you share a song, the license you choose — WorshipCommons License or CC0 public-domain dedication — is the legal grant. Read it on the")} <Link to="/license">{t("license page")}</Link>. {t("These site terms don’t rewrite that grant.")}</p>
+        <p>{t("When you share a song, the license you choose is the legal grant — the license named on the song: WorshipCommons License, CC BY, or a CC0 public-domain dedication. Read about them on the")} <Link to="/license">{t("license page")}</Link>. {t("These site terms don’t rewrite that grant.")}</p>
       </section>
 
       <section className="card" style={{ marginBottom: 20 }}>

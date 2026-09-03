@@ -170,7 +170,7 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
   test("writer uploads wav, sheet, and stems as Free for worship", async ({ page }) => {
     await page.goto("/upload");
     await fillSongFields(page, TITLE, ["Advent", "Comfort"]);
-    await expect(page.locator('input[name="license"][value="wc"]')).toBeChecked();
+    await expect(page.locator('input[name="license"][value="WC"]')).toBeChecked();
     await page.getByTestId("file-demo").setInputFiles(WAV);
     await page.getByTestId("file-sheet").setInputFiles(PDF);
     await page.getByTestId("file-stems").setInputFiles(ZIP);
@@ -236,7 +236,7 @@ test.describe.serial("PD submit label", () => {
   test("writer uploads as Public domain", async ({ page }) => {
     await page.goto("/upload");
     await fillSongFields(page, TITLE);
-    await page.check('input[name="license"][value="pd"]');
+    await page.check('input[name="license"][value="PD"]');
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();

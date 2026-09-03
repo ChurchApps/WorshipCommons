@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ChordProPreview from "../components/ChordProPreview";
 import { wcGet } from "../api";
+import { licenseById } from "../licenses";
 import "../styles/song.css";
 
 interface PreviewFile { name: string; action?: string; url?: string }
-interface Preview { payload?: { name?: string; tags?: string; language?: string; license?: string; detail?: Record<string, any> }; note?: string; files?: PreviewFile[] }
+interface Preview { payload?: { name?: string; tags?: string; language?: string; license?: string; licenseVersion?: string; detail?: Record<string, any> }; note?: string; files?: PreviewFile[] }
 
 // read-only render of a proposed submission — token-gated for reviewers, owner JWT when no token
 export default function PreviewSubmission() {
@@ -49,7 +50,8 @@ export default function PreviewSubmission() {
       <p className="hint">{d.writer}{d.year ? ` · ${d.year}` : ""}</p>
       <ul className="dl-list" data-testid="preview-meta">
         <li>Key {d.songKey}{d.bpm ? ` · ${d.bpm} BPM` : ""}{d.timeSignature ? ` · ${d.timeSignature}` : ""}</li>
-        <li>{p.language} · {p.license === "PD" ? "Public domain" : "Free for worship"}{p.tags ? ` · ${p.tags}` : ""}</li>
+        <li data-testid="preview-license">{p.language} · {licenseById(p.license).label}{p.licenseVersion ? ` ${p.licenseVersion}` : ""}{p.tags ? ` · ${p.tags}` : ""}</li>
+        {licenseById(p.license).must.length > 0 && <li data-testid="preview-must">You must: {licenseById(p.license).must.join(" · ")}</li>}
         {d.scripture && <li>{d.scripture}</li>}
         {preview.note && <li>{preview.note}</li>}
       </ul>
