@@ -9,10 +9,12 @@ import Karaoke from "../components/Karaoke";
 import ChordDiagram from "../components/ChordDiagram";
 import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
 import { makeZip } from "../zip";
+import { licenseHref, licenseNotice, licenseOf, licenseUrl, licenseVersion } from "../licenses";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { coverSvg } from "../cover.mjs";
+import LicenseBadge from "../components/LicenseBadge";
 import { useI18n } from "../i18n";
 import "../styles/song.css";
 
@@ -44,11 +46,6 @@ const BPM_PATH = "M12 21a8 8 0 1 1 8-8M12 8v4l3 2";
 const TIME_PATH = "M4 6h16M4 12h16M4 18h10";
 const METER_PATH = "M3 8h18v8H3zM8 8v4M13 8v4M18 8v4";
 const TAG_PATH = "M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9zM8 8h.01";
-
-// mirrors the deed on /license (Worship Use vs. what stays with the writer) and the public-domain FAQ
-const MAY_WC = ["Sing, play, project, and print it in worship", "Transpose, arrange, and translate it", "Record or stream your service, live or later", "Skip a verse or repeat a part"];
-const MAY_NOT_WC = ["Sell recordings or sheet music", "Release it as a track, album, or music video", "Use it in film, TV, ads, podcasts, or games", "Change what the song means"];
-const MAY_PD = ["Sing, print, project, record, and stream it", "Arrange, transpose, and translate it", "Sell your own arrangement or recording", "Use it in any media"];
 
 const FILE_LABELS: [RegExp, string][] = [
   [/^demoAudio\./i, "demo recording"],
@@ -192,6 +189,7 @@ export default function SongPage() {
     return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
   }
   if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
+  const lic = licenseOf(song);
 
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
   const { root: selRoot } = splitKey(selectedKey || song.songKey);
@@ -230,7 +228,7 @@ export default function SongPage() {
     themeList(s).filter(th => myThemes.has(th)).length;
   const similar = songs
     .filter(s => !relIds.has(s.id) && s.language === song.language && score(s) > 0)
-    .sort((a, b) => score(b) - score(a) || (a.license === "WC" ? 0 : 1) - (b.license === "WC" ? 0 : 1) || b.downloadCount - a.downloadCount)
+    .sort((a, b) => score(b) - score(a) || (a.license === "PD" ? 1 : 0) - (b.license === "PD" ? 1 : 0) || b.downloadCount - a.downloadCount)
     .slice(0, 4);
   const why = (s: Song) => themeList(s).find(th => myThemes.has(th)) || (s.meter === song.meter ? s.meter : "") || scriptureBook(s);
   const writerHref = song.authorId || song.writerId
@@ -299,7 +297,8 @@ export default function SongPage() {
       if (song.midiUrl) sources.push([`${slug}.mid`, song.midiUrl]);
       if (song.artUrl) sources.push([`${slug}-art${song.artUrl.match(/\.\w+$/)?.[0] || ".jpg"}`, song.artUrl]);
       const files = await Promise.all(sources.map(async ([name, url]) => ({ name, data: await fetchBytes(url) })));
-      const license = song.license === "WC" ? `© ${song.year} ${song.writer} · WorshipCommons License v1.0 — free for worship everywhere, always. https://worshipcommons.org/license` : "Public domain. Free for every use, including commercial.";
+      // the notice is a condition of CC grants, so the zip carries the registry line verbatim: writer, license + version, URL
+      const license = licenseNotice(song);
       files.push({ name: "LICENSE.txt", data: new TextEncoder().encode(`${song.title} — ${song.writer}, ${song.year}\n${license}\nhttps://worshipcommons.org/songs/${song.id}\n`) });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(makeZip(files));
@@ -327,7 +326,7 @@ export default function SongPage() {
               ? <div className="hero-cover"><img src={song.artUrl} alt="" /></div>
               : <div className="hero-cover" dangerouslySetInnerHTML={{ __html: coverSvg(song, 900, 300) }} />}
             <div className="hero-scrim">
-              <span className="hero-badge">{song.license === "WC" ? <span className="free-badge">{t("Free for worship")}</span> : <span className="pd-badge on-art">{t("Public domain")}</span>}</span>
+              <span className="hero-badge"><LicenseBadge license={lic} onArt /></span>
               <div>
                 <h1 className="song-title">{song.title}</h1>
                 <p className="byline">{t("Words and music by")} <Link to={writerHref}>{song.writer}</Link> · {song.year}</p>
@@ -416,22 +415,30 @@ export default function SongPage() {
             <div className="license-note">
               <InfoIcon />
               <div>
-                <p>
-                  {song.license === "WC"
-                    ? <>© {song.year} {song.writer} · {t("WorshipCommons License v1.0")}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                    : t("Public domain. Free for every use, including commercial — no license needed.")}
+                <p data-testid="license-grant" data-license={lic.id}>
+                  {lic.id === "WC"
+                    ? <>© {song.year} {song.writer} · {t("WorshipCommons License v{version}", { version: licenseVersion(song) })}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+                    : lic.id === "PD"
+                      ? <>{t("Public domain. Free for every use, including commercial — no license needed.")} <Link to={licenseHref("PD")}>{t("How that works")}</Link></>
+                      : <>© {song.year} {song.writer} · <a href={licenseUrl(song)} target="_blank" rel="license noopener">{t("Creative Commons")} {lic.label} {licenseVersion(song)}</a>. {lic.nonCommercial ? t("Free for worship with credit — not for anything sold or monetized.") : t("Free for every use, including commercial, as long as you credit the writer.")} <Link to={licenseHref(lic.id)}>{t("How that works")}</Link></>}
                 </p>
-                {/* plain-language summary of the deed on /license — the legal code there controls */}
-                {/* public domain has nothing to forbid, so it gets the one list, full width */}
+                {/* plain-language deed from the license registry — the legal code (linked above) controls */}
+                {/* empty lists are omitted: public domain forbids nothing, so it gets the one list, full width */}
                 <div className="may-grid">
                   <ul className="may" data-testid="you-may" aria-label={t("You may")}>
                     <li>{t("You may")}</li>
-                    {(song.license === "WC" ? MAY_WC : MAY_PD).map(k => <li key={k}>{t(k)}</li>)}
+                    {lic.may.map(k => <li key={k}>{t(k)}</li>)}
                   </ul>
-                  {song.license === "WC" && (
+                  {lic.mayNot.length > 0 && (
                     <ul className="may-not" data-testid="you-may-not" aria-label={t("You may not")}>
                       <li>{t("You may not")}</li>
-                      {MAY_NOT_WC.map(k => <li key={k}>{t(k)}</li>)}
+                      {lic.mayNot.map(k => <li key={k}>{t(k)}</li>)}
+                    </ul>
+                  )}
+                  {lic.must.length > 0 && (
+                    <ul className="must" data-testid="you-must" aria-label={t("You must")}>
+                      <li>{t("You must")}</li>
+                      {lic.must.map(k => <li key={k}>{t(k)}</li>)}
                     </ul>
                   )}
                 </div>

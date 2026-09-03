@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import "../styles/license.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import { LICENSES } from "../licenses";
 
 const Check = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
@@ -164,6 +165,30 @@ export default function License() {
         </div>
       </section>
 
+      {/* the library also hosts grants writers made elsewhere; one card each, deed + the official legal code — we never restate CC legal text */}
+      <section className="section" id="other-licenses">
+        <h2 style={{ marginBottom: 8 }}>{t("Other licenses in this library")}</h2>
+        <p className="note" style={{ marginBottom: 20 }}>{t("Most songs here are public domain or WorshipCommons. Some writers released their songs under a Creative Commons license before we existed; we host those as they were given. Every song page names its license. These cards are a summary — the linked legal code controls.")}</p>
+        <div className="split">
+          {LICENSES.filter(l => l.id !== "WC").map(l => (
+            <div className="card" id={l.badge} key={l.id} data-testid={`license-card-${l.badge}`}>
+              <h3>{t(l.label)}{l.nonCommercial && <> <span className="cc-badge nc">{t("Non-commercial")}</span></>}</h3>
+              <ul className="deed">
+                <li className="deed-head">{t("You may")}</li>
+                {l.may.map(k => <li key={k}><Check />{t(k)}</li>)}
+                {l.mayNot.length > 0 && <li className="deed-head">{t("You may not")}</li>}
+                {l.mayNot.map(k => <li key={k} className="no">{t(k)}</li>)}
+                {l.must.length > 0 && <li className="deed-head">{t("You must")}</li>}
+                {l.must.map(k => <li key={k} className="must">{t(k)}</li>)}
+              </ul>
+              {l.legalUrl
+                ? <p className="note"><a href={l.legalUrl} target="_blank" rel="license noopener">{t("Read the legal code")}</a> · <a href={l.deedUrl} target="_blank" rel="noopener">{t("Official summary")}</a></p>
+                : <p className="note">{t("Public-domain determinations are best-effort and U.S.-centric; each song’s sources file says where it came from.")}</p>}
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="section" id="faq">
         <h2 style={{ marginBottom: 22 }}>{t("Common questions")}</h2>
         <details>
@@ -184,7 +209,7 @@ export default function License() {
         </details>
         <details>
           <summary>{t("What’s the difference between “Free” and “Public domain” here?")}</summary>
-          <p>{t("A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. The library labels every song.")}</p>
+          <p>{t("A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. A Creative Commons song follows the writer’s CC grant: credit is required, and the non-commercial variants rule out anything sold or monetized. The library labels every song.")}</p>
         </details>
         <details>
           <summary>{t("I co-wrote my song with someone. Can I add it?")}</summary>

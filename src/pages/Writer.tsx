@@ -4,6 +4,7 @@ import { loadSongs, Song, songFromApi, themeList } from "../songs";
 import { wcGet } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import { licenseOf } from "../licenses";
 
 export interface WriterLink { label?: string; url: string }
 
@@ -107,7 +108,7 @@ export default function Writer() {
         {songs?.map(s => (
           <li key={s.id} className="card" style={{ padding: 24, marginBottom: 16 }} data-testid="writer-song">
             <h3 style={{ marginBottom: 4 }}><Link to={`/songs/${s.id}`}>{s.title}</Link></h3>
-            <p className="hint">{s.year}{s.songKey ? ` · ${t("Key")} ${s.songKey}` : ""}{themeList(s).length ? ` · ${themeList(s).slice(0, 3).join(", ")}` : ""}{s.license === "WC" ? ` · ${t("Free for worship")}` : ` · ${t("Public domain")}`}</p>
+            <p className="hint">{s.year}{s.songKey ? ` · ${t("Key")} ${s.songKey}` : ""}{themeList(s).length ? ` · ${themeList(s).slice(0, 3).join(", ")}` : ""}{` · ${t(licenseOf(s).label)}`}</p>
           </li>
         ))}
       </ul>

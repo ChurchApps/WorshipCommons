@@ -210,3 +210,8 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 .may li:not(:first-child)::before { content: "✓"; color: var(--primary); }
 .may-not li:not(:first-child)::before { content: "✕"; color: var(--secondary); }
 @media (max-width: 560px) { .may-grid { grid-template-columns: 1fr; } }
+
+/* CC deeds add a third list; the grid grows to fit and the "must" items are marked with a pin */
+.may-grid:has(> :nth-child(3)) { grid-template-columns: 1fr 1fr 1fr; }
+.must li:not(:first-child)::before { content: "!"; color: #8A4B08; }
+@media (max-width: 860px) { .may-grid:has(> :nth-child(3)) { grid-template-columns: 1fr; } }

@@ -14,7 +14,10 @@ export interface Song {
   language: string;
   scripture: string;
   scriptureText?: string;
-  license: "WC" | "PD";
+  /** registry id from licenses.json: PD, WC, CC-BY, CC-BY-SA, CC-BY-NC, CC-BY-NC-SA */
+  license: string;
+  licenseVersion?: string;
+  licenseUrl?: string;
   downloadCount: number;
   likeCount: number;
   chordPro?: string;

@@ -98,3 +98,6 @@
     .t-cover { width: 40px; height: 40px; }
     .t-row .t-themes, .t-row .t-key, .t-row .t-bpm, .t-row .t-downloads { display: none; }
   }
+
+.nc-hint { color: #8A4B08; cursor: help; }
+.t-badge .cc-badge { font-size: 0.625rem; padding: 2px 8px; }

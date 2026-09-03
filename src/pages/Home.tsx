@@ -5,6 +5,8 @@ import { coverSvg } from "../cover.mjs";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
+import { licenseOf } from "../licenses";
+import LicenseBadge from "../components/LicenseBadge";
 
 const PlayIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
@@ -46,7 +48,8 @@ export default function Home() {
 
   // /songs arrives sorted by downloadCount desc
   const top = songs.filter(s => s.language === SONG_LANG[lang]).slice(0, 10);
-  const fromWriters = songs.filter(s => s.license === "WC").sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
+  // "from writers" = anything a living writer shared here (WC or CC BY originals), never the public-domain hymnal
+  const fromWriters = songs.filter(s => licenseOf(s).uploadable && s.license !== "PD").sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
   const stats = {
     songs: songs.length,
     downloads: songs.reduce((n, s) => n + s.downloadCount, 0),
@@ -96,9 +99,9 @@ export default function Home() {
                     <span className="hp-themes">{themeList(s).slice(0, 2).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="hp-key">{s.songKey}</span>
                     <span className="hp-bpm">{s.bpm}</span>
-                    {s.license === "WC"
-                      ? <span className="free-badge">{t("Free")}</span>
-                      : <span className="hp-pd" title={t("Public domain")}><GlobeIcon size={15} /></span>}
+                    {s.license === "PD"
+                      ? <span className="hp-pd" title={t("Public domain")}><GlobeIcon size={15} /></span>
+                      : <LicenseBadge license={licenseOf(s)} compact />}
                   </Link>
                 </li>
               ))}

@@ -6,6 +6,8 @@ import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
+import { LICENSES, licenseById, licenseOf } from "../licenses";
+import LicenseBadge from "../components/LicenseBadge";
 
 const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
@@ -19,10 +21,6 @@ const XIcon = () => (
 
 const Chevron = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-);
-
-const GlobeIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" /></svg>
 );
 
 function FacetGroup({ title, children }: { title: string; children: ReactNode }) {
@@ -184,7 +182,7 @@ export default function Songs() {
   if (state.meter) chips.push({ label: t("Meter {meter}", { meter: state.meter }), undo: () => update({ meter: "" }) });
   if (state.tempo) chips.push({ label: t({ slow: "Slow", mid: "Moderate", fast: "Upbeat" }[state.tempo]), undo: () => update({ tempo: "" }) });
   if (state.lang) chips.push({ label: t(state.lang), undo: () => update({ lang: "" }) });
-  if (state.lic) chips.push({ label: state.lic === "WC" ? t("Shared by writers") : t("Public domain"), undo: () => update({ lic: "" }) });
+  if (state.lic) chips.push({ label: t(licenseById(state.lic).label), undo: () => update({ lic: "" }) });
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
   if (state.mt) chips.push({ label: t("Has multitracks"), undo: () => update({ mt: false }) });
 
@@ -269,10 +267,12 @@ export default function Songs() {
             </select>
           </FacetGroup>
           <FacetGroup title={t("Source")}>
-            <ul className="facet-list">
+            {/* one value per registry license; a church that streams to a monetized channel can hide NC in one click */}
+            <ul className="facet-list" data-testid="license-facet">
               <li><label><input type="radio" name="lic" checked={state.lic === ""} onChange={() => update({ lic: "" })} /> {t("All songs")}</label></li>
-              <li><label><input type="radio" name="lic" checked={state.lic === "WC"} onChange={() => update({ lic: "WC" })} /> {t("Shared by writers")} <span className="cnt">{count("lic", s => s.license === "WC").toLocaleString()}</span></label></li>
-              <li><label><input type="radio" name="lic" checked={state.lic === "PD"} onChange={() => update({ lic: "PD" })} /> {t("Public domain")} <span className="cnt">{count("lic", s => s.license === "PD").toLocaleString()}</span></label></li>
+              {LICENSES.map(l => (
+                <li key={l.id}><label><input type="radio" name="lic" value={l.id} checked={state.lic === l.id} onChange={() => update({ lic: l.id })} /> {t(l.label)}{l.nonCommercial && <span className="nc-hint" title={t("Non-commercial: credit required, nothing sold or monetized")}> ⚠</span>} <span className="cnt">{count("lic", s => s.license === l.id).toLocaleString()}</span></label></li>
+              ))}
             </ul>
           </FacetGroup>
           <FacetGroup title={t("Extras")}>
@@ -320,7 +320,7 @@ export default function Songs() {
                     <span className="t-num t-key c">{s.songKey}</span>
                     <span className="t-num t-bpm c">{s.bpm}</span>
                     <span className="t-num t-downloads c">{s.downloadCount.toLocaleString()}</span>
-                    <span className="t-badge">{s.license === "WC" ? <span className="free-badge">{t("Free")}</span> : <span className="pd-badge"><GlobeIcon />{t("Public domain")}</span>}</span>
+                    <span className="t-badge"><LicenseBadge license={licenseOf(s)} compact /></span>
                   </div>
                 ))}
               </div>
