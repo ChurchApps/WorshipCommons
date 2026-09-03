@@ -35,6 +35,18 @@ test.describe("license note: you may / you may not", () => {
     await expect(page.getByTestId("license-badge")).toHaveAttribute("data-license", "WC");
   });
 
+  test("the license hub is reachable with and without a trailing slash", async ({ page }) => {
+    await page.goto("/license/");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("One page. Zero strings.");
+    await expect(page.locator("#legal")).toContainText("WorshipCommons License, Version 1.0 — Legal Code");
+
+    await page.goto("/");
+    await page.locator(".nav").getByRole("link", { name: "The License" }).click();
+    await expect(page).toHaveURL(/\/license\/?$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("One page. Zero strings.");
+    await expect(page.getByText("Page not found.")).toHaveCount(0);
+  });
+
   test("a Creative Commons song adds the You must list: credit, license name, link", async ({ page, request }) => {
     await page.goto(`/songs/${await songIdByTitle(request, CC_BY_TITLE)}`);
     const note = page.locator(".license-note");

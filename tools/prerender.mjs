@@ -1,7 +1,12 @@
 // Post-build prerender: stamps out static, crawlable HTML for every song page
-// plus /songs, sitemap.xml, robots.txt, llms.txt, and feed.xml. React replaces the static
-// content on load (createRoot, not hydrate), so markup only needs to be good for
-// crawlers and no-JS readers.
+// plus the public SPA routes (/songs, /license, /terms, /upload, /new,
+// /call-for-songs, /report), sitemap.xml, robots.txt, llms.txt, and feed.xml.
+// Each route is written as build/<route>/index.html so S3 website hosting
+// serves both /route/ (200) and /route (302 → /route/). React replaces the
+// static content on load (createRoot, not hydrate), so markup only needs to
+// be good for crawlers and no-JS readers. Unprerendered deep links (/songs/:id
+// not in this build, /login, /writers/:name, …) still need the CloudFront
+// 403/404 → /index.html 200 fallback (tools/ensure-spa-fallback.mjs).
 // The page/sitemap/llms builders are exported so tools/prerender.test.mjs can
 // assert on the emitted markup without touching the network.
 // Usage: node tools/prerender.mjs [apiBase] [siteBase]
@@ -127,11 +132,12 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
   const entries = [
     { loc: `${site}/` },
     { loc: `${site}/songs/` },
-    { loc: `${site}/new` },
+    { loc: `${site}/new/` },
     { loc: `${site}/call-for-songs/` },
-    { loc: `${site}/license` },
-    { loc: `${site}/terms` },
-    { loc: `${site}/report` },
+    { loc: `${site}/license/` },
+    { loc: `${site}/terms/` },
+    { loc: `${site}/upload/` },
+    { loc: `${site}/report/` },
     ...songs.map(s => ({ loc: songUrl(site, s.id), lastmod: lastmod(s) })),
     ...writers.map(w => ({ loc: `${site}/writers/${encodeURIComponent(w)}` }))
   ];
@@ -166,8 +172,10 @@ export function robotsTxt(site = DEFAULT_SITE) {
   return agents.map(a => `User-agent: ${a}\nAllow: /\n`).join("\n") + `\nSitemap: ${site}/sitemap.xml\n`;
 }
 
+const wrap = (inner) => `<main style="max-width:700px;margin:0 auto;padding:40px 24px">${inner}</main>`;
+
 function callForSongsBody() {
-  return `<main style="max-width:700px;margin:0 auto;padding:40px 24px">
+  return wrap(`
 <h1>Call for songs</h1>
 <p>For worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while every commercial right stays yours.</p>
 <h2>What WorshipCommons is</h2>
@@ -176,8 +184,101 @@ function callForSongsBody() {
 <ul><li>Album sales &amp; streaming royalties</li><li>Sync — film, TV, and advertising</li><li>Radio &amp; broadcast royalties</li><li>Ticketed concerts &amp; tours</li><li>Sheet music &amp; songbook sales</li><li>Full ownership of your song</li></ul>
 <h2>How it works</h2>
 <ol><li>The song — title, key, tempo, themes, and the words and chords.</li><li>The files — a chord chart, a demo recording, stems if you have them.</li><li>What you are giving — worship use, and nothing else.</li><li>Your word that it is yours to give — you wrote it, and every co-writer agrees.</li></ol>
-<p><a href="/upload">Share your song</a> · <a href="/license">Read the license</a></p>
-</main>`;
+<p><a href="/upload">Share your song</a> · <a href="/license">Read the license</a></p>`);
+}
+
+function licenseBody() {
+  return wrap(`
+<h1>The WorshipCommons License</h1>
+<p>Most music licensing is a subscription, a spreadsheet, and a lawyer. This is a page you can read out loud to your worship team.</p>
+<p><strong>If it happens in worship, it’s free, forever.</strong> Albums, films, and ticketed concerts stay with the writer.</p>
+<h2>The license — Version 1.0</h2>
+<p><b>1 · Worship Use.</b> Using this song in worship — a service, camp, home, or any gathering held for worship, anywhere — and everything done to prepare for and share it: rehearsing, projecting, printing, arranging, translating, recording or streaming the gathering.</p>
+<p><b>2 · The grant.</b> Free, worldwide, forever. You don’t ask, register, report, or pay. This is the writer’s own permission, not a church exemption.</p>
+<p><b>3 · Everything else stays with the writer.</b> Selling recordings or sheet music, standalone releases, sync, and ticketed concerts need the writer. Skip a verse or translate it; don’t change what the song means.</p>
+<p>These three paragraphs are a summary. The legal code is the license. If they disagree, the legal code controls.</p>
+<h2 id="legal">WorshipCommons License, Version 1.0 — Legal Code</h2>
+<p>This is the license. The page at worshipcommons.org/license is a summary. If the summary and this text disagree, this text controls.</p>
+<h3>1. Definitions</h3>
+<p>Song means the words and music of the work this license is applied to, plus every recording and file the Writer shared with it and marked with this license.</p>
+<p>Writer means each person or entity that owns rights in the Song and applies this license.</p>
+<p>Worship Gathering means a gathering held for worship — including a service, camp, youth gathering, household or personal devotion, wedding, funeral, chapel, retreat, hospital or prison visit, or similar assembly — wherever it happens, in person or online.</p>
+<p>Worship Use means singing, playing, or performing the Song at a Worship Gathering, and everything done to prepare for or share that gathering: rehearsing; projecting, printing, copying, and giving words or music to the people gathered without selling them as a product; transposing and arranging; translating; and recording or streaming that gathering, live or later.</p>
+<h3>2. Grant</h3>
+<p>The Writer grants everyone a free, worldwide, non-exclusive, perpetual, irrevocable license to use the Song for Worship Use.</p>
+<p>You do not need to ask, register, report, or pay. You do not need to pass this permission along. Everyone already has it from the Writer.</p>
+<h3>3. What is not granted</h3>
+<p>Everything that is not Worship Use stays with the Writer and needs the Writer’s permission. That includes: selling recordings or sheet music; releasing a standalone track, album, or music video; using the Song in film, television, advertising, a podcast, a game, or another production; radio or television broadcast of the Song apart from sharing a Worship Gathering; and a ticketed concert where the performance is the product.</p>
+<h3>4. Changes</h3>
+<p>You may skip a verse, repeat a part, translate the Song, or change a word so it sings, as long as you do not change what the Song means or present a changed version as the original. Other lyric changes need the Writer’s permission.</p>
+<h3>5. If local law gets in the way</h3>
+<p>This license is meant to work in every country. Where local law will not carry all of it, the Writer grants as much as that law allows and promises not to sue anyone for Worship Use.</p>
+<h3>6. Credit, warranties, version</h3>
+<p>Crediting the Writer is appreciated and is not a condition of this license, except where the law requires credit. The Song is provided as-is, with no warranties, as far as the law allows.</p>
+<p>Each Song carries the license version in effect on the day it was shared. Only someone who owns the Song can apply this license.</p>
+<p><a href="/upload">Share your song</a> · <a href="/terms">Site terms</a></p>`);
+}
+
+function termsBody() {
+  return wrap(`
+<h1>How this site works</h1>
+<p>Short terms for using WorshipCommons. The license on a song is the grant — these terms don’t replace it.</p>
+<h2>Account</h2>
+<p>Accounts are provided by ChurchApps. One free account lets you share songs, save a library, and track submissions.</p>
+<h2>The license is the grant</h2>
+<p>When you share a song, the license you choose is the legal grant. Read it on the <a href="/license">license page</a>.</p>
+<h2 id="copyright">Copyright / DMCA</h2>
+<p>If a song here infringes your copyright, send a takedown notice. The fastest route is the <a href="/report">report form</a>. You can also write to our designated copyright agent: <a href="mailto:support@worshipcommons.org">support@worshipcommons.org</a>.</p>
+<p>Accounts that repeatedly share songs they do not have the right to share are closed.</p>
+<h2>No warranty</h2>
+<p>WorshipCommons is provided as-is. The songs belong to their writers; we host what they shared.</p>`);
+}
+
+function uploadBody() {
+  return wrap(`
+<h1>Give the church something to sing</h1>
+<p>Share a song under the WorshipCommons License so churches anywhere can sing it free, while every commercial right stays yours.</p>
+<p><a href="/login?next=/upload">Sign in to share your song</a> · <a href="/license">Read the license</a></p>`);
+}
+
+function newBody(songs) {
+  const stamp = (s) => {
+    const t = Date.parse(s.publishedAt || s.createdAt || "");
+    return Number.isNaN(t) ? null : t;
+  };
+  const recent = songs.filter(stamp).sort((a, b) => stamp(b) - stamp(a)).slice(0, 100);
+  const items = recent.map(s => `<li><a href="/songs/${s.id}/">${esc(s.title)}</a> — ${esc(s.writer)}</li>`).join("");
+  return wrap(`<h1>New songs</h1><p>Every song added to the commons, newest first.</p><ul>${items}</ul><p><a href="/songs/">Browse all songs</a></p>`);
+}
+
+function reportBody() {
+  return wrap(`
+<h1>Report a song</h1>
+<p>The commons runs on the promise that whoever shares a song actually owns it. If a song wasn’t theirs to share — especially if it’s yours — tell us.</p>
+<p>Open the site to send a report, or write to <a href="mailto:support@worshipcommons.org">support@worshipcommons.org</a>.</p>`);
+}
+
+export function staticPages(songs, site = DEFAULT_SITE) {
+  return [
+    { slug: "license", title: "The WorshipCommons License — WorshipCommons", description: "The WorshipCommons License, Version 1.0: free for worship everywhere, forever. Legal code and a one-page summary.", canonical: `${site}/license/`, body: licenseBody() },
+    { slug: "terms", title: "Terms — WorshipCommons", description: "Short terms for using WorshipCommons, including the copyright / DMCA contact.", canonical: `${site}/terms/`, body: termsBody() },
+    { slug: "upload", title: "Share your song — WorshipCommons", description: "Share a song under the WorshipCommons License so churches anywhere can sing it free.", canonical: `${site}/upload/`, body: uploadBody() },
+    { slug: "new", title: "New songs — WorshipCommons", description: "Every song added to the commons, newest first.", canonical: `${site}/new/`, body: newBody(songs) },
+    { slug: "call-for-songs", title: "Call for songs — WorshipCommons", description: "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.", canonical: `${site}/call-for-songs/`, body: callForSongsBody() },
+    { slug: "report", title: "Report a song — WorshipCommons", description: "Report a song that wasn’t the uploader’s to share.", canonical: `${site}/report/`, body: reportBody() }
+  ];
+}
+
+export function writeRoute(root, slug, html) {
+  const dir = path.join(root, slug);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "index.html"), html);
+}
+
+export function writeStaticPages(root, shell, songs, site = DEFAULT_SITE) {
+  for (const p of staticPages(songs, site)) {
+    writeRoute(root, p.slug, page(shell, { title: p.title, description: p.description, canonical: p.canonical, body: p.body, site }));
+  }
 }
 
 async function fetchJson(url) {
@@ -225,7 +326,7 @@ export function feedXml(songs, site, limit = 50) {
     `  <subtitle>Songs newly added to the commons.</subtitle>\n` +
     `  <id>${site}/feed.xml</id>\n` +
     `  <link rel="self" href="${site}/feed.xml"/>\n` +
-    `  <link href="${site}/new"/>\n` +
+    `  <link href="${site}/new/"/>\n` +
     `  <updated>${recent.length ? stamp(recent[0]) : new Date(0).toISOString()}</updated>\n` +
     (entries ? entries + `\n` : "") + `</feed>\n`;
 }
@@ -264,22 +365,14 @@ async function run() {
     site: SITE
   }));
 
-  const cfsDir = path.join(BUILD, "call-for-songs");
-  fs.mkdirSync(cfsDir, { recursive: true });
-  fs.writeFileSync(path.join(cfsDir, "index.html"), page(shell, {
-    title: "Call for songs — WorshipCommons",
-    description: "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.",
-    canonical: `${SITE}/call-for-songs/`,
-    body: callForSongsBody(),
-    site: SITE
-  }));
+  writeStaticPages(BUILD, shell, songs, SITE);
 
   fs.writeFileSync(path.join(BUILD, "sitemap.xml"), sitemapXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "robots.txt"), robotsTxt(SITE));
   fs.writeFileSync(path.join(BUILD, "feed.xml"), feedXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "llms.txt"), llmsTxt(songs, SITE, true));
 
-  console.log(`Prerendered ${songs.length} song pages + /songs, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
+  console.log(`Prerendered ${songs.length} song pages + /songs, /license, /terms, /upload, /new, /call-for-songs, /report, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   run().catch(err => { console.error("Prerender failed:", err.message || err); process.exit(1); });
