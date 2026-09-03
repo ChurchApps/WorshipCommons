@@ -8,9 +8,13 @@ test.describe("license note: you may / you may not", () => {
     await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
     const note = page.locator(".license-note");
     await expect(note).toContainText("Public domain");
+    await expect(note).toContainText("including commercial");
+    await expect(note).not.toContainText("Free for churches");
+    // the sentence used to render twice, the second copy overlapping the grid
+    await expect(page.locator(".license-note p")).toHaveCount(1);
     await expect(page.getByTestId("you-may")).toContainText("Sell your own arrangement or recording");
-    await expect(page.getByTestId("you-may-not")).toContainText("Claim the original words or tune as your own copyright");
-    await expect(page.getByTestId("you-may-not")).not.toContainText("Sell recordings");
+    // nothing is forbidden in the public domain, so the list is gone entirely
+    await expect(page.getByTestId("you-may-not")).toHaveCount(0);
   });
 
   test("writer-licensed song lists worship use and what stays with the writer", async ({ page, request }) => {
