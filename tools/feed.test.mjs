@@ -23,7 +23,7 @@ test("feed lists dated songs newest first and skips undated ones", () => {
   assert.deepEqual(entryIds(xml), ["newest-song", "created-only", "older-hymn"]);
   assert.match(xml, /<updated>2026-08-14T00:00:00\.000Z<\/updated>[\s\S]*<entry>/);
   assert.match(xml, /<link rel="self" href="https:\/\/example\.test\/feed\.xml"\/>/);
-  assert.match(xml, /<link href="https:\/\/example\.test\/new"\/>/);
+  assert.match(xml, /<link href="https:\/\/example\.test\/new\/"\/>/);
 });
 
 test("entries carry absolute song links, authors, and escaped titles", () => {

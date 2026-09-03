@@ -6,7 +6,8 @@ import assert from "node:assert/strict";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { songPage, page, sitemapXml, llmsTxt, robotsTxt } from "./prerender.mjs";
+import { songPage, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages } from "./prerender.mjs";
+import * as os from "os";
 
 // nothing here may touch a live API
 globalThis.fetch = async (url) => { throw new Error(`unexpected network call: ${url}`); };
@@ -99,12 +100,40 @@ test("sitemap lists every page with lastmod", () => {
   const xml = sitemapXml(SONGS, SITE);
   assert.match(xml, /<url><loc>https:\/\/example\.test\/songs\/rock-of-ages\/<\/loc><lastmod>2024-03-01<\/lastmod><\/url>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/songs\/roca-de-la-eternidad\/<\/loc><lastmod>2024-04-02<\/lastmod>/); // falls back to createdAt
-  assert.match(xml, /<loc>https:\/\/example\.test\/terms<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/new<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/terms\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/new\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/license\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/upload\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/call-for-songs\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance<\/loc>/);
-  assert.equal(xml.match(/<loc>/g).length, 7 + SONGS.length + 2);
+  assert.equal(xml.match(/<loc>/g).length, 8 + SONGS.length + 2);
+});
+
+test("static SPA routes write crawlable HTML under build/<route>/index.html", () => {
+  const slugs = staticPages(SONGS, SITE).map(p => p.slug);
+  assert.deepEqual(slugs, ["license", "terms", "upload", "new", "call-for-songs", "report"]);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-prerender-"));
+  try {
+    writeStaticPages(dir, shell, SONGS, SITE);
+    for (const slug of slugs) {
+      const html = fs.readFileSync(path.join(dir, slug, "index.html"), "utf8");
+      assert.match(html, /<div id="root">/);
+      assert.match(html, new RegExp(`<link rel="canonical" href="${SITE}/${slug}/">`));
+    }
+    const license = fs.readFileSync(path.join(dir, "license", "index.html"), "utf8");
+    assert.match(license, /<title>The WorshipCommons License — WorshipCommons<\/title>/);
+    assert.match(license, /WorshipCommons License, Version 1.0 — Legal Code/);
+    assert.match(license, /The Writer grants everyone a free, worldwide, non-exclusive, perpetual, irrevocable license/);
+    assert.match(fs.readFileSync(path.join(dir, "terms", "index.html"), "utf8"), /support@worshipcommons\.org/);
+    assert.match(fs.readFileSync(path.join(dir, "upload", "index.html"), "utf8"), /Sign in to share your song/);
+    assert.match(fs.readFileSync(path.join(dir, "new", "index.html"), "utf8"), /Steady Light/);
+    assert.match(fs.readFileSync(path.join(dir, "call-for-songs", "index.html"), "utf8"), /Call for songs/);
+    assert.match(fs.readFileSync(path.join(dir, "report", "index.html"), "utf8"), /Report a song/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("llms.txt and robots.txt invite the AI crawlers", () => {
