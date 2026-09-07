@@ -1,8 +1,8 @@
 import { APIRequestContext } from "@playwright/test";
 
-export const CORE_API = "http://localhost:8084";
-export const WC_API = "http://localhost:8084/commons";
-export const CONTENT = "http://localhost:8084/content/commons";
+export const CORE_API = process.env.CORE_API || "http://localhost:8084";
+export const WC_API = CORE_API + "/commons";
+export const CONTENT = CORE_API + "/content/commons";
 
 const auth = (jwt: string) => ({ Authorization: `Bearer ${jwt}` });
 
