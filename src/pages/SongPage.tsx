@@ -501,10 +501,10 @@ export default function SongPage() {
           <div className="card side-card setlist-card">
             <AddToSetlist song={song} />
             <button className={"btn " + (inLib ? "btn-ghost" : "btn-primary")} data-testid="library-toggle" onClick={toggleLib}>
-              {inLib ? t("✓ In your library") : t("+ Add to your library")}
+              {inLib ? t("✓ Saved") : t("+ Save song")}
             </button>
             {!user && <p className="rel-hint" style={{ marginTop: 10 }}>{t("Sign in to save it to your account.")}</p>}
-            {inLib && <p className="rel-hint" style={{ marginTop: 10 }}><Link to="/library">{t("View your library →")}</Link></p>}
+            {inLib && <p className="rel-hint" style={{ marginTop: 10 }}><Link to="/library">{t("View saved songs →")}</Link></p>}
             <p className="rel-hint" style={{ marginTop: 10 }}><Link to={`/songs/${song.id}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link></p>
           </div>
 
