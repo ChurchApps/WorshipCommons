@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 import { fileURLToPath } from "url";
-import { approveSubmission, pendingSubmissionFor, songIdByTitle } from "./helpers/api";
+import { approveSubmission, pendingSubmissionFor, songIdByTitle, songWithoutSheetPdf } from "./helpers/api";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SONG_TITLE = "Sheet PDF Spec Song";
