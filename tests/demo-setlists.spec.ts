@@ -99,7 +99,7 @@ test.describe("setlists", () => {
 
     await viewer.getByTestId("save-copy").click();
     await expect(viewer).toHaveURL(/\/setlists\/[a-z0-9]+$/);
-    await expect(viewer.getByTestId("setlist-title")).toHaveValue("Share spec");
+    await expect(viewer.locator("input[data-testid=setlist-title]")).toHaveValue("Share spec"); // the editor swaps in once the saved copy is in localStorage
     await fresh.close();
   });
 

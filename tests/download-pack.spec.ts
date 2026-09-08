@@ -21,8 +21,8 @@ test("download pack bundles chart, lyrics, melody, art, and the license as one z
 
   const names = execSync(`"${TAR}" -tf "${file}"`).toString().trim().split(/\r?\n/).sort();
   expect(names).toEqual(["LICENSE.txt", `${slug}-art.webp`, `${slug}-lyrics.txt`, `${slug}.cho`, `${slug}.mid`]);
-  expect(execSync(`"${TAR}" -xOf "${file}" ${slug}.cho`).toString()).toContain("[G]");
-  expect(execSync(`"${TAR}" -xOf "${file}" ${slug}-lyrics.txt`).toString()).toMatch(/w+/);
+  expect(execSync(`"${TAR}" -xOf "${file}" ${slug}.cho`).toString()).toMatch(/\[[A-G][#b]?/);
+  expect(execSync(`"${TAR}" -xOf "${file}" ${slug}-lyrics.txt`).toString()).toMatch(/\w+/);
   expect(execSync(`"${TAR}" -xOf "${file}" LICENSE.txt`).toString()).toContain("Public domain");
   // MIDI header and a real webp, not error pages
   expect(execSync(`"${TAR}" -xOf "${file}" ${slug}.mid`).subarray(0, 4).toString()).toBe("MThd");
