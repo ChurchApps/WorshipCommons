@@ -25,6 +25,8 @@ import Writer from "./pages/Writer";
 import CallForSongs from "./pages/CallForSongs";
 import LeadWorship from "./pages/LeadWorship";
 import Project from "./pages/Project";
+import Setlists from "./pages/Setlists";
+import SetlistPage from "./pages/SetlistPage";
 import "./styles/style.css";
 
 function NotFound() {
@@ -43,6 +45,8 @@ createRoot(document.getElementById("root")).render(
             <Route path="/songs/:id/lead" element={<LeadWorship />} />
             <Route path="/songs/:id/project" element={<Project />} />
             <Route path="/preview/submission/:id" element={<PreviewSubmission />} />
+            <Route path="/setlists/:id/stage" element={<SetlistPage mode="stage" />} />
+            <Route path="/setlists/:id/print" element={<SetlistPage mode="print" />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
@@ -55,6 +59,9 @@ createRoot(document.getElementById("root")).render(
               <Route path="/call-for-songs" element={<CallForSongs />} />
               <Route path="/report" element={<Report />} />
               <Route path="/library" element={<Library />} />
+              <Route path="/setlists" element={<Setlists />} />
+              <Route path="/setlists/shared" element={<SetlistPage mode="shared" />} />
+              <Route path="/setlists/:id" element={<SetlistPage mode="edit" />} />
               <Route path="/login" element={<Login />} />
               <Route path="/my-songs" element={<MySongs />} />
               <Route path="/profile" element={<Profile />} />
