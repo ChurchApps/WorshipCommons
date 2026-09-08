@@ -578,7 +578,38 @@ const sq: Record<string, string> = {
   "Lead worship": "Udhëhiq adhurimin",
   "Project lyrics": "Projekto tekstin",
   "+ Add to setlist": "+ Shto në listë",
-  "Setlists are coming soon": "Listat vijnë së shpejti"
+  "Setlists are coming soon": "Listat vijnë së shpejti",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Duke numëruar…",
+  "Accompaniment": "Shoqërim",
+  "Preview (synthesized)": "Paraprake (e sintetizuar)",
+  "Instrument": "Instrument",
+  "Piano": "Piano",
+  "Organ": "Organo",
+  "Published keys": "Tonalitete të publikuara",
+  "{key} (recommended)": "{key} (i rekomanduar)",
+  "Preview — not yet reviewed": "Paraprake — ende e pashqyrtuar",
+  "Count-in": "Numërim hyrës",
+  "Verses": "Strofa",
+  "Blank": "Ekran bosh",
+  "Contrast": "Kontrast",
+  "Exit fullscreen": "Dil nga ekrani i plotë",
+  "Fullscreen": "Ekran i plotë",
+  "Put this on the TV": "Vëre në televizor",
+  "Move up": "Lart",
+  "Move down": "Poshtë",
+  "Run order": "Radha e ekzekutimit",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Lidhe laptopin me televizorin me kabllo HDMI (ose transmeto gjithë ekranin).",
+  "Press F for fullscreen — the browser hides its own bars.": "Shtyp F për ekran të plotë — shfletuesi fsheh shiritat e vet.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Pasqyro ekranin që televizori ta tregojë këtë, ose zgjeroje dhe tërhiqe këtë dritare në televizor.",
+  "Nothing to install: this page is the player.": "Asgjë për të instaluar: kjo faqe është luajtësi.",
+  "Pick at least one verse.": "Zgjidh të paktën një strofë.",
+  "This song has no timed lyrics yet.": "Kjo këngë nuk ka ende tekst të sinkronizuar.",
+  "Blank — press B to bring the words back": "Ekran bosh — shtyp B për të rikthyer fjalët",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Hapësirë luaj/pauzë · ← → rresht · ↑ ↓ strofë · B ekran bosh · H kontrast · F ekran i plotë · Esc kthehu",
+  "Hide keys": "Fshih tastet",
+  "Show keys": "Shfaq tastet"
 };
 
 export default sq;

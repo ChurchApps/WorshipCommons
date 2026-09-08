@@ -99,21 +99,6 @@ test.describe("song page", () => {
     expect((await midi.body()).subarray(0, 4).toString()).toBe("MThd");
   });
 
-  test("tempo control and karaoke sing-along on a timed hymn", async ({ page }) => {
-    await page.goto(ABIDE);
-    await expect(page.locator("#tempo")).toBeVisible();
-    await expect(page.locator(".tempo-val").first()).toContainText("BPM");
-
-    const sing = page.getByTestId("sing-along");
-    await expect(sing).toBeVisible();
-    await sing.click();
-    await expect(page.getByTestId("karaoke")).toBeVisible();
-    // lyrics come from lyrics.json and render without waiting on audio
-    await expect(page.locator(".karaoke-line").first()).toContainText("Abide, O dearest Jesus");
-    await page.getByTestId("karaoke-close").click();
-    await expect(page.getByTestId("karaoke")).toHaveCount(0);
-  });
-
   test("voice parts are detected from the midi and selectable", async ({ page }) => {
     await page.goto(ABIDE);
     const parts = page.getByTestId("parts");

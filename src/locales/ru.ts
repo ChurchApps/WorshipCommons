@@ -578,7 +578,38 @@ const ru: Record<string, string> = {
   "Lead worship": "Вести прославление",
   "Project lyrics": "Показать текст",
   "+ Add to setlist": "+ В список песен",
-  "Setlists are coming soon": "Списки скоро появятся"
+  "Setlists are coming soon": "Списки скоро появятся",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Отсчёт…",
+  "Accompaniment": "Аккомпанемент",
+  "Preview (synthesized)": "Предпросмотр (синтез)",
+  "Instrument": "Инструмент",
+  "Piano": "Фортепиано",
+  "Organ": "Орган",
+  "Published keys": "Опубликованные тональности",
+  "{key} (recommended)": "{key} (рекомендуется)",
+  "Preview — not yet reviewed": "Предпросмотр — ещё не проверено",
+  "Count-in": "Отсчёт",
+  "Verses": "Куплеты",
+  "Blank": "Затемнить",
+  "Contrast": "Контраст",
+  "Exit fullscreen": "Выйти из полноэкранного режима",
+  "Fullscreen": "Во весь экран",
+  "Put this on the TV": "Вывести на телевизор",
+  "Move up": "Выше",
+  "Move down": "Ниже",
+  "Run order": "Порядок исполнения",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Подключите ноутбук к телевизору кабелем HDMI (или транслируйте весь экран).",
+  "Press F for fullscreen — the browser hides its own bars.": "Нажмите F для полноэкранного режима — браузер скроет свои панели.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Дублируйте экран, чтобы телевизор показывал это окно, или расширьте его и перетащите окно на телевизор.",
+  "Nothing to install: this page is the player.": "Ничего устанавливать не нужно: эта страница и есть плеер.",
+  "Pick at least one verse.": "Выберите хотя бы один куплет.",
+  "This song has no timed lyrics yet.": "У этой песни пока нет синхронизированного текста.",
+  "Blank — press B to bring the words back": "Экран затемнён — нажмите B, чтобы вернуть слова",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Пробел играть/пауза · ← → строка · ↑ ↓ куплет · B затемнить · H контраст · F во весь экран · Esc назад",
+  "Hide keys": "Скрыть клавиши",
+  "Show keys": "Показать клавиши"
 };
 
 export default ru;

@@ -578,7 +578,38 @@ const es: Record<string, string> = {
   "Lead worship": "Dirigir la adoración",
   "Project lyrics": "Proyectar la letra",
   "+ Add to setlist": "+ Añadir a la lista",
-  "Setlists are coming soon": "Las listas llegan pronto"
+  "Setlists are coming soon": "Las listas llegan pronto",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Contando…",
+  "Accompaniment": "Acompañamiento",
+  "Preview (synthesized)": "Vista previa (sintetizada)",
+  "Instrument": "Instrumento",
+  "Piano": "Piano",
+  "Organ": "Órgano",
+  "Published keys": "Tonos publicados",
+  "{key} (recommended)": "{key} (recomendado)",
+  "Preview — not yet reviewed": "Vista previa — aún sin revisar",
+  "Count-in": "Cuenta de entrada",
+  "Verses": "Estrofas",
+  "Blank": "En negro",
+  "Contrast": "Contraste",
+  "Exit fullscreen": "Salir de pantalla completa",
+  "Fullscreen": "Pantalla completa",
+  "Put this on the TV": "Ponlo en la tele",
+  "Move up": "Subir",
+  "Move down": "Bajar",
+  "Run order": "Orden de ejecución",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Conecta el portátil a la tele con un cable HDMI (o transmite la pantalla completa).",
+  "Press F for fullscreen — the browser hides its own bars.": "Pulsa F para pantalla completa: el navegador oculta sus barras.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Duplica la pantalla para que la tele muestre esto, o extiéndela y arrastra esta ventana a la tele.",
+  "Nothing to install: this page is the player.": "Nada que instalar: esta página es el reproductor.",
+  "Pick at least one verse.": "Elige al menos una estrofa.",
+  "This song has no timed lyrics yet.": "Esta canción aún no tiene letra sincronizada.",
+  "Blank — press B to bring the words back": "En negro — pulsa B para volver a la letra",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Espacio reproducir/pausar · ← → línea · ↑ ↓ estrofa · B negro · H contraste · F pantalla completa · Esc volver",
+  "Hide keys": "Ocultar teclas",
+  "Show keys": "Mostrar teclas"
 };
 
 export default es;
