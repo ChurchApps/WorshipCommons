@@ -39,8 +39,9 @@ test.describe.serial("sheet pdf viewer", () => {
   });
 
   test("songs without a sheet PDF get no viewer", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
-    await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
+    const plain = await songWithoutSheetPdf(request);
+    await page.goto(`/songs/${plain.id}`);
+    await expect(page.getByRole("heading", { name: plain.title })).toBeVisible();
     await expect(page.getByTestId("sheet-pdf-card")).toHaveCount(0);
   });
 });
