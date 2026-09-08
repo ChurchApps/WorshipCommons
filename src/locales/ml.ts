@@ -578,7 +578,25 @@ const ml: Record<string, string> = {
   "Lead worship": "ആരാധന നയിക്കുക",
   "Project lyrics": "വരികൾ പ്രദർശിപ്പിക്കുക",
   "+ Add to setlist": "+ സെറ്റ്‌ലിസ്റ്റിൽ ചേർക്കുക",
-  "Setlists are coming soon": "സെറ്റ്‌ലിസ്റ്റുകൾ ഉടൻ വരുന്നു"
+  "Setlists are coming soon": "സെറ്റ്‌ലിസ്റ്റുകൾ ഉടൻ വരുന്നു",
+  // search, browse, ranking, homepage
+  "Search {count} songs by title, first line, tune, theme, scripture, or writer": "{count} പാട്ടുകളിൽ തലക്കെട്ട്, ആദ്യ വരി, ഈണം, വിഷയം, തിരുവചനം, അല്ലെങ്കിൽ എഴുത്തുകാരൻ എന്നിവ ഉപയോഗിച്ച് തിരയുക",
+  "Confidence": "വിശ്വാസ്യത",
+  "Ready to use": "ഉപയോഗിക്കാൻ തയ്യാർ",
+  "Works with just a guitar": "ഗിറ്റാർ മാത്രം മതി",
+  "Has accompaniment": "അകമ്പടിയുണ്ട്",
+  "Has chart": "കോർഡ് ഷീറ്റുണ്ട്",
+  "Has score": "സ്വരലിപിയുണ്ട്",
+  "Has stems": "സ്റ്റെമുകളുണ്ട്",
+  "verified PD": "പരിശോധിച്ച പൊതുസ്വത്ത്",
+  "in 200+ hymnals": "200-ലധികം ഗാനപുസ്തകങ്ങളിൽ",
+  "has score": "സ്വരലിപിയുണ്ട്",
+  "chart with chords": "കോർഡുകളോടെ ഷീറ്റ്",
+  "browse": "ബ്രൗസ്",
+  "+ {count} browse languages": "+ {count} ബ്രൗസ് ഭാഷകൾ",
+  "Scored hymns, ready to sing": "സ്വരലിപിയുള്ള ഗീതങ്ങൾ, പാടാൻ തയ്യാർ",
+  "Looking for a copyrighted song?": "പകർപ്പവകാശമുള്ള പാട്ട് തിരയുകയാണോ?",
+  "Search SongSelect →": "SongSelect-ൽ തിരയുക →"
 };
 
 export default ml;

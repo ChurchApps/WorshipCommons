@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { loadSongs, Song, songRecency, THEMES, themeList } from "../songs";
+import { Confidence, loadSongs, Song, songRecency, THEMES, themeList } from "../songs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
@@ -8,12 +8,26 @@ import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 import { LICENSES, licenseById, licenseOf } from "../licenses";
 import LicenseBadge from "../components/LicenseBadge";
+import ConfidenceBadge, { CONFIDENCE_LABEL } from "../components/ConfidenceBadge";
+import { guitarReady, rankReason, splitLanguages } from "../catalog";
 
 const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
 const playableUrl = (s: Song) => s.demoAudioUrl || s.midiUrl;
+const CONFIDENCES = Object.keys(CONFIDENCE_LABEL) as Confidence[];
+const songSelectUrl = (q: string) => `https://songselect.ccli.com/search/results?SearchText=${encodeURIComponent(q)}`;
 
-interface Filters { q: string; themes: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; audio: boolean; mt: boolean; }
+// "Ready to use": one boolean facet each, AND across like the extras
+const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean }[] = [
+  { id: "guitar", label: "Works with just a guitar", test: guitarReady },
+  { id: "accomp", label: "Has accompaniment", test: s => !!s.hasAccompaniment },
+  { id: "chart", label: "Has chart", test: s => !!s.hasChords },
+  { id: "score", label: "Has score", test: s => !!s.hasScore },
+  { id: "mt", label: "Has stems", test: s => !!s.stemsZipUrl }
+];
+
+interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
+interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; audio: boolean; }
 
 const XIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -41,12 +55,17 @@ export default function Songs() {
   const [state, setState] = useState<Filters>(() => ({
     q: (params.get("q") || "").trim().toLowerCase(),
     themes: new Set(params.get("theme") ? [params.get("theme")] : []),
+    conf: new Set(params.get("confidence") ? [params.get("confidence")] : []),
     key: "",
     meter: params.get("meter") || "",
     tempo: "",
     lang: params.get("lang") || SONG_LANG[lang],
     lic: "",
     audio: false,
+    guitar: false,
+    accomp: false,
+    chart: false,
+    score: false,
     mt: false
   }));
   const [sort, setSort] = useState("downloads");
@@ -97,26 +116,35 @@ export default function Songs() {
     update({ themes });
   };
 
+  const toggleConf = (c: string, on: boolean) => {
+    const conf = new Set(state.conf);
+    if (on) conf.add(c); else conf.delete(c);
+    update({ conf });
+  };
+
   // "OR within a facet, AND across facets" — skip excludes a facet so its own counts stay live
   const matches = (s: Song, skip?: string) => {
     const th = themeList(s);
     const q = state.q.trim().toLowerCase();
-    return (skip === "q" || !q || (s.title + " " + s.writer + " " + s.scripture + " " + s.themes).toLowerCase().includes(q)) &&
+    return (skip === "q" || !q || [s.title, s.writer, s.scripture, s.themes, s.firstLine, s.tune].join(" ").toLowerCase().includes(q)) &&
       (skip === "themes" || !state.themes.size || th.some(t => state.themes.has(t))) &&
+      (skip === "conf" || !state.conf.size || state.conf.has(s.confidence || "")) &&
       (skip === "key" || !state.key || s.songKey === state.key) &&
       (skip === "meter" || !state.meter || s.meter === state.meter) &&
       (skip === "tempo" || !state.tempo || tempoBucket(s.bpm) === state.tempo) &&
       (skip === "lang" || !state.lang || s.language === state.lang) &&
       (skip === "lic" || !state.lic || s.license === state.lic) &&
       (skip === "audio" || !state.audio || !!s.demoAudioUrl) &&
-      (skip === "mt" || !state.mt || !!s.stemsZipUrl);
+      READY.every(r => skip === r.id || !state[r.id] || r.test(s));
   };
 
   const facets = useMemo(() => {
     const themeCounts: Record<string, number> = {};
     const langCounts: Record<string, number> = {};
+    const present = new Set<string>();
     songs.forEach(s => {
       langCounts[s.language] = (langCounts[s.language] || 0) + 1;
+      if (s.confidence) present.add(s.confidence);
       if (matches(s, "themes")) themeList(s).forEach(t => themeCounts[t] = (themeCounts[t] || 0) + 1);
     });
     const rank = (t: string) => { const i = THEMES.indexOf(t); return i < 0 ? THEMES.length : i; };
@@ -126,9 +154,12 @@ export default function Songs() {
     state.themes.forEach(th => { if (!themes.includes(th)) themes.unshift(th); });
     return {
       themes,
+      // only the values the catalog carries, in confidence order
+      confs: CONFIDENCES.filter(c => present.has(c)),
       keys: [...new Set(songs.map(s => s.songKey))].sort(),
       meters: [...new Set(songs.filter(s => s.meter).map(s => s.meter as string))].sort(),
-      langs: Object.entries(langCounts).sort((a, b) => b[1] - a[1])
+      langs: Object.entries(langCounts).sort((a, b) => b[1] - a[1]),
+      browse: new Set(splitLanguages(songs).browse)
     };
   }, [songs, state]);
 
@@ -178,15 +209,16 @@ export default function Songs() {
 
   const chips: { label: string; undo: () => void }[] = [];
   state.themes.forEach(th => chips.push({ label: th, undo: () => toggleTheme(th, false) }));
+  state.conf.forEach(c => chips.push({ label: t(CONFIDENCE_LABEL[c as Confidence] || c), undo: () => toggleConf(c, false) }));
   if (state.key) chips.push({ label: t("Key of {key}", { key: state.key }), undo: () => update({ key: "" }) });
   if (state.meter) chips.push({ label: t("Meter {meter}", { meter: state.meter }), undo: () => update({ meter: "" }) });
   if (state.tempo) chips.push({ label: t({ slow: "Slow", mid: "Moderate", fast: "Upbeat" }[state.tempo]), undo: () => update({ tempo: "" }) });
   if (state.lang) chips.push({ label: t(state.lang), undo: () => update({ lang: "" }) });
   if (state.lic) chips.push({ label: t(licenseById(state.lic).label), undo: () => update({ lic: "" }) });
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
-  if (state.mt) chips.push({ label: t("Has multitracks"), undo: () => update({ mt: false }) });
+  READY.forEach(r => { if (state[r.id]) chips.push({ label: t(r.label), undo: () => update({ [r.id]: false } as Partial<Filters>) }); });
 
-  const clearAll = () => update({ q: "", themes: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", audio: false, mt: false });
+  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false });
 
   const pagerNums = useMemo(() => {
     const nums = [...new Set([1, 2, curPage - 1, curPage, curPage + 1, pages - 1, pages].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);
@@ -205,7 +237,7 @@ export default function Songs() {
           <div className="search-bar" role="search">
             <div className="search-wrap">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-              <input ref={searchRef} type="text" id="q" value={state.q} onChange={e => update({ q: e.target.value })} placeholder={t("Search {count} songs by title, lyric, theme, scripture, or writer", { count: (songs.length || "").toLocaleString() })} aria-label={t("Search songs")} />
+              <input ref={searchRef} type="text" id="q" value={state.q} onChange={e => update({ q: e.target.value })} placeholder={t("Search {count} songs by title, first line, tune, theme, scripture, or writer", { count: (songs.length || "").toLocaleString() })} aria-label={t("Search songs")} />
               <kbd aria-hidden="true">/</kbd>
             </div>
             <div className="search-sort">
@@ -238,6 +270,24 @@ export default function Songs() {
               </button>
             )}
           </FacetGroup>
+          {facets.confs.length > 0 && (
+            <FacetGroup title={t("Confidence")}>
+              {/* what a church gets before it presses play — the same six values the badge wears */}
+              <ul className="facet-list" data-testid="confidence-facet">
+                {facets.confs.map(c => (
+                  <li key={c}><label><input type="checkbox" value={c} checked={state.conf.has(c)} onChange={e => toggleConf(c, e.target.checked)} /> {t(CONFIDENCE_LABEL[c])} <span className="cnt">{count("conf", s => s.confidence === c).toLocaleString()}</span></label></li>
+                ))}
+              </ul>
+            </FacetGroup>
+          )}
+          <FacetGroup title={t("Ready to use")}>
+            {/* vocal range is not offered: no package carries range data yet */}
+            <ul className="facet-list" data-testid="ready-facet">
+              {READY.map(r => (
+                <li key={r.id}><label><input type="checkbox" name={r.id} checked={state[r.id]} onChange={e => update({ [r.id]: e.target.checked } as Partial<Filters>)} /> {t(r.label)} <span className="cnt">{count(r.id, r.test).toLocaleString()}</span></label></li>
+              ))}
+            </ul>
+          </FacetGroup>
           <FacetGroup title={t("Key")}>
             <select value={state.key} onChange={e => update({ key: e.target.value })} aria-label={t("Key")}>
               <option value="">{t("Any key")}</option>
@@ -261,9 +311,10 @@ export default function Songs() {
             </ul>
           </FacetGroup>
           <FacetGroup title={t("Language")}>
-            <select value={state.lang} onChange={e => update({ lang: e.target.value })} aria-label={t("Language")}>
+            {/* a browse language is searchable like any other; the tag says it is not a catalog yet */}
+            <select value={state.lang} onChange={e => update({ lang: e.target.value })} aria-label={t("Language")} data-testid="language-facet">
               <option value="">{t("Any language")}</option>
-              {facets.langs.map(([l, n]) => <option key={l} value={l}>{`${t(l)} (${n.toLocaleString()})`}</option>)}
+              {facets.langs.map(([l, n]) => <option key={l} value={l} data-browse={facets.browse.has(l) || undefined}>{`${t(l)} (${n.toLocaleString()})${facets.browse.has(l) ? ` · ${t("browse")}` : ""}`}</option>)}
             </select>
           </FacetGroup>
           <FacetGroup title={t("Source")}>
@@ -278,7 +329,6 @@ export default function Songs() {
           <FacetGroup title={t("Extras")}>
             <ul className="facet-list">
               <li><label><input type="checkbox" checked={state.audio} onChange={e => update({ audio: e.target.checked })} /> {t("Has demo recording")}</label></li>
-              <li><label><input type="checkbox" checked={state.mt} onChange={e => update({ mt: e.target.checked })} /> {t("Has multitracks")} <span className="cnt">{count("mt", s => !!s.stemsZipUrl).toLocaleString()}</span></label></li>
             </ul>
           </FacetGroup>
         </aside>
@@ -315,12 +365,17 @@ export default function Songs() {
                     {s.artUrl || s.writerPortraitUrl
                       ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={s.artUrl ? "art" : ""} src={s.artUrl ? s.artUrl.replace(/art\.webp$/, "art-thumb.webp") : s.writerPortraitUrl} alt="" loading="lazy" /></Link>
                       : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
-                    <div className="t-main"><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span></div>
+                    <div className="t-main">
+                      <Link to={`/songs/${s.id}`}>{s.title}</Link>
+                      <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span>
+                      {/* why this row leads — only where a completeness or provenance signal adds to the badges */}
+                      {rankReason(s).length > 0 && <span className="t-reason" data-testid="rank-reason">{rankReason(s).map(r => t(r)).join(" · ")}</span>}
+                    </div>
                     <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="t-num t-key c">{s.songKey}</span>
                     <span className="t-num t-bpm c">{s.bpm}</span>
                     <span className="t-num t-downloads c">{s.downloadCount.toLocaleString()}</span>
-                    <span className="t-badge"><LicenseBadge license={licenseOf(s)} compact /></span>
+                    <span className="t-badge"><LicenseBadge license={licenseOf(s)} compact /><ConfidenceBadge confidence={s.confidence} compact /></span>
                   </div>
                 ))}
               </div>
@@ -330,6 +385,8 @@ export default function Songs() {
             <div className="empty">
               <h3>{t("Nothing matches yet")}</h3>
               <p>{t("Loosen a filter — or")} <Link to="/upload">{t("share the song the commons is missing")}</Link>.</p>
+              {/* the honest answer when it is not here: the copyrighted catalog lives at CCLI */}
+              <p>{t("Looking for a copyrighted song?")} <a href={songSelectUrl(state.q.trim())} target="_blank" rel="noopener noreferrer" data-testid="songselect-link">{t("Search SongSelect →")}</a></p>
             </div>
           )}
 

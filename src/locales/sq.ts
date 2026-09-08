@@ -578,7 +578,25 @@ const sq: Record<string, string> = {
   "Lead worship": "Udhëhiq adhurimin",
   "Project lyrics": "Projekto tekstin",
   "+ Add to setlist": "+ Shto në listë",
-  "Setlists are coming soon": "Listat vijnë së shpejti"
+  "Setlists are coming soon": "Listat vijnë së shpejti",
+  // search, browse, ranking, homepage
+  "Search {count} songs by title, first line, tune, theme, scripture, or writer": "Kërko mes {count} këngëve sipas titullit, vargut të parë, melodisë, temës, vargut biblik ose autorit",
+  "Confidence": "Besueshmëria",
+  "Ready to use": "Gati për përdorim",
+  "Works with just a guitar": "Mjafton vetëm një kitarë",
+  "Has accompaniment": "Ka shoqërim",
+  "Has chart": "Ka akorde",
+  "Has score": "Ka partiturë",
+  "Has stems": "Ka gjurmë të ndara",
+  "verified PD": "domen publik i verifikuar",
+  "in 200+ hymnals": "në mbi 200 himnarë",
+  "has score": "ka partiturë",
+  "chart with chords": "tekst me akorde",
+  "browse": "shfleto",
+  "+ {count} browse languages": "+ {count} gjuhë për shfletim",
+  "Scored hymns, ready to sing": "Himne me partiturë, gati për t'u kënduar",
+  "Looking for a copyrighted song?": "Kërkon një këngë me të drejta autori?",
+  "Search SongSelect →": "Kërko në SongSelect →"
 };
 
 export default sq;

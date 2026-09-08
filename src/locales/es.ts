@@ -578,7 +578,25 @@ const es: Record<string, string> = {
   "Lead worship": "Dirigir la adoración",
   "Project lyrics": "Proyectar la letra",
   "+ Add to setlist": "+ Añadir a la lista",
-  "Setlists are coming soon": "Las listas llegan pronto"
+  "Setlists are coming soon": "Las listas llegan pronto",
+  // search, browse, ranking, homepage
+  "Search {count} songs by title, first line, tune, theme, scripture, or writer": "Busca entre {count} canciones por título, primera línea, melodía, tema, pasaje bíblico o autor",
+  "Confidence": "Confianza",
+  "Ready to use": "Listo para usar",
+  "Works with just a guitar": "Funciona solo con guitarra",
+  "Has accompaniment": "Tiene acompañamiento",
+  "Has chart": "Tiene cifrado",
+  "Has score": "Tiene partitura",
+  "Has stems": "Tiene pistas",
+  "verified PD": "DP verificado",
+  "in 200+ hymnals": "en más de 200 himnarios",
+  "has score": "tiene partitura",
+  "chart with chords": "cifrado con acordes",
+  "browse": "explorar",
+  "+ {count} browse languages": "+ {count} idiomas en exploración",
+  "Scored hymns, ready to sing": "Himnos con partitura, listos para cantar",
+  "Looking for a copyrighted song?": "¿Buscas una canción con derechos de autor?",
+  "Search SongSelect →": "Buscar en SongSelect →"
 };
 
 export default es;

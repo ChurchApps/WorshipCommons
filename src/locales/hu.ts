@@ -578,7 +578,25 @@ const hu: Record<string, string> = {
   "Lead worship": "Dicsőítés vezetése",
   "Project lyrics": "Szöveg kivetítése",
   "+ Add to setlist": "+ Hozzáadás a listához",
-  "Setlists are coming soon": "A listák hamarosan jönnek"
+  "Setlists are coming soon": "A listák hamarosan jönnek",
+  // search, browse, ranking, homepage
+  "Search {count} songs by title, first line, tune, theme, scripture, or writer": "Keress {count} ének között cím, első sor, dallam, téma, igehely vagy szerző szerint",
+  "Confidence": "Megbízhatóság",
+  "Ready to use": "Használatra kész",
+  "Works with just a guitar": "Egy szál gitárral is megy",
+  "Has accompaniment": "Van kísérete",
+  "Has chart": "Van akkordos lapja",
+  "Has score": "Van kottája",
+  "Has stems": "Vannak sávjai",
+  "verified PD": "ellenőrzött közkincs",
+  "in 200+ hymnals": "több mint 200 énekeskönyvben",
+  "has score": "van kottája",
+  "chart with chords": "akkordos lap",
+  "browse": "böngészés",
+  "+ {count} browse languages": "+ {count} böngészhető nyelv",
+  "Scored hymns, ready to sing": "Kottás énekek, énekelhetők",
+  "Looking for a copyrighted song?": "Szerzői jogvédett éneket keresel?",
+  "Search SongSelect →": "Keresés a SongSelecten →"
 };
 
 export default hu;

@@ -578,7 +578,25 @@ const ru: Record<string, string> = {
   "Lead worship": "Вести прославление",
   "Project lyrics": "Показать текст",
   "+ Add to setlist": "+ В список песен",
-  "Setlists are coming soon": "Списки скоро появятся"
+  "Setlists are coming soon": "Списки скоро появятся",
+  // search, browse, ranking, homepage
+  "Search {count} songs by title, first line, tune, theme, scripture, or writer": "Ищите среди {count} песен по названию, первой строке, мелодии, теме, месту Писания или автору",
+  "Confidence": "Достоверность",
+  "Ready to use": "Готово к использованию",
+  "Works with just a guitar": "Хватит одной гитары",
+  "Has accompaniment": "Есть аккомпанемент",
+  "Has chart": "Есть аккорды",
+  "Has score": "Есть ноты",
+  "Has stems": "Есть дорожки",
+  "verified PD": "проверенное общественное достояние",
+  "in 200+ hymnals": "более чем в 200 сборниках",
+  "has score": "есть ноты",
+  "chart with chords": "текст с аккордами",
+  "browse": "обзор",
+  "+ {count} browse languages": "+ {count} языков в обзоре",
+  "Scored hymns, ready to sing": "Гимны с нотами, готовые к пению",
+  "Looking for a copyrighted song?": "Ищете песню, защищённую авторским правом?",
+  "Search SongSelect →": "Искать в SongSelect →"
 };
 
 export default ru;
