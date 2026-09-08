@@ -578,7 +578,24 @@ const pt: Record<string, string> = {
   "Lead worship": "Conduzir o louvor",
   "Project lyrics": "Projetar a letra",
   "+ Add to setlist": "+ Adicionar à lista",
-  "Setlists are coming soon": "As listas chegam em breve"
+  "Setlists are coming soon": "As listas chegam em breve",
+  // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
+  "{title} — project | WorshipCommons": "{title} — projetar | WorshipCommons",
+  "No lyrics to project yet.": "Ainda não há letra para projetar.",
+  "Next: {label}": "Próximo: {label}",
+  "Blank": "Tela preta",
+  "Contrast": "Contraste",
+  "Fullscreen": "Tela cheia",
+  "Open projector": "Abrir o projetor",
+  "Download for FreeShow": "Baixar para FreeShow",
+  "Download OpenLyrics (OpenLP)": "Baixar OpenLyrics (OpenLP)",
+  "Download PPTX": "Baixar PPTX",
+  "Copy for OnSong / Planning Center": "Copiar para OnSong / Planning Center",
+  "Slides follow the song’s form map ({status}).": "Os slides seguem o mapa de forma da canção ({status}).",
+  "approved": "aprovado",
+  "draft": "rascunho",
+  "No form map yet — slides follow the stanzas as written.": "Ainda sem mapa de forma — os slides seguem as estrofes como escritas.",
+  "Every export carries the attribution and license credit.": "Toda exportação leva a atribuição e o crédito da licença."
 };
 
 export default pt;

@@ -578,7 +578,24 @@ const hu: Record<string, string> = {
   "Lead worship": "Dicsőítés vezetése",
   "Project lyrics": "Szöveg kivetítése",
   "+ Add to setlist": "+ Hozzáadás a listához",
-  "Setlists are coming soon": "A listák hamarosan jönnek"
+  "Setlists are coming soon": "A listák hamarosan jönnek",
+  // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
+  "{title} — project | WorshipCommons": "{title} — kivetítés | WorshipCommons",
+  "No lyrics to project yet.": "Még nincs kivetíthető szöveg.",
+  "Next: {label}": "Következő: {label}",
+  "Blank": "Elsötétítés",
+  "Contrast": "Kontraszt",
+  "Fullscreen": "Teljes képernyő",
+  "Open projector": "Kivetítő megnyitása",
+  "Download for FreeShow": "Letöltés FreeShow-hoz",
+  "Download OpenLyrics (OpenLP)": "OpenLyrics letöltése (OpenLP)",
+  "Download PPTX": "PPTX letöltése",
+  "Copy for OnSong / Planning Center": "Másolás OnSong / Planning Center számára",
+  "Slides follow the song’s form map ({status}).": "A diák az ének formatérképét követik ({status}).",
+  "approved": "jóváhagyott",
+  "draft": "vázlat",
+  "No form map yet — slides follow the stanzas as written.": "Még nincs formatérkép — a diák a leírt versszakokat követik.",
+  "Every export carries the attribution and license credit.": "Minden export tartalmazza a forrásmegjelölést és a licencfeliratot."
 };
 
 export default hu;
