@@ -116,6 +116,7 @@ test.describe("lead worship player", () => {
 
   test("H toggles high contrast and the TV help opens", async ({ page }) => {
     await page.goto(PATH);
+    await expect(page.getByTestId("lead-worship")).toBeVisible(); // the key listener mounts with the player
     await page.keyboard.press("h");
     await expect(page.getByTestId("lead-worship")).toHaveClass(/hc/);
     await page.getByTestId("lead-tv-help").click();
