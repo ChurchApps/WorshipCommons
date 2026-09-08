@@ -26,7 +26,8 @@ test.describe.serial("sheet pdf viewer", () => {
   });
 
   test("the song page shows the PDF inline and still offers the download", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, SONG_TITLE)}`);
+    // the PDF viewer lives in the Parts mode
+    await page.goto(`/songs/${await songIdByTitle(request, SONG_TITLE)}?mode=parts`);
     const card = page.getByTestId("sheet-pdf-card");
     await expect(card).toBeVisible();
     const src = await page.getByTestId("sheet-pdf-embed").getAttribute("src");

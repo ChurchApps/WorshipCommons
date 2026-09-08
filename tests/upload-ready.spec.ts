@@ -199,11 +199,16 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     await expect(page.locator(".stanza-label", { hasText: "Chorus" })).toBeVisible();
     await expect(page.locator(".byline")).toContainText("Playwright Composer");
     await expect(page.locator(".s-tag", { hasText: "Advent" })).toBeVisible();
-    await expect(page.locator(".hero-badge")).toContainText(/Free for (worship|churches)/);
+    // the WC badge reads "WC" and carries Free for worship as its title
+    await expect(page.locator(".hero-badge [data-testid='license-badge']")).toHaveAttribute("data-license", "WC");
+    await expect(page.locator(".hero-badge")).toHaveText("WC");
+    await expect(page.locator(".hero-badge [data-testid='license-badge']")).toHaveAttribute("title", /Free for worship/);
     await expect(page.locator(".hero-badge")).not.toContainText("Public domain");
     await expect(page.locator(".sheet .pd-badge")).toHaveCount(0);
     await expect(page.getByText(/copyright-cleared/i)).toHaveCount(0);
 
+    // the demo recording lives in the Listen mode, the stems in Parts
+    await page.getByTestId("mode-listen").click();
     await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /demoAudio\.wav/);
     const src = await page.getByTestId("demo-audio").getAttribute("src");
     const audio = await request.get(src as string);
@@ -214,6 +219,7 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     await expect(sheet).toBeVisible();
     expect((await request.get(await sheet.getAttribute("href") as string)).ok()).toBeTruthy();
 
+    await page.getByTestId("mode-parts").click();
     const stems = page.locator(".mt-zip");
     await expect(stems).toBeVisible();
     expect((await request.get(await stems.getAttribute("href") as string)).ok()).toBeTruthy();

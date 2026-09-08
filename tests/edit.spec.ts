@@ -51,6 +51,7 @@ test.describe.serial("propose an edit", () => {
 
     await page.goto(`/songs/${songId}`);
     await expect(page.locator(".song-title")).toHaveText(newTitle);
+    await page.getByTestId("mode-about").click();
     await expect(page.getByTestId("history").getByTestId("history-entry")).toHaveCount(2);
     await expect(page.getByTestId("history")).toContainText("Corrected the title.");
   });

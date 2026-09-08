@@ -5,6 +5,9 @@ import { splitKey, noteIndex, KEY_CHOICES } from "../chordpro";
 import { abcKeyRoot, abcTitle, abcVoices, partName, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import DerivedBanner from "../components/DerivedBanner";
+import { attributionFor } from "../licenses";
+import { isDerivedScore } from "../components/ConfidenceBadge";
 
 export default function SheetMusic() {
   const { t } = useI18n();
@@ -62,6 +65,9 @@ export default function SheetMusic() {
   if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 
   const { suffix: keySuffix } = splitKey(song.songKey);
+  // ponytail: MusicXML is not rendered here (no renderer dependency); the ABC stays the engraving source and the
+  // footer only reports where that ABC came from
+  const source = song.scoreSource || (song.abcUrl ? "abc" : null);
 
   return (
     <main style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 24px" }}>
@@ -86,12 +92,21 @@ export default function SheetMusic() {
         )}
         <Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
       </div>
+      <DerivedBanner song={song} />
       {abcFailed && <p>{t("No engraved score is available for this song yet.")} {song.midiUrl && <Link to={`/songs/${song.id}/transcribe`}>{t("Help transcribe it →")}</Link>}</p>}
       {borrowedTune && !abcFailed && <p className="no-print" style={{ fontSize: 14, color: "#555" }}>{t("This song is sung to a shared tune — the score shows the music without words.")}</p>}
       <div ref={paperRef} data-testid="sheet-paper" />
       {abc && (
-        <p style={{ marginTop: 32, fontSize: 13, color: "#555" }}>
-          {t("Engraved in your browser from the Open Hymnal Project score — public domain. Free for churches.")}
+        <p style={{ marginTop: 32, fontSize: 13, color: "#555" }} data-testid="sheet-footer" data-score-source={source}>
+          {/* data-driven: the package says where the score came from and whether a person has proofread it */}
+          {source === "master"
+            ? t("Engraved in your browser from the proofread score.")
+            : source === "midi"
+              ? t("Engraved in your browser from a score generated from the MIDI file — not yet proofread.")
+              : isDerivedScore(song.confidence) || source === "abc"
+                ? t("Engraved in your browser from the Open Hymnal Project ABC — converted, not yet proofread here.")
+                : t("Engraved in your browser from the package score.")}
+          {" "}{attributionFor(song)}
         </p>
       )}
     </main>
