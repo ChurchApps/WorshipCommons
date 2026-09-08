@@ -55,18 +55,14 @@ test.describe("search, filters and ranking", () => {
     await facet.locator('input[value="converted-from-abc"]').check();
     await expect(page.locator("#count")).toContainText(countText(abc));
     await expect(page.locator("#active-chips")).toContainText("Converted from ABC");
-    const badges = page.locator(".t-row [data-testid='confidence-badge']");
-    await expect(badges).toHaveCount(Math.min(50, abc));
-    expect(await badges.evaluateAll(els => els.every(e => e.getAttribute("data-confidence") === "converted-from-abc" && e.textContent === "Converted from ABC"))).toBe(true);
+    await expect(page.locator(".t-row")).toHaveCount(Math.min(50, abc));
   });
 
-  test("every row wears a confidence badge and the reason line names a signal", async ({ page }) => {
+  test("rows carry no badges; the reason line names a signal where one exists", async ({ page }) => {
     await openLibrary(page);
     const rows = page.locator(".t-row");
     await expect(rows).toHaveCount(Math.min(50, songs.length));
-    test.skip(songs.some(s => !s.confidence), "seed has rows without confidence");
-    await expect(rows.locator("[data-testid='confidence-badge']")).toHaveCount(Math.min(50, songs.length));
-    for (const text of await rows.locator("[data-testid='confidence-badge']").allInnerTexts()) expect(Object.values(LABEL).map(l => l.toLowerCase())).toContain(text.trim().toLowerCase()); // the badge is uppercased by CSS
+    await expect(rows.locator("[data-testid='confidence-badge'], [data-testid='license-badge']")).toHaveCount(0);
 
     // a reason shows only where a completeness or provenance signal adds to the badges
     const reasons = page.getByTestId("rank-reason");
@@ -153,7 +149,7 @@ test.describe("home", () => {
     const pool = heading === "Sunday-ready" ? english.filter(s => s.sundayReady || s.featured) : heading.startsWith("Scored") ? english.filter(s => s.hasScore) : english;
     const first = [...pool].sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0))[0];
     await expect(page.getByTestId("home-top-list").locator("li").first()).toContainText(first.title);
-    await expect(page.locator(".hp-list [data-testid='confidence-badge']").first()).toBeVisible();
+    await expect(page.locator(".row-list [data-testid='confidence-badge'], .row-list .free-badge")).toHaveCount(0);
   });
 
   test("headline totals count catalog languages and note the browse languages", async ({ page }) => {

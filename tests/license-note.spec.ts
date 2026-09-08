@@ -7,7 +7,7 @@ const CC_BY_TITLE = "Home";
 
 test.describe("license note: you may / you may not", () => {
   test("public-domain hymn spells out that everything is allowed", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}?mode=about`);
+    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
     const note = page.locator(".license-note");
     await expect(note).toContainText("Public domain");
     await expect(note).toContainText("including commercial");
@@ -25,7 +25,7 @@ test.describe("license note: you may / you may not", () => {
   test("writer-licensed song lists worship use and what stays with the writer", async ({ page, request }) => {
     const draft = await createPendingSong(request, await adminJwt(request), WC_TITLE);
     await approveSubmission(request, (await pendingSubmissionFor(request, draft.assetId)).id);
-    await page.goto(`/songs/${draft.assetId}?mode=about`);
+    await page.goto(`/songs/${draft.assetId}`);
     await expect(page.locator(".license-note")).toContainText("WorshipCommons License v1.0");
     await expect(page.getByTestId("you-may")).toContainText("Record or stream your service");
     await expect(page.getByTestId("you-may-not")).toContainText("Sell recordings or sheet music");
@@ -48,7 +48,7 @@ test.describe("license note: you may / you may not", () => {
   });
 
   test("a Creative Commons song adds the You must list: credit, license name, link", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, CC_BY_TITLE)}?mode=about`);
+    await page.goto(`/songs/${await songIdByTitle(request, CC_BY_TITLE)}`);
     const note = page.locator(".license-note");
     await expect(note).toContainText("Creative Commons CC BY");
     await expect(note).not.toContainText("Public domain");

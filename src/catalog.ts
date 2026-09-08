@@ -1,6 +1,4 @@
 import type { Song } from "./songs";
-import { CONFIDENCE_LABEL } from "./components/ConfidenceBadge";
-import { licenseById } from "./licenses";
 
 // ---- catalog vs browse language ----
 // A language is a catalog once it has a Sunday-ready set of its own; until then it is a
@@ -37,8 +35,8 @@ const HYMNAL_PRIOR = 200;
 
 /**
  * The one-line "why this leads" under a ranked row, as English keys for t():
- * confidence · license · hymnal prior · has score · chart with chords.
- * Empty when only the confidence badge and the license (both already shown) would repeat.
+ * hymnal prior · has score · chart with chords. Source and license stay off the list rows;
+ * the song page carries them.
  */
 export function rankReason(s: Song): string[] {
   const signals: string[] = [];
@@ -46,9 +44,7 @@ export function rankReason(s: Song): string[] {
   if (((s as Song & { hymnalCount?: number }).hymnalCount ?? 0) >= HYMNAL_PRIOR) signals.push("in 200+ hymnals");
   if (s.hasScore) signals.push("has score");
   if (s.hasChords) signals.push("chart with chords");
-  if (!signals.length) return [];
-  const license = s.license === "PD" ? "verified PD" : s.license === "WC" ? "WC" : licenseById(s.license).label;
-  return [...(s.confidence ? [CONFIDENCE_LABEL[s.confidence]] : []), license, ...signals];
+  return signals;
 }
 
 // ---- homepage ----

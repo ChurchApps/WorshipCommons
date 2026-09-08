@@ -61,7 +61,7 @@ test.describe("song meter", () => {
     const similar: (SeedSong & { reason?: string })[] = pageData.similar || [];
     expect(similar.length).toBeGreaterThan(0);
 
-    await page.goto(`/songs/${subject.id}?mode=about`);
+    await page.goto(`/songs/${subject.id}`);
     const items = page.getByTestId("similar-songs").locator("li");
     await expect(items).toHaveCount(similar.length);
     for (let i = 0; i < similar.length; i++) await expect(items.nth(i)).toContainText(similar[i].title);

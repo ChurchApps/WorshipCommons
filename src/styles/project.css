@@ -1,8 +1,10 @@
-/* ---- song page: Project mode panel ---- */
-.project-panel { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
-.project-exports { display: flex; flex-wrap: wrap; gap: 10px; }
-.project-exports .btn { padding: 10px 18px; min-height: 42px; font-size: 0.9375rem; }
-.project-note { margin: 0; max-width: 56ch; }
+/* ---- song page: the Project sidebar card ---- */
+.project-panel { display: flex; flex-direction: column; gap: 12px; }
+.project-panel > .btn { display: block; text-align: center; }
+.project-exports { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0; font-size: 0.875rem; }
+.project-exports .link-btn { border: 0; background: none; padding: 0; font: inherit; font-weight: 500; color: var(--primary); cursor: pointer; }
+.project-exports .link-btn:hover { text-decoration: underline; }
+.project-note { margin: 0; font-size: 0.8125rem; color: var(--muted); }
 
 /* ---- /songs/:id/project: the lyrics-only projector ---- */
 .projector { --pj-bg: #000; --pj-fg: #fff; --pj-dim: rgba(255,255,255,0.55); --pj-bar: rgba(255,255,255,0.08);

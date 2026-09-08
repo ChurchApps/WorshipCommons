@@ -47,9 +47,9 @@
   .active-chip svg { flex: none; }
 
   .table { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
-  .thead { display: grid; grid-template-columns: 48px 44px minmax(0, 1fr) 178px 46px 52px 68px 150px; gap: 10px; align-items: center; padding: 12px 20px; background: var(--bg); border-bottom: 1px solid var(--border); font-family: var(--font-heading); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .thead { display: grid; grid-template-columns: 48px 44px minmax(0, 1fr) 190px 48px 52px; gap: 14px; align-items: center; padding: 12px 24px; background: var(--bg); border-bottom: 1px solid var(--border); font-family: var(--font-heading); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .thead .c, .t-row .c { text-align: center; }
-  .t-row { display: grid; grid-template-columns: 48px 44px minmax(0, 1fr) 178px 46px 52px 68px 150px; gap: 10px; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+  .t-row { display: grid; grid-template-columns: 48px 44px minmax(0, 1fr) 190px 48px 52px; gap: 14px; align-items: center; padding: 10px 24px; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
   .t-cover { display: block; width: 44px; height: 44px; border-radius: 10px; overflow: hidden; }
   .t-cover svg { display: block; width: 100%; height: 100%; }
   .t-cover img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.2) sepia(0.12); }
@@ -70,7 +70,7 @@
   .t-badge { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
   .t-badge .free-badge { font-size: 0.625rem; }
   .t-badge .confidence-badge { font-size: 0.5625rem; padding: 2px 8px; }
-  .t-main .t-reason { color: var(--text-2); }
+  .t-main .t-reason { color: var(--text-2); white-space: normal; }
   .t-badge .pd-badge { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; font-size: 0.625rem; letter-spacing: 0.06em; color: var(--muted); }
   .mt-flag { color: var(--primary); font-weight: 600; }
 
@@ -97,9 +97,9 @@
     .search-wrap { flex-basis: 100%; }
     .facets.open { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 20px 20px; }
     .thead { display: none; }
-    .t-row { grid-template-columns: 44px 40px 1fr 110px; }
+    .t-row { grid-template-columns: 44px 40px 1fr; }
     .t-cover { width: 40px; height: 40px; }
-    .t-row .t-themes, .t-row .t-key, .t-row .t-bpm, .t-row .t-downloads { display: none; }
+    .t-row .t-themes, .t-row .t-key, .t-row .t-bpm { display: none; }
   }
 
 .nc-hint { color: #8A4B08; cursor: help; }

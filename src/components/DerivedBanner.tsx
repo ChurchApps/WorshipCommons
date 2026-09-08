@@ -14,7 +14,7 @@ export default function DerivedBanner({ song }: { song: Pick<Song, "confidence" 
   return (
     <div className="derived-banner" data-testid="derived-banner" data-confidence={c} role="note">
       <WarnIcon />
-      <span>{t(CONFIDENCE_HELP[c])} {t("Check the notes against a hymnal before Sunday; corrections are welcome.")}</span>
+      <span>{t(CONFIDENCE_HELP[c])} — {t("check the notes against a hymnal before Sunday.")}</span>
     </div>
   );
 }

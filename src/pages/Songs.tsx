@@ -6,9 +6,8 @@ import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
-import { LICENSES, licenseById, licenseOf } from "../licenses";
-import LicenseBadge from "../components/LicenseBadge";
-import ConfidenceBadge, { CONFIDENCE_LABEL } from "../components/ConfidenceBadge";
+import { LICENSES, licenseById } from "../licenses";
+import { CONFIDENCE_LABEL } from "../components/ConfidenceBadge";
 import { guitarReady, rankReason, splitLanguages } from "../catalog";
 
 const PAGE_SIZE = 50;
@@ -352,7 +351,7 @@ export default function Songs() {
           {list.length > 0 && (
             <div className="table" id="table">
               <div className="thead">
-                <span></span><span></span><span>{t("Song")}</span><span>{t("Themes")}</span><span className="c">{t("Key")}</span><span className="c">{t("BPM")}</span><span className="c">{t("Downloads")}</span><span>{t("Source")}</span>
+                <span></span><span></span><span>{t("Song")}</span><span>{t("Themes")}</span><span className="c">{t("Key")}</span><span className="c">{t("BPM")}</span>
               </div>
               <div>
                 {slice.map(s => (
@@ -374,8 +373,6 @@ export default function Songs() {
                     <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="t-num t-key c">{s.songKey}</span>
                     <span className="t-num t-bpm c">{s.bpm}</span>
-                    <span className="t-num t-downloads c">{s.downloadCount.toLocaleString()}</span>
-                    <span className="t-badge"><LicenseBadge license={licenseOf(s)} compact /><ConfidenceBadge confidence={s.confidence} compact /></span>
                   </div>
                 ))}
               </div>

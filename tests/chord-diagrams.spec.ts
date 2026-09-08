@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { songIdByTitle } from "./helpers/api";
 
 test("hovering a chord shows guitar and piano diagrams for the shape being played", async ({ page, request }) => {
-  await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}?mode=charts`);
+  await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
   const pop = page.getByTestId("chord-pop");
   await expect(pop).toHaveCount(0);
 

@@ -52,7 +52,6 @@ test.describe.serial("upload flow", () => {
     await row.getByRole("link").click();
     await expect(page.getByRole("heading", { name: SONG_TITLE })).toBeVisible();
     await expect(page.locator(".stanza-label", { hasText: "Chorus" })).toBeVisible();
-    await page.getByTestId("mode-listen").click(); // the writer demo lives in the Listen mode
     await expect(page.getByTestId("demo-audio")).toHaveAttribute("src", /demoAudio\.wav/);
 
     // uploaded demo really serves from the API's content store

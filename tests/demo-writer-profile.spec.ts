@@ -32,7 +32,7 @@ test.describe.serial("writer profile", () => {
     await expect(page.getByTestId("profile-bio")).toHaveValue(BIO);
 
     const id = await songIdByTitle(request, TITLE);
-    await page.goto(`/songs/${id}?mode=about`);
+    await page.goto(`/songs/${id}`);
     await expect(page.getByTestId("about-the-writer")).toBeVisible();
     await expect(page.getByTestId("song-writer-bio")).toHaveText(BIO);
   });

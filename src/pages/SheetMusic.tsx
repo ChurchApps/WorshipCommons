@@ -70,13 +70,18 @@ export default function SheetMusic() {
   const source = song.scoreSource || (song.abcUrl ? "abc" : null);
 
   return (
-    <main style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 24px" }}>
+    <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
       <style>{`
-        .no-print { margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        @media print { .no-print { display: none; } main { padding: 0 !important; } }
+        .no-print { margin-bottom: 28px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 0.875rem; }
+        .no-print label { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+        .no-print select { padding: 8px 12px; border-radius: 10px; font-weight: 500; }
+        .no-print .back { margin-left: auto; }
+        .derived-banner { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 18px; font-size: 0.8125rem; color: var(--muted); }
+        .derived-banner svg { flex: none; margin-top: 2px; color: #B08A1E; }
+        @media print { .no-print, .derived-banner { display: none; } main { padding: 0 !important; } }
       `}</style>
       <div className="no-print">
-        <button onClick={() => window.print()} style={{ padding: "8px 20px", cursor: "pointer" }}>{t("Print")}</button>
+        <button className="btn btn-primary" style={{ padding: "10px 22px", minHeight: 0, fontSize: "0.9375rem" }} onClick={() => window.print()}>{t("Print")}</button>
         <label>{t("Key")}{" "}
           <select value={selRoot} onChange={e => setSelRoot(e.target.value)} data-testid="sheet-key">
             {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
@@ -90,7 +95,7 @@ export default function SheetMusic() {
             </select>
           </label>
         )}
-        <Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
+        <Link className="back" to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
       </div>
       <DerivedBanner song={song} />
       {abcFailed && <p>{t("No engraved score is available for this song yet.")} {song.midiUrl && <Link to={`/songs/${song.id}/transcribe`}>{t("Help transcribe it →")}</Link>}</p>}

@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { HOME_THEMES, loadSongs, Song, songRecency, themeList } from "../songs";
+import { HOME_THEMES, loadSongs, Song, songRecency } from "../songs";
 import { coverSvg } from "../cover.mjs";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 import { licenseOf } from "../licenses";
-import LicenseBadge from "../components/LicenseBadge";
-import ConfidenceBadge from "../components/ConfidenceBadge";
 import { splitLanguages, topBlock } from "../catalog";
 
 const PlayIcon = ({ size = 14 }: { size?: number }) => (
@@ -105,13 +103,8 @@ export default function Home() {
                       ? <span className="hp-cover"><img src={s.thumbUrl || s.artUrl.replace(/art\.webp$/, "art-thumb.webp")} alt="" loading="lazy" /></span>
                       : <span className="hp-cover" aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 88, 88) }} />}
                     <span className="hp-main"><b>{s.title}</b><span>{s.writer} • {s.year}</span></span>
-                    <span className="hp-themes">{themeList(s).slice(0, 1).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="hp-key">{s.songKey}</span>
                     <span className="hp-bpm">{s.bpm}</span>
-                    <span className="hp-conf"><ConfidenceBadge confidence={s.confidence} compact /></span>
-                    {s.license === "PD"
-                      ? <span className="hp-pd" title={t("Public domain")}><GlobeIcon size={15} /></span>
-                      : <LicenseBadge license={licenseOf(s)} compact />}
                   </Link>
                 </li>
               ))}
@@ -189,8 +182,6 @@ export default function Home() {
                   <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
                   <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
                   <span className="kv">{s.songKey} · {s.bpm} BPM{s.downloadCount > 0 ? t(" · {count} downloads", { count: s.downloadCount.toLocaleString() }) : ""}</span>
-                  <ConfidenceBadge confidence={s.confidence} compact onArt />
-                  <span className="free-badge">{t("Free")}</span>
                 </li>
               ))}
             </ul>
@@ -206,7 +197,6 @@ export default function Home() {
                       <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
                       <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
                       <span className="kv">{s.songKey} · {s.bpm} BPM{s.year ? ` · ${s.year}` : ""}</span>
-                      <span className="free-badge">{t("Free")}</span>
                     </li>
                   ))}
                 </ul>
@@ -259,14 +249,6 @@ export default function Home() {
               <li><CheckIcon />{t("Full ownership of your song")}</li>
             </ul>
           </div>
-        </div>
-      </section>
-
-      <section className="block">
-        <div className="wrap stats-band">
-          <div className="stat animate-on-scroll"><b>{stats.songs.toLocaleString()}</b><span>{t("songs, growing weekly")}</span></div>
-          <div className="stat animate-on-scroll"><b>{stats.downloads.toLocaleString()}</b><span>{t("downloads across the library")}</span></div>
-          <div className="stat animate-on-scroll"><b>{stats.langs}</b><span>{t("languages and counting")} {browseNote}</span></div>
         </div>
       </section>
 

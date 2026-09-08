@@ -7,15 +7,11 @@ test.beforeAll(async ({ request }) => {
   AG = await songIdByTitle(request, "Amazing Grace");
 });
 
-/** The panel lives in the song page's Project mode; switch to it when the page hides it behind a mode tab. */
+/** The Project card in the song page sidebar. */
 async function openProjectPanel(page: Page) {
   await page.goto(`/songs/${AG}`);
   await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
   const panel = page.getByTestId("project-panel");
-  if (!(await panel.isVisible())) {
-    const tab = page.getByRole("tab", { name: /project/i }).or(page.getByRole("button", { name: /^project/i })).or(page.getByRole("link", { name: /^project/i }));
-    await tab.first().click();
-  }
   await expect(panel).toBeVisible();
   return panel;
 }

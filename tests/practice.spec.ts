@@ -14,7 +14,7 @@ test.beforeAll(async ({ request }) => {
 
 test.describe("practice card", () => {
   test("shows the song BPM and the tonic of the selected key", async ({ page }) => {
-    await page.goto(PATH + "?mode=charts");
+    await page.goto(PATH + "");
     await expect(page.getByTestId("metronome-bpm")).toHaveText(`${BPM} BPM`);
     await expect(page.getByTestId("pitch-pipe")).toHaveText("Play G");
 
@@ -25,7 +25,7 @@ test.describe("practice card", () => {
   });
 
   test("metronome follows the tempo slider", async ({ page }) => {
-    await page.goto(PATH);
+    await page.goto(PATH + "");
     await page.locator("#tempo").fill("150");
     await expect(page.getByTestId("metronome-bpm")).toHaveText(`${Math.round(BPM * 1.5)} BPM`);
   });

@@ -9,7 +9,7 @@ test.beforeAll(async ({ request }) => {
 
 test.describe("print chart chords toggle", () => {
   test("the song page chords toggle carries over to the print link", async ({ page }) => {
-    await page.goto(AMAZING_GRACE + "?mode=charts");
+    await page.goto(AMAZING_GRACE + "");
     await expect(page.locator(".song-title")).toBeVisible();
 
     // chords on by default — the print link carries no chords param

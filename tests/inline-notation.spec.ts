@@ -3,7 +3,7 @@ import { songIdByTitle, WC_API } from "./helpers/api";
 
 test.describe("inline melody", () => {
   test("song page engraves the melody and follows the selected key", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}?mode=charts`);
+    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
     const card = page.getByTestId("melody-card");
     await expect(card).toBeVisible();
     await expect(card.locator("svg").first()).toBeVisible();

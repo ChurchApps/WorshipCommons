@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { songIdByTitle } from "./helpers/api";
 
 test("Nashville numbers toggle swaps chord names for degrees", async ({ page, request }) => {
-  await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}?mode=charts`);
+  await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
   const chords = page.locator(".stanza .seg .c");
   await expect(chords.first()).toHaveText("G");
 

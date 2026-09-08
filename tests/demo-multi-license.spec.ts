@@ -6,7 +6,7 @@ const CC_TITLE = "Home";
 
 test.describe("six licenses: deeds, upload choices, library facet", () => {
   test("a CC BY song page carries the credit condition, the CC badge and the exact license link", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, CC_TITLE)}?mode=about`);
+    await page.goto(`/songs/${await songIdByTitle(request, CC_TITLE)}`);
     await expect(page.getByTestId("license-badge")).toHaveAttribute("data-license", "CC-BY");
     await expect(page.getByTestId("license-badge")).toHaveText("CC BY");
     const grant = page.getByTestId("license-grant");
@@ -24,7 +24,7 @@ test.describe("six licenses: deeds, upload choices, library facet", () => {
   });
 
   test("public-domain and WorshipCommons pages have no You must list", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}?mode=about`);
+    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
     await expect(page.getByTestId("license-grant")).toHaveAttribute("data-license", "PD");
     await expect(page.getByTestId("you-must")).toHaveCount(0);
     await expect(page.getByTestId("you-may-not")).toHaveCount(0);

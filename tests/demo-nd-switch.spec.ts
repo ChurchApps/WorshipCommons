@@ -25,7 +25,7 @@ test.describe("the ND switch", () => {
   test("a no-derivatives song keeps its chart as written: transpose, capo, Nashville, pack and preview are off with the reason", async ({ page, request }) => {
     const id = await songIdByTitle(request, "Amazing Grace");
     await stubNoDerivatives(page);
-    await page.goto(`/songs/${id}?mode=charts`);
+    await page.goto(`/songs/${id}`);
 
     await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
     await expect(page.getByTestId("license-badge").first()).toHaveAttribute("data-license", "CC-BY-ND");
@@ -57,7 +57,7 @@ test.describe("the ND switch", () => {
   test("the rights matrix and the deed say arranging is not allowed; the Listen preview is off too", async ({ page, request }) => {
     const id = await songIdByTitle(request, "Amazing Grace");
     await stubNoDerivatives(page);
-    await page.goto(`/songs/${id}?mode=about`);
+    await page.goto(`/songs/${id}`);
 
     const arrange = page.getByTestId("rights-arrange");
     await expect(arrange).toHaveAttribute("data-allowed", "false");
@@ -68,7 +68,6 @@ test.describe("the ND switch", () => {
     await expect(page.getByTestId("you-may-not")).toContainText("transposed chart");
 
     // a synthesized preview is a derivative too: no Listen play in the panel either
-    await page.getByTestId("mode-listen").click();
-    await expect(page.getByTestId("piano-play")).toBeDisabled();
+    await expect(page.getByTestId("hero-play")).toBeDisabled();
   });
 });

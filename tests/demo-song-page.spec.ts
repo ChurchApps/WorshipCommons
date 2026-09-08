@@ -22,20 +22,20 @@ const pdWithFirstLine = () => rows.find(s => s.license === "PD" && s.firstLine &
 const byConfidence = (c: string) => rows.filter(s => s.confidence === c);
 
 test.describe("song page: hero, modes, rights", () => {
-  test("hero shows the confidence badge, the first line and the CCLI badge on a public-domain song", async ({ page }) => {
+  test("hero shows the first line and license; confidence and CCLI ride the footnote on a public-domain song", async ({ page }) => {
     const song = pdWithFirstLine();
     test.skip(!song, "no seeded public-domain song carries a first line");
     await page.goto(`/songs/${song!.id}`);
 
     const hero = page.getByTestId("song-hero");
     await expect(hero).toBeVisible();
-    await expect(hero.getByTestId("confidence-badge")).toHaveAttribute("data-confidence", song!.confidence as string);
+    await expect(page.getByTestId("confidence-badge")).toHaveAttribute("data-confidence", song!.confidence as string);
     await expect(hero.getByTestId("first-line")).toHaveText(song!.firstLine as string);
     await expect(hero.getByTestId("license-badge")).toHaveAttribute("data-license", "PD");
     await expect(hero.getByTestId("license-badge")).toHaveText("Public domain");
-    // PD needs no CCLI report; the badge names the uses it covers
-    await expect(hero.getByTestId("ccli-badge")).toHaveText("No CCLI report needed");
-    await expect(hero.getByTestId("ccli-badge")).toHaveAttribute("title", /project.*print.*stream/i);
+    // PD needs no CCLI report; the footnote badge names the uses it covers
+    await expect(page.getByTestId("ccli-badge")).toHaveText("No CCLI report needed");
+    await expect(page.getByTestId("ccli-badge")).toHaveAttribute("title", /project.*print.*stream/i);
     // sticky Add to setlist rides in the aside on every mode
     await expect(page.getByTestId("add-to-setlist")).toBeVisible();
   });
@@ -48,7 +48,7 @@ test.describe("song page: hero, modes, rights", () => {
     const expected = (detail.attribution || "").trim() || "Public domain. Free for every use, including commercial.";
 
     await page.goto(`/songs/${song!.id}`);
-    const btn = page.getByTestId("copy-attribution");
+    const btn = page.getByTestId("rights-copy-attribution");
     await expect(btn).toHaveText("Copy attribution");
     await btn.click();
     await expect(btn).toHaveText("Copied");
@@ -57,7 +57,7 @@ test.describe("song page: hero, modes, rights", () => {
     expect(normalized).toBe(expected);
   });
 
-  test("mode tabs render only for the assets a song has; lyrics-only songs get the lyrics-and-chords note", async ({ page, request }) => {
+  test("a song without media gets no preview, tempo, or Lead worship, but still the chart and the Project card", async ({ page, request }) => {
     // summary rows may omit videoUrl, so confirm on the detail that the candidate really has no Listen asset
     let bare: Row | undefined;
     for (const s of rows.filter(r => !r.fileUrls?.midi && !r.fileUrls?.timing && !r.fileUrls?.stemsZip && !r.fileUrls?.sheetPdf && !r.fileUrls?.demoAudio).slice(0, 8)) {
@@ -67,33 +67,24 @@ test.describe("song page: hero, modes, rights", () => {
     test.skip(!bare, "no seeded song without media");
     await page.goto(`/songs/${bare!.id}`);
 
-    const tabs = page.getByTestId("mode-tabs");
-    await expect(tabs).toBeVisible();
-    // no midi, no stems, no PDF: no Listen and no Parts tab; Charts is the default mode
-    await expect(page.getByTestId("mode-listen")).toHaveCount(0);
-    await expect(page.getByTestId("mode-parts")).toHaveCount(0);
-    await expect(page.getByTestId("mode-charts")).toHaveAttribute("aria-selected", "true");
+    // no midi, no stems, no PDF: nothing to preview, no tempo, no sheet PDF section
+    await expect(page.locator(".mode-tabs")).toHaveCount(0);
     await expect(page.getByTestId("panel-charts")).toBeVisible();
     await expect(page.getByTestId("hero-play")).toHaveCount(0);
-
-    await page.getByTestId("mode-lead").click();
-    await expect(page.getByTestId("lead-worship-note")).toContainText("lyrics and chords only");
+    await expect(page.locator("#tempo")).toHaveCount(0);
+    await expect(page.getByTestId("sheet-pdf-card")).toHaveCount(0);
     await expect(page.getByTestId("lead-worship")).toHaveCount(0);
-    await expect(page).toHaveURL(/mode=lead/);
-
-    await page.getByTestId("mode-project").click();
     await expect(page.getByTestId("project-panel")).toBeVisible();
   });
 
-  test("a timed hymn defaults to Listen and links Lead worship in the chosen key", async ({ page }) => {
+  test("a timed hymn previews from the hero, practices from the sidebar, and links Lead worship in the chosen key", async ({ page }) => {
     const timed = rows.find(s => s.fileUrls?.midi && s.fileUrls?.timing);
     test.skip(!timed, "no seeded song with timing and a melody file");
     await page.goto(`/songs/${timed!.id}`);
-    await expect(page.getByTestId("mode-listen")).toHaveAttribute("aria-selected", "true");
-    await expect(page.getByTestId("piano-play")).toContainText("Preview (synthesized)");
     await expect(page.getByTestId("hero-play")).toHaveAttribute("aria-label", "Preview (synthesized)");
+    await expect(page.getByTestId("hero-play")).toContainText("Preview");
+    await expect(page.getByTestId("practice-card").locator("#tempo")).toBeVisible();
 
-    await page.getByTestId("mode-lead").click();
     const lead = page.getByTestId("lead-worship");
     await expect(lead).toBeVisible();
     expect(await lead.getAttribute("href")).toContain(`/songs/${timed!.id}/lead?key=`);
@@ -102,9 +93,9 @@ test.describe("song page: hero, modes, rights", () => {
   test("Listen offers Watch a performance as a plain external link — no iframe", async ({ page }) => {
     const withVideo = rows.find(s => s.videoUrl && s.fileUrls?.midi) || rows.find(s => s.videoUrl);
     test.skip(!withVideo, "no seeded song with a YouTube link");
-    await page.goto(`/songs/${withVideo!.id}?mode=listen`);
+    await page.goto(`/songs/${withVideo!.id}`);
 
-    const panel = page.getByTestId("panel-listen");
+    const panel = page.getByTestId("recordings-card");
     await expect(panel).toBeVisible();
     const watch = panel.getByTestId("watch-link");
     await expect(watch).toContainText("Watch a performance");
@@ -117,7 +108,7 @@ test.describe("song page: hero, modes, rights", () => {
   test("About shows the rights matrix with five uses; project is allowed on a public-domain song", async ({ page }) => {
     const song = rows.find(s => s.license === "PD");
     test.skip(!song, "no seeded public-domain song");
-    await page.goto(`/songs/${song!.id}?mode=about`);
+    await page.goto(`/songs/${song!.id}`);
 
     const matrix = page.getByTestId("rights-matrix");
     await expect(matrix).toBeVisible();
@@ -143,7 +134,7 @@ test.describe("song page: hero, modes, rights", () => {
     await expect(banner).toBeVisible();
     await expect(banner).toContainText("not yet proofread");
     await expect(banner).toHaveAttribute("data-confidence", "converted-from-abc");
-    await expect(page.getByTestId("song-hero").getByTestId("confidence-badge")).toHaveAttribute("data-confidence", "converted-from-abc");
+    await expect(page.getByTestId("confidence-badge")).toHaveAttribute("data-confidence", "converted-from-abc");
 
     await page.goto(`/songs/${derived.id}/sheet`);
     await expect(page.getByTestId("derived-banner")).toBeVisible();

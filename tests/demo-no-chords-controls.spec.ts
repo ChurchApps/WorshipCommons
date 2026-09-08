@@ -10,7 +10,7 @@ test.describe("chord controls follow the chart", () => {
     const draft = await createPendingSong(request, jwt, TITLE, { chordPro: LYRICS_ONLY });
     await approveSubmission(request, (await pendingSubmissionFor(request, draft.assetId)).id);
 
-    await page.goto(`/songs/${draft.assetId}?mode=charts`);
+    await page.goto(`/songs/${draft.assetId}`);
     await expect(page.locator(".sheet-body")).toContainText("A line of lyrics with no chords");
     await expect(page.locator("#transpose")).toHaveCount(0);
     await expect(page.locator("#capo")).toHaveCount(0);
@@ -23,7 +23,7 @@ test.describe("chord controls follow the chart", () => {
   });
 
   test("a chorded song still gets the full set of controls", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}?mode=charts`);
+    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
     await expect(page.locator("#transpose")).toBeVisible();
     await expect(page.locator("#capo")).toBeVisible();
     await expect(page.locator("#chords-toggle")).toBeVisible();
