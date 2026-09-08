@@ -103,8 +103,14 @@ export interface TunePlayer {
   setRate(r: number): void;
   setSemitones(s: number): void;
   setSolo(part: number | null): void;
+  /** jump to a song-time in seconds; keeps playing if it was playing */
+  seek(seconds: number): void;
+  /** swap the accompaniment voice (the solo'd part keeps choir tone) */
+  setInstrument(name: Instrument): Promise<void>;
   onEnd: (() => void) | null;
 }
+
+export type Instrument = "acoustic_grand_piano" | "church_organ";
 
 let ctx: AudioContext | null = null;
 const loaded: Record<string, Soundfont.Player> = {};
@@ -112,7 +118,7 @@ const loaded: Record<string, Soundfont.Player> = {};
 const LOOKAHEAD = 0.35;
 const BACKING_GAIN = 0.35;
 
-const load = async (name: "acoustic_grand_piano" | "choir_aahs") =>
+const load = async (name: Instrument | "choir_aahs") =>
   loaded[name] = loaded[name] || await Soundfont.instrument(ctx!, name, { nameToUrl: () => `/soundfonts/${name}-mp3.js` });
 
 // ponytail: one global player set — stop() silences everything, so never run two tunes at once
@@ -123,6 +129,7 @@ export async function loadTune(url: string): Promise<TunePlayer> {
   const { notes, duration, parts } = parseMidi(await (await fetch(url)).arrayBuffer());
 
   let rate = 1, semis = 0, playing = false, pausedAt = 0, solo: number | null = null;
+  let backing: Soundfont.Player = piano;
   let anchorCtx = 0, anchorSong = 0, idx = 0, timer = 0;
   let sched: { t: number; node: { stop: (when?: number) => void } }[] = [];
 
@@ -135,7 +142,7 @@ export async function loadTune(url: string): Promise<TunePlayer> {
       const n = notes[idx++];
       const when = anchorCtx + (n.t - anchorSong) / rate;
       const lead = solo === n.p;
-      const inst = lead ? choir : piano;
+      const inst = lead ? choir : backing;
       const gain = (n.v / 127) * (solo === null || lead ? 1 : BACKING_GAIN);
       const node = inst.play(n.n + semis, when, { duration: n.d / rate, gain }) as { stop: (when?: number) => void };
       sched.push({ t: n.t, node });
@@ -152,8 +159,7 @@ export async function loadTune(url: string): Promise<TunePlayer> {
 
   const silence = () => {
     window.clearInterval(timer);
-    piano.stop();
-    choir.stop();
+    for (const inst of Object.values(loaded)) inst.stop();
     sched = [];
   };
 
@@ -209,6 +215,21 @@ export async function loadTune(url: string): Promise<TunePlayer> {
     setSolo(part: number | null) {
       if (part === solo) return;
       solo = part;
+      if (playing) { reschedule(); tick(); }
+    },
+    seek(seconds: number) {
+      const at = Math.min(duration, Math.max(0, seconds));
+      if (playing) {
+        playing = false;
+        silence();
+        pausedAt = at;
+        player.play();
+      } else pausedAt = at;
+    },
+    async setInstrument(name: Instrument) {
+      const inst = await load(name);
+      if (inst === backing) return;
+      backing = inst;
       if (playing) { reschedule(); tick(); }
     }
   };

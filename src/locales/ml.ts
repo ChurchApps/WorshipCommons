@@ -613,7 +613,35 @@ const ml: Record<string, string> = {
   "approved": "അംഗീകരിച്ചത്",
   "draft": "കരട്",
   "No form map yet — slides follow the stanzas as written.": "ഫോം മാപ്പ് ഇതുവരെയില്ല — സ്ലൈഡുകൾ എഴുതിയ ചരണങ്ങൾ പിന്തുടരുന്നു.",
-  "Every export carries the attribution and license credit.": "ഓരോ എക്സ്പോർട്ടിലും ആട്രിബ്യൂഷനും ലൈസൻസ് ക്രെഡിറ്റും ഉണ്ട്."
+  "Every export carries the attribution and license credit.": "ഓരോ എക്സ്പോർട്ടിലും ആട്രിബ്യൂഷനും ലൈസൻസ് ക്രെഡിറ്റും ഉണ്ട്.",
+
+  // lead worship (the house-church player)
+  "Counting in…": "എണ്ണുന്നു…",
+  "Accompaniment": "അകമ്പടി",
+  "Preview (synthesized)": "പ്രിവ്യൂ (സിന്തസൈസ്ഡ്)",
+  "Instrument": "ഉപകരണം",
+  "Piano": "പിയാനോ",
+  "Organ": "ഓർഗൻ",
+  "Published keys": "പ്രസിദ്ധീകരിച്ച കീകൾ",
+  "{key} (recommended)": "{key} (ശുപാർശ)",
+  "Preview — not yet reviewed": "പ്രിവ്യൂ — ഇതുവരെ പരിശോധിച്ചിട്ടില്ല",
+  "Count-in": "കൗണ്ട്-ഇൻ",
+  "Verses": "വരികൾ",
+  "Exit fullscreen": "ഫുൾസ്ക്രീനിൽ നിന്ന് പുറത്തുകടക്കുക",
+  "Put this on the TV": "ഇത് ടിവിയിൽ കാണിക്കുക",
+  "Move up": "മുകളിലേക്ക്",
+  "Move down": "താഴേക്ക്",
+  "Run order": "പ്ലേ ക്രമം",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "HDMI കേബിൾ ഉപയോഗിച്ച് ലാപ്‌ടോപ്പ് ടിവിയിലേക്ക് ബന്ധിപ്പിക്കുക (അല്ലെങ്കിൽ മുഴുവൻ സ്ക്രീനും കാസ്റ്റ് ചെയ്യുക).",
+  "Press F for fullscreen — the browser hides its own bars.": "ഫുൾസ്ക്രീനിനായി F അമർത്തുക — ബ്രൗസർ അതിന്റെ ബാറുകൾ മറയ്ക്കും.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "ടിവിയിൽ ഈ സ്ക്രീൻ കാണിക്കാൻ ഡിസ്‌പ്ലേ മിറർ ചെയ്യുക, അല്ലെങ്കിൽ എക്സ്റ്റൻഡ് ചെയ്ത് ഈ വിൻഡോ ടിവിയിലേക്ക് വലിച്ചിടുക.",
+  "Nothing to install: this page is the player.": "ഒന്നും ഇൻസ്റ്റാൾ ചെയ്യേണ്ട: ഈ പേജ് തന്നെയാണ് പ്ലെയർ.",
+  "Pick at least one verse.": "കുറഞ്ഞത് ഒരു വരിയെങ്കിലും തിരഞ്ഞെടുക്കുക.",
+  "This song has no timed lyrics yet.": "ഈ പാട്ടിന് ഇതുവരെ സമയബദ്ധമായ വരികളില്ല.",
+  "Blank — press B to bring the words back": "ശൂന്യം — വരികൾ തിരികെ കൊണ്ടുവരാൻ B അമർത്തുക",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "സ്പേസ് പ്ലേ/പോസ് · ← → വരി · ↑ ↓ ഖണ്ഡം · B ശൂന്യം · H കോൺട്രാസ്റ്റ് · F ഫുൾസ്ക്രീൻ · Esc തിരികെ",
+  "Hide keys": "കീകൾ മറയ്ക്കുക",
+  "Show keys": "കീകൾ കാണിക്കുക"
 };
 
 export default ml;

@@ -613,7 +613,35 @@ const pt: Record<string, string> = {
   "approved": "aprovado",
   "draft": "rascunho",
   "No form map yet — slides follow the stanzas as written.": "Ainda sem mapa de forma — os slides seguem as estrofes como escritas.",
-  "Every export carries the attribution and license credit.": "Toda exportação leva a atribuição e o crédito da licença."
+  "Every export carries the attribution and license credit.": "Toda exportação leva a atribuição e o crédito da licença.",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Contando…",
+  "Accompaniment": "Acompanhamento",
+  "Preview (synthesized)": "Prévia (sintetizada)",
+  "Instrument": "Instrumento",
+  "Piano": "Piano",
+  "Organ": "Órgão",
+  "Published keys": "Tons publicados",
+  "{key} (recommended)": "{key} (recomendado)",
+  "Preview — not yet reviewed": "Prévia — ainda não revisada",
+  "Count-in": "Contagem de entrada",
+  "Verses": "Estrofes",
+  "Exit fullscreen": "Sair da tela cheia",
+  "Put this on the TV": "Colocar na TV",
+  "Move up": "Subir",
+  "Move down": "Descer",
+  "Run order": "Ordem de execução",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Ligue o portátil à TV com um cabo HDMI (ou transmita o ecrã inteiro).",
+  "Press F for fullscreen — the browser hides its own bars.": "Prima F para tela cheia — o navegador esconde as suas barras.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Duplique o ecrã para a TV mostrar isto, ou estenda-o e arraste esta janela para a TV.",
+  "Nothing to install: this page is the player.": "Nada para instalar: esta página é o reprodutor.",
+  "Pick at least one verse.": "Escolha pelo menos uma estrofe.",
+  "This song has no timed lyrics yet.": "Esta canção ainda não tem letra sincronizada.",
+  "Blank — press B to bring the words back": "Tela preta — prima B para voltar à letra",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Espaço tocar/pausar · ← → linha · ↑ ↓ estrofe · B tela preta · H contraste · F tela cheia · Esc voltar",
+  "Hide keys": "Ocultar teclas",
+  "Show keys": "Mostrar teclas"
 };
 
 export default pt;

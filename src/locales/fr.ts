@@ -613,7 +613,35 @@ const fr: Record<string, string> = {
   "approved": "approuvée",
   "draft": "brouillon",
   "No form map yet — slides follow the stanzas as written.": "Pas encore de structure — les diapositives suivent les strophes telles qu’écrites.",
-  "Every export carries the attribution and license credit.": "Chaque export porte l’attribution et la mention de licence."
+  "Every export carries the attribution and license credit.": "Chaque export porte l’attribution et la mention de licence.",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Décompte…",
+  "Accompaniment": "Accompagnement",
+  "Preview (synthesized)": "Aperçu (synthétisé)",
+  "Instrument": "Instrument",
+  "Piano": "Piano",
+  "Organ": "Orgue",
+  "Published keys": "Tonalités publiées",
+  "{key} (recommended)": "{key} (recommandé)",
+  "Preview — not yet reviewed": "Aperçu — pas encore vérifié",
+  "Count-in": "Décompte",
+  "Verses": "Couplets",
+  "Exit fullscreen": "Quitter le plein écran",
+  "Put this on the TV": "Afficher sur la télé",
+  "Move up": "Monter",
+  "Move down": "Descendre",
+  "Run order": "Ordre de passage",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Branchez l’ordinateur à la télé avec un câble HDMI (ou diffusez tout l’écran).",
+  "Press F for fullscreen — the browser hides its own bars.": "Appuyez sur F pour le plein écran : le navigateur masque ses barres.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Dupliquez l’affichage pour que la télé montre cet écran, ou étendez-le et glissez cette fenêtre sur la télé.",
+  "Nothing to install: this page is the player.": "Rien à installer : cette page est le lecteur.",
+  "Pick at least one verse.": "Choisissez au moins un couplet.",
+  "This song has no timed lyrics yet.": "Cette chanson n’a pas encore de paroles synchronisées.",
+  "Blank — press B to bring the words back": "Écran noir — appuyez sur B pour revenir aux paroles",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Espace lecture/pause · ← → ligne · ↑ ↓ couplet · B écran noir · H contraste · F plein écran · Échap retour",
+  "Hide keys": "Masquer les touches",
+  "Show keys": "Afficher les touches"
 };
 
 export default fr;

@@ -5,7 +5,6 @@ import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CH
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
-import Karaoke from "../components/Karaoke";
 import ChordDiagram from "../components/ChordDiagram";
 import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
 import { makeZip } from "../zip";
@@ -71,7 +70,6 @@ export default function SongPage() {
   const [inLib, setInLib] = useState(false);
   const [playState, setPlayState] = useState<"idle" | "loading" | "playing">("idle");
   const [rate, setRate] = useState(100);
-  const [karaoke, setKaraoke] = useState(false);
   const [capo, setCapo] = useState(0);
   const [copied, setCopied] = useState(false);
   const [packing, setPacking] = useState(false);
@@ -91,7 +89,6 @@ export default function SongPage() {
     playerRef.current = null;
     setPlayState("idle");
     setRate(100);
-    setKaraoke(false);
     setCapo(0);
     setParts([]);
     setSolo(null);
@@ -251,11 +248,6 @@ export default function SongPage() {
     } catch {
       setPlayState("idle");
     }
-  };
-
-  const openKaraoke = () => {
-    stopPlayback();
-    setKaraoke(true);
   };
 
   const copyLyrics = async () => {
@@ -493,7 +485,7 @@ export default function SongPage() {
                 </div>
               )}
               {song.lyricsUrl && (
-                <button className="btn sing-btn" data-testid="sing-along" onClick={openKaraoke}>{t("Sing along")}</button>
+                <Link className="btn sing-btn" data-testid="lead-worship" to={`/songs/${song.id}/lead?key=${encodeURIComponent(keyLabel)}`}>{t("Lead worship")}</Link>
               )}
               <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there. Pick a part to bring that voice out front on choir tone.", { key: keyLabel })}</p>
             </div>
@@ -639,19 +631,6 @@ export default function SongPage() {
           </div>
         </aside>
       </div>
-
-      {karaoke && (
-        <Karaoke
-          song={song}
-          audioShift={audioShift}
-          rate={rate}
-          onRateChange={setRate}
-          selRoot={selRoot}
-          keySuffix={keySuffix}
-          onKeyChange={root => setSelectedKey(root + keySuffix)}
-          onClose={() => setKaraoke(false)}
-        />
-      )}
     </main>
   );
 }

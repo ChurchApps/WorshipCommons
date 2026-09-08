@@ -613,7 +613,35 @@ const de: Record<string, string> = {
   "approved": "freigegeben",
   "draft": "Entwurf",
   "No form map yet — slides follow the stanzas as written.": "Noch keine Formkarte — die Folien folgen den Strophen wie geschrieben.",
-  "Every export carries the attribution and license credit.": "Jeder Export trägt die Namensnennung und den Lizenzhinweis."
+  "Every export carries the attribution and license credit.": "Jeder Export trägt die Namensnennung und den Lizenzhinweis.",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Einzählen…",
+  "Accompaniment": "Begleitung",
+  "Preview (synthesized)": "Vorschau (synthetisch)",
+  "Instrument": "Instrument",
+  "Piano": "Klavier",
+  "Organ": "Orgel",
+  "Published keys": "Veröffentlichte Tonarten",
+  "{key} (recommended)": "{key} (empfohlen)",
+  "Preview — not yet reviewed": "Vorschau — noch nicht geprüft",
+  "Count-in": "Einzähler",
+  "Verses": "Strophen",
+  "Exit fullscreen": "Vollbild beenden",
+  "Put this on the TV": "Auf den Fernseher bringen",
+  "Move up": "Nach oben",
+  "Move down": "Nach unten",
+  "Run order": "Reihenfolge",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Verbinde den Laptop per HDMI-Kabel mit dem Fernseher (oder übertrage den ganzen Bildschirm).",
+  "Press F for fullscreen — the browser hides its own bars.": "Drücke F für Vollbild — der Browser blendet seine Leisten aus.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Spiegle den Bildschirm, damit der Fernseher dieses Bild zeigt, oder erweitere ihn und zieh dieses Fenster auf den Fernseher.",
+  "Nothing to install: this page is the player.": "Nichts zu installieren: diese Seite ist der Player.",
+  "Pick at least one verse.": "Wähle mindestens eine Strophe.",
+  "This song has no timed lyrics yet.": "Dieses Lied hat noch keinen synchronisierten Text.",
+  "Blank — press B to bring the words back": "Schwarz — B drücken, um den Text zurückzuholen",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Leertaste Play/Pause · ← → Zeile · ↑ ↓ Strophe · B schwarz · H Kontrast · F Vollbild · Esc zurück",
+  "Hide keys": "Tasten ausblenden",
+  "Show keys": "Tasten anzeigen"
 };
 
 export default de;

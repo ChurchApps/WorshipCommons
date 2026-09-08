@@ -613,7 +613,35 @@ const hu: Record<string, string> = {
   "approved": "jóváhagyott",
   "draft": "vázlat",
   "No form map yet — slides follow the stanzas as written.": "Még nincs formatérkép — a diák a leírt versszakokat követik.",
-  "Every export carries the attribution and license credit.": "Minden export tartalmazza a forrásmegjelölést és a licencfeliratot."
+  "Every export carries the attribution and license credit.": "Minden export tartalmazza a forrásmegjelölést és a licencfeliratot.",
+
+  // lead worship (the house-church player)
+  "Counting in…": "Beszámolás…",
+  "Accompaniment": "Kíséret",
+  "Preview (synthesized)": "Előnézet (szintetizált)",
+  "Instrument": "Hangszer",
+  "Piano": "Zongora",
+  "Organ": "Orgona",
+  "Published keys": "Közzétett hangnemek",
+  "{key} (recommended)": "{key} (ajánlott)",
+  "Preview — not yet reviewed": "Előnézet — még nem ellenőrzött",
+  "Count-in": "Beszámolás",
+  "Verses": "Versszakok",
+  "Exit fullscreen": "Kilépés a teljes képernyőből",
+  "Put this on the TV": "Tedd ki a tévére",
+  "Move up": "Feljebb",
+  "Move down": "Lejjebb",
+  "Run order": "Sorrend",
+  "Plug the laptop into the TV with an HDMI cable (or cast the whole screen).": "Kösd a laptopot HDMI-kábellel a tévéhez (vagy tükrözd a teljes képernyőt).",
+  "Press F for fullscreen — the browser hides its own bars.": "Nyomj F-et a teljes képernyőhöz — a böngésző elrejti a sávjait.",
+  "Mirror the display so the TV shows this screen, or extend it and drag this window onto the TV.": "Tükrözd a kijelzőt, hogy a tévé ezt mutassa, vagy bővítsd ki és húzd át ezt az ablakot a tévére.",
+  "Nothing to install: this page is the player.": "Nincs mit telepíteni: ez az oldal a lejátszó.",
+  "Pick at least one verse.": "Válassz legalább egy versszakot.",
+  "This song has no timed lyrics yet.": "Ennek a dalnak még nincs időzített szövege.",
+  "Blank — press B to bring the words back": "Sötét — nyomj B-t a szöveg visszahozásához",
+  "Space play/pause · ← → line · ↑ ↓ verse · B blank · H contrast · F fullscreen · Esc back": "Szóköz lejátszás/szünet · ← → sor · ↑ ↓ versszak · B sötét · H kontraszt · F teljes képernyő · Esc vissza",
+  "Hide keys": "Billentyűk elrejtése",
+  "Show keys": "Billentyűk mutatása"
 };
 
 export default hu;
