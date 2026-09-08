@@ -596,7 +596,24 @@ const ml: Record<string, string> = {
   "+ {count} browse languages": "+ {count} ബ്രൗസ് ഭാഷകൾ",
   "Scored hymns, ready to sing": "സ്വരലിപിയുള്ള ഗീതങ്ങൾ, പാടാൻ തയ്യാർ",
   "Looking for a copyrighted song?": "പകർപ്പവകാശമുള്ള പാട്ട് തിരയുകയാണോ?",
-  "Search SongSelect →": "SongSelect-ൽ തിരയുക →"
+  "Search SongSelect →": "SongSelect-ൽ തിരയുക →",
+  // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
+  "{title} — project | WorshipCommons": "{title} — പ്രൊജക്റ്റ് ചെയ്യുക | WorshipCommons",
+  "No lyrics to project yet.": "പ്രൊജക്റ്റ് ചെയ്യാൻ ഇതുവരെ വരികളില്ല.",
+  "Next: {label}": "അടുത്തത്: {label}",
+  "Blank": "ശൂന്യം",
+  "Contrast": "കോൺട്രാസ്റ്റ്",
+  "Fullscreen": "ഫുൾസ്ക്രീൻ",
+  "Open projector": "പ്രൊജക്ടർ തുറക്കുക",
+  "Download for FreeShow": "FreeShow-നായി ഡൗൺലോഡ് ചെയ്യുക",
+  "Download OpenLyrics (OpenLP)": "OpenLyrics ഡൗൺലോഡ് ചെയ്യുക (OpenLP)",
+  "Download PPTX": "PPTX ഡൗൺലോഡ് ചെയ്യുക",
+  "Copy for OnSong / Planning Center": "OnSong / Planning Center-നായി പകർത്തുക",
+  "Slides follow the song’s form map ({status}).": "സ്ലൈഡുകൾ ഗാനത്തിന്റെ ഫോം മാപ്പ് പിന്തുടരുന്നു ({status}).",
+  "approved": "അംഗീകരിച്ചത്",
+  "draft": "കരട്",
+  "No form map yet — slides follow the stanzas as written.": "ഫോം മാപ്പ് ഇതുവരെയില്ല — സ്ലൈഡുകൾ എഴുതിയ ചരണങ്ങൾ പിന്തുടരുന്നു.",
+  "Every export carries the attribution and license credit.": "ഓരോ എക്സ്പോർട്ടിലും ആട്രിബ്യൂഷനും ലൈസൻസ് ക്രെഡിറ്റും ഉണ്ട്."
 };
 
 export default ml;

@@ -596,7 +596,24 @@ const de: Record<string, string> = {
   "+ {count} browse languages": "+ {count} Stöbersprachen",
   "Scored hymns, ready to sing": "Lieder mit Noten, bereit zum Singen",
   "Looking for a copyrighted song?": "Suchst du ein urheberrechtlich geschütztes Lied?",
-  "Search SongSelect →": "Bei SongSelect suchen →"
+  "Search SongSelect →": "Bei SongSelect suchen →",
+  // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
+  "{title} — project | WorshipCommons": "{title} — projizieren | WorshipCommons",
+  "No lyrics to project yet.": "Noch kein Text zum Projizieren.",
+  "Next: {label}": "Weiter: {label}",
+  "Blank": "Schwarz",
+  "Contrast": "Kontrast",
+  "Fullscreen": "Vollbild",
+  "Open projector": "Projektor öffnen",
+  "Download for FreeShow": "Für FreeShow herunterladen",
+  "Download OpenLyrics (OpenLP)": "OpenLyrics herunterladen (OpenLP)",
+  "Download PPTX": "PPTX herunterladen",
+  "Copy for OnSong / Planning Center": "Für OnSong / Planning Center kopieren",
+  "Slides follow the song’s form map ({status}).": "Die Folien folgen der Formkarte des Liedes ({status}).",
+  "approved": "freigegeben",
+  "draft": "Entwurf",
+  "No form map yet — slides follow the stanzas as written.": "Noch keine Formkarte — die Folien folgen den Strophen wie geschrieben.",
+  "Every export carries the attribution and license credit.": "Jeder Export trägt die Namensnennung und den Lizenzhinweis."
 };
 
 export default de;

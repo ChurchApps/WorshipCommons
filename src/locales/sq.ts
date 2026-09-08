@@ -596,7 +596,24 @@ const sq: Record<string, string> = {
   "+ {count} browse languages": "+ {count} gjuhë për shfletim",
   "Scored hymns, ready to sing": "Himne me partiturë, gati për t'u kënduar",
   "Looking for a copyrighted song?": "Kërkon një këngë me të drejta autori?",
-  "Search SongSelect →": "Kërko në SongSelect →"
+  "Search SongSelect →": "Kërko në SongSelect →",
+  // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
+  "{title} — project | WorshipCommons": "{title} — projekto | WorshipCommons",
+  "No lyrics to project yet.": "Ende s’ka tekst për t’u projektuar.",
+  "Next: {label}": "Tjetra: {label}",
+  "Blank": "Ekran i zi",
+  "Contrast": "Kontrast",
+  "Fullscreen": "Ekran i plotë",
+  "Open projector": "Hap projektorin",
+  "Download for FreeShow": "Shkarko për FreeShow",
+  "Download OpenLyrics (OpenLP)": "Shkarko OpenLyrics (OpenLP)",
+  "Download PPTX": "Shkarko PPTX",
+  "Copy for OnSong / Planning Center": "Kopjo për OnSong / Planning Center",
+  "Slides follow the song’s form map ({status}).": "Sllajdet ndjekin hartën e formës së këngës ({status}).",
+  "approved": "e miratuar",
+  "draft": "skicë",
+  "No form map yet — slides follow the stanzas as written.": "Ende pa hartë forme — sllajdet ndjekin strofat siç janë shkruar.",
+  "Every export carries the attribution and license credit.": "Çdo eksport mban atribuimin dhe kreditin e licencës."
 };
 
 export default sq;

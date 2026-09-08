@@ -32,7 +32,8 @@
     "postdeploy-prod": "node tools/ensure-spa-fallback.mjs E363E9V6GH4TVJ && aws cloudfront create-invalidation --distribution-id E363E9V6GH4TVJ --paths \"/*\"",
     "deploy-prod": "yarn predeploy-prod && node tools/prerender.mjs https://api.churchapps.org https://worshipcommons.org && yarn exec-deploy-prod && yarn postdeploy-prod",
     "prerender": "node tools/prerender.mjs",
-    "test:model": "node --test tools/package-model.test.mjs"
+    "test:model": "node --test tools/package-model.test.mjs",
+    "test:exports": "node --test tools/exports.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.2",

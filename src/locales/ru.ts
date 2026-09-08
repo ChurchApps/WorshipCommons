@@ -596,7 +596,24 @@ const ru: Record<string, string> = {
   "+ {count} browse languages": "+ {count} языков в обзоре",
   "Scored hymns, ready to sing": "Гимны с нотами, готовые к пению",
   "Looking for a copyrighted song?": "Ищете песню, защищённую авторским правом?",
-  "Search SongSelect →": "Искать в SongSelect →"
+  "Search SongSelect →": "Искать в SongSelect →",
+  // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
+  "{title} — project | WorshipCommons": "{title} — проекция | WorshipCommons",
+  "No lyrics to project yet.": "Пока нет текста для проекции.",
+  "Next: {label}": "Далее: {label}",
+  "Blank": "Затемнить",
+  "Contrast": "Контраст",
+  "Fullscreen": "Во весь экран",
+  "Open projector": "Открыть проектор",
+  "Download for FreeShow": "Скачать для FreeShow",
+  "Download OpenLyrics (OpenLP)": "Скачать OpenLyrics (OpenLP)",
+  "Download PPTX": "Скачать PPTX",
+  "Copy for OnSong / Planning Center": "Скопировать для OnSong / Planning Center",
+  "Slides follow the song’s form map ({status}).": "Слайды следуют карте формы песни ({status}).",
+  "approved": "утверждена",
+  "draft": "черновик",
+  "No form map yet — slides follow the stanzas as written.": "Карты формы пока нет — слайды следуют строфам как написано.",
+  "Every export carries the attribution and license credit.": "Каждый экспорт содержит атрибуцию и указание лицензии."
 };
 
 export default ru;
