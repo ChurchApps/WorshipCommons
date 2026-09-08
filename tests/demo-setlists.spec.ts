@@ -89,7 +89,7 @@ test.describe("setlists", () => {
     const link = await page.getByTestId("share-url").inputValue();
     expect(link).toMatch(/\/setlists\/shared#[A-Za-z0-9_-]+$/);
 
-    const fresh = await browser.newContext();
+    const fresh = await browser.newContext({ storageState: { cookies: [], origins: [] } }); // the config's storageState would sign the viewer in
     const viewer = await fresh.newPage();
     await viewer.goto(link);
     await expect(viewer.getByTestId("setlist-title")).toHaveText("Share spec");
@@ -99,7 +99,7 @@ test.describe("setlists", () => {
 
     await viewer.getByTestId("save-copy").click();
     await expect(viewer).toHaveURL(/\/setlists\/[a-z0-9]+$/);
-    await expect(viewer.getByTestId("setlist-title")).toHaveValue("Share spec");
+    await expect(viewer.locator("input[data-testid=setlist-title]")).toHaveValue("Share spec"); // the editor swaps in once the saved copy is in localStorage
     await fresh.close();
   });
 
