@@ -11,7 +11,8 @@ let expectedSimilar: SeedSong[] = [];
 const themesOf = (s: SeedSong) => (s.themes || "").split(",").map(t => t.trim()).filter(Boolean);
 const bookOf = (s: SeedSong) => (s.scripture || "").replace(/\s+\d+.*$/, "").trim();
 
-// mirrors SongPage: same language, +2 same meter, +2 same scripture book, +1 per shared theme, top 4
+// mirrors the API scoring (same language, +2 same meter, +2 same scripture book, +1 per shared theme) to pick a subject;
+// the page itself renders the API's `similar` list from GET /songs/:id/page
 function similarTo(song: SeedSong): SeedSong[] {
   const myThemes = new Set(themesOf(song));
   const myBook = bookOf(song);
@@ -55,14 +56,21 @@ test.describe("song meter", () => {
     await expect(page.getByTestId("meter-filter")).toHaveValue(subject.meter as string);
   });
 
-  test("similar songs are scored by meter, scripture book and themes", async ({ page }) => {
-    await page.goto(`/songs/${subject.id}`);
-    const items = page.getByTestId("similar-songs").locator("li");
-    await expect(items).toHaveCount(expectedSimilar.length);
-    for (let i = 0; i < expectedSimilar.length; i++) await expect(items.nth(i)).toContainText(expectedSimilar[i].title);
+  test("similar songs come from the page endpoint, scored by meter, scripture book and themes", async ({ page, request }) => {
+    const pageData = await (await request.get(`${WC_API}/songs/${subject.id}/page`)).json();
+    const similar: (SeedSong & { reason?: string })[] = pageData.similar || [];
+    expect(similar.length).toBeGreaterThan(0);
 
-    const sameMeter = expectedSimilar.find(s => s.meter === subject.meter) as SeedSong;
+    await page.goto(`/songs/${subject.id}?mode=about`);
+    const items = page.getByTestId("similar-songs").locator("li");
+    await expect(items).toHaveCount(similar.length);
+    for (let i = 0; i < similar.length; i++) await expect(items.nth(i)).toContainText(similar[i].title);
+
+    // the client pick guarantees a same-meter song scores among the top matches; the row says why
+    const sameMeter = similar.find(s => s.meter === subject.meter) || expectedSimilar.find(s => s.meter === subject.meter) as SeedSong;
     await expect(items.filter({ hasText: sameMeter.title })).toBeVisible();
+    const withReason = similar.find(s => s.reason);
+    if (withReason) await expect(items.filter({ hasText: withReason.title })).toContainText(withReason.reason as string);
   });
 
   test("the catalog filters by meter and the chip clears it", async ({ page }) => {

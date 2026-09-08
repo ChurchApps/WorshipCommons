@@ -69,6 +69,7 @@ export interface Song {
   hasAccompaniment?: boolean;
   recommendedKey?: string | null;
   singTimeSeconds?: number | null;
+  hymnalCount?: number;
   // package model (detail only)
   rights?: Rights | null;
   rightsMatrix?: RightsMatrix | null;
@@ -141,6 +142,36 @@ export async function loadSong(id: string): Promise<Song | null> {
     }
   }
   return songCache.get(id) ?? null;
+}
+
+export interface HistoryEntry { submissionId: string; submittedByName?: string; approvedAt?: string; note?: string; filesChanged?: { name: string; action: string }[] }
+export interface SongRating { average: number | null; count: number; mine: number | null; }
+export interface SongPageData {
+  song: Song;
+  rating: SongRating;
+  history: HistoryEntry[];
+  /** parent + siblings + children via parentSongId, in catalog order */
+  family: Song[];
+  /** top matches in the same language, each with a one-sentence reason */
+  similar: (Song & { reason?: string })[];
+}
+
+// The one fetch the song page needs: detail + rating (mine needs the JWT) + history + family + similar.
+// Not cached — `rating.mine` depends on who is asking.
+export async function loadSongPage(id: string): Promise<SongPageData | null> {
+  try {
+    const raw = await wcGet(`/songs/${id}/page`, true);
+    if (!raw?.song) return null;
+    return {
+      song: songFromApi(raw.song),
+      rating: { average: raw.rating?.average ?? null, count: raw.rating?.count ?? 0, mine: raw.rating?.mine ?? null },
+      history: raw.history || [],
+      family: (raw.family || []).map(songFromApi),
+      similar: (raw.similar || []).map(songFromApi)
+    };
+  } catch {
+    return null;
+  }
 }
 
 // the controlled vocabulary, in the order it should be offered and faceted

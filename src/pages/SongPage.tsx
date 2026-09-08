@@ -1,59 +1,40 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { loadSong, loadSongs, scriptureBook, Song, themeList } from "../songs";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { loadSongPage, SongPageData } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import ChordDiagram from "../components/ChordDiagram";
-import { wcGet, wcPost, wcPut, COMMONS_API } from "../api";
+import { wcPost, wcPut, COMMONS_API } from "../api";
 import { makeZip } from "../zip";
-import { licenseHref, licenseNotice, licenseOf, licenseUrl, licenseVersion } from "../licenses";
+import { licenseNotice } from "../licenses";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
-import { coverSvg } from "../cover.mjs";
-import LicenseBadge from "../components/LicenseBadge";
 import { useI18n } from "../i18n";
+import { noDerivatives, rightsMatrixFor } from "../rights";
+import SongHero from "../components/SongHero";
+import AboutPanel from "../components/AboutPanel";
+import DerivedBanner from "../components/DerivedBanner";
+import AddToSetlist from "../components/AddToSetlist";
+import ProjectPanel from "../components/ProjectPanel";
 import "../styles/song.css";
 
-const youTubeId = (url?: string) => url?.match(/[?&]v=([\w-]{11})/)?.[1];
-
-interface HistoryEntry { submissionId: string; submittedByName?: string; approvedAt?: string; note?: string; filesChanged?: { name: string; action: string }[] }
+type Mode = "listen" | "lead" | "charts" | "project" | "parts" | "about";
+const MODE_LABEL: Record<Mode, string> = { listen: "Listen", lead: "Lead worship", charts: "Charts", project: "Project", parts: "Parts", about: "About" };
 
 const ArrowLeft = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
-);
-
-const ArrowRight = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 );
 
 const FileIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></svg>
 );
 
-const InfoIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
+const ExternalIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
 );
-
-const ChipIcon = ({ d }: { d: string }) => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
-);
-const KEY_PATH = "M15.5 4a4.5 4.5 0 1 0-4.24 6L4 17.26V20h3v-2h2v-2h2l1.99-1.99A4.5 4.5 0 0 0 15.5 4z";
-const BPM_PATH = "M12 21a8 8 0 1 1 8-8M12 8v4l3 2";
-const TIME_PATH = "M4 6h16M4 12h16M4 18h10";
-const METER_PATH = "M3 8h18v8H3zM8 8v4M13 8v4M18 8v4";
-const TAG_PATH = "M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9zM8 8h.01";
-
-const FILE_LABELS: [RegExp, string][] = [
-  [/^demoAudio\./i, "demo recording"],
-  [/^sheetPdf\./i, "sheet music"],
-  [/^stemsZip\./i, "multitracks"],
-  [/^tune\.abc$/i, "notation"]
-];
-
-const fileChangeLabel = (name: string) => FILE_LABELS.find(([re]) => re.test(name))?.[1] || name;
 
 export default function SongPage() {
   const { t } = useI18n();
@@ -61,7 +42,7 @@ export default function SongPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [songs, setSongs] = useState<Song[]>([]);
+  const [params, setParams] = useSearchParams();
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [showChords, setShowChords] = useState(true);
   const [nashville, setNashville] = useState(false);
@@ -74,6 +55,7 @@ export default function SongPage() {
   const [copied, setCopied] = useState(false);
   const [packing, setPacking] = useState(false);
   const [textSize, setTextSize] = useState(1);
+  const [columns, setColumns] = useState(1);
   const [parts, setParts] = useState<string[]>([]);
   const [solo, setSolo] = useState<number | null>(null);
   const [metro, setMetro] = useState(false);
@@ -96,25 +78,21 @@ export default function SongPage() {
     setMetro(false);
   }, [id]);
 
-  const [song, setSong] = useState<Song | null>(null);
+  // one fetch: detail + rating (mine needs the JWT) + history + family + similar
+  const [data, setData] = useState<SongPageData | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [asset, setAsset] = useState<{ ratingAverage?: number | null; ratingCount?: number; myRating?: number | null } | null>(null);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [rateError, setRateError] = useState("");
-  useEffect(() => { loadSongs().then(setSongs); }, []);
   useEffect(() => {
-    setAsset(null);
-    setHistory([]);
+    setData(null);
+    setNotFound(false);
     setRateError("");
     if (!id) return;
-    wcGet(`/assets/${id}`, true).then(setAsset).catch(() => {});
-    wcGet(`/assets/${id}/history`).then(h => setHistory(h || [])).catch(() => {});
+    let stale = false;
+    loadSongPage(id).then(d => { if (stale) return; d ? setData(d) : setNotFound(true); });
+    return () => { stale = true; };
   }, [id, user]);
-  useEffect(() => {
-    setSong(null);
-    setNotFound(false);
-    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
-  }, [id]);
+  const song = data?.song ?? null;
+  const rating = data?.rating;
 
   // 44 curated charts are keyed for congregational singing while the OH tune file
   // stays in its hymnal key — the ABC's K: is the audio's true base, not songKey
@@ -185,23 +163,29 @@ export default function SongPage() {
   if (notFound) {
     return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
   }
-  if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
-  const lic = licenseOf(song);
+  if (!song || !data) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
+
+  // ---- the ND switch: no transposed charts, no arrangement downloads, no generated audio ----
+  const matrix = rightsMatrixFor(song);
+  const nd = noDerivatives(song);
+  const ndReason = nd ? (matrix.arrange.conditions.map(c => t(c)).join(" · ") || t("No derivatives: no arrangements, translations, or transposed charts may be distributed")) : "";
 
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
-  const { root: selRoot } = splitKey(selectedKey || song.songKey);
+  const { root: selRoot } = splitKey(nd ? song.songKey : (selectedKey || song.songKey));
   const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
   // capo shifts the written shapes down; sounding key (and audio) stays selectedKey
   const shapeRootAt = (n: number) => {
     const idx = (noteIndex(selRoot) - n + 12) % 12;
     return FLAT_KEYS.has(FLAT[idx]) ? FLAT[idx] : SHARP[idx];
   };
-  const useFlats = FLAT_KEYS.has(shapeRootAt(capo));
+  const effCapo = nd ? 0 : capo;
+  const useFlats = FLAT_KEYS.has(shapeRootAt(effCapo));
   // ± stepper walks the same 12 roots the key select offers
   const bumpKey = (n: number) => setSelectedKey(shapeRootAt(-n) + keySuffix);
   const signedShift = shift > 6 ? shift - 12 : shift;
-  const dispShift = (shift - capo + 12) % 12;
-  const keyLabel = selectedKey || song.songKey;
+  const dispShift = (shift - effCapo + 12) % 12;
+  const keyLabel = selRoot + keySuffix;
+  const nash = nashville && !nd;
   // metronome follows the tempo slider when the Listen card is there; rate is 100 otherwise
   const practiceBpm = Math.round((song.bpm || 100) * rate / 100);
   const beatsPerBar = Number(song.timeSignature?.split("/")[0]) || 4;
@@ -210,29 +194,28 @@ export default function SongPage() {
     else startMetronome(practiceBpm, beatsPerBar);
     setMetro(!metro);
   };
-  const showChord = (chord: string) => nashville ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
+  const showChord = (chord: string) => nash ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
 
-  const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
-  // family = own children plus siblings under the same canonical, so translations link both ways
-  const related = songs.filter(s => s.id !== song.id && (s.parentSongId === song.id || (parent && s.parentSongId === parent.id)));
-  const relIds = new Set([song.id, parent?.id, ...related.map(r => r.id)]);
-  const myThemes = new Set(themeList(song));
-  const myBook = scriptureBook(song);
-  // same language only, then scored: a shared meter or scripture book counts double a shared theme
-  const score = (s: Song) =>
-    (song.meter && s.meter === song.meter ? 2 : 0) +
-    (myBook && scriptureBook(s) === myBook ? 2 : 0) +
-    themeList(s).filter(th => myThemes.has(th)).length;
-  const similar = songs
-    .filter(s => !relIds.has(s.id) && s.language === song.language && score(s) > 0)
-    .sort((a, b) => score(b) - score(a) || (a.license === "PD" ? 1 : 0) - (b.license === "PD" ? 1 : 0) || b.downloadCount - a.downloadCount)
-    .slice(0, 4);
-  const why = (s: Song) => themeList(s).find(th => myThemes.has(th)) || (s.meter === song.meter ? s.meter : "") || scriptureBook(s);
   const writerHref = song.authorId || song.writerId
     ? `/writers/${encodeURIComponent(song.authorId || song.writerId || "")}`
     : `/songs?q=${encodeURIComponent(song.writer)}`;
 
+  // ---- modes: a tab strip; only tabs whose assets exist are rendered ----
+  const canLead = !!(song.lyricsUrl && song.midiUrl);
+  const hasListen = !!(song.midiUrl || song.demoAudioUrl || song.videoUrl);
+  const hasParts = !!(song.stemsZipUrl || song.sheetPdfUrl);
+  const modes: Mode[] = [...(hasListen ? ["listen" as Mode] : []), "lead", "charts", "project", ...(hasParts ? ["parts" as Mode] : []), "about"];
+  const defaultMode: Mode = hasListen && (song.lyricsUrl || song.midiUrl) ? "listen" : "charts";
+  const urlMode = params.get("mode") as Mode | null;
+  const mode: Mode = urlMode && modes.includes(urlMode) ? urlMode : defaultMode;
+  const setMode = (m: Mode) => {
+    const next = new URLSearchParams(params);
+    next.set("mode", m);
+    setParams(next, { replace: true });
+  };
+
   const playPiano = async () => {
+    if (nd) return;
     if (playState === "playing") { stopPlayback(); return; }
     setPlayState("loading");
     try {
@@ -263,12 +246,12 @@ export default function SongPage() {
     setInLib(!inLib);
   };
 
-  const setRating = async (stars: number) => {
+  const setStars = async (stars: number) => {
     if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
     setRateError("");
     try {
-      const result = await wcPut(`/assets/${song.id}/rating`, { stars: asset?.myRating === stars ? null : stars }, true);
-      setAsset(a => ({ ...a, ...result }));
+      const result = await wcPut(`/assets/${song.id}/rating`, { stars: rating?.mine === stars ? null : stars }, true);
+      setData(d => d && ({ ...d, rating: { average: result?.ratingAverage ?? d.rating.average, count: result?.ratingCount ?? d.rating.count, mine: result?.myRating ?? null } }));
     } catch (e) {
       setRateError((e as Error).message);
     }
@@ -280,7 +263,7 @@ export default function SongPage() {
 
   // one zip: chart, lyrics, melody, art, and the license line — built in the browser from files already on the page
   const downloadPack = async () => {
-    if (packing) return;
+    if (packing || nd) return;
     setPacking(true);
     try {
       const slug = song.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "song";
@@ -303,6 +286,8 @@ export default function SongPage() {
     }
   };
 
+  const printHref = `/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${effCapo ? `&capo=${effCapo}` : ""}${showChords ? "" : "&chords=0"}`;
+
   return (
     <main className="wrap">
       <p className="crumb">
@@ -313,134 +298,208 @@ export default function SongPage() {
 
       <div className="song-layout">
         <article className={"card sheet t" + textSize + (showChords ? "" : " hide-chords")}>
-          <div className="hero-art">
-            {song.artUrl
-              ? <div className="hero-cover"><img src={song.artUrl} alt="" /></div>
-              : <div className="hero-cover" dangerouslySetInnerHTML={{ __html: coverSvg(song, 900, 300) }} />}
-            <div className="hero-scrim">
-              <span className="hero-badge"><LicenseBadge license={lic} onArt /></span>
-              <div>
-                <h1 className="song-title">{song.title}</h1>
-                <p className="byline">{t("Words and music by")} <Link to={writerHref}>{song.writer}</Link> · {song.year}</p>
-                <div className="meta-chips">
-                  <span className="s-tag"><ChipIcon d={KEY_PATH} />{t("Key")} <b id="key-label">{keyLabel}</b></span>
-                  <span className="s-tag"><ChipIcon d={BPM_PATH} /><b>{song.bpm}</b> BPM</span>
-                  <span className="s-tag"><ChipIcon d={TIME_PATH} /><b>{song.timeSignature}</b></span>
-                  {song.meter && <Link className="s-tag" data-testid="meter-chip" to={`/songs?meter=${encodeURIComponent(song.meter)}`}><ChipIcon d={METER_PATH} />{t("Meter")} <b>{song.meter}</b></Link>}
-                  {themeList(song).map(th => <Link className="s-tag" key={th} to={`/songs?theme=${encodeURIComponent(th)}`}><ChipIcon d={TAG_PATH} />{th}</Link>)}
-                </div>
-              </div>
-            </div>
-          </div>
+          <SongHero
+            song={song}
+            keyLabel={keyLabel}
+            writerHref={writerHref}
+            playState={song.midiUrl ? playState : null}
+            onPlay={playPiano}
+            playDisabledReason={nd ? ndReason : undefined}
+          />
           <div className="sheet-body">
-            {(song.scriptureText || song.scripture) && (
-              <p className="epigraph">
-                {song.scriptureText
-                  ? <><b>{song.scriptureText.replace(/ — .*$/, "")}</b>{song.scripture ? ` — ${song.scripture}` : ""}</>
-                  : song.scripture}
+            <DerivedBanner song={song} />
+            {nd && (
+              <p className="nd-notice" data-testid="nd-notice" role="note">
+                <b>{t("As written only.")}</b> {ndReason} {t("Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.")}
               </p>
             )}
 
-            {hasChords && <div className="controls">
-              <div className="ctl"><label htmlFor="transpose">{t("Key")}</label>
-                <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
-                  {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
-                </select>
-              </div>
-              <div className="ctl"><label htmlFor="capo">{t("Capo")}</label>
-                <select id="capo" value={capo} onChange={e => setCapo(Number(e.target.value))}>
-                  <option value={0}>{t("No capo")}</option>
-                  {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: shapeRootAt(n) + keySuffix })}</option>)}
-                </select>
-              </div>
-              <div className="ctl"><label id="transpose-label">{t("Transpose")}</label>
-                <div className="stepper" role="group" aria-labelledby="transpose-label">
-                  <button onClick={() => bumpKey(-1)} aria-label="−1">−</button>
-                  <span>{signedShift > 0 ? `+${signedShift}` : signedShift}</span>
-                  <button onClick={() => bumpKey(1)} aria-label="+1">+</button>
-                </div>
-              </div>
-            </div>}
-
-            <div className="controls-2">
-              {hasChords && <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>}
-              {hasChords && <label className="switch"><input type="checkbox" id="nashville-toggle" checked={nashville} disabled={!showChords} onChange={e => setNashville(e.target.checked)} /> {t("Nashville numbers")}</label>}
-              <button className="btn btn-ghost copy-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
-              <div className="text-size" role="group" aria-label={t("Text size")}>
-                {[t("Small"), t("Medium"), t("Large")].map((label, i) => (
-                  <button key={i} className={textSize === i ? "on" : ""} aria-label={label} aria-pressed={textSize === i} onClick={() => setTextSize(i)}>A</button>
-                ))}
-              </div>
+            <div className="mode-tabs" role="tablist" aria-label={t("Modes")} data-testid="mode-tabs">
+              {modes.map(m => (
+                <button key={m} type="button" role="tab" aria-selected={mode === m} className={"mode-tab" + (mode === m ? " on" : "")} data-testid={`mode-${m}`} onClick={() => setMode(m)}>
+                  {t(MODE_LABEL[m])}
+                </button>
+              ))}
             </div>
 
-            {stanzas.length > 2 && (
-              <div className="song-map" aria-label={t("Song structure")}>
-                {stanzas.map((st, i) => (
-                  <button key={i} onClick={() => document.querySelectorAll(".stanza")[i]?.scrollIntoView({ behavior: "smooth", block: "start" })}>{st.label}</button>
-                ))}
+            {mode === "listen" && (
+              <div className="mode-panel" role="tabpanel" data-testid="panel-listen">
+                {song.midiUrl && (
+                  <div className="listen-block">
+                    <div className="listen-row">
+                      <button className="btn btn-primary" data-testid="piano-play" disabled={playState === "loading" || nd} title={nd ? ndReason : undefined} onClick={playPiano}>
+                        {playState === "loading" ? t("Loading…") : playState === "playing" ? t("■ Stop") : `▶ ${t("Preview (synthesized)")}`}
+                      </button>
+                      <span className="listen-kind" data-testid="listen-kind">{t("Synthesized preview — hymnal piano in {key} from the melody file, not a recording.", { key: keyLabel })}</span>
+                    </div>
+                    <div className="tempo-row">
+                      <label htmlFor="tempo">{t("Tempo")}</label>
+                      <input id="tempo" type="range" min={50} max={150} step={5} value={rate} onChange={e => setRate(Number(e.target.value))} />
+                      <span className="tempo-val">{song.bpm ? `${Math.round(song.bpm * rate / 100)} BPM` : `${rate}%`}</span>
+                    </div>
+                    {parts.length > 1 && (
+                      <div className="parts-row" data-testid="parts">
+                        <span className="parts-label">{t("Hear a part")}</span>
+                        <div className="parts-btns">
+                          <button className={"part-btn" + (solo === null ? " on" : "")} onClick={() => setSolo(null)}>{t("All")}</button>
+                          {parts.map((name, i) => (
+                            <button key={name} className={"part-btn" + (solo === i ? " on" : "")} onClick={() => setSolo(solo === i ? null : i)}>{t(name)}</button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {song.demoAudioUrl && (
+                  <div className="listen-block">
+                    <p className="listen-kind">{t("Demo recording")} · {t("As shared by {writer}", { writer: song.writer })}</p>
+                    <audio controls src={song.demoAudioUrl} style={{ width: "100%" }} data-testid="demo-audio" />
+                  </div>
+                )}
+                {song.videoUrl && (
+                  <p className="listen-block watch-row">
+                    <a href={song.videoUrl} target="_blank" rel="noopener noreferrer" data-testid="watch-link" className="btn btn-ghost"><ExternalIcon /> {t("Watch a performance")}</a>
+                    <span className="rel-hint">{t("Opens on YouTube — a performance by someone else, not an audio file of this package.")}</span>
+                  </p>
+                )}
+                {!song.hasAccompaniment && song.midiUrl && (
+                  <p className="rel-hint">{t("No rendered accompaniment yet — pick a key or tempo and the preview follows. A piano or organ track lands here once one has been listened to.")}</p>
+                )}
               </div>
             )}
 
-            {stanzas.map((stanza, si) => (
-              <section className="stanza" key={si}>
-                <p className="stanza-label">{stanza.label}</p>
-                {stanza.lines.map((segments, li) => (
-                  <p className="line" key={li}>
-                    {segments.map((seg, gi) => {
-                      const k = `${si}-${li}-${gi}`;
-                      return (
-                        <span className="seg" key={gi}>
-                          {seg.chord
-                            ? <b className="c" tabIndex={0} onMouseEnter={() => setPop(k)} onMouseLeave={() => setPop("")} onFocus={() => setPop(k)} onBlur={() => setPop("")} onClick={() => setPop(pop === k ? "" : k)}>{showChord(seg.chord)}</b>
-                            : <b className="c"> </b>}
-                          {/* guitar gets the capo shape on the page; piano gets the sounding chord */}
-                          {pop === k && seg.chord && <ChordDiagram guitar={transposeChord(seg.chord, dispShift, useFlats)} piano={transposeChord(seg.chord, shift, FLAT_KEYS.has(selRoot))} />}
-                          <span className="t">{seg.text || " "}</span>
-                        </span>
-                      );
-                    })}
-                  </p>
-                ))}
-              </section>
-            ))}
-
-            <div className="license-note">
-              <InfoIcon />
-              <div>
-                <p data-testid="license-grant" data-license={lic.id}>
-                  {lic.id === "WC"
-                    ? <>© {song.year} {song.writer} · {t("WorshipCommons License v{version}", { version: licenseVersion(song) })}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
-                    : lic.id === "PD"
-                      ? <>{t("Public domain. Free for every use, including commercial — no license needed.")} <Link to={licenseHref("PD")}>{t("How that works")}</Link></>
-                      : <>© {song.year} {song.writer} · <a href={licenseUrl(song)} target="_blank" rel="license noopener">{t("Creative Commons")} {lic.label} {licenseVersion(song)}</a>. {lic.nonCommercial ? t("Free for worship with credit — not for anything sold or monetized.") : t("Free for every use, including commercial, as long as you credit the writer.")} <Link to={licenseHref(lic.id)}>{t("How that works")}</Link></>}
-                </p>
-                {/* plain-language deed from the license registry — the legal code (linked above) controls */}
-                {/* empty lists are omitted: public domain forbids nothing, so it gets the one list, full width */}
-                <div className="may-grid">
-                  <ul className="may" data-testid="you-may" aria-label={t("You may")}>
-                    <li>{t("You may")}</li>
-                    {lic.may.map(k => <li key={k}>{t(k)}</li>)}
-                  </ul>
-                  {lic.mayNot.length > 0 && (
-                    <ul className="may-not" data-testid="you-may-not" aria-label={t("You may not")}>
-                      <li>{t("You may not")}</li>
-                      {lic.mayNot.map(k => <li key={k}>{t(k)}</li>)}
-                    </ul>
+            {mode === "lead" && (
+              <div className="mode-panel" role="tabpanel" data-testid="panel-lead">
+                {canLead
+                  ? (
+                    <>
+                      <Link className="btn btn-primary" data-testid="lead-worship" to={`/songs/${song.id}/lead?key=${encodeURIComponent(keyLabel)}`}>{t("Lead worship")} →</Link>
+                      <p className="rel-hint">{t("Full-screen lyrics with the piano in {key}, next phrase visible — open it on the laptop that feeds the TV.", { key: keyLabel })}</p>
+                    </>
+                  )
+                  : (
+                    <p className="rel-hint" data-testid="lead-worship-note" style={{ marginTop: 0 }}>{t("This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.")}</p>
                   )}
-                  {lic.must.length > 0 && (
-                    <ul className="must" data-testid="you-must" aria-label={t("You must")}>
-                      <li>{t("You must")}</li>
-                      {lic.must.map(k => <li key={k}>{t(k)}</li>)}
-                    </ul>
-                  )}
-                </div>
               </div>
-            </div>
+            )}
+
+            {mode === "charts" && (
+              <div className="mode-panel" role="tabpanel" data-testid="panel-charts">
+                {hasChords && <div className="controls">
+                  <div className="ctl"><label htmlFor="transpose">{t("Key")}</label>
+                    <select id="transpose" value={selRoot} disabled={nd} title={nd ? ndReason : undefined} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
+                      {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
+                    </select>
+                  </div>
+                  <div className="ctl"><label htmlFor="capo">{t("Capo")}</label>
+                    <select id="capo" value={effCapo} disabled={nd} title={nd ? ndReason : undefined} onChange={e => setCapo(Number(e.target.value))}>
+                      <option value={0}>{t("No capo")}</option>
+                      {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: shapeRootAt(n) + keySuffix })}</option>)}
+                    </select>
+                  </div>
+                  <div className="ctl"><label id="transpose-label">{t("Transpose")}</label>
+                    <div className="stepper" role="group" aria-labelledby="transpose-label" data-testid="transpose-stepper">
+                      <button onClick={() => bumpKey(-1)} aria-label="−1" disabled={nd} title={nd ? ndReason : undefined}>−</button>
+                      <span>{signedShift > 0 ? `+${signedShift}` : signedShift}</span>
+                      <button onClick={() => bumpKey(1)} aria-label="+1" disabled={nd} title={nd ? ndReason : undefined}>+</button>
+                    </div>
+                  </div>
+                </div>}
+
+                <div className="controls-2">
+                  {hasChords && <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Show chords")}</label>}
+                  {hasChords && <label className="switch" title={nd ? ndReason : undefined}><input type="checkbox" id="nashville-toggle" checked={nash} disabled={!showChords || nd} onChange={e => setNashville(e.target.checked)} /> {t("Nashville numbers")}</label>}
+                  <button className="btn btn-ghost copy-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
+                  <div className="columns-toggle" role="group" aria-label={t("Columns")} data-testid="chart-columns">
+                    {[1, 2].map(n => <button key={n} className={columns === n ? "on" : ""} aria-pressed={columns === n} onClick={() => setColumns(n)}>{n}</button>)}
+                  </div>
+                  <div className="text-size" role="group" aria-label={t("Text size")}>
+                    {[t("Small"), t("Medium"), t("Large")].map((label, i) => (
+                      <button key={i} className={textSize === i ? "on" : ""} aria-label={label} aria-pressed={textSize === i} onClick={() => setTextSize(i)}>A</button>
+                    ))}
+                  </div>
+                </div>
+
+                {stanzas.length > 2 && (
+                  <div className="song-map" aria-label={t("Song structure")}>
+                    {stanzas.map((st, i) => (
+                      <button key={i} onClick={() => document.querySelectorAll(".stanza")[i]?.scrollIntoView({ behavior: "smooth", block: "start" })}>{st.label}</button>
+                    ))}
+                  </div>
+                )}
+
+                <div className={"chart-body" + (columns === 2 ? " two-col" : "")}>
+                  {stanzas.map((stanza, si) => (
+                    <section className="stanza" key={si}>
+                      <p className="stanza-label">{stanza.label}</p>
+                      {stanza.lines.map((segments, li) => (
+                        <p className="line" key={li}>
+                          {segments.map((seg, gi) => {
+                            const k = `${si}-${li}-${gi}`;
+                            return (
+                              <span className="seg" key={gi}>
+                                {seg.chord
+                                  ? <b className="c" tabIndex={0} onMouseEnter={() => setPop(k)} onMouseLeave={() => setPop("")} onFocus={() => setPop(k)} onBlur={() => setPop("")} onClick={() => setPop(pop === k ? "" : k)}>{showChord(seg.chord)}</b>
+                                  : <b className="c"> </b>}
+                                {/* guitar gets the capo shape on the page; piano gets the sounding chord */}
+                                {pop === k && seg.chord && <ChordDiagram guitar={transposeChord(seg.chord, dispShift, useFlats)} piano={transposeChord(seg.chord, shift, FLAT_KEYS.has(selRoot))} />}
+                                <span className="t">{seg.text || " "}</span>
+                              </span>
+                            );
+                          })}
+                        </p>
+                      ))}
+                    </section>
+                  ))}
+                </div>
+
+                <p className="chart-links rel-hint" data-testid="chart-links">
+                  <a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro</a> · <a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics (TXT)")}</a> · <Link to={printHref}>{t("Print / PDF")}</Link>
+                  {song.chartPdfUrl && <> · <a href={song.chartPdfUrl} download onClick={recordDownload}>{t("Chart PDF")}</a></>}
+                  {" · "}<span title={t("A QR code that opens the player in this key is not built yet.")}>{t("QR: not yet")}</span>
+                </p>
+              </div>
+            )}
+
+            {mode === "project" && (
+              <div className="mode-panel" role="tabpanel" data-testid="panel-project">
+                <ProjectPanel song={song} />
+                <p className="rel-hint">{t("Lyrics only, full screen, manual advance — for a room with its own musicians.")}</p>
+              </div>
+            )}
+
+            {mode === "parts" && (
+              <div className="mode-panel" role="tabpanel" data-testid="panel-parts">
+                {song.sheetPdfUrl && (
+                  <div className="listen-block" data-testid="sheet-pdf-card">
+                    <h2 className="panel-h">{t("Sheet music")}</h2>
+                    {/* the browser's own PDF viewer; toolbar hidden so the card reads as a page, not an app */}
+                    <iframe className="pdf-embed" src={`${song.sheetPdfUrl}#toolbar=0&view=FitH`} title={t("{title} — sheet music", { title: song.title })} loading="lazy" data-testid="sheet-pdf-embed" />
+                    <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Download PDF")}</a></p>
+                  </div>
+                )}
+                {song.stemsZipUrl && (
+                  <div className="listen-block">
+                    <h2 className="panel-h">{t("Multitracks")}</h2>
+                    <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download onClick={recordDownload}>{t("All stems")} · ZIP</a>
+                    <p className="rel-hint">{t("One master set, recorded in {key} at {bpm} BPM — every file starts at bar 1. Works in Prime, Playback, Ableton, or any DAW.", { key: song.songKey, bpm: song.bpm })}</p>
+                  </div>
+                )}
+                <p className="rel-hint">{t("Only parts backed by real files show here — no mute or solo on a stereo mix.")}</p>
+              </div>
+            )}
+
+            {mode === "about" && (
+              <div className="mode-panel" role="tabpanel">
+                <AboutPanel song={song} family={data.family} similar={data.similar} history={data.history} writerHref={writerHref} />
+              </div>
+            )}
           </div>
         </article>
 
         <aside>
-          <div className="card side-card">
+          <div className="card side-card setlist-card">
+            <AddToSetlist song={song} />
             <button className={"btn " + (inLib ? "btn-ghost" : "btn-primary")} data-testid="library-toggle" onClick={toggleLib}>
               {inLib ? t("✓ In your library") : t("+ Add to your library")}
             </button>
@@ -453,43 +512,14 @@ export default function SongPage() {
             <h2>{t("How is it?")}</h2>
             <div className="stepper" role="group" aria-label={t("Rate this song")} data-testid="rating-stars">
               {[1, 2, 3, 4, 5].map(n => (
-                <button key={n} aria-label={t("{n} stars", { n })} aria-pressed={(asset?.myRating || 0) >= n} data-testid={`rating-star-${n}`} onClick={() => setRating(n)}>
-                  {(asset?.myRating || 0) >= n ? "★" : "☆"}
+                <button key={n} aria-label={t("{n} stars", { n })} aria-pressed={(rating?.mine || 0) >= n} data-testid={`rating-star-${n}`} onClick={() => setStars(n)}>
+                  {(rating?.mine || 0) >= n ? "★" : "☆"}
                 </button>
               ))}
             </div>
-            {asset?.ratingAverage != null && (asset.ratingCount ?? 0) >= 3 && <p className="rel-hint" style={{ marginTop: 10 }} data-testid="rating-average">{asset.ratingAverage} ★ ({asset.ratingCount})</p>}
+            {rating?.average != null && (rating.count ?? 0) >= 3 && <p className="rel-hint" style={{ marginTop: 10 }} data-testid="rating-average">{rating.average} ★ ({rating.count})</p>}
             {rateError && <p className="rel-hint" style={{ marginTop: 10, color: "var(--secondary)" }} data-testid="rating-error">{rateError}</p>}
           </div>
-
-          {song.midiUrl && (
-            <div className="card side-card">
-              <h2>{t("Listen")}</h2>
-              <button className="btn btn-primary" data-testid="piano-play" disabled={playState === "loading"} onClick={playPiano}>
-                {playState === "loading" ? t("Loading…") : playState === "playing" ? t("■ Stop") : t("▶ Play piano")}
-              </button>
-              <div className="tempo-row">
-                <label htmlFor="tempo">{t("Tempo")}</label>
-                <input id="tempo" type="range" min={50} max={150} step={5} value={rate} onChange={e => setRate(Number(e.target.value))} />
-                <span className="tempo-val">{song.bpm ? `${Math.round(song.bpm * rate / 100)} BPM` : `${rate}%`}</span>
-              </div>
-              {parts.length > 1 && (
-                <div className="parts-row" data-testid="parts">
-                  <span className="parts-label">{t("Hear a part")}</span>
-                  <div className="parts-btns">
-                    <button className={"part-btn" + (solo === null ? " on" : "")} onClick={() => setSolo(null)}>{t("All")}</button>
-                    {parts.map((name, i) => (
-                      <button key={name} className={"part-btn" + (solo === i ? " on" : "")} onClick={() => setSolo(solo === i ? null : i)}>{t(name)}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {song.lyricsUrl && (
-                <Link className="btn sing-btn" data-testid="lead-worship" to={`/songs/${song.id}/lead?key=${encodeURIComponent(keyLabel)}`}>{t("Lead worship")}</Link>
-              )}
-              <p className="rel-hint">{t("Hymnal piano in {key}, played right in your browser — pick a different key or tempo and hear it there. Pick a part to bring that voice out front on choir tone.", { key: keyLabel })}</p>
-            </div>
-          )}
 
           <div className="card side-card" data-testid="practice-card">
             <h2>{t("Practice")}</h2>
@@ -511,70 +541,16 @@ export default function SongPage() {
             </div>
           )}
 
-          {youTubeId(song.videoUrl) && (
-            <div className="card side-card">
-              <h2>{t("Watch")}</h2>
-              <div className="yt-embed">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${youTubeId(song.videoUrl)}`}
-                  title={t("{title} — video", { title: song.title })}
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          )}
-
-          {(song.writerPortraitUrl || song.writerBio) && (
-            <div className="card side-card" data-testid="about-the-writer">
-              <h2>{t("About the writer")}</h2>
-              <div className="writer-row">
-                {song.writerPortraitUrl && <img className="writer-photo" src={song.writerPortraitUrl} alt={t("Portrait of {writer}", { writer: song.writer })} loading="lazy" />}
-                <div>
-                  <b>{song.writer}</b>
-                  {song.writerBio && <p className="writer-bio" data-testid="song-writer-bio">{song.writerBio}</p>}
-                </div>
-              </div>
-              <p className="writer-src">{song.writerPortraitUrl ? t("Portrait & bio via Wikipedia (CC BY-SA).") : t("Bio via Wikipedia (CC BY-SA).")}</p>
-            </div>
-          )}
-
-          {song.demoAudioUrl && (
-            <div className="card side-card">
-              <h2>{t("Demo recording")}</h2>
-              <p style={{ fontSize: "0.875rem", color: "var(--muted)", marginBottom: 10 }}>{t("As shared by {writer}", { writer: song.writer })}</p>
-              <audio controls src={song.demoAudioUrl} style={{ width: "100%" }} data-testid="demo-audio" />
-            </div>
-          )}
-
-          {song.sheetPdfUrl && (
-            <div className="card side-card" data-testid="sheet-pdf-card">
-              <h2>{t("Sheet music")}</h2>
-              {/* the browser's own PDF viewer; toolbar hidden so the card reads as a page, not an app */}
-              <iframe className="pdf-embed" src={`${song.sheetPdfUrl}#toolbar=0&view=FitH`} title={t("{title} — sheet music", { title: song.title })} loading="lazy" data-testid="sheet-pdf-embed" />
-              <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Download PDF")}</a></p>
-            </div>
-          )}
-
-          {song.stemsZipUrl && (
-            <div className="card side-card">
-              <h2>{t("Multitracks")}</h2>
-              <a href={song.stemsZipUrl} className="btn btn-primary mt-zip" download onClick={recordDownload}>{t("All stems")} · ZIP</a>
-              <p className="rel-hint">{t("One master set, recorded in {key} at {bpm} BPM — every file starts at bar 1. Works in Prime, Playback, Ableton, or any DAW.", { key: song.songKey, bpm: song.bpm })}</p>
-            </div>
-          )}
-
           <div className="card side-card">
             <h2>{t("Take it to Sunday")}</h2>
             <ul className="dl-list">
-              <li><FileIcon /><Link to={`/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}${showChords ? "" : "&chords=0"}`}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
+              <li><FileIcon /><Link to={printHref}>{t("Chord chart (print)")}</Link> <span className="size">{t("PDF via print")} · {keyLabel}{effCapo ? ` · ${t("capo {n}", { n: effCapo })}` : ""}</span></li>
               {song.abcUrl && <li><FileIcon /><Link to={`/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="size">{t("melody & parts")} · {keyLabel}</span></li>}
               {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></li>}
               {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a></li>}
               {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a></li>}
               {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
-              <li><FileIcon /><button className="link-btn" data-testid="download-pack" disabled={packing} onClick={downloadPack}>{packing ? t("Packing…") : t("Download pack (.zip)")}</button> <span className="size">{t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })}</span></li>
+              <li><FileIcon /><button className="link-btn" data-testid="download-pack" disabled={packing || nd} title={nd ? ndReason : undefined} onClick={downloadPack}>{packing ? t("Packing…") : t("Download pack (.zip)")}</button> <span className="size">{nd ? t("off — as written only") : t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })}</span></li>
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="size">{t("text")}</span></li>
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="size">{t("text")}</span></li>
             </ul>
@@ -585,44 +561,6 @@ export default function SongPage() {
             <div className="sung-count" data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</div>
             <p className="sung-note">{t("downloads")}</p>
           </div>
-
-          {(related.length > 0 || parent || similar.length > 0) && (
-            <div className="card side-card">
-              <h2>{t("In the commons")}</h2>
-              {(parent || related.length > 0) && (
-                <ul className="rel-list">
-                  {parent && <li><div><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></div><ArrowRight /></li>}
-                  {related.map(r => <li key={r.id}><div><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{r.relationLabel || `${r.writer}, ${r.year}`}</span></div><ArrowRight /></li>)}
-                </ul>
-              )}
-              {similar.length > 0 && (
-                <>
-                  <p className="rel-sub">{t("Similar songs")}</p>
-                  <ul className="rel-list" data-testid="similar-songs">
-                    {similar.map(s => <li key={s.id}><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer} · {why(s)}</span></div><ArrowRight /></li>)}
-                  </ul>
-                </>
-              )}
-              <p className="rel-hint">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>
-            </div>
-          )}
-
-          {history.length > 0 && (
-            <div className="card side-card" data-testid="history">
-              <h2>{t("Contributors & changes")}</h2>
-              <ul className="rel-list">
-                {history.map(h => (
-                  <li key={h.submissionId} data-testid="history-entry">
-                    <div>
-                      <b>{h.submittedByName || t("a community member")}</b>
-                      <span>{h.approvedAt ? new Date(h.approvedAt).toLocaleDateString() : ""}{h.note ? ` · ${h.note}` : ""}{h.filesChanged?.length ? ` · ${h.filesChanged.map(f => t(fileChangeLabel(f.name))).join(", ")}` : ""}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <p className="rel-hint">{t("Anyone signed in can propose an edit; a reviewer decides.")}</p>
-            </div>
-          )}
 
           <div className="card side-card">
             <h2>{t("Something wrong?")}</h2>
