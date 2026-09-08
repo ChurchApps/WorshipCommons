@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 import { fileURLToPath } from "url";
-import { approveSubmission, pendingSubmissionFor, songIdByTitle } from "./helpers/api";
+import { approveSubmission, pendingSubmissionFor, songIdByTitle, songWithoutSheetPdf } from "./helpers/api";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SONG_TITLE = "Sheet PDF Spec Song";
@@ -26,7 +26,8 @@ test.describe.serial("sheet pdf viewer", () => {
   });
 
   test("the song page shows the PDF inline and still offers the download", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, SONG_TITLE)}`);
+    // the PDF viewer lives in the Parts mode
+    await page.goto(`/songs/${await songIdByTitle(request, SONG_TITLE)}?mode=parts`);
     const card = page.getByTestId("sheet-pdf-card");
     await expect(card).toBeVisible();
     const src = await page.getByTestId("sheet-pdf-embed").getAttribute("src");
@@ -39,8 +40,9 @@ test.describe.serial("sheet pdf viewer", () => {
   });
 
   test("songs without a sheet PDF get no viewer", async ({ page, request }) => {
-    await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
-    await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
+    const plain = await songWithoutSheetPdf(request);
+    await page.goto(`/songs/${plain.id}`);
+    await expect(page.getByRole("heading", { name: plain.title })).toBeVisible();
     await expect(page.getByTestId("sheet-pdf-card")).toHaveCount(0);
   });
 });
