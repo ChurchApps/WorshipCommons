@@ -46,3 +46,16 @@
     .step > p.hint, .step-body { margin-left: 0; }
     .license-recap { grid-template-columns: 1fr; }
   }
+
+  /* proposal types on the edit page: a radio per type with a one-line explanation under the label */
+  .proposal-type { flex-direction: column; gap: 10px; }
+  .proposal-type label { align-items: flex-start; }
+  .proposal-type input { margin-top: 3px; }
+  .proposal-type label > span { display: flex; flex-direction: column; }
+  .proposal-type label > span > b { font-size: 0.9375rem; }
+  .proposal-type label > span > .hint { margin: 0; font-size: 0.8125rem; }
+  .note-count { margin: 6px 0 0; font-size: 0.8125rem; }
+  .note-count.short { color: var(--secondary); }
+  .removal-warning { border: 1px solid #E4DEF2; border-left: 4px solid var(--secondary); border-radius: 12px; background: var(--surface); padding: 14px 18px; margin-bottom: 18px; font-size: 0.9375rem; }
+  .removal-warning b { display: block; margin-bottom: 6px; }
+  .removal-warning p { margin: 0; color: var(--text-2); font-size: 0.875rem; }
