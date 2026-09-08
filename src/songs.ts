@@ -103,6 +103,7 @@ const URL_FIELDS: [keyof Song, string][] = [
   ["abcUrl", "abc"],
   ["lyricsUrl", "timing"],
   ["artUrl", "art"],
+  ["artUrl", "cover"],
   ["writerPortraitUrl", "portrait"],
   ["scoreUrl", "score"],
   ["slidesUrl", "slides"],
