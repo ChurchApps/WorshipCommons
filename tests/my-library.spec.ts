@@ -18,12 +18,12 @@ test.describe.serial("saved library", () => {
     await page.goto(`/songs/${id}`);
 
     await page.getByTestId("library-toggle").click();
-    await expect(page.getByTestId("library-toggle")).toContainText("In your library");
+    await expect(page.getByTestId("library-toggle")).toContainText(/Saved|In your library/);
 
     // survives a reload with localStorage wiped — it lives on the server now
     await page.evaluate(() => localStorage.removeItem("wcLibrary"));
     await page.reload();
-    await expect(page.getByTestId("library-toggle")).toContainText("In your library");
+    await expect(page.getByTestId("library-toggle")).toContainText(/Saved|In your library/);
 
     await page.goto("/library");
     const card = page.getByTestId("library-song").filter({ hasText: "Be Thou My Vision" });

@@ -51,6 +51,7 @@ export default function Layout() {
           <ul className={"nav-menu" + (open ? " open" : "")} onClick={() => setOpen(false)}>
             <li><NavLink to="/songs">{t("Songs")}</NavLink></li>
             <li><NavLink to="/library" data-testid="nav-library">{t("Saved songs")}</NavLink></li>
+            <li><NavLink to="/setlists" data-testid="nav-setlists">{t("Setlists")}</NavLink></li>
             <li><NavLink to="/license">{t("The License")}</NavLink></li>
             <li><NavLink to="/report">{t("Report")}</NavLink></li>
             {user && <li><NavLink to="/my-songs" data-testid="my-songs">{t("My submissions")}</NavLink></li>}
@@ -86,6 +87,7 @@ export default function Layout() {
               <ul>
                 <li><Link to="/songs">{t("Song library")}</Link></li>
                 <li><Link to="/new">{t("New songs")}</Link></li>
+                <li><Link to="/setlists">{t("Setlists")}</Link></li>
                 <li><Link to="/upload">{t("Share a song")}</Link></li>
                 <li><Link to="/call-for-songs">{t("Call for songs")}</Link></li>
                 <li><Link to="/license">{t("How the license works")}</Link></li>
