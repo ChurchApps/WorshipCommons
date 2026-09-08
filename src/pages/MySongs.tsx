@@ -4,26 +4,40 @@ import { useAuth } from "../auth";
 import { wcGet, wcPost } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import { NEW_PACKAGE_TYPES } from "../components/SongForm";
 
 interface Submission {
   id: string;
   assetId: string;
   assetName: string;
   status: string;
+  type?: string;
+  isNewAsset?: boolean;
   note?: string;
   reviewReason?: string;
   reviewNote?: string;
-  payload?: { detail?: Record<string, any> };
+  payload?: { type?: string; detail?: Record<string, any> };
   submittedAt?: string;
   createdAt?: string;
 }
 
 const STATUS: Record<string, { label: string; note: string }> = {
   draft: { label: "Draft", note: "Not sent yet." },
+  changes: { label: "Changes requested", note: "A reviewer asked for changes before this can go live. Continue the draft to make them and send it again." },
   pending: { label: "In review", note: "A human reads every song before it goes live — usually within a few days." },
   approved: { label: "Live", note: "In the library, free for churches to sing." },
+  removed: { label: "Taken down", note: "The song was removed from the library, as you asked." },
   rejected: { label: "Not accepted", note: "This one didn't make it into the library. Questions? support@worshipcommons.org" },
   withdrawn: { label: "Withdrawn", note: "You pulled this one back before it was reviewed." }
+};
+
+const TYPE_LABEL: Record<string, string> = {
+  new: "New song",
+  translation: "Translation",
+  arrangement: "Arrangement",
+  correction: "Correction",
+  additionalFile: "Additional file",
+  removal: "Removal request"
 };
 
 const REVIEW_REASONS: Record<string, string> = {
@@ -36,6 +50,9 @@ const REVIEW_REASONS: Record<string, string> = {
   other: "This one didn’t make it into the library."
 };
 
+// rows from before payload.type was explicit fall back to what the API infers: a new package or a correction
+const typeOf = (s: Submission) => s.type || s.payload?.type || (s.isNewAsset === false ? "correction" : "new");
+
 export default function MySongs() {
   const { t } = useI18n();
   usePageMeta(t("My songs — WorshipCommons"));
@@ -45,8 +62,6 @@ export default function MySongs() {
   const [downloads, setDownloads] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState("");
   const [confirming, setConfirming] = useState("");
-  const [removing, setRemoving] = useState("");
-  const [removeMsg, setRemoveMsg] = useState<{ id: string; text: string } | null>(null);
 
   const load = useCallback(async () => {
     const [mine, assets] = await Promise.all([wcGet("/submissions/mine", true), wcGet("/assets/mine", true).catch((): { id: string; downloadCount: number }[] => [])]);
@@ -62,23 +77,6 @@ export default function MySongs() {
     await wcPost(`/submissions/${id}/withdraw`, {}, true);
     setConfirming("");
     load();
-  };
-
-  const requestRemoval = async (s: Submission) => {
-    setRemoveMsg(null);
-    try {
-      await wcPost("/reports", {
-        assetId: s.assetId,
-        contentText: s.assetName,
-        reason: "copyright",
-        reporterRole: "writer",
-        details: "Writer requested removal of this song."
-      }, true);
-      setRemoving("");
-      setRemoveMsg({ id: s.id, text: t("Removal requested.") });
-    } catch (err) {
-      setRemoveMsg({ id: s.id, text: (err as Error).message });
-    }
   };
 
   return (
@@ -98,24 +96,34 @@ export default function MySongs() {
         </div>
       )}
       {subs?.map(s => {
-        const st = STATUS[s.status] || STATUS.pending;
+        const type = typeOf(s);
+        const newPackage = NEW_PACKAGE_TYPES.includes(type);
+        const changesRequested = s.status === "draft" && s.reviewReason === "changes";
+        const takenDown = s.status === "approved" && type === "removal";
+        const st = changesRequested ? STATUS.changes : takenDown ? STATUS.removed : STATUS[s.status] || STATUS.pending;
         const detail = s.payload?.detail || {};
         const count = downloads[s.assetId] ?? 0;
-        const liveUrl = s.status === "approved" && s.assetId ? `${window.location.origin}/songs/${s.assetId}` : "";
+        const liveUrl = s.status === "approved" && !takenDown && s.assetId ? `${window.location.origin}/songs/${s.assetId}` : "";
         const reason = s.reviewReason ? t(REVIEW_REASONS[s.reviewReason] || REVIEW_REASONS.other) : "";
         const songSelectUrl = s.reviewReason === "ccli" ? `https://songselect.ccli.com/search/results?SearchText=${encodeURIComponent(s.assetName || "")}` : "";
+        // a new package continues in the wizard; a change to a published song continues on that song's edit page
+        const continueTo = newPackage ? `/upload?draft=${encodeURIComponent(s.id)}` : `/songs/${s.assetId}/edit?draft=${encodeURIComponent(s.id)}`;
         let titleTo = "";
-        if (s.status === "approved") titleTo = `/songs/${s.assetId}`;
+        if (s.status === "approved" && !takenDown) titleTo = `/songs/${s.assetId}`;
         else if (s.status === "pending" || s.status === "draft") titleTo = `/preview/submission/${s.id}`;
         return (
-          <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16 }} data-testid="my-song">
+          <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16 }} data-testid="my-song" data-type={type}>
             <h3 style={{ marginBottom: 4 }}>
               {titleTo ? <Link to={titleTo}>{s.assetName}</Link> : s.assetName}
-              <span className={s.status === "approved" ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{t(st.label)}</span>
+              <span className={s.status === "approved" && !takenDown ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{t(st.label)}</span>
+              <span className="hint" style={{ marginLeft: 10, fontWeight: 400, fontSize: "0.8125rem" }} data-testid="my-song-type">{t(TYPE_LABEL[type] || type)}</span>
             </h3>
             <p className="hint" style={{ marginBottom: 8 }}>{detail.writer}{detail.songKey ? ` · ${t("Key")} ${detail.songKey}` : ""}{s.note ? ` · ${s.note}` : ""}{s.createdAt ? t(" · submitted {date}", { date: new Date(s.createdAt).toLocaleDateString() }) : ""}</p>
-            <p style={{ fontSize: "0.9375rem" }}>{t(st.note)}{s.status === "approved" ? t(" {count} downloads.", { count: count.toLocaleString() }) : ""}</p>
-            {s.status === "approved" && s.reviewNote && (
+            <p style={{ fontSize: "0.9375rem" }}>{t(st.note)}{liveUrl ? t(" {count} downloads.", { count: count.toLocaleString() }) : ""}</p>
+            {s.status === "approved" && !newPackage && !takenDown && (
+              <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="credit-note">{t("You are credited on the song page.")}</p>
+            )}
+            {(s.status === "approved" || changesRequested) && s.reviewNote && (
               <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="review-note">{s.reviewNote}</p>
             )}
             {liveUrl && (
@@ -132,7 +140,7 @@ export default function MySongs() {
               <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="review-note">{reason}{reason && s.reviewNote ? " — " : ""}{s.reviewNote}{songSelectUrl ? " " : ""}{songSelectUrl && <a href={songSelectUrl} target="_blank" rel="noreferrer" data-testid="songselect-link">{t("Find it on SongSelect")}</a>}</p>
             )}
             {s.status === "draft" && (
-              <Link to={`/upload?draft=${encodeURIComponent(s.id)}`} className="btn btn-primary" style={{ marginTop: 12 }} data-testid="continue-draft">{t("Continue")}</Link>
+              <Link to={continueTo} className="btn btn-primary" style={{ marginTop: 12 }} data-testid="continue-draft">{t("Continue")}</Link>
             )}
             {s.status === "pending" && (
               confirming === s.id ? (
@@ -145,19 +153,11 @@ export default function MySongs() {
                 <button className="btn btn-ghost" style={{ marginTop: 12 }} data-testid="withdraw" onClick={() => setConfirming(s.id)}>{t("Withdraw")}</button>
               )
             )}
-            {s.status === "approved" && s.assetId && (
-              removing === s.id ? (
-                <div style={{ marginTop: 12 }}>
-                  <p className="hint" style={{ marginBottom: 10 }}>{t("We’ll review this and take the song down if the claim holds.")}</p>
-                  <button className="btn btn-primary" style={{ marginRight: 8 }} data-testid="request-removal-confirm" onClick={() => requestRemoval(s)}>{t("Request removal")}</button>
-                  <button className="btn btn-ghost" data-testid="request-removal-cancel" onClick={() => setRemoving("")}>{t("Cancel")}</button>
-                </div>
-              ) : (
-                <button className="btn btn-ghost" style={{ marginTop: 12 }} data-testid="request-removal" onClick={() => setRemoving(s.id)}>{t("Request removal")}</button>
-              )
-            )}
-            {removeMsg?.id === s.id && (
-              <p className="hint" style={{ marginTop: 8, color: removeMsg.text === t("Removal requested.") ? undefined : "var(--secondary)" }} data-testid="request-removal-status">{removeMsg.text}</p>
+            {liveUrl && (
+              <p style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <Link to={`/songs/${s.assetId}/edit`} className="btn btn-ghost" data-testid="propose-change">{t("Propose a change")}</Link>
+                <Link to={`/songs/${s.assetId}/edit?type=removal`} className="btn btn-ghost" data-testid="request-removal">{t("Request removal")}</Link>
+              </p>
             )}
           </div>
         );

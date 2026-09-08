@@ -2,12 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { uploadFile, wcGet, wcPost, wcPut } from "../api";
-import SongForm, { blankSong, conventionalName, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import SongForm, { blankSong, conventionalName, FILE_LABEL, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
-
-const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art" };
 
 export default function Upload() {
   const { t, lang } = useI18n();
@@ -21,6 +19,8 @@ export default function Upload() {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const [initial, setInitial] = useState<SongFormValues | null>(draftParam ? null : blankSong(SONG_LANG[lang]));
+  // the reviewer's note when a draft came back with "changes requested"
+  const [reviewNote, setReviewNote] = useState("");
   const draftIdRef = useRef<string | null>(draftParam || null);
   const creatingRef = useRef<Promise<string> | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -36,6 +36,7 @@ export default function Upload() {
       values.certified = !!payload?.detail?.certified;
       values.recordingOwned = !!payload?.detail?.recordingOwned;
       draftIdRef.current = sub.id || sub.submissionId || draftParam;
+      setReviewNote(sub.reviewReason === "changes" && sub.reviewNote ? sub.reviewNote : "");
       setInitial(values);
     }).catch(err => {
       if (!live) return;
@@ -131,6 +132,12 @@ export default function Upload() {
       </div>
 
       {!initial && <p>{t("Loading…")}</p>}
+      {reviewNote && (
+        <div className="dup-warning" data-testid="changes-requested">
+          <b>{t("A reviewer asked for changes before this can go live:")}</b>
+          <p style={{ marginTop: 6 }}>{reviewNote}</p>
+        </div>
+      )}
       {initial && (
         <SongForm
           initial={initial}
