@@ -4,7 +4,11 @@ import { loadSong, Song } from "../songs";
 import { parseChordPro, transposeChord, splitKey, noteIndex, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import { licenseNotice } from "../licenses";
+import { noDerivatives } from "../rights";
+import { attributionFor, LAYER_LABEL, layerLines } from "../licenses";
+
+// the fourth size is for the music stand and the back pew: ≥ 22px body text
+const SIZES: [number, string, string][] = [[14, "Small", "print-size-14"], [16, "Medium", "print-size-16"], [19, "Large", "print-size-19"], [22, "Large print", "print-large"]];
 
 export default function PrintChart() {
   const { t } = useI18n();
@@ -25,8 +29,11 @@ export default function PrintChart() {
   if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
-  const { root: selRoot } = splitKey(params.get("key") || song.songKey);
-  const capo = Math.min(11, Math.max(0, Number(params.get("capo")) || 0));
+  // the ND switch reaches the print page too: a transposed or capoed chart is a derivative
+  const nd = noDerivatives(song);
+  const { root: selRoot } = splitKey(nd ? song.songKey : (params.get("key") || song.songKey));
+  const capo = nd ? 0 : Math.min(11, Math.max(0, Number(params.get("capo")) || 0));
+  const layers = layerLines(song);
   const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
   const shapeIdx = (noteIndex(selRoot) - capo + 12) % 12;
   const shapeRoot = FLAT_KEYS.has(FLAT[shapeIdx]) ? FLAT[shapeIdx] : SHARP[shapeIdx];
@@ -45,13 +52,13 @@ export default function PrintChart() {
       `}</style>
       <div className="no-print">
         <button onClick={() => window.print()} style={{ padding: "8px 20px", cursor: "pointer" }}>{t("Print")}</button>
-        <label>{t("Text size")}{" "}
-          <select value={size} onChange={e => setSize(Number(e.target.value))}>
-            <option value={14}>{t("Small")}</option>
-            <option value={16}>{t("Medium")}</option>
-            <option value={19}>{t("Large")}</option>
-          </select>
-        </label>
+        {/* radios, not buttons: "Large print" must never share an accessible name with the Print button */}
+        <span role="radiogroup" aria-label={t("Text size")} style={{ display: "inline-flex", gap: 10, alignItems: "center" }}>
+          {t("Text size")}
+          {SIZES.map(([px, label, testid]) => (
+            <label key={px} style={{ fontWeight: size === px ? 700 : 400 }}><input type="radio" name="print-size" data-testid={testid} checked={size === px} onChange={() => setSize(px)} /> {t(label)}</label>
+          ))}
+        </span>
         <label><input type="checkbox" checked={cols === 2} onChange={e => setCols(e.target.checked ? 2 : 1)} /> {t("2 columns")}</label>
         <label><input type="checkbox" data-testid="print-chords" checked={chords} onChange={e => setChords(e.target.checked)} /> {t("Show chords")}</label>
         <Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
@@ -75,10 +82,15 @@ export default function PrintChart() {
           </section>
         ))}
       </div>
-      <p style={{ marginTop: 32, fontSize: 13, color: "#555" }}>
-        {/* the registry notice: for CC songs the credit + license + link is a condition of the grant, so it prints on every chart */}
-        {licenseNotice(song)}
-      </p>
+      <div style={{ marginTop: 32, fontSize: 13, color: "#555" }} data-testid="print-footer">
+        {/* the attribution line: for CC songs the credit + license + link is a condition of the grant, so it prints on every chart */}
+        <p style={{ whiteSpace: "pre-line" }}>{attributionFor(song)}</p>
+        {layers.length > 0 && (
+          <p style={{ marginTop: 6 }}>
+            {layers.map(l => `${t(LAYER_LABEL[l.layer])}: ${l.license}${l.basis ? ` (${l.basis})` : ""}`).join(" · ")}
+          </p>
+        )}
+      </div>
     </main>
   );
 }

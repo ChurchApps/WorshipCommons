@@ -110,7 +110,8 @@ export default function Transcribe() {
     let subId = "";
     try {
       const payload = await wcGet(`/assets/${song.id}/editable`, true);
-      const created = await wcPost("/submissions", { assetId: song.id, payload, note: "ABC transcription" }, true);
+      // an ABC score adds a file to a published song — the additionalFile proposal type, so reviewers and /my-songs label it right
+      const created = await wcPost("/submissions", { assetId: song.id, payload: { ...payload, type: "additionalFile" }, note: "ABC transcription" }, true);
       subId = created.submissionId;
       const base64 = btoa(Array.from(new TextEncoder().encode(abc), b => String.fromCharCode(b)).join(""));
       await wcPost(`/submissions/${subId}/files`, { name: "tune.abc", contentType: "text/plain; charset=utf-8", base64 }, true);

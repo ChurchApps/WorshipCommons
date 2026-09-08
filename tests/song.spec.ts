@@ -18,7 +18,7 @@ test.beforeAll(async ({ request }) => {
 
 test.describe("song page", () => {
   test("renders the chart with stanzas and metadata", async ({ page }) => {
-    await page.goto(AMAZING_GRACE);
+    await page.goto(AMAZING_GRACE + "?mode=charts");
     await expect(page.getByRole("heading", { name: "Amazing Grace" })).toBeVisible();
     await expect(page.locator(".byline")).toContainText("John Newton · 1779");
     for (const label of ["Verse 1", "Verse 2"]) {
@@ -26,6 +26,8 @@ test.describe("song page", () => {
     }
     await expect(page.locator("#key-label")).toHaveText("G");
     await expect(page.locator(".sheet .pd-badge")).toContainText("Public domain");
+    // the license note and the rights matrix live in the About mode
+    await page.getByTestId("mode-about").click();
     await expect(page.locator(".license-note")).toContainText("Public domain");
     await expect(page.locator(".license-note")).toContainText("including commercial");
     await expect(page.locator(".license-note")).not.toContainText("anywhere");
@@ -33,7 +35,7 @@ test.describe("song page", () => {
   });
 
   test("transposes chords to any key", async ({ page }) => {
-    await page.goto(AMAZING_GRACE);
+    await page.goto(AMAZING_GRACE + "?mode=charts");
     const firstChord = page.locator(".stanza .seg .c").first();
     await expect(firstChord).toHaveText("G");
 
@@ -48,7 +50,7 @@ test.describe("song page", () => {
   });
 
   test("show-chords toggle hides the chord line", async ({ page }) => {
-    await page.goto(AMAZING_GRACE);
+    await page.goto(AMAZING_GRACE + "?mode=charts");
     const firstChord = page.locator(".stanza .seg .c").first();
     await expect(firstChord).toBeVisible();
     await page.uncheck("#chords-toggle");
@@ -71,7 +73,7 @@ test.describe("song page", () => {
   });
 
   test("real translations link both ways through the commons", async ({ page }) => {
-    await page.goto(SILENT_NIGHT);
+    await page.goto(SILENT_NIGHT + "?mode=about");
     await expect(page.getByTestId("demo-audio")).toHaveCount(0);
     await expect(page.locator(".mt-zip")).toHaveCount(0);
     await expect(page.locator(".rel-list a", { hasText: "Stille Nacht" })).toBeVisible();
@@ -79,11 +81,12 @@ test.describe("song page", () => {
 
     await page.locator(".rel-list a", { hasText: "Stille Nacht" }).click();
     await expect(page.getByRole("heading", { name: "Stille Nacht" })).toBeVisible();
+    await page.getByTestId("mode-about").click();
     await expect(page.locator(".rel-list a", { hasText: "Silent Night" })).toBeVisible();
   });
 
   test("a seeded hymn renders with real lyrics and flat-key transposition", async ({ page }) => {
-    await page.goto(SILENT_NIGHT);
+    await page.goto(SILENT_NIGHT + "?mode=charts");
     await expect(page.getByRole("heading", { name: "Silent Night" })).toBeVisible();
     await expect(page.getByText("all is calm,")).toBeVisible();
     const firstChord = page.locator(".stanza .seg .c").first();
@@ -99,19 +102,17 @@ test.describe("song page", () => {
     expect((await midi.body()).subarray(0, 4).toString()).toBe("MThd");
   });
 
-  test("tempo control and karaoke sing-along on a timed hymn", async ({ page }) => {
+  test("tempo control and the Lead worship link on a timed hymn", async ({ page }) => {
     await page.goto(ABIDE);
     await expect(page.locator("#tempo")).toBeVisible();
     await expect(page.locator(".tempo-val").first()).toContainText("BPM");
 
-    const sing = page.getByTestId("sing-along");
-    await expect(sing).toBeVisible();
-    await sing.click();
-    await expect(page.getByTestId("karaoke")).toBeVisible();
-    // lyrics come from lyrics.json and render without waiting on audio
-    await expect(page.locator(".karaoke-line").first()).toContainText("Abide, O dearest Jesus");
-    await page.getByTestId("karaoke-close").click();
-    await expect(page.getByTestId("karaoke")).toHaveCount(0);
+    // the sing-along overlay is gone from this page: Lead worship is its own route, linked in the chosen key
+    await expect(page.getByTestId("sing-along")).toHaveCount(0);
+    await page.getByTestId("mode-lead").click();
+    const lead = page.getByTestId("lead-worship");
+    await expect(lead).toBeVisible();
+    expect(await lead.getAttribute("href")).toContain(`${ABIDE}/lead?key=`);
   });
 
   test("voice parts are detected from the midi and selectable", async ({ page }) => {
@@ -124,11 +125,15 @@ test.describe("song page", () => {
     await expect(parts.locator(".part-btn.on")).toHaveText("Tenor");
   });
 
-  test("songs without timing data get no sing-along button", async ({ page }) => {
+  test("songs without timing data get no player and no Lead worship link", async ({ page }) => {
     await page.goto(BARE_SONG);
     await expect(page.locator(".song-title")).toBeVisible();
     await expect(page.getByTestId("piano-play")).toHaveCount(0);
+    await expect(page.getByTestId("hero-play")).toHaveCount(0);
     await expect(page.getByTestId("sing-along")).toHaveCount(0);
+    await page.getByTestId("mode-lead").click();
+    await expect(page.getByTestId("lead-worship")).toHaveCount(0);
+    await expect(page.getByTestId("lead-worship-note")).toBeVisible();
   });
 
   test("print chart renders a printable page in the chosen key", async ({ page }) => {

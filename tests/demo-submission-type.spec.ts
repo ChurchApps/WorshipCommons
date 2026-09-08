@@ -18,7 +18,7 @@ async function englishOriginal(request: import("@playwright/test").APIRequestCon
 }
 
 test.describe.serial("submission type", () => {
-  test("a translation records parentSongId and relationLabel", async ({ page, request }) => {
+  test("a translation names its translator and records parentSongId, relationLabel and type", async ({ page, request }) => {
     const parent = await englishOriginal(request);
 
     await page.goto("/upload");
@@ -28,24 +28,37 @@ test.describe.serial("submission type", () => {
     await expect(picker.locator(`option[value="${parent.id}"]`)).toHaveCount(1);
     await picker.selectOption(parent.id);
 
+    // the translator field only exists for a translation; the arranger field only for an arrangement
+    await expect(page.getByTestId("translator")).toBeVisible();
+    await expect(page.getByTestId("arranger")).toHaveCount(0);
+
     await page.fill("#title", TRANSLATION_TITLE);
-    await page.fill("#writers", "Playwright Translator");
+    await page.fill("#writers", "Playwright Hymnwriter");
     await page.fill("#lyrics", LYRICS);
     await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
 
-    // still English — the form must refuse a translation into the original's own language
+    // no translator, still English — the form refuses both, in the server's own words
     await page.getByRole("button", { name: "Add it to the commons" }).click();
+    await expect(page.getByTestId("upload-error")).toContainText("Translator is required");
     await expect(page.getByTestId("upload-error")).toContainText("different language");
 
+    await page.getByTestId("translator").fill("Playwright Translator");
     await page.selectOption("#lang", "Spanish");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
 
     const pending = await pendingSubmissionFor(request, TRANSLATION_TITLE);
+    expect(pending.type).toBe("translation");
     const detail = await submissionDetail(request, pending.id);
+    expect(detail.payload.type).toBe("translation");
+    expect(detail.payload.detail.translator).toBe("Playwright Translator");
     expect(detail.payload.detail.parentSongId).toBe(parent.id);
     expect(detail.payload.detail.relationLabel).toBe("Translation (Spanish)");
+
+    await page.goto("/my-songs");
+    const row = page.getByTestId("my-song").filter({ hasText: TRANSLATION_TITLE }).first();
+    await expect(row.getByTestId("my-song-type")).toHaveText("Translation");
   });
 
   test("a MIDI melody uploads as tune.mid", async ({ page, request }) => {

@@ -1,0 +1,31 @@
+/* ---- song page: Project mode panel ---- */
+.project-panel { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.project-exports { display: flex; flex-wrap: wrap; gap: 10px; }
+.project-exports .btn { padding: 10px 18px; min-height: 42px; font-size: 0.9375rem; }
+.project-note { margin: 0; max-width: 56ch; }
+
+/* ---- /songs/:id/project: the lyrics-only projector ---- */
+.projector { --pj-bg: #000; --pj-fg: #fff; --pj-dim: rgba(255,255,255,0.55); --pj-bar: rgba(255,255,255,0.08);
+  position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--pj-bg); color: var(--pj-fg); font-family: var(--font-heading, system-ui, sans-serif); cursor: default; user-select: none; }
+.projector-light { --pj-bg: #fff; --pj-fg: #000; --pj-dim: rgba(0,0,0,0.55); --pj-bar: rgba(0,0,0,0.06); }
+.projector-stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4vh 6vw; text-align: center; cursor: pointer; }
+.projector-slide p { margin: 0; font-size: clamp(2rem, 5.2vw, 5rem); font-weight: 600; line-height: 1.3; text-wrap: balance; text-shadow: 0 2px 12px rgba(0,0,0,0.25); }
+.projector-light .projector-slide p { text-shadow: none; }
+.projector-msg { color: var(--pj-dim); font-size: 1.25rem; text-align: center; padding: 40px; }
+.projector-msg a { color: var(--pj-fg); }
+
+.projector-bar { display: flex; flex-direction: column; gap: 8px; padding: 10px 16px 12px; background: var(--pj-bar); font-size: 0.875rem; color: var(--pj-dim); transition: opacity 0.3s; }
+.projector-meta { display: flex; gap: 18px; align-items: baseline; }
+.projector-label { color: var(--pj-fg); font-weight: 600; }
+.projector-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.projector-picker button { font: inherit; font-size: 0.8125rem; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--pj-dim); background: transparent; color: var(--pj-dim); cursor: pointer; }
+.projector-picker button.on { background: var(--pj-fg); color: var(--pj-bg); border-color: var(--pj-fg); }
+.projector-tools { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.projector-tools button, .projector-tools a { font: inherit; background: none; border: none; color: var(--pj-dim); cursor: pointer; padding: 0; text-decoration: none; }
+.projector-tools button:hover, .projector-tools a:hover { color: var(--pj-fg); }
+.projector-tools kbd { font-family: inherit; font-size: 0.75rem; border: 1px solid var(--pj-dim); border-radius: 4px; padding: 0 5px; margin-left: 3px; }
+.projector-credit { margin: 0; font-size: 0.75rem; }
+
+/* the bar fades when the mouse has left it, so a full-screen projector shows lyrics only */
+.projector:fullscreen .projector-bar { opacity: 0.15; }
+.projector:fullscreen .projector-bar:hover { opacity: 1; }

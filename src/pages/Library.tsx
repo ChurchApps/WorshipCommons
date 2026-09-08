@@ -8,7 +8,7 @@ import { useI18n } from "../i18n";
 
 export default function Library() {
   const { t } = useI18n();
-  usePageMeta(t("Your library — WorshipCommons"));
+  usePageMeta(t("Saved songs — WorshipCommons"));
   const { user } = useAuth();
   const location = useLocation();
   const [songs, setSongs] = useState<Song[] | null>(null);
@@ -28,9 +28,9 @@ export default function Library() {
   return (
     <main className="wrap-narrow">
       <div className="page-head">
-        <span className="eyebrow">{t("Your library")}</span>
+        <span className="eyebrow">{t("Saved songs")}</span>
         <h1>{t("Songs you’ve saved")}</h1>
-        <p className="lede">{t("Saved to your account — on every device you sign in from.")}</p>
+        <p className="lede">{t("Saved to your account — on every device you sign in from.")} <Link to="/setlists" data-testid="library-setlists">{t("Building a set for Sunday? Setlists →")}</Link></p>
       </div>
 
       {!songs && <p>{t("Loading…")}</p>}

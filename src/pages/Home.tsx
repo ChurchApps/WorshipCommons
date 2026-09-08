@@ -7,6 +7,8 @@ import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 import { licenseOf } from "../licenses";
 import LicenseBadge from "../components/LicenseBadge";
+import ConfidenceBadge from "../components/ConfidenceBadge";
+import { splitLanguages, topBlock } from "../catalog";
 
 const PlayIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
@@ -46,15 +48,21 @@ export default function Home() {
   const [songs, setSongs] = useState<Song[]>([]);
   useEffect(() => { loadSongs().then(setSongs); }, []);
 
-  // /songs arrives sorted by downloadCount desc
-  const top = songs.filter(s => s.language === SONG_LANG[lang]).slice(0, 10);
+  const block = topBlock(songs, SONG_LANG[lang]);
+  const top = block.songs.slice(0, 10);
   // "from writers" = anything a living writer shared here (WC or CC BY originals), never the public-domain hymnal
   const fromWriters = songs.filter(s => licenseOf(s).uploadable && s.license !== "PD").sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
+  // headline totals count catalog languages only; browse languages are searchable but not yet a catalog
+  const { catalog, browse } = splitLanguages(songs);
+  // ponytail: with no catalog language at all the headline would read "0 songs" — count everything until one crosses the threshold
+  const counted = catalog.length ? songs.filter(s => catalog.includes(s.language)) : songs;
   const stats = {
-    songs: songs.length,
+    songs: counted.length,
     downloads: songs.reduce((n, s) => n + s.downloadCount, 0),
-    langs: new Set(songs.map(s => s.language)).size
+    langs: catalog.length || browse.length,
+    browse: catalog.length ? browse.length : 0
   };
+  const browseNote = stats.browse > 0 && <small className="browse-note" data-testid="browse-langs">{t("+ {count} browse languages", { count: stats.browse })}</small>;
 
   return (
     <main>
@@ -73,7 +81,7 @@ export default function Home() {
             </div>
             <p className="hero-proof rise rise-3">
               <span><NoteIcon /><strong>{stats.songs > 0 ? t("{count} songs", { count: stats.songs.toLocaleString() }) : t("Hundreds of songs")}</strong> {t("free for your church to use")}</span>
-              <span><GlobeIcon /><strong>{t("{count} languages", { count: stats.langs })}</strong></span>
+              <span><GlobeIcon /><strong>{t("{count} languages", { count: stats.langs })}</strong> {browseNote}</span>
             </p>
           </div>
           <div className="hero-panel rise rise-3">
@@ -87,18 +95,20 @@ export default function Home() {
                 {t("Filters")}
               </Link>
             </div>
+            <div className="hp-label" data-testid="hp-top-heading">{t(block.heading)}</div>
             <ul className="hp-list">
               {top.slice(0, 5).map((s, i) => (
                 <li key={s.id} className={i === 0 ? "on" : ""}>
                   <Link to={`/songs/${s.id}`}>
                     {i === 0 && <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>}
                     {s.artUrl
-                      ? <span className="hp-cover"><img src={s.artUrl.replace(/art\.webp$/, "art-thumb.webp")} alt="" loading="lazy" /></span>
+                      ? <span className="hp-cover"><img src={s.thumbUrl || s.artUrl.replace(/art\.webp$/, "art-thumb.webp")} alt="" loading="lazy" /></span>
                       : <span className="hp-cover" aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 88, 88) }} />}
                     <span className="hp-main"><b>{s.title}</b><span>{s.writer} • {s.year}</span></span>
-                    <span className="hp-themes">{themeList(s).slice(0, 2).map(th => <span className="th" key={th}>{th}</span>)}</span>
+                    <span className="hp-themes">{themeList(s).slice(0, 1).map(th => <span className="th" key={th}>{th}</span>)}</span>
                     <span className="hp-key">{s.songKey}</span>
                     <span className="hp-bpm">{s.bpm}</span>
+                    <span className="hp-conf"><ConfidenceBadge confidence={s.confidence} compact /></span>
                     {s.license === "PD"
                       ? <span className="hp-pd" title={t("Public domain")}><GlobeIcon size={15} /></span>
                       : <LicenseBadge license={licenseOf(s)} compact />}
@@ -116,7 +126,7 @@ export default function Home() {
           <span><PeopleIcon />{t("Free for churches")}</span>
           <span><ShieldIcon />{t("Public domain songs")}</span>
           <span><PenIcon />{t("Writers keep all commercial rights")}</span>
-          <span><GlobeIcon size={18} />{t("{count} languages and growing", { count: stats.langs })}</span>
+          <span><GlobeIcon size={18} />{t("{count} languages and growing", { count: stats.langs })} {browseNote}</span>
           <span><NoteIcon />{t("{count} songs and counting", { count: stats.songs.toLocaleString() })}</span>
         </div>
       </div>
@@ -170,15 +180,16 @@ export default function Home() {
               <Link className="chip" to="/songs?lang=Spanish">En español</Link>
             </div>
             <div className="row-head">
-              <h3>{t("Most downloaded in the commons")}</h3>
-              <Link to="/songs">{t("See all →")}</Link>
+              <h3 data-testid="home-top-heading">{t(block.heading)}</h3>
+              <Link to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : "/songs"}>{t("See all →")}</Link>
             </div>
-            <ul className="row-list">
+            <ul className="row-list" data-testid="home-top-list">
               {top.slice(0, 4).map(s => (
                 <li key={s.id}>
                   <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
                   <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
                   <span className="kv">{s.songKey} · {s.bpm} BPM{s.downloadCount > 0 ? t(" · {count} downloads", { count: s.downloadCount.toLocaleString() }) : ""}</span>
+                  <ConfidenceBadge confidence={s.confidence} compact onArt />
                   <span className="free-badge">{t("Free")}</span>
                 </li>
               ))}
@@ -255,7 +266,7 @@ export default function Home() {
         <div className="wrap stats-band">
           <div className="stat animate-on-scroll"><b>{stats.songs.toLocaleString()}</b><span>{t("songs, growing weekly")}</span></div>
           <div className="stat animate-on-scroll"><b>{stats.downloads.toLocaleString()}</b><span>{t("downloads across the library")}</span></div>
-          <div className="stat animate-on-scroll"><b>{stats.langs}</b><span>{t("languages and counting")}</span></div>
+          <div className="stat animate-on-scroll"><b>{stats.langs}</b><span>{t("languages and counting")} {browseNote}</span></div>
         </div>
       </section>
 

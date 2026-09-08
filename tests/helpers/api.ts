@@ -18,6 +18,16 @@ export async function songIdByTitle(request: APIRequestContext, title: string): 
   return song.id;
 }
 
+/** An English seed song with melody + art but no sheet PDF — the harvest keeps adding PDFs to the famous hymns, so specs pick one instead of naming it. */
+export async function songWithoutSheetPdf(request: APIRequestContext): Promise<{ id: string; title: string; slug: string }> {
+  const list = await (await request.get(`${WC_API}/songs`)).json();
+  const song = list.find((s: any) => s.language === "English" && s.fileUrls?.midi && !s.fileUrls?.sheetPdf && (s.fileUrls?.art || s.fileUrls?.cover) && s.title === "Rock of Ages")
+    || list.find((s: any) => s.language === "English" && s.fileUrls?.midi && !s.fileUrls?.sheetPdf && (s.fileUrls?.art || s.fileUrls?.cover));
+  if (!song) throw new Error("No seed song without a sheet PDF");
+  const slug = song.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return { id: song.id, title: song.title, slug };
+}
+
 export async function userJwt(request: APIRequestContext): Promise<string> {
   const resp = await request.post(`${CORE_API}/membership/users/login`, { data: { email: "demo@b1.church", password: "password" } });
   const body = await resp.json();

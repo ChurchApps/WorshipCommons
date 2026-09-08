@@ -1,7 +1,10 @@
 import { test, expect, Page } from "@playwright/test";
 import { WC_API } from "./helpers/api";
 
-interface SeedSong { title: string; writer: string; scripture: string; themes: string; bpm: number; year: number; language: string; license: string; downloadCount: number; publishedAt?: string; createdAt?: string; fileUrls?: Record<string, string>; }
+interface SeedSong {
+  title: string; writer: string; scripture: string; themes: string; firstLine?: string | null; tune?: string | null; bpm: number; year: number;
+  language: string; license: string; downloadCount: number; publishedAt?: string; createdAt?: string; fileUrls?: Record<string, string>;
+}
 
 // expectations are computed from the live seed so the catalog can grow without breaking specs
 let songs: SeedSong[] = [];
@@ -37,7 +40,7 @@ test.describe("library", () => {
 
   test("search narrows results and empty state appears for no matches", async ({ page }) => {
     await openLibrary(page);
-    const expected = songs.filter(s => `${s.title} ${s.writer} ${s.scripture} ${s.themes}`.toLowerCase().includes("amazing")).length;
+    const expected = songs.filter(s => `${s.title} ${s.writer} ${s.scripture} ${s.themes} ${s.firstLine || ""} ${s.tune || ""}`.toLowerCase().includes("amazing")).length;
     await page.fill("#q", "amazing");
     await expect(page.locator(".t-row")).toHaveCount(expected);
     await expect(page.locator(".t-row", { hasText: "Amazing Grace" })).toBeVisible();
@@ -81,7 +84,7 @@ test.describe("library", () => {
     await expect(page.locator("#count")).toContainText(countText(audio));
 
     const audioAndStems = songs.filter(s => s.fileUrls?.demoAudio && s.fileUrls?.stemsZip).length;
-    await page.getByLabel(/Has multitracks/).check();
+    await page.getByLabel(/Has stems/).check();  // moved from Extras to the Ready to use group
     await expect(page.locator("#count")).toContainText(countText(audioAndStems));
   });
 

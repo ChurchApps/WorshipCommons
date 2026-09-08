@@ -1,6 +1,18 @@
 import { wcGet } from "./api";
 import themeVocabulary from "./themes.json";
 
+// ---- package model: what masters/ and derivatives/ hold, as the API reports it ----
+export type Confidence = "sunday-ready" | "proofread-score" | "converted-from-abc" | "generated-from-midi" | "chart-only" | "lyrics-only";
+export type RightsLayer = "text" | "translation" | "tune" | "arrangement" | "recording" | "artwork";
+export interface RightsRow { license: string; basis?: string | null; source?: string | null; holder?: string | null; note?: string | null; review?: string | null; }
+export type Rights = Partial<Record<RightsLayer, RightsRow | null>>;
+export type Use = "project" | "print" | "stream" | "arrange" | "record";
+export interface UseRule { allowed: boolean; conditions: string[]; }
+export type RightsMatrix = Record<Use, UseRule>;
+export interface FormSection { label: string; lyric?: number | null; measures?: string | null; }
+export interface FormMap { status?: "draft" | "approved"; sections: FormSection[]; defaultOrder: string[]; }
+export interface Contributor { name: string; what: string; submissionId?: string; at?: string; }
+
 export interface Song {
   id: string;
   title: string;
@@ -44,6 +56,39 @@ export interface Song {
   status?: string;
   createdAt?: string;
   publishedAt?: string;
+  // package model (summary rows)
+  confidence?: Confidence;
+  sundayReady?: boolean;
+  featured?: boolean;
+  firstLine?: string | null;
+  tune?: string | null;
+  hasChords?: boolean;
+  hasScore?: boolean;
+  hasSlides?: boolean;
+  hasTiming?: boolean;
+  hasAccompaniment?: boolean;
+  recommendedKey?: string | null;
+  singTimeSeconds?: number | null;
+  hymnalCount?: number;
+  // package model (detail only)
+  rights?: Rights | null;
+  rightsMatrix?: RightsMatrix | null;
+  ccliReport?: boolean | null;
+  attribution?: string | null;
+  form?: FormMap | null;
+  publishedKeys?: string[];
+  recommendedKeyReason?: string | null;
+  scoreSource?: "master" | "abc" | "midi" | null;
+  contributors?: Contributor[];
+  sundayReadyAt?: string | null;
+  sundayReadyBy?: string | null;
+  listenedKeys?: string[];
+  scoreUrl?: string;
+  slidesUrl?: string;
+  chartUrl?: string;
+  chartPdfUrl?: string;
+  attributionUrl?: string;
+  thumbUrl?: string;
 }
 
 let cache: Song[] | null = null;
@@ -59,7 +104,14 @@ const URL_FIELDS: [keyof Song, string][] = [
   ["abcUrl", "abc"],
   ["lyricsUrl", "timing"],
   ["artUrl", "art"],
-  ["writerPortraitUrl", "portrait"]
+  ["artUrl", "cover"],
+  ["writerPortraitUrl", "portrait"],
+  ["scoreUrl", "score"],
+  ["slidesUrl", "slides"],
+  ["chartUrl", "chart"],
+  ["chartPdfUrl", "chartPdf"],
+  ["attributionUrl", "attribution"],
+  ["thumbUrl", "thumb"]
 ];
 
 export function songFromApi(raw: any): Song {
@@ -90,6 +142,36 @@ export async function loadSong(id: string): Promise<Song | null> {
     }
   }
   return songCache.get(id) ?? null;
+}
+
+export interface HistoryEntry { submissionId: string; submittedByName?: string; approvedAt?: string; note?: string; filesChanged?: { name: string; action: string }[] }
+export interface SongRating { average: number | null; count: number; mine: number | null; }
+export interface SongPageData {
+  song: Song;
+  rating: SongRating;
+  history: HistoryEntry[];
+  /** parent + siblings + children via parentSongId, in catalog order */
+  family: Song[];
+  /** top matches in the same language, each with a one-sentence reason */
+  similar: (Song & { reason?: string })[];
+}
+
+// The one fetch the song page needs: detail + rating (mine needs the JWT) + history + family + similar.
+// Not cached — `rating.mine` depends on who is asking.
+export async function loadSongPage(id: string): Promise<SongPageData | null> {
+  try {
+    const raw = await wcGet(`/songs/${id}/page`, true);
+    if (!raw?.song) return null;
+    return {
+      song: songFromApi(raw.song),
+      rating: { average: raw.rating?.average ?? null, count: raw.rating?.count ?? 0, mine: raw.rating?.mine ?? null },
+      history: raw.history || [],
+      family: (raw.family || []).map(songFromApi),
+      similar: (raw.similar || []).map(songFromApi)
+    };
+  } catch {
+    return null;
+  }
 }
 
 // the controlled vocabulary, in the order it should be offered and faceted

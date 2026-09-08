@@ -57,3 +57,6 @@ export function makeZip(files: ZipEntry[], when = new Date()): Blob {
   end.setUint32(16, offset, true);
   return new Blob([...parts, ...central, new Uint8Array(end.buffer)] as BlobPart[], { type: "application/zip" });
 }
+
+/** A UTF-8 text file for the zip — setlist packs are mostly charts, slides, and notices. */
+export const textEntry = (name: string, text: string): ZipEntry => ({ name, data: new TextEncoder().encode(text) });
