@@ -363,7 +363,7 @@ export default function Songs() {
                         : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
                     </button>
                     {s.artUrl || s.writerPortraitUrl
-                      ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={s.artUrl ? "art" : ""} src={s.artUrl ? s.artUrl.replace(/art\.webp$/, "art-thumb.webp") : s.writerPortraitUrl} alt="" loading="lazy" /></Link>
+                      ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={s.artUrl ? "art" : ""} src={s.artUrl ? (s.thumbUrl || s.artUrl.replace(/art\.webp$/, "art-thumb.webp")) : s.writerPortraitUrl} alt="" loading="lazy" /></Link>
                       : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
                     <div className="t-main">
                       <Link to={`/songs/${s.id}`}>{s.title}</Link>

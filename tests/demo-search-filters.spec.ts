@@ -66,7 +66,7 @@ test.describe("search, filters and ranking", () => {
     await expect(rows).toHaveCount(Math.min(50, songs.length));
     test.skip(songs.some(s => !s.confidence), "seed has rows without confidence");
     await expect(rows.locator("[data-testid='confidence-badge']")).toHaveCount(Math.min(50, songs.length));
-    for (const text of await rows.locator("[data-testid='confidence-badge']").allInnerTexts()) expect(Object.values(LABEL)).toContain(text);
+    for (const text of await rows.locator("[data-testid='confidence-badge']").allInnerTexts()) expect(Object.values(LABEL).map(l => l.toLowerCase())).toContain(text.trim().toLowerCase()); // the badge is uppercased by CSS
 
     // a reason shows only where a completeness or provenance signal adds to the badges
     const reasons = page.getByTestId("rank-reason");

@@ -44,7 +44,7 @@ test.describe.serial("cover art", () => {
     await page.fill("#q", "cover art e2e");
     const row = page.locator(".t-row", { hasText: SONG_TITLE });
     await expect(row).toBeVisible();
-    await expect(row.locator("img.art")).toHaveAttribute("src", /art-thumb\.webp/);
+    await expect(row.locator("img.art")).toHaveAttribute("src", /(art|cover)-thumb\.webp/);
 
     // the thumbnail really serves from the API's content store
     const src = await row.locator("img.art").getAttribute("src");
