@@ -89,7 +89,7 @@ test.describe("setlists", () => {
     const link = await page.getByTestId("share-url").inputValue();
     expect(link).toMatch(/\/setlists\/shared#[A-Za-z0-9_-]+$/);
 
-    const fresh = await browser.newContext();
+    const fresh = await browser.newContext({ storageState: { cookies: [], origins: [] } }); // the config's storageState would sign the viewer in
     const viewer = await fresh.newPage();
     await viewer.goto(link);
     await expect(viewer.getByTestId("setlist-title")).toHaveText("Share spec");

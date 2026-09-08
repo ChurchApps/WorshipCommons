@@ -53,7 +53,11 @@ test.describe("song page: hero, modes, rights", () => {
     await btn.click();
     await expect(btn).toHaveText("Copied");
     const clip = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clip.trim()).toBe(expected);
+    expect(clip.replace(/
+?/g, "
+").split("
+").map(x => x.trimEnd()).join("
+").trim()).toBe(expected); // Windows clipboard adds CRs
   });
 
   test("mode tabs render only for the assets a song has; lyrics-only songs get the lyrics-and-chords note", async ({ page, request }) => {
