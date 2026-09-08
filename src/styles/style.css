@@ -187,3 +187,10 @@ fieldset { border: 0; }
 .cc-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: #E8F1FB; color: #1B4F8A; border: 1px solid #B9D3EE; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .cc-badge.nc { background: #FDF0E0; color: #8A4B08; border-color: #F0CFA0; }
 .cc-badge.on-art { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.4); }
+
+/* ===== confidence badge (package model) ===== */
+.confidence-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.confidence-badge.sunday-ready { background: #E6F4EA; color: #1E6B3A; border-color: #A9D8B6; }
+.confidence-badge.proofread-score { background: #E8F1FB; color: #1B4F8A; border-color: #B9D3EE; }
+.confidence-badge.converted-from-abc, .confidence-badge.generated-from-midi { background: #FDF6E3; color: #7A5A00; border-color: #EAD48A; }
+.confidence-badge.on-art { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.4); }

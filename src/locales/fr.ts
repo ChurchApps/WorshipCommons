@@ -561,6 +561,24 @@ const fr: Record<string, string> = {
   "Use it in ads": "L’utiliser dans des publicités",
   "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)": "Le mettre dans une diffusion ou une vidéo monétisée (publicités YouTube, téléchargement payant, direct payant)",
   "Use it in a conference or product people pay to attend as the product": "L’utiliser dans une conférence ou un produit que les gens paient pour y assister en tant que produit",
+  // package model: confidence badge, lead worship, project, setlists
+  "Sunday-ready": "Prêt pour dimanche",
+  "Proofread score": "Partition relue",
+  "Converted from ABC": "Converti depuis ABC",
+  "Generated from MIDI": "Généré depuis MIDI",
+  "Chart only": "Grille seule",
+  "Lyrics only": "Paroles seules",
+  "Proofread score, listened-to audio, chart, slides, and rights that agree": "Partition relue, audio écouté, grille, diapositives et droits concordants",
+  "A person proofread the notes; charts and audio are built from them": "Une personne a relu les notes ; grilles et audio en découlent",
+  "Score converted from Open Hymnal ABC, not yet proofread here": "Partition convertie depuis l’ABC d’Open Hymnal, pas encore relue ici",
+  "Score derived from a MIDI file; check it before you print": "Partition dérivée d’un fichier MIDI ; vérifiez avant d’imprimer",
+  "Lyrics with chords; no melody score yet": "Paroles avec accords ; pas encore de partition mélodique",
+  "Words only; no chords or score yet": "Paroles seules ; pas encore d’accords ni de partition",
+  "No CCLI report needed": "Aucune déclaration CCLI nécessaire",
+  "Lead worship": "Conduire la louange",
+  "Project lyrics": "Projeter les paroles",
+  "+ Add to setlist": "+ Ajouter à la liste",
+  "Setlists are coming soon": "Les listes arrivent bientôt"
 };
 
 export default fr;

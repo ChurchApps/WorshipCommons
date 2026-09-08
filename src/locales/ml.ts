@@ -561,6 +561,24 @@ const ml: Record<string, string> = {
   "Use it in ads": "പരസ്യങ്ങളിൽ ഉപയോഗിക്കുക",
   "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)": "പണമാക്കുന്ന സ്ട്രീമിലോ വീഡിയോയിലോ ഇടുക (YouTube പരസ്യങ്ങൾ, പണമടച്ചുള്ള ഡൗൺലോഡ്, ടിക്കറ്റുള്ള ലൈവ്)",
   "Use it in a conference or product people pay to attend as the product": "ആളുകൾ ഉൽപ്പന്നമായി പണം നൽകി പങ്കെടുക്കുന്ന കോൺഫറൻസിലോ ഉൽപ്പന്നത്തിലോ ഉപയോഗിക്കുക",
+  // package model: confidence badge, lead worship, project, setlists
+  "Sunday-ready": "ഞായറാഴ്ചയ്ക്ക് തയ്യാർ",
+  "Proofread score": "പരിശോധിച്ച സ്വരലിപി",
+  "Converted from ABC": "ABC-യിൽ നിന്ന് മാറ്റിയത്",
+  "Generated from MIDI": "MIDI-യിൽ നിന്ന് ഉണ്ടാക്കിയത്",
+  "Chart only": "കോർഡ് മാത്രം",
+  "Lyrics only": "വരികൾ മാത്രം",
+  "Proofread score, listened-to audio, chart, slides, and rights that agree": "പരിശോധിച്ച സ്വരലിപി, കേട്ട ഓഡിയോ, കോർഡ്, സ്ലൈഡുകൾ, യോജിക്കുന്ന അവകാശങ്ങൾ",
+  "A person proofread the notes; charts and audio are built from them": "ഒരാൾ സ്വരങ്ങൾ പരിശോധിച്ചു; കോർഡും ഓഡിയോയും അതിൽ നിന്നാണ്",
+  "Score converted from Open Hymnal ABC, not yet proofread here": "Open Hymnal ABC-യിൽ നിന്ന് മാറ്റിയ സ്വരലിപി, ഇവിടെ ഇനിയും പരിശോധിച്ചിട്ടില്ല",
+  "Score derived from a MIDI file; check it before you print": "MIDI ഫയലിൽ നിന്ന് ഉണ്ടാക്കിയ സ്വരലിപി; അച്ചടിക്കും മുമ്പ് പരിശോധിക്കുക",
+  "Lyrics with chords; no melody score yet": "കോർഡുകളോടെ വരികൾ; ഇനിയും ഈണത്തിന്റെ സ്വരലിപിയില്ല",
+  "Words only; no chords or score yet": "വാക്കുകൾ മാത്രം; ഇനിയും കോർഡോ സ്വരലിപിയോ ഇല്ല",
+  "No CCLI report needed": "CCLI-ക്ക് റിപ്പോർട്ട് ചെയ്യേണ്ടതില്ല",
+  "Lead worship": "ആരാധന നയിക്കുക",
+  "Project lyrics": "വരികൾ പ്രദർശിപ്പിക്കുക",
+  "+ Add to setlist": "+ സെറ്റ്‌ലിസ്റ്റിൽ ചേർക്കുക",
+  "Setlists are coming soon": "സെറ്റ്‌ലിസ്റ്റുകൾ ഉടൻ വരുന്നു"
 };
 
 export default ml;

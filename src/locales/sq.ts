@@ -561,6 +561,24 @@ const sq: Record<string, string> = {
   "Use it in ads": "Ta përdorni në reklama",
   "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)": "Ta vendosni në një transmetim apo video të monetizuar (reklama YouTube, shkarkim me pagesë, live me bileta)",
   "Use it in a conference or product people pay to attend as the product": "Ta përdorni në një konferencë apo produkt për të cilin njerëzit paguajnë si vetë produkti",
+  // package model: confidence badge, lead worship, project, setlists
+  "Sunday-ready": "Gati për të dielën",
+  "Proofread score": "Partiturë e korrigjuar",
+  "Converted from ABC": "Konvertuar nga ABC",
+  "Generated from MIDI": "Krijuar nga MIDI",
+  "Chart only": "Vetëm akorde",
+  "Lyrics only": "Vetëm tekst",
+  "Proofread score, listened-to audio, chart, slides, and rights that agree": "Partiturë e korrigjuar, audio e dëgjuar, akorde, slajde dhe të drejta që përputhen",
+  "A person proofread the notes; charts and audio are built from them": "Një person i ka korrigjuar notat; akordet dhe audio ndërtohen prej tyre",
+  "Score converted from Open Hymnal ABC, not yet proofread here": "Partiturë e konvertuar nga ABC e Open Hymnal, ende e pakorrigjuar këtu",
+  "Score derived from a MIDI file; check it before you print": "Partiturë e nxjerrë nga një skedar MIDI; kontrolloje para se ta printosh",
+  "Lyrics with chords; no melody score yet": "Tekst me akorde; ende pa partiturë melodie",
+  "Words only; no chords or score yet": "Vetëm fjalë; ende pa akorde apo partiturë",
+  "No CCLI report needed": "Nuk nevojitet raportim te CCLI",
+  "Lead worship": "Udhëhiq adhurimin",
+  "Project lyrics": "Projekto tekstin",
+  "+ Add to setlist": "+ Shto në listë",
+  "Setlists are coming soon": "Listat vijnë së shpejti"
 };
 
 export default sq;

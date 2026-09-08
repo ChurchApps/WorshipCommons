@@ -561,6 +561,24 @@ const pt: Record<string, string> = {
   "Use it in ads": "Usá-la em anúncios",
   "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)": "Colocá-la numa transmissão ou vídeo monetizado (anúncios do YouTube, download pago, ao vivo com ingresso)",
   "Use it in a conference or product people pay to attend as the product": "Usá-la numa conferência ou produto pelo qual as pessoas pagam como o próprio produto",
+  // package model: confidence badge, lead worship, project, setlists
+  "Sunday-ready": "Pronta para o domingo",
+  "Proofread score": "Partitura revisada",
+  "Converted from ABC": "Convertida de ABC",
+  "Generated from MIDI": "Gerada de MIDI",
+  "Chart only": "Só cifra",
+  "Lyrics only": "Só letra",
+  "Proofread score, listened-to audio, chart, slides, and rights that agree": "Partitura revisada, áudio ouvido, cifra, slides e direitos que concordam",
+  "A person proofread the notes; charts and audio are built from them": "Uma pessoa revisou as notas; cifras e áudio são gerados a partir delas",
+  "Score converted from Open Hymnal ABC, not yet proofread here": "Partitura convertida do ABC do Open Hymnal, ainda não revisada aqui",
+  "Score derived from a MIDI file; check it before you print": "Partitura derivada de um arquivo MIDI; confira antes de imprimir",
+  "Lyrics with chords; no melody score yet": "Letra com acordes; ainda sem partitura da melodia",
+  "Words only; no chords or score yet": "Só palavras; ainda sem acordes ou partitura",
+  "No CCLI report needed": "Não precisa reportar à CCLI",
+  "Lead worship": "Conduzir o louvor",
+  "Project lyrics": "Projetar a letra",
+  "+ Add to setlist": "+ Adicionar à lista",
+  "Setlists are coming soon": "As listas chegam em breve"
 };
 
 export default pt;

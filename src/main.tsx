@@ -23,6 +23,8 @@ import PreviewSubmission from "./pages/PreviewSubmission";
 import Terms from "./pages/Terms";
 import Writer from "./pages/Writer";
 import CallForSongs from "./pages/CallForSongs";
+import LeadWorship from "./pages/LeadWorship";
+import Project from "./pages/Project";
 import "./styles/style.css";
 
 function NotFound() {
@@ -38,6 +40,8 @@ createRoot(document.getElementById("root")).render(
           <Routes>
             <Route path="/songs/:id/print" element={<PrintChart />} />
             <Route path="/songs/:id/sheet" element={<SheetMusic />} />
+            <Route path="/songs/:id/lead" element={<LeadWorship />} />
+            <Route path="/songs/:id/project" element={<Project />} />
             <Route path="/preview/submission/:id" element={<PreviewSubmission />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />

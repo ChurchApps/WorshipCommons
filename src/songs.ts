@@ -1,6 +1,18 @@
 import { wcGet } from "./api";
 import themeVocabulary from "./themes.json";
 
+// ---- package model: what masters/ and derivatives/ hold, as the API reports it ----
+export type Confidence = "sunday-ready" | "proofread-score" | "converted-from-abc" | "generated-from-midi" | "chart-only" | "lyrics-only";
+export type RightsLayer = "text" | "translation" | "tune" | "arrangement" | "recording" | "artwork";
+export interface RightsRow { license: string; basis?: string | null; source?: string | null; holder?: string | null; note?: string | null; review?: string | null; }
+export type Rights = Partial<Record<RightsLayer, RightsRow | null>>;
+export type Use = "project" | "print" | "stream" | "arrange" | "record";
+export interface UseRule { allowed: boolean; conditions: string[]; }
+export type RightsMatrix = Record<Use, UseRule>;
+export interface FormSection { label: string; lyric?: number | null; measures?: string | null; }
+export interface FormMap { status?: "draft" | "approved"; sections: FormSection[]; defaultOrder: string[]; }
+export interface Contributor { name: string; what: string; submissionId?: string; at?: string; }
+
 export interface Song {
   id: string;
   title: string;
@@ -44,6 +56,38 @@ export interface Song {
   status?: string;
   createdAt?: string;
   publishedAt?: string;
+  // package model (summary rows)
+  confidence?: Confidence;
+  sundayReady?: boolean;
+  featured?: boolean;
+  firstLine?: string | null;
+  tune?: string | null;
+  hasChords?: boolean;
+  hasScore?: boolean;
+  hasSlides?: boolean;
+  hasTiming?: boolean;
+  hasAccompaniment?: boolean;
+  recommendedKey?: string | null;
+  singTimeSeconds?: number | null;
+  // package model (detail only)
+  rights?: Rights | null;
+  rightsMatrix?: RightsMatrix | null;
+  ccliReport?: boolean | null;
+  attribution?: string | null;
+  form?: FormMap | null;
+  publishedKeys?: string[];
+  recommendedKeyReason?: string | null;
+  scoreSource?: "master" | "abc" | "midi" | null;
+  contributors?: Contributor[];
+  sundayReadyAt?: string | null;
+  sundayReadyBy?: string | null;
+  listenedKeys?: string[];
+  scoreUrl?: string;
+  slidesUrl?: string;
+  chartUrl?: string;
+  chartPdfUrl?: string;
+  attributionUrl?: string;
+  thumbUrl?: string;
 }
 
 let cache: Song[] | null = null;
@@ -59,7 +103,13 @@ const URL_FIELDS: [keyof Song, string][] = [
   ["abcUrl", "abc"],
   ["lyricsUrl", "timing"],
   ["artUrl", "art"],
-  ["writerPortraitUrl", "portrait"]
+  ["writerPortraitUrl", "portrait"],
+  ["scoreUrl", "score"],
+  ["slidesUrl", "slides"],
+  ["chartUrl", "chart"],
+  ["chartPdfUrl", "chartPdf"],
+  ["attributionUrl", "attribution"],
+  ["thumbUrl", "thumb"]
 ];
 
 export function songFromApi(raw: any): Song {

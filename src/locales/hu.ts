@@ -561,6 +561,24 @@ const hu: Record<string, string> = {
   "Use it in ads": "Reklámban felhasználni",
   "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)": "Pénzzé tett közvetítésbe vagy videóba tenni (YouTube-hirdetések, fizetős letöltés, jegyes élő)",
   "Use it in a conference or product people pay to attend as the product": "Olyan konferencián vagy termékben felhasználni, amelyért az emberek termékként fizetnek",
+  // package model: confidence badge, lead worship, project, setlists
+  "Sunday-ready": "Vasárnapra kész",
+  "Proofread score": "Átnézett kotta",
+  "Converted from ABC": "ABC-ből átalakítva",
+  "Generated from MIDI": "MIDI-ből készült",
+  "Chart only": "Csak akkordok",
+  "Lyrics only": "Csak szöveg",
+  "Proofread score, listened-to audio, chart, slides, and rights that agree": "Átnézett kotta, meghallgatott hang, akkordlap, diák és egyező jogok",
+  "A person proofread the notes; charts and audio are built from them": "Egy ember átnézte a hangjegyeket; az akkordlap és a hang ebből készül",
+  "Score converted from Open Hymnal ABC, not yet proofread here": "Az Open Hymnal ABC-ből átalakított kotta, itt még nem átnézett",
+  "Score derived from a MIDI file; check it before you print": "MIDI-fájlból származtatott kotta; nyomtatás előtt ellenőrizd",
+  "Lyrics with chords; no melody score yet": "Szöveg akkordokkal; dallamkotta még nincs",
+  "Words only; no chords or score yet": "Csak szöveg; akkord és kotta még nincs",
+  "No CCLI report needed": "Nem kell a CCLI-nak jelenteni",
+  "Lead worship": "Dicsőítés vezetése",
+  "Project lyrics": "Szöveg kivetítése",
+  "+ Add to setlist": "+ Hozzáadás a listához",
+  "Setlists are coming soon": "A listák hamarosan jönnek"
 };
 
 export default hu;

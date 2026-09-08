@@ -561,6 +561,24 @@ const ru: Record<string, string> = {
   "Use it in ads": "Использовать в рекламе",
   "Put it on a stream or video that is monetized (YouTube ads, paid download, ticketed live)": "Размещать в монетизированной трансляции или видео (реклама YouTube, платная загрузка, платный концерт)",
   "Use it in a conference or product people pay to attend as the product": "Использовать на конференции или в продукте, за участие в котором люди платят как за продукт",
+  // package model: confidence badge, lead worship, project, setlists
+  "Sunday-ready": "Готово к воскресенью",
+  "Proofread score": "Выверенная партитура",
+  "Converted from ABC": "Преобразовано из ABC",
+  "Generated from MIDI": "Создано из MIDI",
+  "Chart only": "Только аккорды",
+  "Lyrics only": "Только текст",
+  "Proofread score, listened-to audio, chart, slides, and rights that agree": "Выверенная партитура, прослушанное аудио, аккорды, слайды и согласованные права",
+  "A person proofread the notes; charts and audio are built from them": "Ноты выверены человеком; аккорды и аудио строятся по ним",
+  "Score converted from Open Hymnal ABC, not yet proofread here": "Партитура преобразована из ABC Open Hymnal, здесь ещё не выверена",
+  "Score derived from a MIDI file; check it before you print": "Партитура получена из MIDI-файла; проверьте перед печатью",
+  "Lyrics with chords; no melody score yet": "Текст с аккордами; партитуры мелодии пока нет",
+  "Words only; no chords or score yet": "Только слова; аккордов и партитуры пока нет",
+  "No CCLI report needed": "Отчёт в CCLI не нужен",
+  "Lead worship": "Вести прославление",
+  "Project lyrics": "Показать текст",
+  "+ Add to setlist": "+ В список песен",
+  "Setlists are coming soon": "Списки скоро появятся"
 };
 
 export default ru;
