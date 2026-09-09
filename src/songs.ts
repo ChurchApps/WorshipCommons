@@ -1,4 +1,4 @@
-import { wcGet } from "./api";
+import { CORE_API, wcGet } from "./api";
 import themeVocabulary from "./themes.json";
 
 // ---- package model: what masters/ and derivatives/ hold, as the API reports it ----
@@ -140,6 +140,75 @@ export function kitFile(song: Song, name: string, from: "tune" | "song" = "song"
   if (mapped) return mapped;
   if (from === "tune") return beside(song.fileUrls?.abc || song.abcUrl || song.fileUrls?.midi || song.midiUrl, name);
   return beside(song.fileUrls?.chartPdf || song.chartPdfUrl || song.fileUrls?.chart || song.fileUrls?.slides, name);
+}
+
+const LANG_CODE: Record<string, string> = {
+  English: "en", Spanish: "es", German: "de", French: "fr", Portuguese: "pt",
+  Russian: "ru", Hungarian: "hu", Albanian: "sq", Malayalam: "ml", Latin: "la", Zulu: "zu"
+};
+const licenseSection = (id: string) => id === "PD" ? "public-domain" : id === "WC" ? "wc-license" : id.toLowerCase();
+const folderSlug = (title: string) => title.normalize("NFC").toLowerCase()
+  .replace(/['\u2019\u02BC]/g, "")
+  .replace(/[^a-z0-9\u00c0-\u024f]+/g, "-")
+  .replace(/^-+|-+$/g, "") || "untitled";
+
+export function contentPrefix(song: Song): string {
+  return contentRootOf(song) || `${CORE_API.replace(/\/$/, "")}/content/commons`;
+}
+
+/** songs/<lang>/<section>/<slug>-<id> as the content bucket lays it out. */
+export function packageDir(song: Song): string | undefined {
+  const fromUrl = Object.values(song.fileUrls || {}).concat(song.midiUrl || "", song.abcUrl || "").find(u => /\/songs\//.test(String(u)));
+  const hit = String(fromUrl || "").match(/\/(songs\/.+?)\/(?:sources|masters|derivatives)\//);
+  if (hit) return hit[1];
+  const lang = LANG_CODE[song.language] || String(song.language || "en").slice(0, 2).toLowerCase();
+  if (!song.id) return;
+  return `songs/${lang}/${licenseSection(song.license || "PD")}/${folderSlug(song.title)}-${song.id}`;
+}
+
+export function packageFile(song: Song, rel: string): string | undefined {
+  const dir = packageDir(song);
+  return dir ? `${contentPrefix(song)}/${dir}/${rel}` : undefined;
+}
+
+/**
+ * MIDI + word-timing for Lead worship. The API's fileUrls map often omits both
+ * after the package-layout cutover; the files still live at the package/work paths.
+ */
+export function leadFiles(song: Song): { midi: string[]; timing?: string } {
+  const root = contentPrefix(song);
+  const slug = folderSlug(song.title);
+  const midi = [
+    song.midiUrl,
+    fileUrl(song, "midi"),
+    packageFile(song, "sources/tune.mid"),
+    `${root}/works/${slug}/sources/tune.mid`
+  ].filter((u, i, a): u is string => !!u && a.indexOf(u) === i);
+  const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "derivatives/timing.json");
+  return { midi, timing };
+}
+
+export function canLead(song: Song) {
+  const { midi, timing } = leadFiles(song);
+  return midi.length > 0 && !!(timing || song.chordPro);
+}
+
+const listed = (song: Song, url?: string) =>
+  !!url && (url === song.midiUrl || url === song.lyricsUrl || url === fileUrl(song, "midi") || url === fileUrl(song, "timing"));
+
+async function urlOk(song: Song, url?: string) {
+  if (!url) return false;
+  if (listed(song, url)) return true;
+  try { return (await fetch(url, { method: "HEAD" })).ok; } catch { return false; }
+}
+
+/** Confirm MIDI/timing exist (API listings skip them; the files are still on the content bucket). */
+export async function resolveLead(song: Song): Promise<{ midi?: string; timing?: string }> {
+  const files = leadFiles(song);
+  let midi: string | undefined;
+  for (const u of files.midi) if (await urlOk(song, u)) { midi = u; break; }
+  const timing = (await urlOk(song, files.timing)) ? files.timing : undefined;
+  return { midi, timing };
 }
 
 export function songFromApi(raw: any): Song {

@@ -42,7 +42,7 @@ export default function Layout() {
             <li><NavLink to="/songs">{t("Discover")}</NavLink></li>
             <li><NavLink to="/setlists" data-testid="nav-setlists">{t("Collections")}</NavLink></li>
             <li><NavLink to="/upload">{t("For Songwriters")}</NavLink></li>
-            <li><NavLink to="/license">{t("Our Mission")}</NavLink></li>
+            <li><NavLink to="/mission">{t("Our Mission")}</NavLink></li>
             <li className="nav-actions"><ul>
               <li><NavLink to="/library" data-testid="nav-library">{t("Saved songs")}</NavLink></li>
               <li className="split" aria-hidden="true"></li>
@@ -76,7 +76,7 @@ export default function Layout() {
               <li><Link to="/songs">{t("Discover")}</Link></li>
               <li><Link to="/setlists">{t("Collections")}</Link></li>
               <li><Link to="/upload">{t("For Songwriters")}</Link></li>
-              <li><Link to="/license">{t("Our Mission")}</Link></li>
+              <li><Link to="/mission">{t("Our Mission")}</Link></li>
             </ul>
             <p className="foot-tag">{t("A more singing church together")}</p>
           </div>
@@ -84,6 +84,7 @@ export default function Layout() {
             <Link to="/new">{t("New songs")}</Link>
             <Link to="/call-for-songs">{t("Call for songs")}</Link>
             <Link to="/report">{t("Report a song")}</Link>
+            <Link to="/license">{t("The License")}</Link>
             <Link to="/license#faq">{t("Questions")}</Link>
             <Link to="/terms#copyright" data-testid="foot-dmca">{t("Copyright / DMCA")}</Link>
             <a href="https://churchapps.org/privacy">{t("Privacy")}</a>

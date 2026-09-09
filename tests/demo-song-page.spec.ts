@@ -22,21 +22,18 @@ const pdWithFirstLine = () => rows.find(s => s.license === "PD" && s.firstLine &
 const byConfidence = (c: string) => rows.filter(s => s.confidence === c);
 
 test.describe("song page: hero, modes, rights", () => {
-  test("hero shows the first line and license; confidence and CCLI ride the footnote on a public-domain song", async ({ page }) => {
+  test("hero shows the first line and license on a public-domain song", async ({ page }) => {
     const song = pdWithFirstLine();
     test.skip(!song, "no seeded public-domain song carries a first line");
     await page.goto(`/songs/${song!.id}`);
 
     const hero = page.getByTestId("song-hero");
     await expect(hero).toBeVisible();
-    await expect(page.getByTestId("confidence-badge")).toHaveAttribute("data-confidence", song!.confidence as string);
     await expect(hero.getByTestId("first-line")).toHaveText(song!.firstLine as string);
     await expect(hero.getByTestId("license-badge")).toHaveAttribute("data-license", "PD");
     await expect(hero.getByTestId("license-badge")).toHaveText("Public domain");
-    // PD needs no CCLI report; the footnote badge names the uses it covers
-    await expect(page.getByTestId("ccli-badge")).toHaveText("No CCLI report needed");
-    await expect(page.getByTestId("ccli-badge")).toHaveAttribute("title", /project.*print.*stream/i);
-    // sticky Add to setlist rides in the aside on every mode
+    await expect(page.getByTestId("confidence-badge")).toHaveCount(0);
+    await expect(page.getByTestId("ccli-badge")).toHaveCount(0);
     await expect(page.getByTestId("add-to-setlist")).toBeVisible();
   });
 
@@ -135,7 +132,7 @@ test.describe("song page: hero, modes, rights", () => {
     await expect(banner).toBeVisible();
     await expect(banner).toContainText("not yet proofread");
     await expect(banner).toHaveAttribute("data-confidence", "converted-from-abc");
-    await expect(page.getByTestId("confidence-badge")).toHaveAttribute("data-confidence", "converted-from-abc");
+    await expect(page.getByTestId("confidence-badge")).toHaveCount(0);
 
     await page.goto(`/songs/${derived.id}/sheet`);
     await expect(page.getByTestId("derived-banner")).toBeVisible();

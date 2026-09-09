@@ -1,5 +1,5 @@
 // Post-build prerender: stamps out static, crawlable HTML for every song page
-// plus the public SPA routes (/songs, /license, /terms, /upload, /new,
+// plus the public SPA routes (/songs, /mission, /license, /terms, /upload, /new,
 // /call-for-songs, /report), sitemap.xml, robots.txt, llms.txt, and feed.xml.
 // Each route is written as build/<route>/index.html so S3 website hosting
 // serves both /route/ (200) and /route (302 → /route/). React replaces the
@@ -134,6 +134,7 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
     { loc: `${site}/songs/` },
     { loc: `${site}/new/` },
     { loc: `${site}/call-for-songs/` },
+    { loc: `${site}/mission/` },
     { loc: `${site}/license/` },
     { loc: `${site}/terms/` },
     { loc: `${site}/upload/` },
@@ -157,6 +158,7 @@ export function llmsTxt(songs, site = DEFAULT_SITE, hasFeed = false) {
     `## Links`,
     ``,
     `- [Song library](${site}/songs/)`,
+    `- [Mission](${site}/mission)`,
     `- [License](${site}/license)`,
     ...(hasFeed ? [`- [Feed](${site}/feed.xml)`] : []),
     ``,
@@ -185,6 +187,19 @@ function callForSongsBody() {
 <h2>How it works</h2>
 <ol><li>The song — title, key, tempo, themes, and the words and chords.</li><li>The files — a chord chart, a demo recording, stems if you have them.</li><li>What you are giving — worship use, and nothing else.</li><li>Your word that it is yours to give — you wrote it, and every co-writer agrees.</li></ol>
 <p><a href="/upload">Share your song</a> · <a href="/license">Read the license</a></p>`);
+}
+
+function missionBody() {
+  return wrap(`
+<h1>Worship music does not belong on an invoice.</h1>
+<p>We exist to take worship songs out of the marketplace — and to put in every church’s hands the songs, charts, slides, and audio they actually need on Sunday morning.</p>
+<p>A song is for singing. A church is for gathering. Sunday morning should never have been for sale.</p>
+<p>The people who write the songs should still make a living. The singing itself should never have been a product. We are here to decommercialize worship music, without asking writers to give their careers away.</p>
+<h2>Two jobs. One library.</h2>
+<p><b>Quality songs a church can actually use.</b> Public-domain hymns done properly. Originals whose writers certified a free-use grant.</p>
+<p><b>Everything required to use them on Sunday.</b> Hear it. Change the key. Print the chart. Put lyrics on a screen. Lead worship from a browser tab.</p>
+<p>The license is how we keep the first job honest. It is not the mission. The mission is a more singing church.</p>
+<p><a href="/songs">Find a song</a> · <a href="/license">Read the license</a></p>`);
 }
 
 function licenseBody() {
@@ -260,6 +275,7 @@ function reportBody() {
 
 export function staticPages(songs, site = DEFAULT_SITE) {
   return [
+    { slug: "mission", title: "Our mission — WorshipCommons", description: "Take worship music out of the marketplace. Equip churches with quality songs and everything they need to use them on Sunday morning.", canonical: `${site}/mission/`, body: missionBody() },
     { slug: "license", title: "The WorshipCommons License — WorshipCommons", description: "The WorshipCommons License, Version 1.0: free for worship everywhere, forever. Legal code and a one-page summary.", canonical: `${site}/license/`, body: licenseBody() },
     { slug: "terms", title: "Terms — WorshipCommons", description: "Short terms for using WorshipCommons, including the copyright / DMCA contact.", canonical: `${site}/terms/`, body: termsBody() },
     { slug: "upload", title: "Share your song — WorshipCommons", description: "Share a song under the WorshipCommons License so churches anywhere can sing it free.", canonical: `${site}/upload/`, body: uploadBody() },
@@ -372,7 +388,7 @@ async function run() {
   fs.writeFileSync(path.join(BUILD, "feed.xml"), feedXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "llms.txt"), llmsTxt(songs, SITE, true));
 
-  console.log(`Prerendered ${songs.length} song pages + /songs, /license, /terms, /upload, /new, /call-for-songs, /report, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
+  console.log(`Prerendered ${songs.length} song pages + /songs, /mission, /license, /terms, /upload, /new, /call-for-songs, /report, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   run().catch(err => { console.error("Prerender failed:", err.message || err); process.exit(1); });

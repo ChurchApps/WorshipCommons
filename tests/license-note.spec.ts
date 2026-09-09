@@ -42,6 +42,8 @@ test.describe("license note: you may / you may not", () => {
 
     await page.goto("/");
     await page.locator(".nav").getByRole("link", { name: "Our Mission" }).click();
+    await expect(page).toHaveURL(/\/mission\/?$/);
+    await page.getByTestId("mission-license").click();
     await expect(page).toHaveURL(/\/license\/?$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("One page. Zero strings.");
     await expect(page.getByText("Page not found.")).toHaveCount(0);

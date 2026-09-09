@@ -20,7 +20,6 @@ async function fillSongFields(page: import("@playwright/test").Page, title: stri
   for (const th of themes) await page.getByTestId("theme-chips").getByRole("button", { name: th, exact: true }).click();
   await page.fill("#scripture", "Psalm 96:1");
   await page.fill("#lyrics", LYRICS);
-  await page.selectOption("#pro", { index: 1 });
 }
 
 test.describe("upload sign-in gate", () => {
@@ -39,7 +38,6 @@ test.describe("upload required fields", () => {
     await page.goto("/upload");
     await page.fill("#writers", "Playwright Composer");
     await page.fill("#lyrics", LYRICS);
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
@@ -50,7 +48,6 @@ test.describe("upload required fields", () => {
     await page.goto("/upload");
     await page.fill("#title", "Missing Lyrics Song");
     await page.fill("#writers", "Playwright Composer");
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toHaveCount(0);

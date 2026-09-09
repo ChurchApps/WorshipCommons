@@ -19,7 +19,6 @@ test.describe("chordpro lint", () => {
     await expect(lint).toBeVisible();
     await expect(lint.locator("li.error")).toHaveText(/Line 2 — Unmatched bracket/);
 
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-error")).toContainText("fix the errors listed under the preview");

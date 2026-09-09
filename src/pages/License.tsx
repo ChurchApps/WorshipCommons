@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "../styles/license.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -59,7 +59,10 @@ export default function License() {
   usePageMeta(t("The WorshipCommons License — WorshipCommons"));
   const { hash } = useLocation();
   useEffect(() => {
-    if (!hash) return;
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
     const el = document.querySelector(hash);
     if (el instanceof HTMLDetailsElement) el.open = true;
     el?.scrollIntoView();
@@ -71,7 +74,7 @@ export default function License() {
   return (
     <main className="wrap-narrow">
       <div className="page-head">
-        <span className="eyebrow">{t("The license")}</span>
+        <p className="crumb"><Link to="/mission">{t("Our Mission")}</Link> / {t("The license")}</p>
         <h1>{t("One page. Zero strings.")}</h1>
         <p className="lede">{t("Most music licensing is a subscription, a spreadsheet, and a lawyer. This is a page you can read out loud to your worship team.")}</p>
       </div>

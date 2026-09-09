@@ -5,6 +5,8 @@ import { test, expect } from "@playwright/test";
 // build/<route>/index.html (and CloudFront 403/404 → /index.html as fallback).
 
 const ROUTES: { path: string; heading: string }[] = [
+  { path: "/mission/", heading: "Worship music does not belong on an invoice." },
+  { path: "/mission", heading: "Worship music does not belong on an invoice." },
   { path: "/license/", heading: "One page. Zero strings." },
   { path: "/terms", heading: "How this site works" },
   { path: "/terms/", heading: "How this site works" },
@@ -26,6 +28,9 @@ test("public SPA routes render instead of Page not found, with or without a trai
 
   await page.goto("/");
   await page.locator(".nav").getByRole("link", { name: "Our Mission" }).click();
+  await expect(page).toHaveURL(/\/mission\/?$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Worship music does not belong on an invoice.");
+  await page.getByTestId("mission-license").click();
   await expect(page).toHaveURL(/\/license\/?$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("One page. Zero strings.");
 });

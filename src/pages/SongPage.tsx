@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { loadSongPage, Song, SongPageData, contentRootOf, coverOf, kitFile } from "../songs";
+import { contentRootOf, coverOf, kitFile, leadFiles, loadSongPage, resolveLead, Song, SongPageData } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -13,12 +13,12 @@ import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import { needsCcliReport, noDerivatives, rightsMatrixFor, USES } from "../rights";
-import { USE_LABEL } from "../licenses";
+import { needsCcliReport, noDerivatives, rightsMatrixFor } from "../rights";
 import { coverSvg } from "../cover.mjs";
 import SongHero, { clock } from "../components/SongHero";
 import AboutPanel from "../components/AboutPanel";
-import { CONFIDENCE_HELP, CONFIDENCE_LABEL, isDerivedScore } from "../components/ConfidenceBadge";
+import ScriptureConnection from "../components/ScriptureConnection";
+import { CONFIDENCE_HELP, isDerivedScore } from "../components/ConfidenceBadge";
 import ProjectPanel from "../components/ProjectPanel";
 import "../styles/song.css";
 
@@ -78,6 +78,7 @@ export default function SongPage() {
   const [solo, setSolo] = useState<number | null>(null);
   const [metro, setMetro] = useState(false);
   const [tab, setTab] = useState<Tab>("chords");
+  const [midiUrl, setMidiUrl] = useState<string>();
   const playerRef = useRef<TunePlayer | null>(null);
 
   const stopPlayback = () => {
@@ -162,11 +163,29 @@ export default function SongPage() {
 
   // parts come from the midi itself, so peek at it up front to show the picker before the first play
   useEffect(() => {
-    if (!song?.midiUrl) return;
+    const urls = song ? leadFiles(song).midi : [];
+    if (!urls.length) return;
     let stale = false;
-    fetch(song.midiUrl).then(r => r.arrayBuffer()).then(b => { if (!stale) setParts(parseMidi(b).parts); }).catch(() => {});
+    (async () => {
+      for (const url of urls) {
+        try {
+          const r = await fetch(url);
+          if (!r.ok) continue;
+          const b = await r.arrayBuffer();
+          if (!stale) setParts(parseMidi(b).parts);
+          return;
+        } catch { /* try the work copy if the package midi 404s */ }
+      }
+    })();
     return () => { stale = true; };
-  }, [song?.midiUrl]);
+  }, [song?.id]);
+
+  useEffect(() => {
+    if (!song) { setMidiUrl(undefined); return; }
+    let dead = false;
+    resolveLead(song).then(r => { if (!dead) setMidiUrl(r.midi); });
+    return () => { dead = true; };
+  }, [song?.id]);
 
   useEffect(() => {
     if (song) {
@@ -226,10 +245,9 @@ export default function SongPage() {
     ? `/writers/${encodeURIComponent(song.authorId || song.writerId || "")}`
     : `/songs?q=${encodeURIComponent(song.writer)}`;
 
-  const leadHref = song.lyricsUrl && song.midiUrl ? `/songs/${song.id}/lead?key=${encodeURIComponent(keyLabel)}` : undefined;
+  const leadHref = midiUrl ? `/songs/${song.id}/lead?key=${encodeURIComponent(keyLabel)}` : undefined;
   // provenance footnote: confidence, the derived-score caveat, and whether CCLI needs a report
   const ccliFree = !needsCcliReport(song);
-  const ccliUses = USES.filter(u => matrix[u].allowed).map(u => t(USE_LABEL[u]).toLowerCase()).join(", ");
   const derived = isDerivedScore(song.confidence);
   const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : song.hasAccompaniment ? t("Play") : t("Preview (synthesized)");
   const playPiano = async () => {
@@ -237,7 +255,11 @@ export default function SongPage() {
     if (playState === "playing") { stopPlayback(); return; }
     setPlayState("loading");
     try {
-      const p = playerRef.current || await loadTune(song.midiUrl!);
+      let p = playerRef.current;
+      if (!p && midiUrl) {
+        try { p = await loadTune(midiUrl); } catch { p = undefined; }
+      }
+      if (!p) throw new Error("no midi");
       playerRef.current = p;
       setParts(p.parts);
       p.setSemitones(audioShift);
@@ -327,7 +349,7 @@ export default function SongPage() {
 
       <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={toggleLib} />
 
-      {song.midiUrl && (
+      {midiUrl && (
         <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={t("Piano preview")}>
           <div className="player-meta">
             <b>{song.hasAccompaniment ? t("Piano") : t("Piano preview")}</b>
@@ -447,14 +469,11 @@ export default function SongPage() {
               </span>
               <span>{ccliFree ? t("Free to sing, print, project and stream. No reporting required.") : t("Report this song to CCLI when you use it.")}</span>
             </div>
-            {/* provenance, as a footnote: what state the score is in and whether CCLI needs to hear about it */}
-            <p className="sheet-foot" role="note">
-              {song.confidence && CONFIDENCE_LABEL[song.confidence] && (
-                <span className={"confidence-badge " + song.confidence} data-testid="confidence-badge" data-confidence={song.confidence} title={t(CONFIDENCE_HELP[song.confidence])}>{t(CONFIDENCE_LABEL[song.confidence])}</span>
-              )}
-              {derived && <span data-testid="derived-banner" data-confidence={song.confidence}>{t(CONFIDENCE_HELP[song.confidence!])} — {t("check the notes against a hymnal before Sunday.")}</span>}
-              {ccliFree && <span className="ccli-badge" data-testid="ccli-badge" title={t("No CCLI report for: {uses}", { uses: ccliUses })}>{t("No CCLI report needed")}</span>}
-            </p>
+            {derived && (
+              <p className="sheet-foot" role="note">
+                <span data-testid="derived-banner" data-confidence={song.confidence}>{t(CONFIDENCE_HELP[song.confidence!])} — {t("check the notes against a hymnal before Sunday.")}</span>
+              </p>
+            )}
           </div>
 
           {hasSheet && (
@@ -625,12 +644,7 @@ export default function SongPage() {
           )}
           {relatives.length === 0 && data.similar.length === 0 && <p className="empty">{t("Nothing related yet.")}</p>}
         </div>
-        <div className="col scripture">
-          <h4>📖 {t("Scripture connection")}</h4>
-          {song.scripture || song.scriptureText
-            ? <><b>{song.scripture}</b>{song.scriptureText && <p>“{song.scriptureText.replace(/ — .*$/, "")}”</p>}</>
-            : <p className="empty">{t("No scripture reference yet.")} <Link to={`/songs/${song.id}/edit`}>{t("Propose one →")}</Link></p>}
-        </div>
+        <ScriptureConnection reference={song.scripture} songId={song.id} />
         <div className="col tr">
           <h4>🌐 {t("Translations")} <Link className="more" to="/upload">{t("Add one →")}</Link></h4>
           {translations.length > 0

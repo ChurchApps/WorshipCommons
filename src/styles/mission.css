@@ -1,0 +1,77 @@
+.mission { padding-bottom: 24px; }
+.mission .page-head { padding: 64px 24px 0; }
+.mission .page-head h1 {
+  font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+  letter-spacing: -0.045em;
+  max-width: 16ch;
+  margin-bottom: 20px;
+}
+.mission .lede { max-width: 38em; margin-bottom: 0; }
+
+.mission .dark-panel.mission-quote {
+  margin-top: 40px;
+  padding: 28px 32px;
+}
+.mission-quote p {
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+  max-width: 22em;
+}
+
+.mission .wrap-narrow.mission-prose {
+  margin-top: 48px;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 1.125rem;
+  color: var(--text-2);
+  line-height: 1.75;
+}
+.mission-prose p { max-width: 42em; }
+.mission-prose p + p { margin-top: 1.15em; }
+
+.mission .wrap-narrow.mission-jobs {
+  margin-top: 72px;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.mission-jobs h2,
+.mission-means h2,
+.mission-cta h2 { margin: 0 0 8px; letter-spacing: -0.03em; }
+.mission-job { padding: 28px 0; border-top: 1px solid var(--line); }
+.mission-job:first-of-type { margin-top: 20px; }
+.mission-job h3 { font-size: 1.25rem; margin: 0 0 10px; letter-spacing: -0.02em; }
+.mission-job p { color: var(--text-2); max-width: 42em; margin: 0; }
+.mission-join { margin: 28px 0 0; font-size: 1.125rem; max-width: 36em; }
+
+.mission .wrap-narrow.mission-means {
+  margin-top: 72px;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.mission-means p { color: var(--text-2); font-size: 1.0625rem; max-width: 42em; margin: 0 0 16px; }
+.mission-means a { font-weight: 600; }
+
+.mission .wrap-narrow.mission-cta {
+  margin-top: 72px;
+  margin-bottom: 0;
+  padding: 36px 24px 8px;
+  border-top: 1px solid var(--line);
+}
+.mission-cta p { color: var(--muted); max-width: 36em; margin: 0 0 24px; }
+.mission-cta .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 720px) {
+  .mission .page-head { padding-top: 40px; }
+  .mission .dark-panel.mission-quote { padding: 22px 20px; margin-top: 28px; }
+  .mission .wrap-narrow.mission-prose { margin-top: 36px; }
+  .mission .wrap-narrow.mission-jobs,
+  .mission .wrap-narrow.mission-means,
+  .mission .wrap-narrow.mission-cta { margin-top: 48px; }
+  .mission-job { padding: 22px 0; }
+}

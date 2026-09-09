@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { loadSong, Song } from "../songs";
-import { KEY_CHOICES, noteIndex, splitKey } from "../chordpro";
+import { leadFiles, loadSong, Song } from "../songs";
+import { KEY_CHOICES, noteIndex, parseChordPro, splitKey } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
 import { startMetronome, stopMetronome } from "../practice";
@@ -20,6 +20,26 @@ const firstT = (st: TimedStanza | undefined) => st?.lines[0]?.[0]?.t ?? 0;
 // The MIDI plays every verse in the timing file's order, so a picked section is a time slice of the tune.
 // Labels repeat ("Chorus") and a form may name a section the timing lacks — walk forward for the next match,
 // fall back to the first, drop what has no timing.
+function timingFromChordPro(chordPro: string, duration: number): TimedStanza[] {
+  const parsed = parseChordPro(chordPro);
+  const lineCount = Math.max(1, parsed.reduce((n, s) => n + s.lines.length, 0));
+  const step = duration / lineCount;
+  let t = 0;
+  return parsed.map(s => ({
+    label: s.label,
+    lines: s.lines.map(line => {
+      const tokens = line.map(seg => seg.text).join("").split(/(\s+)/).filter(w => w.length);
+      const slice = step / Math.max(1, tokens.length);
+      const words = tokens.map(w => {
+        const word = { t, d: slice, text: w };
+        t += slice;
+        return word;
+      });
+      return words.length ? words : [{ t, d: step, text: " " }];
+    })
+  }));
+}
+
 function buildRun(labels: string[], stanzas: TimedStanza[], duration: number): Segment[] {
   const out: Segment[] = [];
   let cursor = 0;
@@ -88,23 +108,36 @@ export default function LeadWorship() {
   useEffect(() => {
     if (!song) return;
     let dead = false;
-    if (song.lyricsUrl) fetch(song.lyricsUrl).then(r => r.json()).then(j => { if (!dead) { setStanzas(j.stanzas || []); setDuration(j.duration || 0); } }).catch(() => { if (!dead) setStanzas([]); });
-    else setStanzas([]);
-    if (song.abcUrl) fetch(song.abcUrl).then(r => r.ok ? r.text() : "").then(a => { if (!dead && a) setTuneRoot(abcKeyRoot(a)); }).catch(() => {});
-    if (song.midiUrl) {
-      loadTune(song.midiUrl).then(p => {
+    const files = leadFiles(song);
+    const abc = song.abcUrl || files.midi[0]?.replace(/tune\.mid$/, "tune.abc");
+    if (files.timing) {
+      fetch(files.timing).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+        if (!dead) { setStanzas(j.stanzas || []); setDuration(j.duration || 0); }
+      }).catch(() => { if (!dead) setStanzas([]); });
+    } else setStanzas([]);
+    if (abc) fetch(abc).then(r => r.ok ? r.text() : "").then(a => { if (!dead && a) setTuneRoot(abcKeyRoot(a)); }).catch(() => {});
+    const tryMidi = (i: number) => {
+      if (dead || i >= files.midi.length) return;
+      loadTune(files.midi[i]).then(p => {
         if (dead) { p.stop(); return; }
         playerRef.current = p;
         setDuration(d => d || p.duration);
         setReady(true);
-      }).catch(() => {});
-    }
+      }).catch(() => tryMidi(i + 1));
+    };
+    tryMidi(0);
     return () => { dead = true; playerRef.current?.stop(); playerRef.current = null; stopMetronome(); window.clearTimeout(countRef.current); };
   }, [song?.id]);
 
+  // no timing.json: spread the ChordPro lines across the tune so Play still works
+  useEffect(() => {
+    if (!song?.chordPro || !stanzas || stanzas.length || !duration) return;
+    setStanzas(timingFromChordPro(song.chordPro, duration));
+  }, [song?.id, stanzas, duration]);
+
   // the run starts as the form's default order; without a form map the timing file's stanzas are the order
   useEffect(() => {
-    if (!song || !stanzas) return;
+    if (!song || !stanzas?.length) return;
     const labels = song.form?.defaultOrder?.length ? song.form.defaultOrder : stanzas.map(s => s.label);
     setPicks(labels.map(label => ({ label, on: true })));
   }, [song?.id, stanzas]);

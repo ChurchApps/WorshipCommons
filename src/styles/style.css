@@ -62,6 +62,7 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 700; }
 .nav-menu a.btn, .nav-menu a.btn:hover { color: #fff; box-shadow: none; padding: 10px 22px; }
 .nav-actions { margin-left: auto; }
 .nav-actions > ul { display: flex; align-items: center; gap: 8px; list-style: none; }
+.nav-actions > ul > li { display: flex; align-items: center; }
 .nav-menu .split { width: 1px; height: 18px; background: var(--line-2); }
 .nav-signin { color: var(--text) !important; font-weight: 600 !important; padding: 8px 10px !important; }
 .nav-signin::after { display: none !important; }
@@ -177,18 +178,20 @@ fieldset { border: 0; }
 .nav-signout { background: none; border: none; cursor: pointer; font: inherit; color: var(--text-2); padding: 8px 0; }
 .nav-signout:hover { color: var(--text); }
 
-.nav-account { position: relative; }
+.nav-account { position: relative; margin: 0; overflow: visible; }
 .nav-account > summary {
   list-style: none; cursor: pointer; font-weight: 600; font-size: 0.9375rem; color: var(--text);
-  padding: 6px 0; display: flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box;
+  height: 44px; min-height: 44px; margin: 0; padding: 0 10px; line-height: 1;
 }
 .nav-account > summary::-webkit-details-marker { display: none; }
 .nav-account > summary::marker { content: none; }
 .nav-account > summary::after {
-  content: ""; width: 0; height: 0;
+  content: ""; width: 0; height: 0; flex: none;
   border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor;
   opacity: 0.55;
 }
+.nav-account:not([open]) > .nav-account-menu { display: none; }
 .nav-account-menu {
   position: absolute; right: 0; top: calc(100% + 8px); z-index: 20;
   background: var(--surface); border: 1px solid var(--line-2); border-radius: 14px;

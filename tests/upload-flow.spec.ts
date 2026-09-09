@@ -24,7 +24,6 @@ test.describe.serial("upload flow", () => {
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toBeVisible();
 
     await page.check("#recording-owned");
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
 

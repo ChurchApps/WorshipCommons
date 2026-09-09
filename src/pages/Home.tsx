@@ -87,7 +87,7 @@ export default function Home() {
             <p className="lede rise rise-2">{t("Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church.")}</p>
             <div className="hero-ctas rise rise-2">
               <Link to="/songs" className="btn btn-primary btn-lg">{t("Find Your Next Song →")}</Link>
-              <Link to="/license" className="btn btn-ghost btn-lg">{t("Our Mission")}</Link>
+              <Link to="/mission" className="btn btn-ghost btn-lg">{t("Our Mission")}</Link>
             </div>
             <p className="hero-proof rise rise-3">
               <span><strong>{t("{count} songs", { count: counted.length.toLocaleString() })}</strong> {t("free for your church to use")}</span>
@@ -182,7 +182,7 @@ export default function Home() {
             <div className="banner-side">
               {t("A growing library of freely shared worship music. Writers keep every commercial right.")}
               <br />
-              <Link className="more" to="/license">{t("Meet Worship Commons →")}</Link>
+              <Link className="more" to="/mission">{t("Meet Worship Commons →")}</Link>
               <br />
               <Link className="more" to="/call-for-songs">{t("For students and seminaries →")}</Link>
             </div>

@@ -1,3 +1,7 @@
+.page-head .crumb { margin: 0 0 18px; color: var(--dim); font-size: 0.875rem; }
+.page-head .crumb a { color: inherit; text-decoration: none; }
+.page-head .crumb a:hover { color: var(--text); }
+
 .big-quote { margin-top: 40px; text-align: center; padding: 64px 48px; position: relative; overflow: hidden; }
   .big-quote::before { content: ''; position: absolute; inset: 0; background:
     radial-gradient(500px 260px at 20% 0%, rgba(139,92,246,0.25), transparent 70%),
@@ -29,12 +33,12 @@
   .who p { font-size: 1.0313rem; color: var(--text-2); max-width: 66ch; margin-bottom: 14px; }
   .who .highlight { background: rgba(217,241,84,0.4); padding: 1px 6px; border-radius: 5px; font-weight: 600; color: var(--ink); }
 
-  details { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 12px; overflow: hidden; }
-  summary { font-family: var(--font-heading); font-weight: 600; font-size: 1.0625rem; padding: 20px 24px; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: '+'; font-size: 1.5rem; font-weight: 400; color: var(--primary); flex: none; line-height: 1; }
-  details[open] summary::after { content: '–'; }
-  details > p { padding: 0 24px 20px; color: var(--text-2); font-size: 0.9563rem; max-width: 70ch; }
+  main details { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 12px; overflow: hidden; }
+  main summary { font-family: var(--font-heading); font-weight: 600; font-size: 1.0625rem; padding: 20px 24px; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  main summary::-webkit-details-marker { display: none; }
+  main summary::after { content: '+'; font-size: 1.5rem; font-weight: 400; color: var(--primary); flex: none; line-height: 1; }
+  main details[open] summary::after { content: '–'; }
+  main details > p { padding: 0 24px 20px; color: var(--text-2); font-size: 0.9563rem; max-width: 70ch; }
 
   .legal { margin-top: 20px; padding: 8px 34px 30px; }
   .legal > summary { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); padding: 22px 0 12px; }

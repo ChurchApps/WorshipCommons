@@ -68,6 +68,7 @@ test.describe("six licenses: deeds, upload choices, library facet", () => {
     // client-side navigation: the Vite dev server answers a direct GET /license with the repo's LICENSE file
     await page.goto("/");
     await page.locator("nav").getByRole("link", { name: "Our Mission" }).first().click();
+    await page.getByTestId("mission-license").click();
     await expect(page.locator("h1")).toContainText("One page. Zero strings.");
     await expect(page.locator("#other-licenses")).toContainText("Other licenses in this library");
     for (const badge of ["pd", "cc-by", "cc-by-sa", "cc-by-nc", "cc-by-nc-sa"]) {

@@ -12,6 +12,7 @@ import PrintChart from "./pages/PrintChart";
 import SheetMusic from "./pages/SheetMusic";
 import Upload from "./pages/Upload";
 import License from "./pages/License";
+import Mission from "./pages/Mission";
 import Report from "./pages/Report";
 import Library from "./pages/Library";
 import Login from "./pages/Login";
@@ -55,6 +56,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/songs/:id/transcribe" element={<Transcribe />} />
               <Route path="/songs/:id/edit" element={<EditSong />} />
               <Route path="/upload" element={<Upload />} />
+              <Route path="/mission" element={<Mission />} />
               <Route path="/license" element={<License />} />
               <Route path="/call-for-songs" element={<CallForSongs />} />
               <Route path="/report" element={<Report />} />

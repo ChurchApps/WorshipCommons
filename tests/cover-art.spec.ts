@@ -19,7 +19,6 @@ test.describe.serial("cover art", () => {
     // the preview only appears once the canvas has encoded the art in the browser
     await expect(page.locator(".dropzone img.dz-art")).toBeVisible();
 
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();

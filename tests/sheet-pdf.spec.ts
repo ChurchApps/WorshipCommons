@@ -16,7 +16,6 @@ test.describe.serial("sheet pdf viewer", () => {
     await page.fill("#lyrics", "Verse 1\n[C]Sing a new song [F]to the [C]Lord");
     await page.getByTestId("file-sheet").setInputFiles(path.join(__dirname, "fixtures", "tiny.pdf"));
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toBeVisible();
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();

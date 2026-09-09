@@ -35,7 +35,6 @@ test.describe.serial("submission type", () => {
     await page.fill("#title", TRANSLATION_TITLE);
     await page.fill("#writers", "Playwright Hymnwriter");
     await page.fill("#lyrics", LYRICS);
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
 
     // no translator, still English — the form refuses both, in the server's own words
@@ -68,7 +67,6 @@ test.describe.serial("submission type", () => {
     await page.fill("#lyrics", LYRICS);
     await page.getByTestId("file-midi").setInputFiles(path.join(__dirname, "fixtures", "tiny.mid"));
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toContainText("tiny.mid");
-    await page.selectOption("#pro", { index: 1 });
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();

@@ -102,17 +102,18 @@ test("sitemap lists every page with lastmod", () => {
   assert.match(xml, /<loc>https:\/\/example\.test\/songs\/roca-de-la-eternidad\/<\/loc><lastmod>2024-04-02<\/lastmod>/); // falls back to createdAt
   assert.match(xml, /<loc>https:\/\/example\.test\/terms\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/new\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/mission\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/license\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/upload\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/call-for-songs\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance<\/loc>/);
-  assert.equal(xml.match(/<loc>/g).length, 8 + SONGS.length + 2);
+  assert.equal(xml.match(/<loc>/g).length, 9 + SONGS.length + 2);
 });
 
 test("static SPA routes write crawlable HTML under build/<route>/index.html", () => {
   const slugs = staticPages(SONGS, SITE).map(p => p.slug);
-  assert.deepEqual(slugs, ["license", "terms", "upload", "new", "call-for-songs", "report"]);
+  assert.deepEqual(slugs, ["mission", "license", "terms", "upload", "new", "call-for-songs", "report"]);
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-prerender-"));
   try {
@@ -122,6 +123,7 @@ test("static SPA routes write crawlable HTML under build/<route>/index.html", ()
       assert.match(html, /<div id="root">/);
       assert.match(html, new RegExp(`<link rel="canonical" href="${SITE}/${slug}/">`));
     }
+    assert.match(fs.readFileSync(path.join(dir, "mission", "index.html"), "utf8"), /Worship music does not belong on an invoice/);
     const license = fs.readFileSync(path.join(dir, "license", "index.html"), "utf8");
     assert.match(license, /<title>The WorshipCommons License — WorshipCommons<\/title>/);
     assert.match(license, /WorshipCommons License, Version 1.0 — Legal Code/);
@@ -141,6 +143,7 @@ test("llms.txt and robots.txt invite the AI crawlers", () => {
   assert.match(llms, /^# WorshipCommons/);
   assert.match(llms, /Full terms: https:\/\/example\.test\/license/);
   assert.match(llms, /- \[Song library\]\(https:\/\/example\.test\/songs\/\)/);
+  assert.match(llms, /- \[Mission\]\(https:\/\/example\.test\/mission\)/);
   assert.match(llms, /\n## Songs\n/);
   assert.match(llms, /- \[Rock of Ages by Augustus Toplady\]\(https:\/\/example\.test\/songs\/rock-of-ages\/\)/);
   assert.match(llms, /- \[Steady Light by Ada Vance\]\(https:\/\/example\.test\/songs\/steady-light\/\)/);

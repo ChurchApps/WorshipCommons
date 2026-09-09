@@ -234,7 +234,6 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
   const selectedThemes = parseThemes(form.themes);
   const themeChips = [...new Set([...THEMES, ...selectedThemes])];
   const knownKeys = new Set([...MAJOR_KEYS, ...MINOR_KEYS]);
-  const proWarn = /GEMA|PRS|publisher|licensing admin/i.test(form.proAnswer);
   const lint = useMemo(() => lintChordPro(form.chordPro, form.songKey), [form.chordPro, form.songKey]);
   const noteLength = note.trim().length;
   const noteShort = !!proposalType && noteLength < MIN_NOTE_LENGTH;
@@ -265,8 +264,6 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
       if (!form.chordPro.trim()) gaps.push(t("Lyrics and chords"));
       else if (lint.some(i => i.level === "error")) gaps.push(t("Lyrics and chords — fix the errors listed under the preview"));
     }
-    // the society question is the writer's to answer; a change to a live song inherits whatever the song already carries
-    if (isNewSong && !form.proAnswer) gaps.push(t("Collecting societies & licensing admins"));
     if (showWord && !form.certified) gaps.push(t("Your word"));
     if (files.demoAudio && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
     if (proposalType && noteShort) gaps.push(proposalType === "removal" ? t("A note of at least {n} characters is required: say why the song should come down", { n: MIN_NOTE_LENGTH }) : t("A note of at least {n} characters is required: say what changed and why", { n: MIN_NOTE_LENGTH }));
@@ -450,9 +447,9 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
               <Dropzone label="Lyrics or ChordPro file" hint="Plain text or ChordPro · .cho .crd .txt" accept=".cho,.crd,.txt,.chordpro,text/plain" testId="file-lyrics" onFile={f => setFiles(x => ({ ...x, lyrics: f }))} />
             )}
           </div>
-          <p className="hint" style={{ margin: "10px 0 0 52px" }}>{t("Files up to ~35 MB each. Upload stems once, in the recorded key.")}</p>
+          <p className="hint" style={{ margin: "10px 0 0" }}>{t("Files up to ~35 MB each. Upload stems once, in the recorded key.")}</p>
           {files.demoAudio && (
-            <div className="certify" style={{ margin: "16px 0 0 52px" }}>
+            <div className="certify" style={{ margin: "16px 0 0" }}>
               <input type="checkbox" id="recording-owned" data-testid="recording-owned" required checked={form.recordingOwned} onChange={e => set("recordingOwned", e.target.checked)} />
               <label htmlFor="recording-owned" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
                 {t("This recording is mine (or I have the owner’s permission to share it).")}
@@ -508,21 +505,6 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
         <section className="step">
           <h2><span className="n">{step()}</span>{t("Your word")}</h2>
           <div className="step-body">
-            {isNewSong && (
-              <div className="field">
-                <label htmlFor="pro">{t("Collecting societies & licensing admins")}</label>
-                <select id="pro" required value={form.proAnswer} onChange={e => set("proAnswer", e.target.value)}>
-                  <option value="">{t("Are you a member of one?…")}</option>
-                  {/* value stays English so submissions read the same for reviewers */}
-                  {["No — nobody else administers my songs", "Yes — ASCAP, BMI, or SESAC", "Yes — GEMA, PRS, or another society outside the U.S.", "Yes — a publisher or licensing admin administers this song"]
-                    .map(o => <option key={o} value={o}>{t(o)}</option>)}
-                </select>
-                {proWarn && (
-                  <p className="pro-warning" data-testid="pro-warning">{t("Check your membership terms — this grant may not be yours to make.")}</p>
-                )}
-                <p className="hint">{t("U.S.-style societies leave you free to give your own song away. Many societies elsewhere (GEMA and others) take over your performance rights when you join — if that’s you, check your membership terms before sharing, or this grant may not be yours to make.")}</p>
-              </div>
-            )}
             <div className="certify">
               <input type="checkbox" id="certify" required checked={form.certified} onChange={e => set("certified", e.target.checked)} />
               <label htmlFor="certify" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
