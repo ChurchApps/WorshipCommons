@@ -205,8 +205,17 @@ export async function loadSongPage(id: string): Promise<SongPageData | null> {
 // the controlled vocabulary, in the order it should be offered and faceted
 export const THEMES: string[] = themeVocabulary.themes;
 
-// the six the home page leads with — all drawn from THEMES
-export const HOME_THEMES = ["Praise", "Advent", "Christmas", "Easter", "Communion", "Comfort"];
+// ponytail: "Hymn" for the public-domain hymnal, "Song" for everything a living writer shared
+export const kindOf = (song: Song) => (song.license === "PD" ? "Hymn" : "Song");
+
+/** Same image the library list uses: cover art, else the writer portrait. Undefined → draw coverSvg. */
+export function coverOf(song: Song, size: "thumb" | "full" = "full"): { src: string; portrait: boolean } | undefined {
+  if (song.artUrl) {
+    const src = size === "thumb" ? (song.thumbUrl || song.artUrl.replace(/art\.webp$/, "art-thumb.webp")) : song.artUrl;
+    return { src, portrait: false };
+  }
+  if (song.writerPortraitUrl) return { src: song.writerPortraitUrl, portrait: true };
+}
 
 export const themeList = (song: Song) => (song.themes || "").split(",").map(t => t.trim()).filter(Boolean);
 

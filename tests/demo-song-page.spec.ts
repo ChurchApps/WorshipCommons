@@ -67,8 +67,8 @@ test.describe("song page: hero, modes, rights", () => {
     test.skip(!bare, "no seeded song without media");
     await page.goto(`/songs/${bare!.id}`);
 
-    // no midi, no stems, no PDF: nothing to preview, no tempo, no sheet PDF section
-    await expect(page.locator(".mode-tabs")).toHaveCount(0);
+    // no midi, no stems, no PDF: nothing to preview, no tempo, no Sheet music tab
+    await expect(page.getByTestId("tab-sheet")).toHaveCount(0);
     await expect(page.getByTestId("panel-charts")).toBeVisible();
     await expect(page.getByTestId("hero-play")).toHaveCount(0);
     await expect(page.locator("#tempo")).toHaveCount(0);
@@ -82,7 +82,7 @@ test.describe("song page: hero, modes, rights", () => {
     test.skip(!timed, "no seeded song with timing and a melody file");
     await page.goto(`/songs/${timed!.id}`);
     await expect(page.getByTestId("hero-play")).toHaveAttribute("aria-label", "Preview (synthesized)");
-    await expect(page.getByTestId("hero-play")).toContainText("Preview");
+    await expect(page.locator(".player-meta")).toContainText("Piano preview");
     await expect(page.getByTestId("practice-card").locator("#tempo")).toBeVisible();
 
     const lead = page.getByTestId("lead-worship");
@@ -109,6 +109,7 @@ test.describe("song page: hero, modes, rights", () => {
     const song = rows.find(s => s.license === "PD");
     test.skip(!song, "no seeded public-domain song");
     await page.goto(`/songs/${song!.id}`);
+    await page.getByTestId("tab-about").click();
 
     const matrix = page.getByTestId("rights-matrix");
     await expect(matrix).toBeVisible();

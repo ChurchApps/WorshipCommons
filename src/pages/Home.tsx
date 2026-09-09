@@ -1,266 +1,197 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { HOME_THEMES, loadSongs, Song, songRecency } from "../songs";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { coverOf, kindOf, loadSongs, Song } from "../songs";
 import { coverSvg } from "../cover.mjs";
+import { loadTune, TunePlayer } from "../midiPlayer";
+import { libraryIds, setInLibrary } from "../library";
+import { useAuth } from "../auth";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
-import { licenseOf } from "../licenses";
 import { splitLanguages, topBlock } from "../catalog";
 
-const PlayIcon = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-);
+const PlayIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>;
+const StopIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg>;
+const SaveIcon = ({ on }: { on: boolean }) => <svg width="14" height="14" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4z" /></svg>;
+const SearchIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>;
 
-const NoteIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" /></svg>
-);
-
-const GlobeIcon = ({ size = 16 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" /></svg>
-);
-
-const PeopleIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /></svg>
-);
-
-const ShieldIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6z" /><path d="M9 12h6M12 9v6" /></svg>
-);
-
-const PenIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z" /></svg>
-);
-
-const ArrowIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-);
-
-const CheckIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-);
+// the chips deep-link into the library: theme, license, readiness, and recency are all real /songs filters
+const CHIPS: [string, string][] = [
+  ["All Songs", "/songs"],
+  ["Modern Worship", "/songs?license=WC"],
+  ["Timeless Hymns", "/songs?license=PD"],
+  ["Acoustic", "/songs?guitar=1"],
+  ["New Releases", "/songs?sort=new"]
+];
 
 export default function Home() {
   const { t, lang } = useI18n();
-  usePageMeta(t("WorshipCommons — Worship music, set free"), t("An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio."));
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  usePageMeta(t("WorshipCommons — Great music. For every church."), t("Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church."));
   const [songs, setSongs] = useState<Song[]>([]);
+  const [saved, setSaved] = useState<string[]>([]);
+  const [playing, setPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const tuneRef = useRef<TunePlayer | null>(null);
+  const [q, setQ] = useState("");
+
   useEffect(() => { loadSongs().then(setSongs); }, []);
+  useEffect(() => { if (user) libraryIds().then(setSaved); else setSaved([]); }, [user]);
+  const stopAll = () => { audioRef.current?.pause(); tuneRef.current?.stop(); tuneRef.current = null; setPlaying(null); };
+  useEffect(() => () => { audioRef.current?.pause(); tuneRef.current?.stop(); }, []);
 
   const block = topBlock(songs, SONG_LANG[lang]);
-  const top = block.songs.slice(0, 10);
-  // "from writers" = anything a living writer shared here (WC or CC BY originals), never the public-domain hymnal
-  const fromWriters = songs.filter(s => licenseOf(s).uploadable && s.license !== "PD").sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
-  // headline totals count catalog languages only; browse languages are searchable but not yet a catalog
+  const set = block.songs.slice(0, 4);
   const { catalog, browse } = splitLanguages(songs);
-  // ponytail: with no catalog language at all the headline would read "0 songs" — count everything until one crosses the threshold
   const counted = catalog.length ? songs.filter(s => catalog.includes(s.language)) : songs;
-  const stats = {
-    songs: counted.length,
-    downloads: songs.reduce((n, s) => n + s.downloadCount, 0),
-    langs: catalog.length || browse.length,
-    browse: catalog.length ? browse.length : 0
+
+  // demo recording if there is one, otherwise the melody file through the piano soundfont
+  const togglePlay = async (s: Song) => {
+    const was = playing === s.id;
+    stopAll();
+    if (was || !(s.demoAudioUrl || s.midiUrl)) return;
+    setPlaying(s.id);
+    if (s.demoAudioUrl) {
+      const a = new Audio(s.demoAudioUrl);
+      a.onended = () => setPlaying(null);
+      a.play();
+      audioRef.current = a;
+      return;
+    }
+    try {
+      const p = await loadTune(s.midiUrl!);
+      tuneRef.current = p;
+      p.onEnd = () => setPlaying(null);
+      p.play();
+    } catch { setPlaying(null); }
   };
-  const browseNote = stats.browse > 0 && <small className="browse-note" data-testid="browse-langs">{t("+ {count} browse languages", { count: stats.browse })}</small>;
+
+  const toggleSave = async (s: Song) => {
+    if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
+    const on = saved.includes(s.id);
+    await setInLibrary(s.id, !on);
+    setSaved(on ? saved.filter(id => id !== s.id) : [...saved, s.id]);
+  };
+
+  const search = (e: FormEvent) => { e.preventDefault(); navigate(q.trim() ? `/songs?q=${encodeURIComponent(q.trim())}` : "/songs"); };
 
   return (
     <main>
       <section className="hero">
         <div className="wrap hero-grid">
           <div>
-            <span className="eyebrow rise">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" /></svg>
-              {t("An open library of worship music")}
-            </span>
-            <h1 className="rise">{t("Worship music,")} <span className="hl">{t("set free.")}</span></h1>
-            <p className="lede rise rise-2">{t("Every song here is free for your church to sing — project it, print it, change the key, stream it. No subscriptions, no reporting. Writers keep all the commercial rights.")}</p>
+            <p className="eyebrow rise">{t("Freely given. Freely shared.")}</p>
+            <h1 className="rise">{t("Great music.")}<br /><em>{t("For every church.")}</em></h1>
+            <p className="lede rise rise-2">{t("Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church.")}</p>
             <div className="hero-ctas rise rise-2">
-              <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
-              <a href="#writers" className="btn btn-ghost">{t("I write songs")}</a>
+              <Link to="/songs" className="btn btn-primary btn-lg">{t("Find Your Next Song →")}</Link>
+              <Link to="/license" className="btn btn-ghost btn-lg">{t("Our Mission")}</Link>
             </div>
             <p className="hero-proof rise rise-3">
-              <span><NoteIcon /><strong>{stats.songs > 0 ? t("{count} songs", { count: stats.songs.toLocaleString() }) : t("Hundreds of songs")}</strong> {t("free for your church to use")}</span>
-              <span><GlobeIcon /><strong>{t("{count} languages", { count: stats.langs })}</strong> {browseNote}</span>
+              <span><strong>{t("{count} songs", { count: counted.length.toLocaleString() })}</strong> {t("free for your church to use")}</span>
+              <span><strong>{t("{count} languages", { count: catalog.length || browse.length })}</strong>{catalog.length > 0 && browse.length > 0 && <> <small data-testid="browse-langs">{t("+ {count} browse languages", { count: browse.length })}</small></>}</span>
             </p>
           </div>
-          <div className="hero-panel rise rise-3">
-            <div className="hp-head">
-              <Link className="hp-search" to="/songs">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-                {t("Search {count} songs…", { count: stats.songs.toLocaleString() })}
-              </Link>
-              <Link className="hp-filters" to="/songs">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4" /></svg>
-                {t("Filters")}
-              </Link>
-            </div>
-            <div className="hp-label" data-testid="hp-top-heading">{t(block.heading)}</div>
-            <ul className="hp-list">
-              {top.slice(0, 5).map((s, i) => (
-                <li key={s.id} className={i === 0 ? "on" : ""}>
-                  <Link to={`/songs/${s.id}`}>
-                    {i === 0 && <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>}
-                    {s.artUrl
-                      ? <span className="hp-cover"><img src={s.thumbUrl || s.artUrl.replace(/art\.webp$/, "art-thumb.webp")} alt="" loading="lazy" /></span>
-                      : <span className="hp-cover" aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 88, 88) }} />}
-                    <span className="hp-main"><b>{s.title}</b><span>{s.writer} • {s.year}</span></span>
-                    <span className="hp-key">{s.songKey}</span>
-                    <span className="hp-bpm">{s.bpm}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link className="hp-all" to="/songs">{t("Browse all songs")}<ArrowIcon /></Link>
+          <div className="hero-photo rise rise-3">
+            <img src="/mock/hero-band.jpg" alt={t("A worship band rehearsing: singer, guitar, and keys in a sunlit loft")} />
           </div>
         </div>
       </section>
 
-      <div className="trust-bar">
-        <div className="wrap">
-          <span><PeopleIcon />{t("Free for churches")}</span>
-          <span><ShieldIcon />{t("Public domain songs")}</span>
-          <span><PenIcon />{t("Writers keep all commercial rights")}</span>
-          <span><GlobeIcon size={18} />{t("{count} languages and growing", { count: stats.langs })} {browseNote}</span>
-          <span><NoteIcon />{t("{count} songs and counting", { count: stats.songs.toLocaleString() })}</span>
+      <div className="wrap">
+        <form className="search-row" onSubmit={search} role="search">
+          <label className="field">
+            <SearchIcon />
+            <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={t("Search songs, lyrics, scripture, or themes…")} aria-label={t("Search songs")} />
+          </label>
+          <button className="btn btn-primary" type="submit">{t("Search")}</button>
+        </form>
+        <div className="chips">
+          {CHIPS.map(([label, to], i) => <Link key={label} className={"chip" + (i === 0 ? " on" : "")} to={to}>{t(label)}</Link>)}
+          <Link className="chip" to="/songs?theme=Kids" data-testid="kids-chip">{t("Kids & VBS")}</Link>
         </div>
+
+        <div className="sec-head">
+          <div>
+            <p className="kicker" data-testid="home-top-heading">{t(block.heading)}</p>
+            <h2>{t("Find your next Sunday set.")}</h2>
+            <p>{t("Songs worth singing. Resources ready to go.")}</p>
+          </div>
+          <Link className="more" to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : "/songs"}>{t("Explore all songs →")}</Link>
+        </div>
+
+        <ul className="albums" data-testid="home-top-list">
+          {set.map(s => {
+            const cover = coverOf(s);
+            return (
+            <li key={s.id} className="album">
+              <div className="album-art">
+                <Link to={`/songs/${s.id}`} aria-label={s.title}>
+                  {cover
+                    ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
+                    : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
+                  {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
+                </Link>
+                {(s.demoAudioUrl || s.midiUrl) && (
+                  <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => togglePlay(s)}>
+                    {playing === s.id ? <StopIcon /> : <PlayIcon />}
+                  </button>
+                )}
+                <button className={"save" + (saved.includes(s.id) ? " on" : "")} type="button" aria-pressed={saved.includes(s.id)} aria-label={t(saved.includes(s.id) ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => toggleSave(s)}>
+                  <SaveIcon on={saved.includes(s.id)} />
+                </button>
+              </div>
+              <h3><Link to={`/songs/${s.id}`} className="album">{s.title}</Link></h3>
+              <p className="kind">{t(kindOf(s))}</p>
+            </li>
+            );
+          })}
+        </ul>
+
+        <section className="lead-block">
+          <div className="lead-block-photo">
+            <img src="/mock/guitar.jpg" alt={t("Close-up of an acoustic guitar during worship rehearsal")} loading="lazy" />
+          </div>
+          <div>
+            <p className="eyebrow">{t("From discovery to Sunday")}</p>
+            <h2>{t("Everything you need to lead the song.")}</h2>
+            <ul className="need">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+                {t("Chord charts in your key")}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></svg>
+                {t("Sheet music & lyrics")}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                {t("Tracks for rehearsal & worship")}
+              </li>
+            </ul>
+            <Link className="more" to="/songs">{t("Explore the library →")}</Link>
+          </div>
+        </section>
+
+        <section className="banner" id="writers">
+          <div className="banner-copy">
+            <h2>{t("Made for the Church.")}<br />{t("Shared with the Church.")}</h2>
+            <div className="rule"></div>
+            <div className="banner-side">
+              {t("A growing library of freely shared worship music. Writers keep every commercial right.")}
+              <br />
+              <Link className="more" to="/license">{t("Meet Worship Commons →")}</Link>
+              <br />
+              <Link className="more" to="/call-for-songs">{t("For students and seminaries →")}</Link>
+            </div>
+          </div>
+          <div className="banner-photo">
+            <img src="/mock/community.jpg" alt={t("Friends talking around a cafe table")} loading="lazy" />
+          </div>
+        </section>
       </div>
-
-      <section className="block">
-        <div className="wrap">
-          <div className="sec-head animate-on-scroll">
-            <h2>{t("One simple idea")}</h2>
-            <p>{t("Music made for worship should be free to use in worship — and songwriters should still make a living from everything else.")}</p>
-          </div>
-          <div className="pillars">
-            <div className="card card-hover pillar animate-on-scroll">
-              <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg></div>
-              <h3>{t("Free for your church")}</h3>
-              <p>{t("Screens, bulletins, new keys, translations, livestreams — if it happens in worship, it's covered. No reporting, no subscription.")}</p>
-              <Link className="pillar-link" to="/license">{t("Learn more")}<ArrowIcon /></Link>
-            </div>
-            <div className="card card-hover pillar animate-on-scroll">
-              <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" /></svg></div>
-              <h3>{t("Writers keep the rest")}</h3>
-              <p>{t("Albums, streaming royalties, sync, radio, concerts — every commercial right stays with the songwriter. Generosity shouldn't cost a career.")}</p>
-              <a className="pillar-link" href="#writers">{t("How it works")}<ArrowIcon /></a>
-            </div>
-            <div className="card card-hover pillar animate-on-scroll">
-              <div className="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></div>
-              <h3>{t("Built by the church")}</h3>
-              <p>{t("Songs come from worship leaders and writers who want them sung. Popularity comes from congregations, not algorithms.")}</p>
-              <Link className="pillar-link" to="/songs">{t("Explore the library")}<ArrowIcon /></Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="block">
-        <div className="wrap">
-          <div className="dark-panel browse animate-on-scroll">
-            <div className="sec-head">
-              <h2>{t("Find Sunday's song in seconds")}</h2>
-              <p>{t("Search by theme, scripture, key, tempo, or language. Download chords, slides, ChordPro — and stems for the full band.")}</p>
-            </div>
-            <Link className="search-pill" to="/songs">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-              {t("Try “communion”, “Isaiah 40”, or “key of G”…")}
-            </Link>
-            <div className="chips">
-              <span className="chip on">{t("All songs")}</span>
-              {HOME_THEMES.map(th => (
-                <Link key={th} className="chip" to={`/songs?theme=${th}`}>{th}</Link>
-              ))}
-              <Link className="chip" to="/songs?theme=Kids" data-testid="kids-chip">{t("Songs for kids and VBS")}</Link>
-              <Link className="chip" to="/songs?lang=Spanish">En español</Link>
-            </div>
-            <div className="row-head">
-              <h3 data-testid="home-top-heading">{t(block.heading)}</h3>
-              <Link to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : "/songs"}>{t("See all →")}</Link>
-            </div>
-            <ul className="row-list" data-testid="home-top-list">
-              {top.slice(0, 4).map(s => (
-                <li key={s.id}>
-                  <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
-                  <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
-                  <span className="kv">{s.songKey} · {s.bpm} BPM{s.downloadCount > 0 ? t(" · {count} downloads", { count: s.downloadCount.toLocaleString() }) : ""}</span>
-                </li>
-              ))}
-            </ul>
-            {fromWriters.length > 0 && (
-              <>
-                <div className="row-head">
-                  <h3><Link to="/new">{t("New from writers")}</Link></h3>
-                  <Link to="/new">{t("See all →")}</Link>
-                </div>
-                <ul className="row-list">
-                  {fromWriters.map(s => (
-                    <li key={s.id}>
-                      <span className="play-btn" aria-hidden="true"><PlayIcon size={12} /></span>
-                      <div><Link to={`/songs/${s.id}`}><b>{s.title}</b></Link><div className="meta">{s.writer} · {(s.themes || "").split(",").slice(0, 2).join(", ")}</div></div>
-                      <span className="kv">{s.songKey} · {s.bpm} BPM{s.year ? ` · ${s.year}` : ""}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section className="block">
-        <div className="wrap">
-          <div className="sec-head animate-on-scroll">
-            <h2>{t("Sunday-ready in three steps")}</h2>
-            <p>{t("No accounts to manage, no licenses to buy, nothing to report back.")}</p>
-          </div>
-          <div className="steps">
-            <div className="card step animate-on-scroll">
-              <h3>{t("Find it")}</h3>
-              <p>{t("Search the library by theme, scripture, key, tempo, or language. Listen to demo recordings before you commit.")}</p>
-            </div>
-            <div className="card step animate-on-scroll">
-              <h3>{t("Grab everything")}</h3>
-              <p>{t("Chord charts, lead sheets, slides, ChordPro — and multitracks where the writer shared them: separate stems for drums, bass, keys, and more, rendered in your key.")}</p>
-            </div>
-            <div className="card step animate-on-scroll">
-              <h3>{t("Sing it your way")}</h3>
-              <p>{t("New key, new arrangement, your language, your livestream. Sing it like it's yours — that's the whole point.")}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="block" id="writers">
-        <div className="wrap writers">
-          <div className="writers-copy animate-on-scroll">
-            <h2>{t("Songwriters: give the song, keep the living")}</h2>
-            <p>{t("Sharing your song with the church doesn't mean giving up your career. The commons covers worship use only — the revenue that actually pays writers stays 100% yours.")}</p>
-            <p>{t("Upload your song, confirm you own it, and watch churches around the world start singing it.")}</p>
-            <Link to="/upload" className="btn btn-primary">{t("Share your song")}</Link>
-            <p><Link to="/call-for-songs">{t("For students and seminaries →")}</Link></p>
-          </div>
-          <div className="writers-card animate-on-scroll">
-            <h3>{t("You keep:")}</h3>
-            <ul className="keep-list">
-              <li><CheckIcon />{t("Album sales & streaming royalties")}</li>
-              <li><CheckIcon />{t("Sync — film, TV, and advertising")}</li>
-              <li><CheckIcon />{t("Radio & broadcast royalties")}</li>
-              <li><CheckIcon />{t("Ticketed concerts & tours")}</li>
-              <li><CheckIcon />{t("Sheet music & songbook sales")}</li>
-              <li><CheckIcon />{t("Full ownership of your song")}</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="block">
-        <div className="wrap">
-          <div className="cta animate-on-scroll">
-            <h2>{t("Ready to sing something free?")}</h2>
-            <p>{t("Browse the library, download everything you need for Sunday, and never fill out a licensing report for these songs again.")}</p>
-            <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

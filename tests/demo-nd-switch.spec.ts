@@ -51,6 +51,7 @@ test.describe("the ND switch", () => {
     await expect(page.getByTestId("hero-play")).toBeDisabled();
     await expect(page.getByTestId("hero-play")).toHaveAttribute("title", /No derivatives/);
     // the original-key downloads stay available
+    await page.getByText("More formats").click();
     await expect(page.getByRole("link", { name: "ChordPro (.cho)" })).toBeVisible();
   });
 

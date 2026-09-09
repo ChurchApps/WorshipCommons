@@ -25,7 +25,7 @@ test("public SPA routes render instead of Page not found, with or without a trai
   }
 
   await page.goto("/");
-  await page.locator(".nav").getByRole("link", { name: "The License" }).click();
+  await page.locator(".nav").getByRole("link", { name: "Our Mission" }).click();
   await expect(page).toHaveURL(/\/license\/?$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("One page. Zero strings.");
 });

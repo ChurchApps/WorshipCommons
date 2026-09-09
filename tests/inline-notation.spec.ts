@@ -4,6 +4,7 @@ import { songIdByTitle, WC_API } from "./helpers/api";
 test.describe("inline melody", () => {
   test("song page engraves the melody and follows the selected key", async ({ page, request }) => {
     await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
+    await page.getByTestId("tab-sheet").click();
     const card = page.getByTestId("melody-card");
     await expect(card).toBeVisible();
     await expect(card.locator("svg").first()).toBeVisible();
@@ -15,7 +16,9 @@ test.describe("inline melody", () => {
     // only the top voice — one staff's worth of ink, far less than the four-part sheet page
     const inlinePaths = await card.locator("svg path").count();
 
+    await page.getByTestId("tab-chords").click();
     await page.selectOption("#transpose", "A");
+    await page.getByTestId("tab-sheet").click();
     await expect(card).toContainText("Engraved in A");
     await expect(card.locator("svg").first()).toBeVisible();
 
@@ -26,6 +29,7 @@ test.describe("inline melody", () => {
 
   test("borrowed tune shows the melody without another hymn's words", async ({ page, request }) => {
     await page.goto(`/songs/${await songIdByTitle(request, "Adeste Fideles")}`);
+    await page.getByTestId("tab-sheet").click();
     const card = page.getByTestId("melody-card");
     await expect(card.locator("svg").first()).toBeVisible();
     await expect(card).not.toContainText("choirs");

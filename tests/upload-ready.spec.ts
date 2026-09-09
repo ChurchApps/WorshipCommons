@@ -198,7 +198,7 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     await expect(page.getByRole("heading", { name: TITLE })).toBeVisible();
     await expect(page.locator(".stanza-label", { hasText: "Chorus" })).toBeVisible();
     await expect(page.locator(".byline")).toContainText("Playwright Composer");
-    await expect(page.locator(".song-facts .fact", { hasText: "Advent" })).toBeVisible();
+    await expect(page.locator(".tags .tag", { hasText: "Advent" })).toBeVisible();
     // the WC badge reads "WC" and carries Free for worship as its title
     await expect(page.locator("[data-testid='song-hero'] [data-testid='license-badge']")).toHaveAttribute("data-license", "WC");
     await expect(page.locator("[data-testid='song-hero'] [data-testid='license-badge']")).toHaveText("WC");

@@ -142,7 +142,6 @@ test.describe("home", () => {
       : english.some(s => s.hasScore) ? "Scored hymns, ready to sing" : "Most downloaded in the commons";
     await page.goto("/");
     await expect(page.getByTestId("home-top-heading")).toHaveText(heading);
-    await expect(page.getByTestId("hp-top-heading")).toHaveText(heading);
     if (heading !== "Sunday-ready") await expect(page.getByTestId("home-top-heading")).not.toContainText("Sunday-ready");
 
     // the block is ranked within the UI language; the first card is the top-ranked eligible English title

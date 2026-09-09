@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Confidence, loadSongs, Song, songRecency, THEMES, themeList } from "../songs";
+import { Confidence, coverOf, loadSongs, Song, songRecency, THEMES, themeList } from "../songs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
@@ -59,15 +59,15 @@ export default function Songs() {
     meter: params.get("meter") || "",
     tempo: "",
     lang: params.get("lang") || SONG_LANG[lang],
-    lic: "",
+    lic: params.get("license") || "",
     audio: false,
-    guitar: false,
+    guitar: params.get("guitar") === "1",
     accomp: false,
     chart: false,
     score: false,
     mt: false
   }));
-  const [sort, setSort] = useState("downloads");
+  const [sort, setSort] = useState(params.get("sort") === "new" ? "new" : "downloads");
   const [page, setPage] = useState(1);
   // ponytail: sidebar starts open on desktop, closed on phones — one boolean, no resize listener
   const [facetsOpen, setFacetsOpen] = useState(() => window.innerWidth > 900);
@@ -361,9 +361,12 @@ export default function Songs() {
                         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
                         : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
                     </button>
-                    {s.artUrl || s.writerPortraitUrl
-                      ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={s.artUrl ? "art" : ""} src={s.artUrl ? (s.thumbUrl || s.artUrl.replace(/art\.webp$/, "art-thumb.webp")) : s.writerPortraitUrl} alt="" loading="lazy" /></Link>
-                      : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
+                    {(() => {
+                      const cover = coverOf(s, "thumb");
+                      return cover
+                        ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={cover.portrait ? "" : "art"} src={cover.src} alt="" loading="lazy" /></Link>
+                        : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />;
+                    })()}
                     <div className="t-main">
                       <Link to={`/songs/${s.id}`}>{s.title}</Link>
                       <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span>

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { HistoryEntry, Song, themeList } from "../songs";
-import { titlesMatch } from "../abc";
 import { useI18n } from "../i18n";
 import RightsPanel from "./RightsPanel";
 
@@ -20,26 +19,19 @@ const fileChangeLabel = (name: string) => FILE_LABELS.find(([re]) => re.test(nam
 
 interface Props {
   song: Song;
-  family: Song[];
   similar: (Song & { reason?: string })[];
   history: HistoryEntry[];
   writerHref: string;
 }
 
-// Author, scripture, topics, the song's family in the commons, what else this tune has carried, similar songs,
-// who contributed, and the rights matrix — everything that answers "where does this come from and may we use it".
-export default function AboutPanel({ song, family, similar, history, writerHref }: Props) {
+// Author, scripture, topics, other tunes for this text, who contributed, and the rights matrix — everything that
+// answers "where does this come from and may we use it". Family and similar titles sit at the foot of the song page.
+export default function AboutPanel({ song, similar, history, writerHref }: Props) {
   const { t } = useI18n();
-  const parent = family.find(f => f.id === song.parentSongId) || null;
-  const relatives = family.filter(f => f.id !== song.id && f.id !== parent?.id);
-  // ponytail: "other texts this tune has carried" = same-language family members with a different title; a translation
-  // also differs in title but lives in another language, so the language check keeps the two lists apart
-  const tuneTexts = family.filter(f => f.id !== song.id && f.language === song.language && !titlesMatch(f.title, song.title));
   const tuneSwap = similar.filter(s => song.meter && s.meter === song.meter && (s.parentSongId || s.id) !== (song.parentSongId || song.id));
   const themes = themeList(song);
   const contributors = song.contributors || [];
 
-  const rowSub = (r: Song) => r.relationLabel || `${r.writer}, ${r.year}`;
 
   return (
     <div className="about-panel" data-testid="panel-about">
@@ -74,34 +66,6 @@ export default function AboutPanel({ song, family, similar, history, writerHref 
         {song.meter && <p className="about-line"><b>{t("Meter")}</b> <Link to={`/songs?meter=${encodeURIComponent(song.meter)}`}>{song.meter}</Link>{song.tune ? ` · ${song.tune}` : ""}</p>}
         {(song.hymnalCount ?? 0) > 0 && <p className="about-line" data-testid="hymnal-count">{t("In {n} hymnals", { n: song.hymnalCount as number })}</p>}
       </section>
-
-      {(parent || relatives.length > 0) && (
-        <section>
-          <h2>{t("In the commons")}</h2>
-          <ul className="rel-list" data-testid="family-list">
-            {parent && <li><div><Link to={`/songs/${parent.id}`}>{parent.title}</Link><span>{t("Original")} · {parent.writer}, {parent.year}</span></div><ArrowRight /></li>}
-            {relatives.map(r => <li key={r.id}><div><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{rowSub(r)}</span></div><ArrowRight /></li>)}
-          </ul>
-        </section>
-      )}
-
-      {tuneTexts.length > 0 && (
-        <section>
-          <h2>{t("Other texts this tune has carried")}</h2>
-          <ul className="rel-list" data-testid="tune-texts">
-            {tuneTexts.map(r => <li key={r.id}><div><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{rowSub(r)}</span></div><ArrowRight /></li>)}
-          </ul>
-        </section>
-      )}
-
-      {similar.length > 0 && (
-        <section>
-          <h2>{t("Similar songs")}</h2>
-          <ul className="rel-list" data-testid="similar-songs">
-            {similar.map(s => <li key={s.id}><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer}{s.reason ? ` · ${s.reason}` : ""}</span></div><ArrowRight /></li>)}
-          </ul>
-        </section>
-      )}
 
       {tuneSwap.length > 0 && (
         <section>
