@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { loadSongPage, SongPageData } from "../songs";
+import { loadSongPage, SongPageData, contentRootOf, kitFile } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -447,6 +447,13 @@ export default function SongPage() {
             </div>
             <button className="btn practice-pitch" data-testid="pitch-pipe" onClick={() => playPitch(60 + noteIndex(selRoot))}>{t("Play {note}", { note: selRoot })}</button>
             <p className="rel-hint">{song.midiUrl ? t("The preview, tempo, and click follow the key on the page — piano from the melody file, not a recording.") : t("A click in {time} at the tempo above, plus the starting note of {key} to pitch the room.", { time: song.timeSignature, key: keyLabel })}</p>
+            {(kitFile(song, "piano.mp3", "tune") || kitFile(song, "organ.mp3", "tune") || kitFile(song, "click.mp3")) && (
+              <div className="kit-audio" data-testid="kit-audio">
+                {kitFile(song, "piano.mp3", "tune") && <p className="listen-kind">{t("Piano")}<audio controls src={kitFile(song, "piano.mp3", "tune")} preload="none" /></p>}
+                {kitFile(song, "organ.mp3", "tune") && <p className="listen-kind">{t("Organ")}<audio controls src={kitFile(song, "organ.mp3", "tune")} preload="none" /></p>}
+                {kitFile(song, "click.mp3") && <p className="listen-kind">{t("Click")}<audio controls src={kitFile(song, "click.mp3")} preload="none" /></p>}
+              </div>
+            )}
           </div>
 
           {(song.demoAudioUrl || song.videoUrl) && (
@@ -485,6 +492,17 @@ export default function SongPage() {
               {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></li>}
               {song.sheetPdfUrl && <li><FileIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a></li>}
               {song.stemsZipUrl && <li><FileIcon /><a href={song.stemsZipUrl} className="mt-zip" download onClick={recordDownload}>{t("Multitracks (ZIP)")}</a> <span className="size">{t("stems · {key} · {bpm} BPM", { key: song.songKey, bpm: song.bpm })}</span></li>}
+              {song.abcUrl && kitFile(song, "lead.pdf", "tune") && <li><FileIcon /><a href={kitFile(song, "lead.pdf", "tune")} download onClick={recordDownload}>{t("Lead sheet (PDF)")}</a> <span className="size">{t("melody + chords")}</span></li>}
+              {song.abcUrl && kitFile(song, "piano-vocal.pdf", "tune") && <li><FileIcon /><a href={kitFile(song, "piano-vocal.pdf", "tune")} download onClick={recordDownload}>{t("Piano / vocal (PDF)")}</a> <span className="size">{t("SATB")}</span></li>}
+              {song.abcUrl && ["soprano", "alto", "tenor", "bass"].map(part => (
+                <li key={part}><FileIcon /><a href={kitFile(song, `${part}.pdf`, "tune")} download onClick={recordDownload}>{t("{part} part (PDF)", { part: part[0].toUpperCase() + part.slice(1) })}</a></li>
+              ))}
+              {song.hasChords && <li><FileIcon /><a href={kitFile(song, `stage-${selRoot === "F#" ? "Fs" : selRoot}.pdf`)} download onClick={recordDownload}>{t("Stage chart (PDF)")}</a> <span className="size">{keyLabel}</span></li>}
+              {song.hasChords && <li><FileIcon /><a href={kitFile(song, `chart-${selRoot === "F#" ? "Fs" : selRoot}.pdf`)} download onClick={recordDownload}>{t("Chord chart (PDF)")}</a> <span className="size">{keyLabel}</span></li>}
+              {song.midiUrl && <li><FileIcon /><a href={kitFile(song, "piano.mp3", "tune")} download onClick={recordDownload}>{t("Piano accompaniment (MP3)")}</a></li>}
+              {song.midiUrl && <li><FileIcon /><a href={kitFile(song, "organ.mp3", "tune")} download onClick={recordDownload}>{t("Organ accompaniment (MP3)")}</a></li>}
+              <li><FileIcon /><a href={kitFile(song, "click.mp3")} download onClick={recordDownload}>{t("Click track (MP3)")}</a> <span className="size">{song.bpm ? `${song.bpm} BPM` : ""}</span></li>
+              {contentRootOf(song) && <li><FileIcon /><a href={`${contentRootOf(song)}/assets/pads/${selRoot === "F#" ? "Fs" : selRoot}.mp3`} download onClick={recordDownload}>{t("Pad ({key})", { key: selRoot })}</a> <span className="size">{t("loop")}</span></li>}
               {song.midiUrl && <li><FileIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a></li>}
               {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="size">{t("text")}</span></li>}
               <li><FileIcon /><button className="link-btn" data-testid="download-pack" disabled={packing || nd} title={nd ? ndReason : undefined} onClick={downloadPack}>{packing ? t("Packing…") : t("Download pack (.zip)")}</button> <span className="size">{nd ? t("off — as written only") : t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })}</span></li>

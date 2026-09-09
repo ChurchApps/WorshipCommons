@@ -114,6 +114,34 @@ const URL_FIELDS: [keyof Song, string][] = [
   ["thumbUrl", "thumb"]
 ];
 
+/** First matching key in the API's fileUrls map. */
+export function fileUrl(song: Song, ...keys: string[]): string | undefined {
+  const u = song.fileUrls || {};
+  for (const k of keys) if (u[k]) return u[k];
+  return undefined;
+}
+
+/** CDN origin + /commons prefix, so shared assets (pads) can be addressed from any song. */
+export function contentRootOf(song: Song): string {
+  const u = Object.values(song.fileUrls || {}).find(Boolean) || song.midiUrl || song.abcUrl || song.artUrl || "";
+  const hit = ["/songs/", "/works/", "/assets/", "/writers/"].map(s => String(u).indexOf(s)).filter(n => n > 0).sort((a, b) => a - b)[0];
+  return hit ? String(u).slice(0, hit) : "";
+}
+
+const beside = (url: string | undefined, name: string) =>
+  url ? url.replace(/\/(sources|masters|derivatives)\/[^/?#]+$/, `/derivatives/${name}`) : undefined;
+
+/**
+ * Kit files live in derivatives/ but the API's fileUrls map does not list them yet.
+ * Build the URL next to the tune (work/song midi or abc) or the song chart.
+ */
+export function kitFile(song: Song, name: string, from: "tune" | "song" = "song"): string | undefined {
+  const mapped = fileUrl(song, name, name.replace(/-([a-z])/g, (_, c) => c.toUpperCase()), name.replace(/\.pdf$/, "Pdf").replace(/-([a-zA-Z])/g, (_, c) => c.toUpperCase()));
+  if (mapped) return mapped;
+  if (from === "tune") return beside(song.fileUrls?.abc || song.abcUrl || song.fileUrls?.midi || song.midiUrl, name);
+  return beside(song.fileUrls?.chartPdf || song.chartPdfUrl || song.fileUrls?.chart || song.fileUrls?.slides, name);
+}
+
 export function songFromApi(raw: any): Song {
   const urls = raw.fileUrls || {};
   for (const [field, key] of URL_FIELDS) if (urls[key]) raw[field] = urls[key];

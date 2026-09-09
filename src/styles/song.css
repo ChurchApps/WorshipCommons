@@ -237,6 +237,8 @@ a.s-tag:hover { border-color: var(--primary); color: var(--primary); }
 .section-h { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 18px; }
 .panel-h { font-size: 0.8125rem; font-family: var(--font-heading); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
 .listen-kind { font-size: 0.8125rem; color: var(--muted); margin-bottom: 8px; }
+.kit-audio { margin-top: 14px; display: grid; gap: 10px; }
+.kit-audio audio { width: 100%; margin-top: 4px; }
 .side-card .rel-hint a { display: inline-flex; align-items: center; gap: 6px; }
 .columns-toggle { display: flex; gap: 2px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 .columns-toggle button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 0.8125rem; font-weight: 600; padding: 4px 10px; cursor: pointer; }
