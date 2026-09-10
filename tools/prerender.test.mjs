@@ -7,6 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { songPage, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages } from "./prerender.mjs";
+import { idOf, songPath, writerPath } from "../src/slug.mjs";
 import * as os from "os";
 
 // nothing here may touch a live API
@@ -155,4 +156,13 @@ test("llms.txt and robots.txt invite the AI crawlers", () => {
     assert.ok(robots.includes(`User-agent: ${agent}\nAllow: /`), `robots.txt is missing ${agent}`);
   }
   assert.match(robots, /Sitemap: https:\/\/example\.test\/sitemap\.xml/);
+});
+
+test("slugged paths round-trip through idOf", () => {
+  assert.equal(songPath({ id: "fq-OAk1yMgA", title: "On What Has Now Been Sown" }), "/songs/on-what-has-now-been-sown-fq-OAk1yMgA");
+  assert.equal(idOf("on-what-has-now-been-sown-fq-OAk1yMgA"), "fq-OAk1yMgA");
+  assert.equal(idOf("fq-OAk1yMgA"), "fq-OAk1yMgA");
+  assert.equal(idOf("John Newton"), "John Newton");
+  assert.equal(writerPath("71c9ff4e9f8", "John Newton"), "/writers/john-newton-71c9ff4e9f8");
+  assert.equal(idOf("john-newton-71c9ff4e9f8"), "71c9ff4e9f8");
 });
