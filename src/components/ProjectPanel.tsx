@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../i18n";
-import type { Song } from "../songs";
+import { songPath, type Song } from "../songs";
 import { downloadFile, exportFreeShow, exportOpenLyrics, exportPptx, onSongText, type ExportItem } from "../exports";
 import "../styles/project.css";
 
@@ -27,7 +27,7 @@ export default function ProjectPanel({ song, order, songKey }: { song: Song; ord
   return (
     <div className="project-panel" data-testid="project-panel">
       <div className="proj">
-        <Link to={`/songs/${song.id}/project${query}`} data-testid="open-projector"><ScreenIcon />{t("Open projector")}</Link>
+        <Link to={`${songPath(song)}/project${query}`} data-testid="open-projector"><ScreenIcon />{t("Open projector")}</Link>
         <button type="button" data-testid="export-freeshow" title={t("Download for FreeShow")} onClick={() => downloadFile(exportFreeShow([item]))}><SlidesIcon />FreeShow</button>
         <button type="button" data-testid="export-pptx" title={t("Download PPTX")} onClick={() => downloadFile(exportPptx([item]))}><FileIcon />PowerPoint</button>
         <button type="button" data-testid="export-openlyrics" title={t("Download OpenLyrics (OpenLP)")} onClick={() => downloadFile(exportOpenLyrics([item]))}><SlidesIcon />OpenLP</button>

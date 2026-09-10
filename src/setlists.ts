@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { KEY_CHOICES, chartShapes, noteIndex, parseChordPro, splitKey, transposeChord, type Stanza } from "./chordpro";
 import { licenseNotice } from "./licenses";
 import { sectionsFor, slidesFor } from "./slides";
-import type { Song } from "./songs";
+import { songPath, type Song } from "./songs";
 
 // ponytail: URL-carried setlists — move to /commons/setlists when cross-device sync matters.
 // A setlist stores its own key, capo, section picks, and arrangement per song and always reads the
@@ -192,7 +192,7 @@ export function packFilesFor(song: Song, item: SetlistItem, prefix: string): { n
   ];
 }
 
-export const licenseLineFor = (song: Song) => `${song.title} — ${song.writer}${song.year ? `, ${song.year}` : ""}\n${licenseNotice(song)}\nhttps://worshipcommons.org/songs/${song.id}`;
+export const licenseLineFor = (song: Song) => `${song.title} — ${song.writer}${song.year ? `, ${song.year}` : ""}\n${licenseNotice(song)}\nhttps://worshipcommons.org${songPath(song)}`;
 
 // ---- shape guards ----
 

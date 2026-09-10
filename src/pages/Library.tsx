@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
-import { loadSongs, Song } from "../songs";
+import { loadSongs, Song, songPath } from "../songs";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -43,7 +43,7 @@ export default function Library() {
       {songs?.map(s => (
         <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }} data-testid="library-song">
           <div>
-            <h3 style={{ marginBottom: 4 }}><Link to={`/songs/${s.id}`}>{s.title}</Link></h3>
+            <h3 style={{ marginBottom: 4 }}><Link to={`${songPath(s)}`}>{s.title}</Link></h3>
             <p className="hint">{s.writer} · {s.year} · {t("Key")} {s.songKey}</p>
           </div>
           <button className="btn btn-ghost" data-testid="library-remove" onClick={() => remove(s.id)}>{t("Remove")}</button>

@@ -84,7 +84,7 @@ test.describe("song page: hero, modes, rights", () => {
 
     const lead = page.getByTestId("lead-worship");
     await expect(lead).toBeVisible();
-    expect(await lead.getAttribute("href")).toContain(`/songs/${timed!.id}/lead?key=`);
+    expect(await lead.getAttribute("href")).toMatch(new RegExp(`/songs/[a-z0-9-]+-${timed!.id}/lead\\?key=`));
   });
 
   test("Listen offers Watch a performance as a plain external link — no iframe", async ({ page }) => {
@@ -122,26 +122,22 @@ test.describe("song page: hero, modes, rights", () => {
     await expect(page.getByTestId("attribution-text")).not.toBeEmpty();
   });
 
-  test("a converted-from-abc score wears the derived banner on the song and sheet pages; chart-only does not", async ({ page }) => {
+  test("no proofread caveat on the song or sheet page, whatever the confidence", async ({ page }) => {
     const derived = byConfidence("converted-from-abc")[0];
-    const chartOnly = byConfidence("chart-only")[0];
-    test.skip(!derived || !chartOnly, "seed lacks a converted-from-abc or a chart-only song");
+    test.skip(!derived, "seed lacks a converted-from-abc song");
 
     await page.goto(`/songs/${derived.id}`);
-    const banner = page.getByTestId("derived-banner").first();
-    await expect(banner).toBeVisible();
-    await expect(banner).toContainText("not yet proofread");
-    await expect(banner).toHaveAttribute("data-confidence", "converted-from-abc");
+    await expect(page.getByTestId("song-hero")).toBeVisible();
+    // a bare id lands on the slugged canonical URL
+    await expect(page).toHaveURL(new RegExp(`/songs/[a-z0-9-]+-${derived.id}$`));
+    await expect(page.getByTestId("derived-banner")).toHaveCount(0);
     await expect(page.getByTestId("confidence-badge")).toHaveCount(0);
 
     await page.goto(`/songs/${derived.id}/sheet`);
-    await expect(page.getByTestId("derived-banner")).toBeVisible();
-    await expect(page.getByTestId("sheet-footer")).toContainText("not yet proofread");
-    await expect(page.getByTestId("sheet-footer")).not.toContainText("Free for churches");
-
-    await page.goto(`/songs/${chartOnly.id}`);
-    await expect(page.getByTestId("song-hero")).toBeVisible();
+    await expect(page.getByTestId("sheet-footer")).toBeVisible();
     await expect(page.getByTestId("derived-banner")).toHaveCount(0);
+    await expect(page.getByTestId("sheet-footer")).not.toContainText("not yet proofread");
+    await expect(page.getByTestId("sheet-footer")).not.toContainText("Free for churches");
   });
 
   test("the print page adds a large-print size and keeps the attribution in the footer", async ({ page }) => {

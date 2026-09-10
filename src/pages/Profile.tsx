@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
+import { writerPath } from "../songs";
 import { wcGet, wcPut } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -106,7 +107,7 @@ export default function Profile() {
           </form>
 
           <p className="hint" style={{ marginTop: 16 }}>
-            <Link to={`/writers/${encodeURIComponent(profile.id)}`} data-testid="view-writer-page">{t("View your writer page")}</Link>
+            <Link to={writerPath(profile.id, profile.name || "")} data-testid="view-writer-page">{t("View your writer page")}</Link>
           </p>
         </>
       )}

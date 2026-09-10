@@ -17,7 +17,7 @@ test.describe("duplicate warning on upload", () => {
     const warning = page.getByTestId("duplicate-warning");
     await expect(warning).toBeVisible();
     await expect(warning).toContainText(SEEDED);
-    await expect(warning.getByRole("link", { name: new RegExp(SEEDED) })).toHaveAttribute("href", `/songs/${seededId}`);
+    await expect(warning.getByRole("link", { name: new RegExp(SEEDED) })).toHaveAttribute("href", new RegExp(`/songs/[a-z0-9-]+-${seededId}$`));
     await expect(warning).toContainText("propose an edit there instead");
 
     // a genuinely new song is not accused of anything
@@ -28,6 +28,6 @@ test.describe("duplicate warning on upload", () => {
     // the same first sung line still gives it away, even retitled
     await page.fill("#lyrics", "Verse 1\n[G]Amazing grace! how [C]sweet the [G]sound,\nthat saved a wretch like [D]me!");
     await expect(warning).toBeVisible();
-    await expect(warning.getByRole("link", { name: new RegExp(SEEDED) })).toHaveAttribute("href", `/songs/${seededId}`);
+    await expect(warning.getByRole("link", { name: new RegExp(SEEDED) })).toHaveAttribute("href", new RegExp(`/songs/[a-z0-9-]+-${seededId}$`));
   });
 });

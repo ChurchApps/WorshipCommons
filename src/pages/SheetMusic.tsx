@@ -1,17 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { loadSong, Song } from "../songs";
+import { idOf, loadSong, Song, songPath } from "../songs";
 import { splitKey, KEY_CHOICES, semitonesBetween } from "../chordpro";
 import { abcKeyRoot, abcTitle, abcVoices, partName, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import DerivedBanner from "../components/DerivedBanner";
 import { attributionFor } from "../licenses";
 import { isDerivedScore } from "../components/ConfidenceBadge";
 
 export default function SheetMusic() {
   const { t } = useI18n();
-  const { id } = useParams();
+  const id = idOf(useParams().id);
   const [params] = useSearchParams();
   const [song, setSong] = useState<Song | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -71,9 +70,7 @@ export default function SheetMusic() {
         .no-print label { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
         .no-print select { padding: 8px 12px; border-radius: 10px; font-weight: 500; }
         .no-print .back { margin-left: auto; }
-        .derived-banner { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 18px; font-size: 0.8125rem; color: var(--muted); }
-        .derived-banner svg { flex: none; margin-top: 2px; color: #B08A1E; }
-        @media print { .no-print, .derived-banner { display: none; } main { padding: 0 !important; } }
+        @media print { .no-print { display: none; } main { padding: 0 !important; } }
       `}</style>
       <div className="no-print">
         <button className="btn btn-primary" style={{ padding: "10px 22px", minHeight: 0, fontSize: "0.9375rem" }} onClick={() => window.print()}>{t("Print")}</button>
@@ -90,10 +87,9 @@ export default function SheetMusic() {
             </select>
           </label>
         )}
-        <Link className="back" to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
+        <Link className="back" to={`${songPath(song)}`}>{t("← Back to song")}</Link>
       </div>
-      <DerivedBanner song={song} />
-      {abcFailed && <p>{t("No engraved score is available for this song yet.")} {song.midiUrl && <Link to={`/songs/${song.id}/transcribe`}>{t("Help transcribe it →")}</Link>}</p>}
+      {abcFailed && <p>{t("No engraved score is available for this song yet.")} {song.midiUrl && <Link to={`${songPath(song)}/transcribe`}>{t("Help transcribe it →")}</Link>}</p>}
       {borrowedTune && !abcFailed && <p className="no-print" style={{ fontSize: 14, color: "#555" }}>{t("This song is sung to a shared tune — the score shows the music without words.")}</p>}
       <div ref={paperRef} data-testid="sheet-paper" />
       {abc && (
@@ -102,9 +98,9 @@ export default function SheetMusic() {
           {source === "master"
             ? t("Engraved in your browser from the proofread score.")
             : source === "midi"
-              ? t("Engraved in your browser from a score generated from the MIDI file — not yet proofread.")
+              ? t("Engraved in your browser from a score generated from the MIDI file.")
               : isDerivedScore(song.confidence) || source === "abc"
-                ? t("Engraved in your browser from the Open Hymnal Project ABC — converted, not yet proofread here.")
+                ? t("Engraved in your browser from the Open Hymnal Project ABC.")
                 : t("Engraved in your browser from the package score.")}
           {" "}{attributionFor(song)}
         </p>

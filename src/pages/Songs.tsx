@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Confidence, coverOf, loadSongs, Song, songRecency, THEMES, themeList } from "../songs";
+import { Confidence, coverOf, loadSongs, Song, songRecency, THEMES, themeList, songPath } from "../songs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
@@ -366,11 +366,11 @@ export default function Songs() {
                     {(() => {
                       const cover = coverOf(s, "thumb");
                       return cover
-                        ? <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={cover.portrait ? "" : "art"} src={cover.src} alt="" loading="lazy" /></Link>
-                        : <Link to={`/songs/${s.id}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />;
+                        ? <Link to={`${songPath(s)}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={cover.portrait ? "" : "art"} src={cover.src} alt="" loading="lazy" /></Link>
+                        : <Link to={`${songPath(s)}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />;
                     })()}
                     <div className="t-main">
-                      <Link to={`/songs/${s.id}`}>{s.title}</Link>
+                      <Link to={`${songPath(s)}`}>{s.title}</Link>
                       <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span>
                       {/* why this row leads — only where a completeness or provenance signal adds to the badges */}
                       {rankReason(s).length > 0 && <span className="t-reason" data-testid="rank-reason">{rankReason(s).map(r => t(r)).join(" · ")}</span>}

@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { coverOf, kindOf, loadSongs, Song } from "../songs";
+import { coverOf, kindOf, loadSongs, Song, songPath } from "../songs";
 import { coverSvg } from "../cover.mjs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { libraryIds, setInLibrary } from "../library";
@@ -128,7 +128,7 @@ export default function Home() {
             return (
             <li key={s.id} className="album">
               <div className="album-art">
-                <Link to={`/songs/${s.id}`} aria-label={s.title}>
+                <Link to={`${songPath(s)}`} aria-label={s.title}>
                   {cover
                     ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
                     : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
@@ -143,7 +143,7 @@ export default function Home() {
                   <SaveIcon on={saved.includes(s.id)} />
                 </button>
               </div>
-              <h3><Link to={`/songs/${s.id}`} className="album">{s.title}</Link></h3>
+              <h3><Link to={`${songPath(s)}`} className="album">{s.title}</Link></h3>
               <p className="kind">{t(kindOf(s))}</p>
             </li>
             );

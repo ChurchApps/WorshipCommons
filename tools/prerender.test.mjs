@@ -17,22 +17,22 @@ const shell = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.u
 
 const SONGS = [
   {
-    id: "rock-of-ages", title: "Rock of Ages", writer: "Augustus Toplady", year: 1763,
+    id: "RockOfAges1", title: "Rock of Ages", writer: "Augustus Toplady", year: 1763,
     themes: "Grace, Refuge", songKey: "G", bpm: 76, timeSignature: "4/4", language: "English",
-    scripture: "Isaiah 26:4", license: "PD", authorId: "augustus-toplady",
+    scripture: "Isaiah 26:4", license: "PD", authorId: "toplady0001",
     chordPro: "Verse 1\n[G]Rock of ages, cleft for [D]me", publishedAt: "2024-03-01T12:00:00.000Z"
   },
   {
-    id: "roca-de-la-eternidad", title: "Roca de la Eternidad", writer: "T. M. Westrup", year: 1900,
+    id: "RocaEtern01", title: "Roca de la Eternidad", writer: "T. M. Westrup", year: 1900,
     themes: "Gracia", songKey: "G", bpm: 76, timeSignature: "4/4", language: "Spanish",
-    scripture: "Isaías 26:4", license: "PD", parentSongId: "rock-of-ages",
+    scripture: "Isaías 26:4", license: "PD", parentSongId: "RockOfAges1",
     relationLabel: "Spanish translation", chordPro: "Estrofa 1\n[G]Roca de la eternidad",
     createdAt: "2024-04-02T09:30:00.000Z"
   },
   {
-    id: "steady-light", title: "Steady Light", writer: "Ada Vance", year: 2024,
+    id: "SteadyLigh1", title: "Steady Light", writer: "Ada Vance", year: 2024,
     themes: "Hope", songKey: "D", bpm: 82, timeSignature: "3/4", language: "English",
-    scripture: "", license: "WC", authorId: "ada-vance",
+    scripture: "", license: "WC", authorId: "adavance001",
     fileUrls: { art: "https://cdn.example.test/steady-light/art.webp" },
     chordPro: "Chorus\n[D]Steady light", publishedAt: "2025-01-15T00:00:00.000Z"
   }
@@ -42,15 +42,15 @@ const jsonLdOf = (html) => JSON.parse(html.match(/<script type="application\/ld\
 
 test("hreflang alternates cover the translated family", () => {
   const original = songPage(shell, SONGS[0], SONGS, SITE);
-  assert.match(original, /<link rel="alternate" hreflang="en" href="https:\/\/example\.test\/songs\/rock-of-ages\/">/);
-  assert.match(original, /<link rel="alternate" hreflang="es" href="https:\/\/example\.test\/songs\/roca-de-la-eternidad\/">/);
-  assert.match(original, /<link rel="alternate" hreflang="x-default" href="https:\/\/example\.test\/songs\/rock-of-ages\/">/);
+  assert.match(original, /<link rel="alternate" hreflang="en" href="https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/">/);
+  assert.match(original, /<link rel="alternate" hreflang="es" href="https:\/\/example\.test\/songs\/roca-de-la-eternidad-RocaEtern01\/">/);
+  assert.match(original, /<link rel="alternate" hreflang="x-default" href="https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/">/);
 
   // the translation advertises the same family and the same x-default
   const translation = songPage(shell, SONGS[1], SONGS, SITE);
-  assert.match(translation, /hreflang="en" href="https:\/\/example\.test\/songs\/rock-of-ages\/"/);
-  assert.match(translation, /hreflang="x-default" href="https:\/\/example\.test\/songs\/rock-of-ages\/"/);
-  assert.match(translation, /<link rel="canonical" href="https:\/\/example\.test\/songs\/roca-de-la-eternidad\/">/);
+  assert.match(translation, /hreflang="en" href="https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/"/);
+  assert.match(translation, /hreflang="x-default" href="https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/"/);
+  assert.match(translation, /<link rel="canonical" href="https:\/\/example\.test\/songs\/roca-de-la-eternidad-RocaEtern01\/">/);
 
   // a song with no siblings gets no hreflang alternates (the shell still has the Atom feed link)
   assert.doesNotMatch(songPage(shell, SONGS[2], SONGS, SITE), /rel="alternate" hreflang=/);
@@ -59,20 +59,20 @@ test("hreflang alternates cover the translated family", () => {
 test("JSON-LD carries the translation graph and licensing", () => {
   const original = jsonLdOf(songPage(shell, SONGS[0], SONGS, SITE));
   assert.equal(original["@type"], "MusicComposition");
-  assert.equal(original.url, `${SITE}/songs/rock-of-ages/`);
+  assert.equal(original.url, `${SITE}/songs/rock-of-ages-RockOfAges1/`);
   assert.equal(original.musicalKey, "G");
   assert.equal(original.keywords, "Grace, Refuge");
   assert.equal(original.license, "https://creativecommons.org/publicdomain/mark/1.0/");
   assert.equal(original.translationOfWork, undefined);
   assert.deepEqual(original.workTranslation, [{
     "@type": "MusicComposition", name: "Roca de la Eternidad",
-    url: `${SITE}/songs/roca-de-la-eternidad/`, inLanguage: "Spanish"
+    url: `${SITE}/songs/roca-de-la-eternidad-RocaEtern01/`, inLanguage: "Spanish"
   }]);
 
   const translation = jsonLdOf(songPage(shell, SONGS[1], SONGS, SITE));
   assert.deepEqual(translation.translationOfWork, {
     "@type": "MusicComposition", name: "Rock of Ages",
-    url: `${SITE}/songs/rock-of-ages/`, inLanguage: "English"
+    url: `${SITE}/songs/rock-of-ages-RockOfAges1/`, inLanguage: "English"
   });
   assert.equal(translation.workTranslation, undefined);
 
@@ -82,11 +82,11 @@ test("JSON-LD carries the translation graph and licensing", () => {
 
 test("share card meta uses the site base and the song image", () => {
   const html = songPage(shell, SONGS[2], SONGS, SITE);
-  assert.match(html, /<meta property="og:image" content="https:\/\/example\.test\/og\/steady-light\.png">/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/example\.test\/og\/SteadyLigh1\.png">/);
   assert.match(html, /<meta property="og:image:width" content="1200">/);
   assert.match(html, /<meta property="og:image:height" content="630">/);
   assert.match(html, /<meta property="og:image:alt" content="Steady Light — Ada Vance">/);
-  assert.match(html, /<meta name="twitter:image" content="https:\/\/example\.test\/og\/steady-light\.png">/);
+  assert.match(html, /<meta name="twitter:image" content="https:\/\/example\.test\/og\/SteadyLigh1\.png">/);
   assert.match(html, /<meta name="twitter:title" content="Steady Light — free chords/);
   assert.match(html, /<meta name="twitter:description" content="Free chord chart/);
 
@@ -98,16 +98,16 @@ test("share card meta uses the site base and the song image", () => {
 
 test("sitemap lists every page with lastmod", () => {
   const xml = sitemapXml(SONGS, SITE);
-  assert.match(xml, /<url><loc>https:\/\/example\.test\/songs\/rock-of-ages\/<\/loc><lastmod>2024-03-01<\/lastmod><\/url>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/songs\/roca-de-la-eternidad\/<\/loc><lastmod>2024-04-02<\/lastmod>/); // falls back to createdAt
+  assert.match(xml, /<url><loc>https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/<\/loc><lastmod>2024-03-01<\/lastmod><\/url>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/songs\/roca-de-la-eternidad-RocaEtern01\/<\/loc><lastmod>2024-04-02<\/lastmod>/); // falls back to createdAt
   assert.match(xml, /<loc>https:\/\/example\.test\/terms\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/new\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/mission\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/license\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/upload\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/call-for-songs\/<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady-toplady0001<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance-adavance001<\/loc>/);
   assert.equal(xml.match(/<loc>/g).length, 9 + SONGS.length + 2);
 });
 
@@ -145,8 +145,8 @@ test("llms.txt and robots.txt invite the AI crawlers", () => {
   assert.match(llms, /- \[Song library\]\(https:\/\/example\.test\/songs\/\)/);
   assert.match(llms, /- \[Mission\]\(https:\/\/example\.test\/mission\)/);
   assert.match(llms, /\n## Songs\n/);
-  assert.match(llms, /- \[Rock of Ages by Augustus Toplady\]\(https:\/\/example\.test\/songs\/rock-of-ages\/\)/);
-  assert.match(llms, /- \[Steady Light by Ada Vance\]\(https:\/\/example\.test\/songs\/steady-light\/\)/);
+  assert.match(llms, /- \[Rock of Ages by Augustus Toplady\]\(https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/\)/);
+  assert.match(llms, /- \[Steady Light by Ada Vance\]\(https:\/\/example\.test\/songs\/steady-light-SteadyLigh1\/\)/);
   assert.doesNotMatch(llms, /feed\.xml/);
   assert.match(llmsTxt(SONGS, SITE, true), /- \[Feed\]\(https:\/\/example\.test\/feed\.xml\)/);
 

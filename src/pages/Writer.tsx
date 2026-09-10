@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { loadSongs, Song, songFromApi, themeList } from "../songs";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { idOf, loadSongs, Song, songFromApi, songPath, themeList, writerPath } from "../songs";
 import { wcGet } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -30,7 +30,8 @@ const linkLabel = (link: WriterLink) => {
 export default function Writer() {
   const { t } = useI18n();
   const { name = "" } = useParams();
-  const query = decodeURIComponent(name).trim();
+  const query = idOf(decodeURIComponent(name).trim());
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile>({ name: query, links: [] });
   const [songs, setSongs] = useState<Song[] | null>(null);
 
@@ -46,6 +47,7 @@ export default function Writer() {
         const raw = await wcGet(`/authors/${encodeURIComponent(query)}`);
         if (!live) return;
         const listed: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.songs) ? raw.songs : [];
+        if (raw?.id && raw?.name && `/writers/${name}` !== writerPath(raw.id, raw.name)) navigate(writerPath(raw.id, raw.name), { replace: true });
         setProfile({
           name: raw?.name || raw?.writer || query,
           bio: raw?.bio || undefined,
@@ -107,7 +109,7 @@ export default function Writer() {
       <ul data-testid="writer-songs" style={{ listStyle: "none" }}>
         {songs?.map(s => (
           <li key={s.id} className="card" style={{ padding: 24, marginBottom: 16 }} data-testid="writer-song">
-            <h3 style={{ marginBottom: 4 }}><Link to={`/songs/${s.id}`}>{s.title}</Link></h3>
+            <h3 style={{ marginBottom: 4 }}><Link to={`${songPath(s)}`}>{s.title}</Link></h3>
             <p className="hint">{s.year}{s.songKey ? ` · ${t("Key")} ${s.songKey}` : ""}{themeList(s).length ? ` · ${themeList(s).slice(0, 3).join(", ")}` : ""}{` · ${t(licenseOf(s).label)}`}</p>
           </li>
         ))}

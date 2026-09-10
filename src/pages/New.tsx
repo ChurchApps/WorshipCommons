@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { loadSongs, Song, songRecency } from "../songs";
+import { loadSongs, Song, songRecency, songPath } from "../songs";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
@@ -48,7 +48,7 @@ export default function New() {
             <ul style={{ listStyle: "none" }}>
               {month.songs.map(s => (
                 <li key={s.id} className="card" style={{ padding: 20, marginBottom: 12 }} data-testid="new-song">
-                  <h3 style={{ marginBottom: 4 }}><Link to={`/songs/${s.id}`}>{s.title}</Link></h3>
+                  <h3 style={{ marginBottom: 4 }}><Link to={`${songPath(s)}`}>{s.title}</Link></h3>
                   <p className="hint">
                     {s.writer}
                     {" · "}{t(licenseOf(s).label)}

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { HistoryEntry, Song, themeList } from "../songs";
+import { HistoryEntry, Song, themeList, songPath } from "../songs";
 import { useI18n } from "../i18n";
 import RightsPanel from "./RightsPanel";
 
@@ -72,7 +72,7 @@ export default function AboutPanel({ song, similar, history, writerHref }: Props
           <h2>{t("Sing it to another tune")}</h2>
           <p className="rel-hint" style={{ marginTop: 0 }}>{t("Same meter ({meter}) — these tunes carry this text.", { meter: song.meter as string })}</p>
           <ul className="rel-list" data-testid="tune-swap">
-            {tuneSwap.map(s => <li key={s.id}><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer}</span></div><ArrowRight /></li>)}
+            {tuneSwap.map(s => <li key={s.id}><div><Link to={`${songPath(s)}`}>{s.title}</Link><span>{s.writer}</span></div><ArrowRight /></li>)}
           </ul>
         </section>
       )}

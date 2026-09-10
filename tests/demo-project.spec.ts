@@ -63,14 +63,14 @@ test.describe("web projector", () => {
     await page.goto(`/songs/${AG}/project`);
     await expect(page.getByTestId("projector-slide")).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page).toHaveURL(new RegExp(`/songs/${AG}$`));
+    await expect(page).toHaveURL(new RegExp(`/songs/[a-z0-9-]+-${AG}$`));
   });
 });
 
 test.describe("project panel exports", () => {
   test("opens the projector and downloads FreeShow, OpenLyrics and PPTX files", async ({ page }) => {
     const panel = await openProjectPanel(page);
-    await expect(panel.getByTestId("open-projector")).toHaveAttribute("href", `/songs/${AG}/project`);
+    await expect(panel.getByTestId("open-projector")).toHaveAttribute("href", new RegExp(`/songs/[a-z0-9-]+-${AG}/project`));
     await expect(panel.getByTestId("project-note")).toContainText("form map");
 
     for (const [id, ext] of [["export-freeshow", ".show"], ["export-openlyrics", ".xml"], ["export-pptx", ".pptx"]]) {

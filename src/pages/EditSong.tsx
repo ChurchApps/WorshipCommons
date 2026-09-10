@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
+import { idOf } from "../songs";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
 import SongForm, { conventionalName, FILE_LABEL, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
@@ -30,7 +31,7 @@ function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFi
 
 export default function EditSong() {
   const { t } = useI18n();
-  const { id } = useParams();
+  const id = idOf(useParams().id);
   const [params] = useSearchParams();
   const draftParam = params.get("draft") || "";
   const { user } = useAuth();

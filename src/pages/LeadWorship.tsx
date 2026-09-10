@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { leadFiles, loadSong, Song } from "../songs";
+import { idOf, leadFiles, loadSong, Song, songPath } from "../songs";
 import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
@@ -69,7 +69,7 @@ const wordAt = (line: TimedWord[], t: number) => {
 };
 
 export default function LeadWorship() {
-  const { id } = useParams();
+  const id = idOf(useParams().id);
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { t: tr } = useI18n();
@@ -338,7 +338,7 @@ export default function LeadWorship() {
       )}
 
       <header className="lead-bar">
-        <Link className="lead-close" data-testid="lead-close" to={`/songs/${song.id}`} aria-label={tr("← Back to song")}>✕</Link>
+        <Link className="lead-close" data-testid="lead-close" to={`${songPath(song)}`} aria-label={tr("← Back to song")}>✕</Link>
         <button className="btn btn-primary lead-play" data-testid="lead-play" disabled={!ready || !run.length} onClick={toggle}>
           {!ready ? tr("Loading…") : counting ? tr("Counting in…") : playing ? tr("❚❚ Pause") : tr("▶ Play")}
         </button>

@@ -1,3 +1,5 @@
+import { folderSlug } from "./slug.mjs";
+export { idOf, songPath, writerPath } from "./slug.mjs";
 import { CORE_API, wcGet } from "./api";
 import themeVocabulary from "./themes.json";
 
@@ -156,10 +158,6 @@ const LANG_CODE: Record<string, string> = {
   Zulu: "zu"
 };
 const licenseSection = (id: string) => id === "PD" ? "public-domain" : id === "WC" ? "wc-license" : id.toLowerCase();
-const folderSlug = (title: string) => title.normalize("NFC").toLowerCase()
-  .replace(/['\u2019\u02BC]/g, "")
-  .replace(/[^a-z0-9\u00c0-\u024f]+/g, "-")
-  .replace(/^-+|-+$/g, "") || "untitled";
 
 export function contentPrefix(song: Song): string {
   return contentRootOf(song) || `${CORE_API.replace(/\/$/, "")}/content/commons`;

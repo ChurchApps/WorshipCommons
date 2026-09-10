@@ -109,7 +109,7 @@ test.describe("song page", () => {
     await expect(page.getByTestId("sing-along")).toHaveCount(0);
     const lead = page.getByTestId("lead-worship");
     await expect(lead).toBeVisible();
-    expect(await lead.getAttribute("href")).toContain(`${ABIDE}/lead?key=`);
+    expect(await lead.getAttribute("href")).toMatch(new RegExp(`/songs/[a-z0-9-]+-${ABIDE.slice(-11)}/lead\\?key=`));
   });
 
   test("voice parts are detected from the midi and selectable", async ({ page }) => {

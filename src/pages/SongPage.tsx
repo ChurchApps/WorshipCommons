@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { contentRootOf, coverOf, kitFile, leadFiles, loadSongPage, resolveLead, Song, SongPageData } from "../songs";
+import { idOf, writerPath, contentRootOf, coverOf, kitFile, leadFiles, loadSongPage, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -19,7 +19,6 @@ import { coverSvg } from "../cover.mjs";
 import SongHero, { clock } from "../components/SongHero";
 import AboutPanel from "../components/AboutPanel";
 import ScriptureConnection from "../components/ScriptureConnection";
-import { CONFIDENCE_HELP, isDerivedScore } from "../components/ConfidenceBadge";
 import ProjectPanel from "../components/ProjectPanel";
 import "../styles/song.css";
 
@@ -57,7 +56,8 @@ const Thumb = ({ s }: { s: Song }) => {
 
 export default function SongPage() {
   const { t } = useI18n();
-  const { id } = useParams();
+  const { id: rawId = "" } = useParams();
+  const id = idOf(rawId);
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -176,6 +176,11 @@ export default function SongPage() {
     return () => { stale = true; };
   }, [song?.id]);
 
+  // canonical URL carries the title slug; bare ids and stale slugs redirect there
+  useEffect(() => {
+    if (song && song.id === id && `/songs/${rawId}` !== songPath(song)) navigate(songPath(song) + location.search + location.hash, { replace: true });
+  }, [song?.id, rawId]);
+
   useEffect(() => {
     if (!song) { setMidiUrl(undefined); return; }
     let dead = false;
@@ -231,13 +236,12 @@ export default function SongPage() {
   const showChord = (chord: string) => nash ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
 
   const writerHref = song.authorId || song.writerId
-    ? `/writers/${encodeURIComponent(song.authorId || song.writerId || "")}`
+    ? writerPath(song.authorId || song.writerId || "", song.writer)
     : `/songs?q=${encodeURIComponent(song.writer)}`;
 
-  const leadHref = midiUrl ? `/songs/${song.id}/lead?key=${encodeURIComponent(keyLabel)}` : undefined;
-  // provenance footnote: confidence, the derived-score caveat, and whether CCLI needs a report
+  const leadHref = midiUrl ? `${songPath(song)}/lead?key=${encodeURIComponent(keyLabel)}` : undefined;
+  // provenance footnote: whether CCLI needs a report
   const ccliFree = !needsCcliReport(song);
-  const derived = isDerivedScore(song.confidence);
   const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : song.hasAccompaniment ? t("Play") : t("Preview (synthesized)");
   const playPiano = async () => {
     if (nd) return;
@@ -310,8 +314,8 @@ export default function SongPage() {
     }
   };
 
-  const printHref = `/songs/${song.id}/print?key=${encodeURIComponent(keyLabel)}${effCapo ? `&capo=${effCapo}` : ""}${showChords ? "" : "&chords=0"}`;
-  const sheetHref = `/songs/${song.id}/sheet?key=${encodeURIComponent(keyLabel)}`;
+  const printHref = `${songPath(song)}/print?key=${encodeURIComponent(keyLabel)}${effCapo ? `&capo=${effCapo}` : ""}${showChords ? "" : "&chords=0"}`;
+  const sheetHref = `${songPath(song)}/sheet?key=${encodeURIComponent(keyLabel)}`;
   const hasSheet = !!(song.sheetPdfUrl || song.abcUrl || song.midiUrl);
   const kitRoot = selRoot === "F#" ? "Fs" : selRoot;
 
@@ -453,11 +457,6 @@ export default function SongPage() {
               </span>
               <span>{ccliFree ? t("Free to sing, print, project and stream. No reporting required.") : t("Report this song to CCLI when you use it.")}</span>
             </div>
-            {derived && (
-              <p className="sheet-foot" role="note">
-                <span data-testid="derived-banner" data-confidence={song.confidence}>{t(CONFIDENCE_HELP[song.confidence!])} — {t("check the notes against a hymnal before Sunday.")}</span>
-              </p>
-            )}
           </div>
 
           {hasSheet && (
@@ -478,7 +477,7 @@ export default function SongPage() {
                 </div>
               )}
               {!song.abcUrl && song.midiUrl && (
-                <p className="rel-hint"><Link to={`/songs/${song.id}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></p>
+                <p className="rel-hint"><Link to={`${songPath(song)}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></p>
               )}
             </div>
           )}
@@ -576,7 +575,7 @@ export default function SongPage() {
                 {contentRootOf(song) && <li><NoteIcon /><a href={`${contentRootOf(song)}/assets/pads/${kitRoot}.mp3`} download onClick={recordDownload}>{t("Pad ({key})", { key: selRoot })}</a> <span className="fmt">{t("loop")}</span></li>}
                 {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="fmt">ABC</span></li>}
                 <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="fmt">CHO</span></li>
-                {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`/songs/${song.id}/transcribe`}>{t("No sheet music yet — help transcribe it")}</Link></li>}
+                {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`${songPath(song)}/transcribe`}>{t("No sheet music yet — help transcribe it")}</Link></li>}
               </ul>
             </details>
             <button type="button" className="btn btn-primary btn-block" style={{ marginTop: 12 }} data-testid="download-pack" disabled={packing || nd} title={nd ? ndReason : t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })} onClick={downloadPack}>
@@ -605,9 +604,9 @@ export default function SongPage() {
             </div>
             {rateError && <p className="rel-hint" style={{ color: "var(--secondary)" }} data-testid="rating-error">{rateError}</p>}
             <p className="side-links">
-              <Link to={`/songs/${song.id}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
+              <Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
               <span aria-hidden="true">·</span>
-              <Link to={`/report?song=${encodeURIComponent(`${song.title} — /songs/${song.id}`)}`}>{t("Report this song")}</Link>
+              <Link to={`/report?song=${encodeURIComponent(`${song.title} — ${songPath(song)}`)}`}>{t("Report this song")}</Link>
             </p>
           </section>
         </aside>
@@ -618,12 +617,12 @@ export default function SongPage() {
           <h4>♪ {t("Related songs")} <button type="button" className="more" onClick={() => { setTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("View all →")}</button></h4>
           {relatives.length > 0 && (
             <ul className="rel-list" data-testid="family-list">
-              {relatives.map(r => <li key={r.id}><Thumb s={r} /><div><Link to={`/songs/${r.id}`}>{r.title}</Link><span>{rowSub(r)}</span></div><Chevron /></li>)}
+              {relatives.map(r => <li key={r.id}><Thumb s={r} /><div><Link to={`${songPath(r)}`}>{r.title}</Link><span>{rowSub(r)}</span></div><Chevron /></li>)}
             </ul>
           )}
           {data.similar.length > 0 && (
             <ul className="rel-list" data-testid="similar-songs">
-              {data.similar.map(s => <li key={s.id}><Thumb s={s} /><div><Link to={`/songs/${s.id}`}>{s.title}</Link><span>{s.writer}{s.reason ? ` · ${s.reason}` : ""}</span></div><Chevron /></li>)}
+              {data.similar.map(s => <li key={s.id}><Thumb s={s} /><div><Link to={`${songPath(s)}`}>{s.title}</Link><span>{s.writer}{s.reason ? ` · ${s.reason}` : ""}</span></div><Chevron /></li>)}
             </ul>
           )}
           {relatives.length === 0 && data.similar.length === 0 && <p className="empty">{t("Nothing related yet.")}</p>}
@@ -634,7 +633,7 @@ export default function SongPage() {
           {translations.length > 0
             ? (
               <ul className="rel-list" data-testid="translations">
-                {translations.map(r => <li key={r.id}><div><Link to={`/songs/${r.id}`}>{r.title} · {t(r.language)}</Link></div><Chevron /></li>)}
+                {translations.map(r => <li key={r.id}><div><Link to={`${songPath(r)}`}>{r.title} · {t(r.language)}</Link></div><Chevron /></li>)}
               </ul>
             )
             : <p className="empty">{t("No translations in the commons yet.")}</p>}

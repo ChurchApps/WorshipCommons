@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { loadSong, Song } from "../songs";
+import { idOf, loadSong, Song, songPath } from "../songs";
 import { slidesFor } from "../slides";
 import { creditLines } from "../exports";
 import { usePageMeta } from "../seo";
@@ -12,7 +12,7 @@ import "../styles/project.css";
  * Reads the same slide model as every export (slidesFor), so the screen and the FreeShow / OpenLP / PPTX files agree.
  */
 export default function Project() {
-  const { id } = useParams();
+  const id = idOf(useParams().id);
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -82,7 +82,7 @@ export default function Project() {
           <button type="button" onClick={() => setBlank(b => !b)} data-testid="projector-blank" aria-pressed={blank}>{t("Blank")} <kbd>B</kbd></button>
           <button type="button" onClick={() => setLight(l => !l)} data-testid="projector-contrast">{t("Contrast")} <kbd>H</kbd></button>
           <button type="button" onClick={toggleFullscreen} data-testid="projector-fullscreen">{t("Fullscreen")} <kbd>F</kbd></button>
-          <Link to={`/songs/${song.id}`} data-testid="projector-back">{t("← Back to song")} <kbd>Esc</kbd></Link>
+          <Link to={`${songPath(song)}`} data-testid="projector-back">{t("← Back to song")} <kbd>Esc</kbd></Link>
         </div>
         <p className="projector-credit" data-testid="projector-credit">{credit.join(" · ")}</p>
       </footer>

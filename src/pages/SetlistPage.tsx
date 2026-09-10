@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { loadSong, Song } from "../songs";
+import { loadSong, Song, songPath } from "../songs";
 import {
   chordProFor, createSetlist, decodeShare, defaultOrder, durationSeconds, formatMinutes, isShareAlike, keyChoices,
   licenseLineFor, packFilesFor, sectionLabels, shareUrl, transposedSections, updateSetlist, useSetlists, type Setlist, type SetlistItem
@@ -90,7 +90,7 @@ function ItemRow({ item, index, count, song, readOnly, onChange, onMove, onRemov
       <div className="setlist-item-head">
         <span className="setlist-index" aria-hidden="true">{index + 1}</span>
         <div className="setlist-item-title">
-          <h3><Link to={`/songs/${song.id}?key=${encodeURIComponent(keyLabel)}`} data-testid="item-title">{song.title}</Link></h3>
+          <h3><Link to={`${songPath(song)}?key=${encodeURIComponent(keyLabel)}`} data-testid="item-title">{song.title}</Link></h3>
           <p className="hint">{song.writer}{song.year ? ` · ${song.year}` : ""}{isShareAlike(song) ? ` · ${t("CC BY-SA")}` : ""}</p>
         </div>
         {!readOnly && (

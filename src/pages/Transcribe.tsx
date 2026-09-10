@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { loadSong, Song } from "../songs";
+import { idOf, loadSong, Song, songPath } from "../songs";
 import { parseChordPro } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { draftAbc } from "../abcDraft";
@@ -14,7 +14,7 @@ import { usePageMeta } from "../seo";
 // submit for review. Approved scores are promoted to the git master by an admin.
 export default function Transcribe() {
   const { t } = useI18n();
-  const { id } = useParams();
+  const id = idOf(useParams().id);
   const { user } = useAuth();
   const location = useLocation();
   const [song, setSong] = useState<Song | null>(null);
@@ -54,7 +54,7 @@ export default function Transcribe() {
       <main className="wrap-narrow">
         <div className="page-head">
           <h1>{song.title}</h1>
-          <p className="lede">{t("This song already has an engraved score.")} <Link to={`/songs/${song.id}/sheet`}>{t("View the sheet music →")}</Link></p>
+          <p className="lede">{t("This song already has an engraved score.")} <Link to={`${songPath(song)}/sheet`}>{t("View the sheet music →")}</Link></p>
         </div>
       </main>
     );
@@ -129,7 +129,7 @@ export default function Transcribe() {
         <div className="page-head">
           <h1>{t("Thank you!")}</h1>
           <p className="lede">{t("Your transcription was submitted for review. Once approved, it becomes the engraved score for this song.")}</p>
-          <p><Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link></p>
+          <p><Link to={`${songPath(song)}`}>{t("← Back to song")}</Link></p>
         </div>
       </main>
     );

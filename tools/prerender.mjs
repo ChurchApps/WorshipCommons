@@ -15,6 +15,7 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
 import { coverSvg } from "../src/cover.mjs";
+import { songPath, writerPath } from "../src/slug.mjs";
 
 const BUILD = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "build");
 const DEFAULT_SITE = "https://worshipcommons.org";
@@ -34,7 +35,7 @@ function stanzas(chordPro) {
   }).filter(s => s.lines.length > 0);
 }
 
-const songUrl = (site, id) => `${site}/songs/${id}/`;
+const songUrl = (site, song) => `${site}${songPath(song)}/`;
 
 const lastmod = (song) => {
   const t = Date.parse(song.publishedAt || song.createdAt || "");
@@ -89,16 +90,16 @@ export function songAlternates(song, songs, site = DEFAULT_SITE) {
   if (family.length < 2) return [];
   const root = family.find(s => s.id === familyId) || family[0];
   return [
-    ...family.map(s => ({ hreflang: langIso(s.language), href: songUrl(site, s.id) })),
-    { hreflang: "x-default", href: songUrl(site, root.id) }
+    ...family.map(s => ({ hreflang: langIso(s.language), href: songUrl(site, s) })),
+    { hreflang: "x-default", href: songUrl(site, root) }
   ];
 }
 
 export function songPage(shell, song, songs, site = DEFAULT_SITE) {
-  const url = songUrl(site, song.id);
+  const url = songUrl(site, song);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
   const translations = songs.filter(s => s.parentSongId === song.id);
-  const work = (s) => ({ "@type": "MusicComposition", name: s.title, url: songUrl(site, s.id), inLanguage: s.language });
+  const work = (s) => ({ "@type": "MusicComposition", name: s.title, url: songUrl(site, s), inLanguage: s.language });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "MusicComposition",
@@ -128,7 +129,7 @@ export function songPage(shell, song, songs, site = DEFAULT_SITE) {
 }
 
 export function sitemapXml(songs, site = DEFAULT_SITE) {
-  const writers = [...new Set(songs.map(s => s.authorId || s.writerId).filter(Boolean))];
+  const writers = [...new Map(songs.filter(s => s.authorId || s.writerId).map(s => [s.authorId || s.writerId, s.writer])).entries()];
   const entries = [
     { loc: `${site}/` },
     { loc: `${site}/songs/` },
@@ -139,8 +140,8 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
     { loc: `${site}/terms/` },
     { loc: `${site}/upload/` },
     { loc: `${site}/report/` },
-    ...songs.map(s => ({ loc: songUrl(site, s.id), lastmod: lastmod(s) })),
-    ...writers.map(w => ({ loc: `${site}/writers/${encodeURIComponent(w)}` }))
+    ...songs.map(s => ({ loc: songUrl(site, s), lastmod: lastmod(s) })),
+    ...writers.map(([id, name]) => ({ loc: `${site}${writerPath(id, name)}` }))
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     entries.map(e => `  <url><loc>${esc(e.loc)}</loc>${e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : ""}</url>`).join("\n") +
@@ -164,7 +165,7 @@ export function llmsTxt(songs, site = DEFAULT_SITE, hasFeed = false) {
     ``,
     `## Songs`,
     ``,
-    ...songs.map(s => `- [${s.title} by ${s.writer}](${songUrl(site, s.id)})`),
+    ...songs.map(s => `- [${s.title} by ${s.writer}](${songUrl(site, s)})`),
     ``
   ].join("\n");
 }
@@ -262,7 +263,7 @@ function newBody(songs) {
     return Number.isNaN(t) ? null : t;
   };
   const recent = songs.filter(stamp).sort((a, b) => stamp(b) - stamp(a)).slice(0, 100);
-  const items = recent.map(s => `<li><a href="/songs/${s.id}/">${esc(s.title)}</a> — ${esc(s.writer)}</li>`).join("");
+  const items = recent.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a> — ${esc(s.writer)}</li>`).join("");
   return wrap(`<h1>New songs</h1><p>Every song added to the commons, newest first.</p><ul>${items}</ul><p><a href="/songs/">Browse all songs</a></p>`);
 }
 
@@ -330,8 +331,8 @@ export function feedXml(songs, site, limit = 50) {
   const entries = recent.map(s => [
     `  <entry>`,
     `    <title>${esc(s.title)}</title>`,
-    `    <link href="${site}/songs/${s.id}/"/>`,
-    `    <id>${site}/songs/${s.id}/</id>`,
+    `    <link href="${songUrl(site, s)}"/>`,
+    `    <id>${songUrl(site, s)}</id>`,
     `    <updated>${stamp(s)}</updated>`,
     `    <author><name>${esc(s.writer)}</name></author>`,
     `    <summary>${esc(`${s.title} by ${s.writer} — ${s.license === "PD" ? "public domain" : "free for worship"}, key of ${s.songKey}.`)}</summary>`,
@@ -365,13 +366,13 @@ async function run() {
 
   for (const song of songs) {
     await writeOgImage(song, path.join(ogDir, `${song.id}.png`));
-    const dir = path.join(BUILD, "songs", song.id);
+    const dir = path.join(BUILD, songPath(song));
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, "index.html"), songPage(shell, song, songs, SITE));
   }
 
   const listBody = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><h1>Song library</h1><ul>` +
-    songs.map(s => `<li><a href="/songs/${s.id}/">${esc(s.title)}</a> — ${esc(s.writer)}, ${esc(s.year)}</li>`).join("") +
+    songs.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a> — ${esc(s.writer)}, ${esc(s.year)}</li>`).join("") +
     `</ul></main>`;
   fs.writeFileSync(path.join(BUILD, "songs", "index.html"), page(shell, {
     title: "Song library — WorshipCommons",
