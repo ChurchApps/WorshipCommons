@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { loadSong, Song } from "../songs";
-import { parseChordPro, transposeChord, splitKey, noteIndex, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
+import { parseChordPro, transposeChord, chartShapes } from "../chordpro";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { noDerivatives } from "../rights";
@@ -28,18 +28,11 @@ export default function PrintChart() {
   if (notFound) return <main style={{ padding: 40 }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></main>;
   if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 
-  const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
   // the ND switch reaches the print page too: a transposed or capoed chart is a derivative
   const nd = noDerivatives(song);
-  const { root: selRoot } = splitKey(nd ? song.songKey : (params.get("key") || song.songKey));
   const capo = nd ? 0 : Math.min(11, Math.max(0, Number(params.get("capo")) || 0));
+  const { keyLabel, shapeLabel, dispShift, useFlats } = chartShapes(song, nd ? song.songKey : params.get("key") || "", capo);
   const layers = layerLines(song);
-  const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
-  const shapeIdx = (noteIndex(selRoot) - capo + 12) % 12;
-  const shapeRoot = FLAT_KEYS.has(FLAT[shapeIdx]) ? FLAT[shapeIdx] : SHARP[shapeIdx];
-  const useFlats = FLAT_KEYS.has(shapeRoot);
-  const dispShift = (shift - capo + 12) % 12;
-  const keyLabel = selRoot + keySuffix;
 
   return (
     <main style={{ maxWidth: cols === 2 ? 1000 : 700, margin: "0 auto", padding: "40px 24px", fontFamily: "Georgia, serif", fontSize: size }}>
@@ -64,7 +57,7 @@ export default function PrintChart() {
         <Link to={`/songs/${song.id}`}>{t("← Back to song")}</Link>
       </div>
       <h1 style={{ marginBottom: 4 }}>{song.title}</h1>
-      <p style={{ marginBottom: 24 }}>{song.writer} · {t("Key of {key}", { key: keyLabel })}{capo ? ` · ${t("Capo {n} — {root} shapes", { n: capo, root: shapeRoot + keySuffix })}` : ""} · {song.bpm} BPM · {song.timeSignature}</p>
+      <p style={{ marginBottom: 24 }}>{song.writer} · {t("Key of {key}", { key: keyLabel })}{capo ? ` · ${t("Capo {n} — {root} shapes", { n: capo, root: shapeLabel })}` : ""} · {song.bpm} BPM · {song.timeSignature}</p>
       <div style={cols === 2 ? { columns: 2, columnGap: 48 } : undefined}>
         {stanzas.map((stanza, si) => (
           <section className="print-stanza" key={si} style={{ marginBottom: 24 }}>

@@ -1,4 +1,3 @@
-import { useI18n } from "../i18n";
 import type { Confidence } from "../songs";
 
 export const CONFIDENCE_LABEL: Record<Confidence, string> = {
@@ -21,14 +20,3 @@ export const CONFIDENCE_HELP: Record<Confidence, string> = {
 
 /** A song whose score is machine-derived must never wear Sunday-ready chrome. */
 export const isDerivedScore = (c?: Confidence | null) => c === "converted-from-abc" || c === "generated-from-midi";
-
-// Required on the hero and on every list row: what a church gets before it presses play.
-export default function ConfidenceBadge({ confidence, compact, onArt }: { confidence?: Confidence | null; compact?: boolean; onArt?: boolean }) {
-  const { t } = useI18n();
-  if (!confidence || !CONFIDENCE_LABEL[confidence]) return null;
-  return (
-    <span className={"confidence-badge " + confidence + (onArt ? " on-art" : "")} data-testid="confidence-badge" data-confidence={confidence} title={t(CONFIDENCE_HELP[confidence])}>
-      {t(compact ? CONFIDENCE_LABEL[confidence] : CONFIDENCE_LABEL[confidence])}
-    </span>
-  );
-}

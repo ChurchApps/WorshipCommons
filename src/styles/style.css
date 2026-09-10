@@ -88,8 +88,6 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 700; }
 
 /* ===== cards ===== */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
-.card-hover { transition: transform 0.25s, border-color 0.25s; }
-.card-hover:hover { transform: translateY(-4px); border-color: var(--line-2); }
 
 .play-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--purple); color: #fff; display: grid; place-items: center; cursor: pointer; flex: none; transition: transform 0.2s, background 0.2s; }
 .play-btn:hover { transform: scale(1.08); background: var(--purple-3); }
@@ -143,8 +141,6 @@ fieldset { border: 0; }
 .foot { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
 .foot-links { display: flex; gap: 22px; list-style: none; font-size: 0.875rem; flex-wrap: wrap; }
 .foot-tag { margin-left: auto; color: var(--dim); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; }
-.social { display: flex; gap: 10px; }
-.social a { width: 28px; height: 28px; display: grid; place-items: center; }
 .foot-legal { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; margin-top: 18px; font-size: 0.8125rem; color: var(--dim); }
 .foot-legal .lang-picker { margin-left: auto; }
 .site-footer a { color: inherit; text-decoration: none; transition: color 0.2s; }
@@ -208,11 +204,4 @@ fieldset { border: 0; }
 /* Creative Commons badges — NC gets its own colour so it can never pass for "free for worship" */
 .cc-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(120,170,255,0.14); color: #a9c8ff; border: 1px solid rgba(120,170,255,0.35); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .cc-badge.nc { background: rgba(255,170,90,0.14); color: #ffc48a; border-color: rgba(255,170,90,0.4); }
-.cc-badge.on-art { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.4); }
 
-/* ===== confidence badge (package model) ===== */
-.confidence-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--line-2); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-.confidence-badge.sunday-ready { background: rgba(120,220,150,0.14); color: #9fe3b4; border-color: rgba(120,220,150,0.35); }
-.confidence-badge.proofread-score { background: rgba(120,170,255,0.14); color: #a9c8ff; border-color: rgba(120,170,255,0.35); }
-.confidence-badge.converted-from-abc, .confidence-badge.generated-from-midi { background: rgba(255,210,90,0.12); color: #f2d27a; border-color: rgba(255,210,90,0.35); }
-.confidence-badge.on-art { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.4); }

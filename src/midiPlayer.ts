@@ -1,17 +1,7 @@
 import Soundfont from "soundfont-player";
+import { partName } from "./abc";
 
 export interface MidiNote { t: number; d: number; n: number; v: number; p: number; tk: number; dt: number }
-
-const PART_NAMES: Record<number, string[]> = {
-  2: ["Treble", "Bass"],
-  3: ["Soprano", "Tenor", "Bass"],
-  4: ["Soprano", "Alto", "Tenor", "Bass"]
-};
-
-// Open Hymnal exports put each voice on its own track, highest first; anything else stays generic.
-function namePart(rank: number, total: number) {
-  return PART_NAMES[total]?.[rank] || `Part ${rank + 1}`;
-}
 
 export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: number; parts: string[]; tpb: number } {
   const data = new DataView(buf);
@@ -86,7 +76,8 @@ export function parseMidi(buf: ArrayBuffer): { notes: MidiNote[]; duration: numb
   const order = Object.keys(stats).map(Number).sort((a, b) => stats[b].sum / stats[b].count - stats[a].sum / stats[a].count);
   const rank = new Map(order.map((tr, i) => [tr, i]));
   for (const n of notes) n.p = rank.get(n.p)!;
-  const parts = order.map((_, i) => namePart(i, order.length));
+  // Open Hymnal exports put each voice on its own track, highest first; anything else stays generic.
+  const parts = order.map((_, i) => partName(i, order.length));
 
   notes.sort((a, b) => a.t - b.t);
   const duration = notes.reduce((m, x) => Math.max(m, x.t + x.d), 0);

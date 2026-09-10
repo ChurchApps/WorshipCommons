@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { loadSong, Song } from "../songs";
-import { splitKey, noteIndex, KEY_CHOICES } from "../chordpro";
+import { splitKey, KEY_CHOICES, semitonesBetween } from "../chordpro";
 import { abcKeyRoot, abcTitle, abcVoices, partName, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -38,12 +38,7 @@ export default function SheetMusic() {
   const borrowedTune = useMemo(() => !!song && !!abc && !titlesMatch(song.title, abcTitle(abc)), [song, abc]);
 
   // transpose relative to the score's own K: — what's engraved must match what's selected
-  const shift = useMemo(() => {
-    if (!song || !selRoot) return 0;
-    const base = abcKeyRoot(abc) || splitKey(song.songKey).root;
-    const s = (noteIndex(selRoot) - noteIndex(base) + 12) % 12;
-    return s > 6 ? s - 12 : s;
-  }, [song, selRoot, abc]);
+  const shift = useMemo(() => song && selRoot ? semitonesBetween(abcKeyRoot(abc) || splitKey(song.songKey).root, selRoot) : 0, [song, selRoot, abc]);
 
   const rendered = useMemo(() => {
     if (!abc) return "";

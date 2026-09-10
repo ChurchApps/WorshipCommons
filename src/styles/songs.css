@@ -67,11 +67,7 @@
   .t-themes { display: flex; gap: 6px; overflow: hidden; }
   .t-themes .th { font-size: 0.6875rem; font-weight: 600; background: rgba(108,43,217,0.07); color: var(--primary-dark); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
   .t-num { font-variant-numeric: tabular-nums; color: var(--text-2); }
-  .t-badge { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-  .t-badge .free-badge { font-size: 0.625rem; }
-  .t-badge .confidence-badge { font-size: 0.5625rem; padding: 2px 8px; }
   .t-main .t-reason { color: var(--text-2); white-space: normal; }
-  .t-badge .pd-badge { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; font-size: 0.625rem; letter-spacing: 0.06em; color: var(--muted); }
   .mt-flag { color: var(--primary); font-weight: 600; }
 
   .empty { text-align: center; padding: 80px 20px; }
@@ -104,4 +100,3 @@
 
 .nc-hint { color: #8A4B08; cursor: help; }
 .empty p + p { margin-top: 8px; }
-.t-badge .cc-badge { font-size: 0.625rem; padding: 2px 8px; }

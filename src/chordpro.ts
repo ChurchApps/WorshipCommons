@@ -23,6 +23,27 @@ export const transposeChord = (chord: string, shift: number, useFlats: boolean) 
   return scale[(noteIndex(m[1]) + shift + 12) % 12] + m[2];
 };
 
+/** The root `shift` semitones from `root`, spelled the way a chart in that key would write it. */
+export const rootAt = (root: string, shift: number) => {
+  const idx = (noteIndex(root) + shift + 12) % 12;
+  return FLAT_KEYS.has(FLAT[idx]) ? FLAT[idx] : SHARP[idx];
+};
+
+/** Signed semitones from one root to another, -5..6 — what audio pitch-shift and abcjs visualTranspose want. */
+export const semitonesBetween = (from: string, to: string) => {
+  const s = (noteIndex(to) - noteIndex(from) + 12) % 12;
+  return s > 6 ? s - 12 : s;
+};
+
+/** How the chords are written once a key and capo are chosen — the one arithmetic the song page, /print, setlists, and packs share. */
+export function chartShapes(song: { songKey: string }, key: string, capo: number) {
+  const { root: origRoot, suffix } = splitKey(song.songKey);
+  const { root: selRoot } = splitKey(key || song.songKey);
+  const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
+  const shapeRoot = rootAt(selRoot, -capo);
+  return { keyLabel: selRoot + suffix, shapeLabel: shapeRoot + suffix, shift, dispShift: (shift - capo + 12) % 12, useFlats: FLAT_KEYS.has(shapeRoot) };
+}
+
 export interface Segment { chord?: string; text: string; }
 export interface Stanza { label: string; lines: Segment[][]; }
 

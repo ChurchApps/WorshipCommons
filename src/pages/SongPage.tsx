@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { contentRootOf, coverOf, kitFile, leadFiles, loadSongPage, resolveLead, Song, SongPageData } from "../songs";
-import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, SHARP, FLAT } from "../chordpro";
+import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import ChordDiagram from "../components/ChordDiagram";
 import { wcPost, wcPut, COMMONS_API } from "../api";
 import { makeZip } from "../zip";
-import { licenseNotice } from "../licenses";
+import { downloadFile, slug } from "../exports";
+import { licenseLineFor } from "../setlists";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -127,12 +128,7 @@ export default function SongPage() {
     return () => { stale = true; };
   }, [song?.abcUrl]);
 
-  const audioShift = useMemo(() => {
-    if (!song) return 0;
-    const base = tuneRoot || splitKey(song.songKey).root;
-    const shift = (noteIndex(splitKey(selectedKey || song.songKey).root) - noteIndex(base) + 12) % 12;
-    return shift > 6 ? shift - 12 : shift;
-  }, [song, selectedKey, tuneRoot]);
+  const audioShift = useMemo(() => song ? semitonesBetween(tuneRoot || splitKey(song.songKey).root, splitKey(selectedKey || song.songKey).root) : 0, [song, selectedKey, tuneRoot]);
 
   useEffect(() => { playerRef.current?.setSemitones(audioShift); }, [audioShift]);
 
@@ -216,20 +212,13 @@ export default function SongPage() {
   const ndReason = nd ? (matrix.arrange.conditions.map(c => t(c)).join(" · ") || t("No derivatives: no arrangements, translations, or transposed charts may be distributed")) : "";
 
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
-  const { root: selRoot } = splitKey(nd ? song.songKey : (selectedKey || song.songKey));
-  const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
-  // capo shifts the written shapes down; sounding key (and audio) stays selectedKey
-  const shapeRootAt = (n: number) => {
-    const idx = (noteIndex(selRoot) - n + 12) % 12;
-    return FLAT_KEYS.has(FLAT[idx]) ? FLAT[idx] : SHARP[idx];
-  };
   const effCapo = nd ? 0 : capo;
-  const useFlats = FLAT_KEYS.has(shapeRootAt(effCapo));
+  // capo shifts the written shapes down; sounding key (and audio) stays selectedKey
+  const { keyLabel, shift, dispShift, useFlats } = chartShapes(song, nd ? song.songKey : selectedKey, effCapo);
+  const selRoot = splitKey(keyLabel).root;
   // ± stepper walks the same 12 roots the key select offers
-  const bumpKey = (n: number) => setSelectedKey(shapeRootAt(-n) + keySuffix);
+  const bumpKey = (n: number) => setSelectedKey(rootAt(selRoot, n) + keySuffix);
   const signedShift = shift > 6 ? shift - 12 : shift;
-  const dispShift = (shift - effCapo + 12) % 12;
-  const keyLabel = selRoot + keySuffix;
   const nash = nashville && !nd;
   // metronome follows the tempo slider; rate is 100 when there is no tune to slow down
   const practiceBpm = Math.round((song.bpm || 100) * rate / 100);
@@ -306,20 +295,15 @@ export default function SongPage() {
     if (packing || nd) return;
     setPacking(true);
     try {
-      const slug = song.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "song";
+      const base = slug(song.title);
       const fetchBytes = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer());
-      const sources: [string, string][] = [[`${slug}.cho`, `${COMMONS_API}/songs/${song.id}/chordpro`], [`${slug}-lyrics.txt`, `${COMMONS_API}/songs/${song.id}/lyrics`]];
-      if (song.midiUrl) sources.push([`${slug}.mid`, song.midiUrl]);
-      if (song.artUrl) sources.push([`${slug}-art${song.artUrl.match(/\.\w+$/)?.[0] || ".jpg"}`, song.artUrl]);
+      const sources: [string, string][] = [[`${base}.cho`, `${COMMONS_API}/songs/${song.id}/chordpro`], [`${base}-lyrics.txt`, `${COMMONS_API}/songs/${song.id}/lyrics`]];
+      if (song.midiUrl) sources.push([`${base}.mid`, song.midiUrl]);
+      if (song.artUrl) sources.push([`${base}-art${song.artUrl.match(/\.\w+$/)?.[0] || ".jpg"}`, song.artUrl]);
       const files = await Promise.all(sources.map(async ([name, url]) => ({ name, data: await fetchBytes(url) })));
       // the notice is a condition of CC grants, so the zip carries the registry line verbatim: writer, license + version, URL
-      const license = licenseNotice(song);
-      files.push({ name: "LICENSE.txt", data: new TextEncoder().encode(`${song.title} — ${song.writer}, ${song.year}\n${license}\nhttps://worshipcommons.org/songs/${song.id}\n`) });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(makeZip(files));
-      a.download = `${slug}.zip`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      files.push({ name: "LICENSE.txt", data: new TextEncoder().encode(licenseLineFor(song) + "\n") });
+      downloadFile({ name: `${base}.zip`, type: "application/zip", body: makeZip(files) });
       recordDownload();
     } finally {
       setPacking(false);
@@ -397,7 +381,7 @@ export default function SongPage() {
                   <label className="ctl" htmlFor="capo">{t("Capo")}
                     <select id="capo" value={effCapo} disabled={nd} title={nd ? ndReason : undefined} onChange={e => setCapo(Number(e.target.value))}>
                       <option value={0}>0</option>
-                      {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: shapeRootAt(n) + keySuffix })}</option>)}
+                      {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: rootAt(selRoot, -n) + keySuffix })}</option>)}
                     </select>
                   </label>
                   <div className="ctl"><span id="transpose-label">{t("Transpose")}</span>

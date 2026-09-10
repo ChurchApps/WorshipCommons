@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { FLAT, FLAT_KEYS, KEY_CHOICES, SHARP, noteIndex, parseChordPro, splitKey, transposeChord, type Stanza } from "./chordpro";
+import { KEY_CHOICES, chartShapes, noteIndex, parseChordPro, splitKey, transposeChord, type Stanza } from "./chordpro";
 import { licenseNotice } from "./licenses";
-import { slidesFor } from "./slides";
+import { sectionsFor, slidesFor } from "./slides";
 import type { Song } from "./songs";
 
 // ponytail: URL-carried setlists — move to /commons/setlists when cross-device sync matters.
@@ -31,8 +31,7 @@ export interface Setlist {
 const KEY = "wcSetlists";
 const EVENT = "wc-setlists";
 
-export const newId = () => Math.random().toString(36).slice(2, 10);
-export const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "setlist";
+const newId = () => Math.random().toString(36).slice(2, 10);
 
 export function loadSetlists(): Setlist[] {
   try {
@@ -147,15 +146,6 @@ export const formatMinutes = (seconds: number) => `${Math.max(1, Math.round(seco
 
 // ---- charts: one transposition for the chart view, the print booklet, the ChordPro paste, and the pack ----
 
-/** Stanzas in singing order: the `order` picked, else the form map's default order, else the chart as written. */
-export function sectionsFor(song: Pick<Song, "chordPro" | "form">, order?: string[]): Stanza[] {
-  const stanzas = parseChordPro(song.chordPro || "");
-  const byLabel = new Map(stanzas.map(s => [s.label.toLowerCase(), s]));
-  const wanted = order || song.form?.defaultOrder;
-  const picked = wanted?.length ? wanted.map(l => byLabel.get(l.toLowerCase())).filter((s): s is Stanza => !!s) : [];
-  return picked.length ? picked : stanzas;
-}
-
 /** Section labels a setlist may pick from: the form map's sections, else the stanza labels. */
 export const sectionLabels = (song: Pick<Song, "chordPro" | "form">): string[] => {
   const fromForm = (song.form?.sections || []).map(s => s.label).filter(Boolean);
@@ -163,16 +153,6 @@ export const sectionLabels = (song: Pick<Song, "chordPro" | "form">): string[] =
 };
 
 export const defaultOrder = (song: Pick<Song, "chordPro" | "form">): string[] => song.form?.defaultOrder?.length ? song.form.defaultOrder : sectionsFor(song).map(s => s.label);
-
-/** How the chords are written once a key and capo are chosen — the same arithmetic as the song page and /print. */
-export function chartShapes(song: Pick<Song, "songKey">, key: string, capo: number) {
-  const { root: origRoot, suffix } = splitKey(song.songKey);
-  const { root: selRoot } = splitKey(key || song.songKey);
-  const shift = (noteIndex(selRoot) - noteIndex(origRoot) + 12) % 12;
-  const shapeIdx = (noteIndex(selRoot) - capo + 12) % 12;
-  const shapeRoot = FLAT_KEYS.has(FLAT[shapeIdx]) ? FLAT[shapeIdx] : SHARP[shapeIdx];
-  return { keyLabel: selRoot + suffix, shapeLabel: shapeRoot + suffix, dispShift: (shift - capo + 12) % 12, useFlats: FLAT_KEYS.has(shapeRoot) };
-}
 
 export function transposedSections(song: Song, key: string, capo: number, order?: string[]): Stanza[] {
   const { dispShift, useFlats } = chartShapes(song, key, capo);

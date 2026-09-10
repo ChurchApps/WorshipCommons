@@ -143,8 +143,17 @@ export function kitFile(song: Song, name: string, from: "tune" | "song" = "song"
 }
 
 const LANG_CODE: Record<string, string> = {
-  English: "en", Spanish: "es", German: "de", French: "fr", Portuguese: "pt",
-  Russian: "ru", Hungarian: "hu", Albanian: "sq", Malayalam: "ml", Latin: "la", Zulu: "zu"
+  English: "en",
+  Spanish: "es",
+  German: "de",
+  French: "fr",
+  Portuguese: "pt",
+  Russian: "ru",
+  Hungarian: "hu",
+  Albanian: "sq",
+  Malayalam: "ml",
+  Latin: "la",
+  Zulu: "zu"
 };
 const licenseSection = (id: string) => id === "PD" ? "public-domain" : id === "WC" ? "wc-license" : id.toLowerCase();
 const folderSlug = (title: string) => title.normalize("NFC").toLowerCase()
@@ -186,11 +195,6 @@ export function leadFiles(song: Song): { midi: string[]; timing?: string } {
   ].filter((u, i, a): u is string => !!u && a.indexOf(u) === i);
   const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "derivatives/timing.json");
   return { midi, timing };
-}
-
-export function canLead(song: Song) {
-  const { midi, timing } = leadFiles(song);
-  return midi.length > 0 && !!(timing || song.chordPro);
 }
 
 const listed = (song: Song, url?: string) =>
@@ -287,9 +291,6 @@ export function coverOf(song: Song, size: "thumb" | "full" = "full"): { src: str
 }
 
 export const themeList = (song: Song) => (song.themes || "").split(",").map(t => t.trim()).filter(Boolean);
-
-// leading book name of a reference — "1 John 3:16" → "1 John", "Psalm 23" → "Psalm"
-export const scriptureBook = (song: Song) => (song.scripture || "").replace(/\s+\d+.*$/, "").trim();
 
 export const songRecency = (s: Song) => {
   const t = Date.parse(s.publishedAt || s.createdAt || "");

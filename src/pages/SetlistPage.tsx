@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, Song } from "../songs";
 import {
-  chartShapes, chordProFor, createSetlist, decodeShare, defaultOrder, durationSeconds, formatMinutes, isShareAlike, keyChoices,
-  licenseLineFor, packFilesFor, sectionLabels, shareUrl, slugify, transposedSections, updateSetlist, useSetlists, type Setlist, type SetlistItem
+  chordProFor, createSetlist, decodeShare, defaultOrder, durationSeconds, formatMinutes, isShareAlike, keyChoices,
+  licenseLineFor, packFilesFor, sectionLabels, shareUrl, transposedSections, updateSetlist, useSetlists, type Setlist, type SetlistItem
 } from "../setlists";
+import { chartShapes } from "../chordpro";
 import { licenseNotice } from "../licenses";
 import { makeZip, textEntry } from "../zip";
-import { downloadFile } from "../exports";
+import { downloadFile, slug } from "../exports";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import "../styles/setlist.css";
@@ -184,12 +185,12 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
     try {
       // CC BY-SA rule: a share-alike song makes the compiled pack share-alike, so it stays out unless the set says so
       const rows = setlist.items.map(i => ({ item: i, song: songs.get(i.songId) })).filter((r): r is { item: SetlistItem; song: Song } => !!r.song && (setlist.shareAlike || !isShareAlike(r.song)));
-      const files = rows.flatMap((r, i) => packFilesFor(r.song, r.item, `${String(i + 1).padStart(2, "0")}-${slugify(r.song.title)}`).map(f => textEntry(f.name, f.text)));
+      const files = rows.flatMap((r, i) => packFilesFor(r.song, r.item, `${String(i + 1).padStart(2, "0")}-${slug(r.song.title)}`).map(f => textEntry(f.name, f.text)));
       const order = rows.map((r, i) => `${i + 1}. ${r.song.title} — ${chartShapes(r.song, r.item.key, r.item.capo).keyLabel}${r.item.capo ? ` (capo ${r.item.capo})` : ""}${r.item.arrangement ? ` — ${r.item.arrangement}` : ""}`);
       files.push(textEntry("setlist.txt", `${setlist.name}\n\n${order.join("\n")}\n`));
       const notice = setlist.shareAlike && rows.some(r => isShareAlike(r.song)) ? "\n\nThis pack includes CC BY-SA songs. Share the pack, or anything you make from it, under the same license.\n" : "\n";
       files.push(textEntry("LICENSE.txt", `${setlist.name}\n\n${rows.map(r => licenseLineFor(r.song)).join("\n\n")}${notice}`));
-      downloadFile({ name: `${slugify(setlist.name)}-house-church.zip`, type: "application/zip", body: makeZip(files) });
+      downloadFile({ name: `${slug(setlist.name)}-house-church.zip`, type: "application/zip", body: makeZip(files) });
     } finally {
       setPacking(false);
     }

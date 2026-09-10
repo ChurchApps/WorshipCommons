@@ -12,6 +12,8 @@ import { guitarReady, rankReason, splitLanguages } from "../catalog";
 
 const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
+// facet label, then the chip label
+const TEMPOS: Record<string, [string, string]> = { slow: ["Slow · under 73", "Slow"], mid: ["Moderate · 73–100", "Moderate"], fast: ["Upbeat · 100+", "Upbeat"] };
 const playableUrl = (s: Song) => s.demoAudioUrl || s.midiUrl;
 const CONFIDENCES = Object.keys(CONFIDENCE_LABEL) as Confidence[];
 const songSelectUrl = (q: string) => `https://songselect.ccli.com/search/results?SearchText=${encodeURIComponent(q)}`;
@@ -211,7 +213,7 @@ export default function Songs() {
   state.conf.forEach(c => chips.push({ label: t(CONFIDENCE_LABEL[c as Confidence] || c), undo: () => toggleConf(c, false) }));
   if (state.key) chips.push({ label: t("Key of {key}", { key: state.key }), undo: () => update({ key: "" }) });
   if (state.meter) chips.push({ label: t("Meter {meter}", { meter: state.meter }), undo: () => update({ meter: "" }) });
-  if (state.tempo) chips.push({ label: t({ slow: "Slow", mid: "Moderate", fast: "Upbeat" }[state.tempo]), undo: () => update({ tempo: "" }) });
+  if (state.tempo) chips.push({ label: t(TEMPOS[state.tempo][1]), undo: () => update({ tempo: "" }) });
   if (state.lang) chips.push({ label: t(state.lang), undo: () => update({ lang: "" }) });
   if (state.lic) chips.push({ label: t(licenseById(state.lic).label), undo: () => update({ lic: "" }) });
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
@@ -304,9 +306,9 @@ export default function Songs() {
           <FacetGroup title={t("Tempo")}>
             <ul className="facet-list">
               <li><label><input type="radio" name="tempo" checked={state.tempo === ""} onChange={() => update({ tempo: "" })} /> {t("Any tempo")}</label></li>
-              <li><label><input type="radio" name="tempo" checked={state.tempo === "slow"} onChange={() => update({ tempo: "slow" })} /> {t("Slow · under 73")} <span className="cnt">{count("tempo", s => tempoBucket(s.bpm) === "slow").toLocaleString()}</span></label></li>
-              <li><label><input type="radio" name="tempo" checked={state.tempo === "mid"} onChange={() => update({ tempo: "mid" })} /> {t("Moderate · 73–100")} <span className="cnt">{count("tempo", s => tempoBucket(s.bpm) === "mid").toLocaleString()}</span></label></li>
-              <li><label><input type="radio" name="tempo" checked={state.tempo === "fast"} onChange={() => update({ tempo: "fast" })} /> {t("Upbeat · 100+")} <span className="cnt">{count("tempo", s => tempoBucket(s.bpm) === "fast").toLocaleString()}</span></label></li>
+              {Object.entries(TEMPOS).map(([id, [label]]) => (
+                <li key={id}><label><input type="radio" name="tempo" checked={state.tempo === id} onChange={() => update({ tempo: id })} /> {t(label)} <span className="cnt">{count("tempo", s => tempoBucket(s.bpm) === id).toLocaleString()}</span></label></li>
+              ))}
             </ul>
           </FacetGroup>
           <FacetGroup title={t("Language")}>

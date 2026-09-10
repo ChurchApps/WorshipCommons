@@ -1,13 +1,11 @@
 import { FLAT_KEYS, noteIndex, parseChordPro, splitKey, transposeChord } from "./chordpro.ts";
-import { slidesFor, type Deck, type Slide } from "./slides.ts";
+import { slidesFor, type Slide } from "./slides.ts";
 import type { Song } from "./songs";
 import { makeZip, type ZipEntry } from "./zip.ts";
 
 /** One song as a projector / setlist wants it: the key it will be sung in and the sections picked. */
 export interface ExportItem { song: Song; key?: string; order?: string[]; }
 export interface ExportFile { name: string; type: string; body: string | Blob; }
-
-export const decksFor = (items: ExportItem[]): Deck[] => items.map(i => slidesFor(i.song, i.order));
 
 /** Hand the browser a file to save. */
 export function downloadFile(file: ExportFile) {
@@ -42,7 +40,8 @@ export function credits(song: Song): { attribution: string[]; layers: string[] }
 /** What the last slide of every export carries: attribution, then text / tune / arrangement: license. */
 export const creditLines = (song: Song): string[] => { const c = credits(song); return [...c.attribution, ...c.layers]; };
 
-const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "song";
+/** File-name slug for every download the site builds. */
+export const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "song";
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const keyOf = (i: ExportItem) => i.key || i.song.songKey || "";
 const bytes = (s: string) => new TextEncoder().encode(s);

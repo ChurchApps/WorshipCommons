@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { leadFiles, loadSong, Song } from "../songs";
-import { KEY_CHOICES, noteIndex, parseChordPro, splitKey } from "../chordpro";
+import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
 import { startMetronome, stopMetronome } from "../practice";
@@ -152,11 +152,7 @@ export default function LeadWorship() {
   }, [song?.id]);
 
   // audio shift is relative to the tune's own key (ABC K: when the tune is borrowed), as the song page does
-  const shift = useMemo(() => {
-    if (!keySel) return 0;
-    const s = (noteIndex(splitKey(keySel).root) - noteIndex(tuneRoot || origRoot) + 12) % 12;
-    return s > 6 ? s - 12 : s;
-  }, [keySel, tuneRoot, origRoot]);
+  const shift = useMemo(() => keySel ? semitonesBetween(tuneRoot || origRoot, splitKey(keySel).root) : 0, [keySel, tuneRoot, origRoot]);
 
   // picks may have moved the pointer before the tune arrived
   useEffect(() => { if (ready) playerRef.current?.seek(time); }, [ready]);

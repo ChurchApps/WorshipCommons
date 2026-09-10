@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { composeMatrix, matrixForLicense, needsCcliReport, noDerivatives, rightsMatrixFor } from "../src/rights.ts";
 import { slidesFor } from "../src/slides.ts";
+import { chartShapes, rootAt, semitonesBetween } from "../src/chordpro.ts";
 
 test("PD permits everything with no conditions", () => {
   const m = matrixForLicense("PD");
@@ -50,4 +51,14 @@ test("slides follow the form map order, strip chords, and fall back to written o
   assert.deepEqual(deck.slides[0].lines, ["Amazing grace how sweet"]);
   assert.deepEqual(slidesFor({ title: "T", chordPro }).slides.map(s => s.label), ["Verse 1", "Chorus", "Verse 2"]);
   assert.deepEqual(slidesFor({ title: "T", chordPro }, ["Chorus"]).slides.map(s => s.label), ["Chorus"]);
+});
+
+test("chartShapes, rootAt, and semitonesBetween agree on one key arithmetic", () => {
+  const s = chartShapes({ songKey: "G" }, "A", 2);
+  assert.deepEqual([s.keyLabel, s.shapeLabel, s.shift, s.dispShift, s.useFlats], ["A", "G", 2, 0, false]);
+  assert.equal(chartShapes({ songKey: "Em" }, "F#m", 0).keyLabel, "F#m");
+  assert.equal(rootAt("C", 1), "Db");
+  assert.equal(rootAt("C", -1), "B");
+  assert.equal(semitonesBetween("C", "G"), -5);
+  assert.equal(semitonesBetween("C", "F"), 5);
 });
