@@ -242,4 +242,17 @@ a.tag:hover { border-color: var(--purple); color: var(--text); }
   .col + .col { border-left: 0; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 8px; }
   .chart-body.two-col { columns: 1; }
   .may-grid, .may-grid:has(> :nth-child(3)) { grid-template-columns: 1fr; }
+  /* touch targets: the toolbar pills shrink to 17px buttons on a phone */
+  .ctl { padding: 4px 10px; }
+  .ctl button, .ctl select { min-width: 36px; min-height: 36px; }
+  .ctl select { font-size: 16px; }
+  .columns-toggle { display: none; } /* columns are forced to 1 below 980px anyway */
+  .song-map button { min-width: 36px; height: 36px; }
+}
+
+@media (max-width: 480px) {
+  /* one step down so most chord lines fit a phone without wrapping; the text-size control still scales from here */
+  .sheet { --lyric-size: 1rem; }
+  .sheet.t0 { --lyric-size: 0.9375rem; }
+  .sheet.t2 { --lyric-size: 1.125rem; }
 }

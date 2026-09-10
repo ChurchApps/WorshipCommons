@@ -93,9 +93,14 @@
     .search-wrap { flex-basis: 100%; }
     .facets.open { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 20px 20px; }
     .thead { display: none; }
+    .search-wrap kbd { display: none; } /* keyboard hint means nothing on a phone */
     .t-row { grid-template-columns: 44px 40px 1fr; }
     .t-cover { width: 40px; height: 40px; }
     .t-row .t-themes, .t-row .t-key, .t-row .t-bpm { display: none; }
+    .t-main a, .t-main span { white-space: normal; } /* wrap instead of truncating titles */
+    .clear-all { padding: 8px 0; }
+    .active-chip { min-height: 36px; }
+    .facet-group select { font-size: 16px; }
   }
 
 .nc-hint { color: #8A4B08; cursor: help; }

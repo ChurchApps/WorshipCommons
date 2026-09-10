@@ -164,6 +164,8 @@ fieldset { border: 0; }
   .field-row { grid-template-columns: 1fr; }
   .dark-panel { padding: 36px 24px; }
   .foot-tag { margin-left: 0; }
+  /* ponytail: 16px stops iOS zooming the page when a field gets focus */
+  input, select, textarea { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

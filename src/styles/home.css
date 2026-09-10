@@ -66,6 +66,7 @@
   .lead-block-photo { order: -1; }
 }
 @media (max-width: 560px) {
+  .search-row input { font-size: 16px; }
   .albums { grid-template-columns: 1fr; }
   .search-row { flex-direction: column; }
   .banner-copy { flex-direction: column; align-items: flex-start; }
