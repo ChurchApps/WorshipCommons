@@ -135,7 +135,7 @@ export default function License() {
 
       <section className="section">
         <h2 style={{ marginBottom: 8 }}>{t("The fine print, kept small")}</h2>
-        <p style={{ color: "var(--muted)", fontSize: "0.9375rem", marginBottom: 22 }}>{t("Five things worth knowing. That’s all there is.")}</p>
+        <p style={{ color: "var(--muted)", fontSize: "0.9375rem", marginBottom: 22 }}>{t("Five things worth knowing.")}</p>
         <details>
           <summary>{t("It can never be taken back")}</summary>
           <p>{t("Once a song is in the commons, the grant is permanent and irrevocable. A writer can stop promoting a song, but every church already singing it — and every copy, arrangement, translation, and recording made under the license — keeps its permission forever. A few countries let an author reclaim licenses by law decades later no matter what any license says (in the U.S., after 35 years); even then, everything already made under the license survives.")}</p>

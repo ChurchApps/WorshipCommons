@@ -38,9 +38,9 @@ export default function Mission() {
         </div>
         <div className="mission-job">
           <h3>{t("Everything required to use them on Sunday")}</h3>
-          <p>{t("Hear it. Change the key. Print the chart. Put lyrics on a screen. Lead worship from a browser tab with nothing installed. Export to FreeShow or B1 if that is already the room. A free license is a hollow gift if the files still need a Thursday night of repair.")}</p>
+          <p>{t("Hear it. Change the key. Print the chart. Put lyrics on a screen. Lead worship from a browser tab with nothing installed. Export to FreeShow, OpenLP, or B1 if that is what your church already uses. A free license is a hollow gift if the files still need a Thursday night of repair.")}</p>
         </div>
-        <p className="mission-join">{t("The license is how we keep the first job honest. It is not the mission. The mission is a more singing church.")}</p>
+        <p className="mission-join">{t("The license is how we keep the first job honest. It is not the mission. The mission is a church that sings more.")}</p>
       </section>
 
       <section className="wrap-narrow mission-means">
@@ -51,10 +51,10 @@ export default function Mission() {
       </section>
 
       <section className="wrap-narrow mission-cta">
-        <h2>{t("A more singing church together")}</h2>
+        <h2>{t("Help the church sing.")}</h2>
         <p>{t("Start with a hymn the church already knows, or share one you wrote. Either way, Sunday morning does not send a bill.")}</p>
         <div className="hero-ctas">
-          <Link to="/songs" className="btn btn-primary">{t("Find Your Next Song →")}</Link>
+          <Link to="/songs" className="btn btn-primary">{t("Find your next song →")}</Link>
           <Link to="/upload" className="btn btn-ghost">{t("Share a song")}</Link>
         </div>
       </section>

@@ -40,7 +40,7 @@ export default function Layout() {
           <button className="nav-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}><span></span><span></span><span></span></button>
           <ul className={"nav-menu" + (open ? " open" : "")} onClick={() => setOpen(false)}>
             <li><NavLink to="/songs">{t("Discover")}</NavLink></li>
-            <li><NavLink to="/setlists" data-testid="nav-setlists">{t("Collections")}</NavLink></li>
+            <li><NavLink to="/setlists" data-testid="nav-setlists">{t("Setlists")}</NavLink></li>
             <li><NavLink to="/upload">{t("For Songwriters")}</NavLink></li>
             <li><NavLink to="/mission">{t("Our Mission")}</NavLink></li>
             <li className="nav-actions"><ul>
@@ -74,11 +74,11 @@ export default function Layout() {
             <Link className="logo" to="/"><LogoMark /><span>worship commons</span></Link>
             <ul className="foot-links">
               <li><Link to="/songs">{t("Discover")}</Link></li>
-              <li><Link to="/setlists">{t("Collections")}</Link></li>
+              <li><Link to="/setlists">{t("Setlists")}</Link></li>
               <li><Link to="/upload">{t("For Songwriters")}</Link></li>
               <li><Link to="/mission">{t("Our Mission")}</Link></li>
             </ul>
-            <p className="foot-tag">{t("A more singing church together")}</p>
+            <p className="foot-tag">{t("For a church that sings.")}</p>
           </div>
           <p className="foot-legal">
             <Link to="/new">{t("New songs")}</Link>

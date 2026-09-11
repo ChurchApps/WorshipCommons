@@ -152,9 +152,9 @@ export function llmsTxt(songs, site = DEFAULT_SITE, hasFeed = false) {
   return [
     `# WorshipCommons`,
     ``,
-    `> An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio. Every song may be sung, printed, projected, recorded, and translated without a subscription or a reporting license.`,
+    `> An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio. Every song may be sung, printed, projected, and recorded without a subscription or a reporting license.`,
     ``,
-    `Songs marked PD are in the public domain and carry no restrictions. Everything else is shared by its writer under the WorshipCommons license: free for worship use, with attribution to the writer. Full terms: ${site}/license`,
+    `Songs marked PD are in the public domain and carry no restrictions. Most other songs are shared by their writers under the WorshipCommons License: free for worship use, with every commercial right kept by the writer. Crediting the writer is appreciated, not required. A few songs carry a Creative Commons license instead; every song page names its license. Full terms: ${site}/license`,
     ``,
     `## Links`,
     ``,
@@ -199,7 +199,7 @@ function missionBody() {
 <h2>Two jobs. One library.</h2>
 <p><b>Quality songs a church can actually use.</b> Public-domain hymns done properly. Originals whose writers certified a free-use grant.</p>
 <p><b>Everything required to use them on Sunday.</b> Hear it. Change the key. Print the chart. Put lyrics on a screen. Lead worship from a browser tab.</p>
-<p>The license is how we keep the first job honest. It is not the mission. The mission is a more singing church.</p>
+<p>The license is how we keep the first job honest. It is not the mission. The mission is a church that sings more.</p>
 <p><a href="/songs">Find a song</a> · <a href="/license">Read the license</a></p>`);
 }
 
