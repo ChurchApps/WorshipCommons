@@ -33,7 +33,7 @@ export default defineConfig({
   webServer: [
     {
       command: `npm --prefix ${process.env.CORE_API_DIR || "../Api"} run dev`,
-      url: "http://localhost:8084/health",
+      url: `${process.env.CORE_API || "http://localhost:8084"}/health`,
       reuseExistingServer: true,
       timeout: 60 * 1000,
       stdout: "pipe",
