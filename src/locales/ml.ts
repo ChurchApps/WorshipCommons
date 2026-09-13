@@ -805,7 +805,7 @@ const ml: Record<string, string> = {
   "Correction": "തിരുത്തൽ",
   "Fix lyrics, chords, or the details — with a note saying what changed and why.": "വരികൾ, കോർഡുകൾ, അല്ലെങ്കിൽ വിശദാംശങ്ങൾ തിരുത്തുക — എന്ത് മാറി, എന്തുകൊണ്ട് എന്ന കുറിപ്പോടെ.",
   "Additional file": "അധിക ഫയൽ",
-  "Add a score, a recording, stems, art, or a lyrics file. Nothing else changes.": "സ്കോർ, റെക്കോർഡിംഗ്, സ്റ്റെമുകൾ, ചിത്രം, അല്ലെങ്കിൽ വരികളുടെ ഫയൽ ചേർക്കുക. മറ്റൊന്നും മാറില്ല.",
+  "Add a score, a demo recording, stems, art, or a lyrics file. Nothing else changes.": "സ്കോർ, ഡെമോ റെക്കോർഡിംഗ്, സ്റ്റെമുകൾ, ചിത്രം, അല്ലെങ്കിൽ വരികളുടെ ഫയൽ ചേർക്കുക. മറ്റൊന്നും മാറില്ല.",
   "Removal request": "നീക്കം ചെയ്യാനുള്ള അഭ്യർത്ഥന",
   "Ask a reviewer to take this song down.": "ഈ ഗാനം നീക്കാൻ ഒരു റിവ്യൂവറോട് ആവശ്യപ്പെടുക.",
   "Propose this edit": "ഈ തിരുത്തൽ നിർദ്ദേശിക്കുക",
@@ -826,7 +826,24 @@ const ml: Record<string, string> = {
   "A reviewer asked for changes before this can go live. Continue the draft to make them and send it again.": "പ്രസിദ്ധീകരിക്കുന്നതിന് മുമ്പ് ഒരു റിവ്യൂവർ മാറ്റങ്ങൾ ആവശ്യപ്പെട്ടു. ഡ്രാഫ്റ്റ് തുടർന്ന് അവ വരുത്തി വീണ്ടും അയയ്ക്കുക.",
   "Taken down": "നീക്കം ചെയ്തു",
   "The song was removed from the library, as you asked.": "നിങ്ങൾ ആവശ്യപ്പെട്ടതുപോലെ ഗാനം ലൈബ്രറിയിൽ നിന്ന് നീക്കി.",
-  "You are credited on the song page.": "ഗാനത്തിന്റെ പേജിൽ നിങ്ങൾക്ക് ക്രെഡിറ്റ് നൽകിയിട്ടുണ്ട്."
+  "You are credited on the song page.": "ഗാനത്തിന്റെ പേജിൽ നിങ്ങൾക്ക് ക്രെഡിറ്റ് നൽകിയിട്ടുണ്ട്.",
+  // master recording: a second grant with its own license
+  "The composition — words, melody, chords and arrangement": "രചന — വരികൾ, ഈണം, കോർഡുകൾ, ക്രമീകരണം",
+  "The composition and a master recording": "രചനയും ഒരു മാസ്റ്റർ റെക്കോർഡിംഗും",
+  "A church needs the composition to sing the song, so that grant comes first. A master recording is a second grant and can carry its own license.": "പാട്ട് പാടാൻ സഭയ്ക്ക് രചന വേണം, അതിനാൽ ആ അനുമതി ആദ്യം. മാസ്റ്റർ റെക്കോർഡിംഗ് രണ്ടാമത്തെ അനുമതിയാണ്; അതിന് സ്വന്തം ലൈസൻസ് ആകാം.",
+  "Composition license": "രചനയുടെ ലൈസൻസ്",
+  "Master recording": "മാസ്റ്റർ റെക്കോർഡിംഗ്",
+  "The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.": "ബാൻഡിന് ഒപ്പം വായിക്കാവുന്ന അന്തിമ മിക്സ്. പാട്ടിന്റെ പേജിൽ സ്റ്റെമുകളും ഫുൾ മിക്സും ഇത് തുറന്നുതരുന്നു; മുകളിലെ രചനാ അനുമതി അതേപടി തുടരും.",
+  "The finished mix · WAV, MP3, M4A or FLAC": "അന്തിമ മിക്സ് · WAV, MP3, M4A അല്ലെങ്കിൽ FLAC",
+  "Master recording license": "മാസ്റ്റർ റെക്കോർഡിംഗിന്റെ ലൈസൻസ്",
+  "The recording can carry a different license from the composition.": "റെക്കോർഡിംഗിന് രചനയിൽ നിന്ന് വ്യത്യസ്തമായ ലൈസൻസ് ആകാം.",
+  "About this recording": "ഈ റെക്കോർഡിംഗിനെക്കുറിച്ച്",
+  "Add the finished recording of this song under its own license. The composition's license stays as it is.": "ഈ പാട്ടിന്റെ അന്തിമ റെക്കോർഡിംഗ് സ്വന്തം ലൈസൻസിൽ ചേർക്കുക. രചനയുടെ ലൈസൻസ് മാറില്ല.",
+  "Propose this recording": "ഈ റെക്കോർഡിംഗ് നിർദ്ദേശിക്കുക",
+  "A reviewer checks the recording and its license before it joins the song.": "പാട്ടിൽ ചേരുന്നതിന് മുമ്പ് ഒരു റിവ്യൂവർ റെക്കോർഡിംഗും ലൈസൻസും പരിശോധിക്കും.",
+  "Thank you — your recording is in review": "നന്ദി — നിങ്ങളുടെ റെക്കോർഡിംഗ് പരിശോധനയിലാണ്",
+  "Add a master recording": "മാസ്റ്റർ റെക്കോർഡിംഗ് ചേർക്കുക",
+  "master recording": "മാസ്റ്റർ റെക്കോർഡിംഗ്"
 };
 
 export default ml;

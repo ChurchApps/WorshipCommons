@@ -805,7 +805,7 @@ const sq: Record<string, string> = {
   "Correction": "Korrigjim",
   "Fix lyrics, chords, or the details — with a note saying what changed and why.": "Rregullo tekstin, akordet ose të dhënat, me një shënim se çfarë ndryshoi dhe pse.",
   "Additional file": "Skedar shtesë",
-  "Add a score, a recording, stems, art, or a lyrics file. Nothing else changes.": "Shto partiturë, regjistrim, gjurmë, kopertinë ose skedar teksti. Asgjë tjetër nuk ndryshon.",
+  "Add a score, a demo recording, stems, art, or a lyrics file. Nothing else changes.": "Shto partiturë, regjistrim demo, gjurmë, kopertinë ose skedar teksti. Asgjë tjetër nuk ndryshon.",
   "Removal request": "Kërkesë për heqje",
   "Ask a reviewer to take this song down.": "Kërko një shqyrtuesi ta heqë këtë këngë.",
   "Propose this edit": "Propozo këtë ndryshim",
@@ -826,7 +826,24 @@ const sq: Record<string, string> = {
   "A reviewer asked for changes before this can go live. Continue the draft to make them and send it again.": "Një shqyrtues kërkoi ndryshime para se të publikohet. Vazhdo draftin për t’i bërë dhe dërgoje sërish.",
   "Taken down": "Hequr",
   "The song was removed from the library, as you asked.": "Kënga u hoq nga biblioteka, siç kërkove.",
-  "You are credited on the song page.": "Je përmendur në faqen e këngës."
+  "You are credited on the song page.": "Je përmendur në faqen e këngës.",
+  // master recording: a second grant with its own license
+  "The composition — words, melody, chords and arrangement": "Kompozimi — teksti, melodia, akordet dhe aranzhimi",
+  "The composition and a master recording": "Kompozimi dhe një regjistrim master",
+  "A church needs the composition to sing the song, so that grant comes first. A master recording is a second grant and can carry its own license.": "Një kishë ka nevojë për kompozimin që ta këndojë këngën, prandaj ajo leje vjen e para. Një regjistrim master është një leje e dytë dhe mund të mbajë licencën e vet.",
+  "Composition license": "Licenca e kompozimit",
+  "Master recording": "Regjistrim master",
+  "The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.": "Miksi përfundimtar me të cilin mund të luajë një grup. Hap gjurmët dhe miksin e plotë në faqen e këngës; leja e kompozimit më sipër mbetet siç është.",
+  "The finished mix · WAV, MP3, M4A or FLAC": "Miksi përfundimtar · WAV, MP3, M4A ose FLAC",
+  "Master recording license": "Licenca e regjistrimit master",
+  "The recording can carry a different license from the composition.": "Regjistrimi mund të mbajë një licencë të ndryshme nga kompozimi.",
+  "About this recording": "Rreth këtij regjistrimi",
+  "Add the finished recording of this song under its own license. The composition's license stays as it is.": "Shto regjistrimin përfundimtar të kësaj kënge nën licencën e vet. Licenca e kompozimit mbetet siç është.",
+  "Propose this recording": "Propozo këtë regjistrim",
+  "A reviewer checks the recording and its license before it joins the song.": "Një shqyrtues kontrollon regjistrimin dhe licencën e tij para se t’i bashkohet këngës.",
+  "Thank you — your recording is in review": "Faleminderit — regjistrimi yt është në shqyrtim",
+  "Add a master recording": "Shto një regjistrim master",
+  "master recording": "regjistrim master"
 };
 
 export default sq;

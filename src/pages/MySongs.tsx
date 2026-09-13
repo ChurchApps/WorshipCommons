@@ -37,6 +37,7 @@ const TYPE_LABEL: Record<string, string> = {
   arrangement: "Arrangement",
   correction: "Correction",
   additionalFile: "Additional file",
+  recording: "Master recording",
   removal: "Removal request"
 };
 

@@ -3,20 +3,22 @@ import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-r
 import { useAuth } from "../auth";
 import { idOf } from "../songs";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
-import SongForm, { conventionalName, FILE_LABEL, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import SongForm, { conventionalName, FILE_LABEL, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 
 const TYPE_OPTIONS: [ProposalType, string, string][] = [
   ["correction", "Correction", "Fix lyrics, chords, or the details — with a note saying what changed and why."],
-  ["additionalFile", "Additional file", "Add a score, a recording, stems, art, or a lyrics file. Nothing else changes."],
+  ["additionalFile", "Additional file", "Add a score, a demo recording, stems, art, or a lyrics file. Nothing else changes."],
+  ["recording", "Master recording", "Add the finished recording of this song under its own license. The composition's license stays as it is."],
   ["removal", "Removal request", "Ask a reviewer to take this song down."]
 ];
 
 const COPY: Record<ProposalType, { submit: string; hint: string; thanks: string }> = {
   correction: { submit: "Propose this edit", hint: "A reviewer reads every edit before it goes live.", thanks: "Thank you — your edit is in review" },
   additionalFile: { submit: "Propose these files", hint: "A reviewer checks every file before it joins the song.", thanks: "Thank you — your files are in review" },
+  recording: { submit: "Propose this recording", hint: "A reviewer checks the recording and its license before it joins the song.", thanks: "Thank you — your recording is in review" },
   removal: { submit: "Request removal", hint: "A reviewer decides; nothing comes down until then.", thanks: "Thank you — your request is in review" }
 };
 
@@ -26,7 +28,8 @@ const asType = (v: string | null): ProposalType | null => (PROPOSAL_TYPES as str
 function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFiles, base: any) {
   if (type === "removal") return { type, name: base.name, language: base.language, license: base.license, detail: { writer: base.detail?.writer, songKey: base.detail?.songKey } };
   if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, certified: form.certified, recordingOwned: files.demoAudio ? form.recordingOwned : base.detail?.recordingOwned } };
-  return { ...payloadFrom(form, !!files.demoAudio, base), type };
+  if (type === "recording") return { ...base, type, detail: { ...base.detail, certified: form.certified, recordingOwned: form.recordingOwned, masterLicense: form.masterLicense } };
+  return { ...payloadFrom(form, hasRecording(files), base), type };
 }
 
 export default function EditSong() {
@@ -130,7 +133,7 @@ export default function EditSong() {
   const fromDraft = draft && asType(draft.type || draft.payload?.type) === type;
   const initial = songFromPayload(fromDraft ? draft.payload : base);
   // adding files is a fresh attestation — the checkbox starts empty unless the reopened draft already carried it
-  if (type === "additionalFile") initial.certified = fromDraft ? !!draft.payload?.detail?.certified : false;
+  if (type === "additionalFile" || type === "recording") initial.certified = fromDraft ? !!draft.payload?.detail?.certified : false;
   const draftFiles: string[] = fromDraft ? (draft.files || []).filter((f: any) => f.action !== "remove").map((f: any) => f.name) : [];
 
   return (

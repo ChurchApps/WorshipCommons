@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { uploadFile, wcGet, wcPost, wcPut } from "../api";
-import SongForm, { blankSong, conventionalName, FILE_LABEL, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import SongForm, { blankSong, conventionalName, FILE_LABEL, hasRecording, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -77,7 +77,7 @@ export default function Upload() {
   const submit = async (form: SongFormValues, files: SongFiles) => {
     if (busyRef.current) return;
     setError("");
-    if (files.demoAudio && !form.recordingOwned) {
+    if (hasRecording(files) && !form.recordingOwned) {
       setError(t("Please confirm you own this recording (or have the owner's permission to share it)."));
       return;
     }
@@ -86,8 +86,8 @@ export default function Upload() {
     setBusy(true);
     setProgress("");
     try {
-      const id = await ensureDraft(form, !!files.demoAudio);
-      await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, !!files.demoAudio) }, true);
+      const id = await ensureDraft(form, hasRecording(files));
+      await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, hasRecording(files)) }, true);
       for (const [role, file] of Object.entries(files)) {
         if (!file) continue;
         setProgress(t("Uploading {name}…", { name: t(FILE_LABEL[role] || role) }));

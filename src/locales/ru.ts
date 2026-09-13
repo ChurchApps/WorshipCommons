@@ -805,7 +805,7 @@ const ru: Record<string, string> = {
   "Correction": "Исправление",
   "Fix lyrics, chords, or the details — with a note saying what changed and why.": "Исправьте текст, аккорды или данные — с заметкой о том, что изменилось и почему.",
   "Additional file": "Дополнительный файл",
-  "Add a score, a recording, stems, art, or a lyrics file. Nothing else changes.": "Добавьте ноты, запись, стемы, обложку или файл с текстом. Больше ничего не меняется.",
+  "Add a score, a demo recording, stems, art, or a lyrics file. Nothing else changes.": "Добавьте ноты, демозапись, стемы, обложку или файл с текстом. Больше ничего не меняется.",
   "Removal request": "Запрос на удаление",
   "Ask a reviewer to take this song down.": "Попросить рецензента убрать эту песню.",
   "Propose this edit": "Предложить это изменение",
@@ -826,7 +826,24 @@ const ru: Record<string, string> = {
   "A reviewer asked for changes before this can go live. Continue the draft to make them and send it again.": "Рецензент попросил внести изменения перед публикацией. Продолжите черновик, внесите их и отправьте снова.",
   "Taken down": "Убрана",
   "The song was removed from the library, as you asked.": "Песня убрана из библиотеки, как вы просили.",
-  "You are credited on the song page.": "Вы указаны на странице песни."
+  "You are credited on the song page.": "Вы указаны на странице песни.",
+  // master recording: a second grant with its own license
+  "The composition — words, melody, chords and arrangement": "Композиция — слова, мелодия, аккорды и аранжировка",
+  "The composition and a master recording": "Композиция и мастер-запись",
+  "A church needs the composition to sing the song, so that grant comes first. A master recording is a second grant and can carry its own license.": "Церкви нужна композиция, чтобы петь песню, поэтому это разрешение идёт первым. Мастер-запись — второе разрешение, и у него может быть своя лицензия.",
+  "Composition license": "Лицензия композиции",
+  "Master recording": "Мастер-запись",
+  "The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.": "Готовый микс, под который может играть группа. Он открывает стемы и полный микс на странице песни; разрешение на композицию выше остаётся прежним.",
+  "The finished mix · WAV, MP3, M4A or FLAC": "Готовый микс · WAV, MP3, M4A или FLAC",
+  "Master recording license": "Лицензия мастер-записи",
+  "The recording can carry a different license from the composition.": "У записи может быть лицензия, отличная от лицензии композиции.",
+  "About this recording": "Об этой записи",
+  "Add the finished recording of this song under its own license. The composition's license stays as it is.": "Добавьте готовую запись этой песни под её собственной лицензией. Лицензия композиции не меняется.",
+  "Propose this recording": "Предложить эту запись",
+  "A reviewer checks the recording and its license before it joins the song.": "Рецензент проверяет запись и её лицензию, прежде чем она присоединится к песне.",
+  "Thank you — your recording is in review": "Спасибо — ваша запись на проверке",
+  "Add a master recording": "Добавить мастер-запись",
+  "master recording": "мастер-запись"
 };
 
 export default ru;

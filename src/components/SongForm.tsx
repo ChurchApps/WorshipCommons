@@ -22,9 +22,11 @@ const MINOR_KEYS = [
 
 /** The three proposal types that create a package (the new-song wizard). */
 export type SubmissionType = "new" | "translation" | "arrangement";
-/** The three proposal types that change a published song (the edit page). */
-export type ProposalType = "correction" | "additionalFile" | "removal";
-export const PROPOSAL_TYPES: ProposalType[] = ["correction", "additionalFile", "removal"];
+/** The proposal types that change a published song (the edit page); recording adds a master under its own license. */
+export type ProposalType = "correction" | "additionalFile" | "recording" | "removal";
+export const PROPOSAL_TYPES: ProposalType[] = ["correction", "additionalFile", "recording", "removal"];
+/** What a new submission gives: the composition alone is a complete song; a master recording is a second grant with its own license. */
+export type Scope = "composition" | "both";
 export const NEW_PACKAGE_TYPES: string[] = ["new", "translation", "arrangement"];
 /** Mirrors the API's MIN_NOTE_LENGTH: a correction, file or removal proposal needs a note this long. */
 export const MIN_NOTE_LENGTH = 10;
@@ -44,17 +46,22 @@ export interface SongFormValues {
   scripture: string;
   chordPro: string;
   license: string;
+  scope: Scope;
+  masterLicense: string;
   proAnswer: string;
   certified: boolean;
   recordingOwned: boolean;
 }
 
-export type SongFiles = { demoAudio?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File; score?: File; scoreImage?: File; lyrics?: File };
+export type SongFiles = { demoAudio?: File; master?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File; score?: File; scoreImage?: File; lyrics?: File };
+
+/** Either audio file is a recording someone must vouch for. */
+export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.master);
 
 /** Progress-line names for every upload role, keyed by SongFiles key. */
-export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
+export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", master: "master recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
 
-export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "WC", proAnswer: "", certified: false, recordingOwned: false });
+export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", certified: false, recordingOwned: false });
 
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
@@ -76,6 +83,8 @@ export const songFromPayload = (payload: any): SongFormValues => {
     scripture: d.scripture || "",
     chordPro: d.chordPro || "",
     license: UPLOADABLE.some(l => l.id === payload?.license) ? payload.license : "WC",
+    scope: d.masterLicense ? "both" : "composition",
+    masterLicense: UPLOADABLE.some(l => l.id === d.masterLicense) ? d.masterLicense : "WC",
     proAnswer: d.proAnswer || "",
     certified: true,
     recordingOwned: false
@@ -87,7 +96,7 @@ export const relationLabelFor = (form: SongFormValues) =>
   !form.parentSongId ? "" : form.submissionType === "translation" ? `Translation (${form.language})` : form.submissionType === "arrangement" ? "Arrangement" : "";
 
 // base keeps the fields this form doesn't edit (scriptureText, videoUrl…) when proposing an edit
-export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) => ({
+export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: any) => ({
   ...base,
   type: form.submissionType,
   name: form.title,
@@ -112,8 +121,10 @@ export const payloadFrom = (form: SongFormValues, hasDemo: boolean, base?: any) 
     scripture: form.scripture,
     chordPro: form.chordPro,
     proAnswer: form.proAnswer,
+    // the master's own grant; a composition-only submission carries whatever the live song already has
+    masterLicense: form.scope === "both" ? form.masterLicense : base?.detail?.masterLicense,
     certified: form.certified,
-    recordingOwned: hasDemo ? form.recordingOwned : base?.detail?.recordingOwned
+    recordingOwned: hasAudio ? form.recordingOwned : base?.detail?.recordingOwned
   }
 });
 
@@ -135,6 +146,7 @@ const firstLyricLine = (chordPro: string) => (parseChordPro(chordPro)[0]?.lines[
 const NOTE_HEADING: Record<ProposalType, string> = {
   correction: "What changed, and why?",
   additionalFile: "About these files",
+  recording: "About this recording",
   removal: "Why should this song come down?"
 };
 
@@ -150,6 +162,59 @@ function LicenseRecap({ churches, keep }: { churches: string[]; keep: string[] }
         <b>{t("You keep:")}</b>
         <ul>{keep.map(item => <li key={item}>{item}</li>)}</ul>
       </div>
+    </div>
+  );
+}
+
+/** The three uploadable licenses as radios; the same set serves the composition and the master, under different names. */
+function LicenseRadios({ name, value, onChange, testId }: { name: string; value: string; onChange: (id: string) => void; testId: string }) {
+  const { t } = useI18n();
+  return (
+    <div className="step-body" data-testid={testId}>
+      <label className="choice">
+        <input type="radio" name={name} value="WC" checked={value === "WC"} onChange={() => onChange("WC")} />
+        <span>
+          <strong>{t("Free for worship")}</strong> <span className="free-badge">{t("Recommended")}</span>
+          <LicenseRecap
+            churches={[t("Sing it free, forever"), t("Project, print, stream worship"), t("Transpose, arrange, translate")]}
+            keep={[t("Recordings & sheet-music sales"), t("Sync, concerts, radio"), t("Ownership of the song")]}
+          />
+          <p><Link to="/license">{t("Read the license.")}</Link></p>
+        </span>
+      </label>
+      <label className="choice">
+        <input type="radio" name={name} value="CC-BY" checked={value === "CC-BY"} onChange={() => onChange("CC-BY")} />
+        <span>
+          <strong>{t("CC BY 4.0")}</strong> <span className="cc-badge">{t("Credit required")}</span>
+          <LicenseRecap
+            churches={[t("Every use, worship and commercial, if they credit you"), t("Same rules as the wider Creative Commons world")]}
+            keep={[t("Copyright and the right to be credited"), t("Not exclusivity — anyone may sell recordings or sheet music with credit")]}
+          />
+          <p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener">{t("Read the license.")}</a></p>
+        </span>
+      </label>
+      <label className="choice">
+        <input type="radio" name={name} value="PD" checked={value === "PD"} onChange={() => onChange("PD")} />
+        <span>
+          <strong>{t("Public domain")}</strong> <span className="pd-badge">{t("Everything, everyone")}</span>
+          <LicenseRecap
+            churches={[t("Every use — worship and commercial"), t("Same commons as the hymns")]}
+            keep={[t("Nothing"), t("CC0 dedication, permanent, everywhere")]}
+          />
+        </span>
+      </label>
+    </div>
+  );
+}
+
+function RecordingOwned({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  const { t } = useI18n();
+  return (
+    <div className="certify" style={{ margin: "16px 0 0" }}>
+      <input type="checkbox" id="recording-owned" data-testid="recording-owned" required checked={checked} onChange={e => onChange(e.target.checked)} />
+      <label htmlFor="recording-owned" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
+        {t("This recording is mine (or I have the owner’s permission to share it).")}
+      </label>
     </div>
   );
 }
@@ -204,8 +269,10 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
   const isNewSong = !proposalType;
   // which steps a proposal type shows: a correction is the whole form, files add nothing but files, a removal is only the note
   const showSong = !proposalType || proposalType === "correction";
-  const showFiles = proposalType !== "removal";
+  const showFiles = proposalType !== "removal" && proposalType !== "recording";
   const showLicense = showSong;
+  // the master recording block: on a new song once "both" is chosen, and the whole of a recording proposal
+  const showMaster = isNewSong ? form.scope === "both" : proposalType === "recording";
   const showWord = proposalType !== "removal";
   // encoding the cover art is async — submit waits on it so a fast click can't drop the file
   const artJob = useRef<Promise<SongFiles> | null>(null);
@@ -265,7 +332,8 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
       else if (lint.some(i => i.level === "error")) gaps.push(t("Lyrics and chords — fix the errors listed under the preview"));
     }
     if (showWord && !form.certified) gaps.push(t("Your word"));
-    if (files.demoAudio && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
+    if (showMaster && !files.master) gaps.push(t("Master recording"));
+    if (hasRecording(files) && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
     if (proposalType && noteShort) gaps.push(proposalType === "removal" ? t("A note of at least {n} characters is required: say why the song should come down", { n: MIN_NOTE_LENGTH }) : t("A note of at least {n} characters is required: say what changed and why", { n: MIN_NOTE_LENGTH }));
     if (proposalType === "additionalFile" && !Object.values(files).some(Boolean)) gaps.push(t("Add at least one file."));
     if (isNewSong && form.submissionType !== "new" && !form.parentSongId) gaps.push(t("The original song"));
@@ -448,56 +516,44 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
             )}
           </div>
           <p className="hint" style={{ margin: "10px 0 0" }}>{t("Files up to ~35 MB each. Upload stems once, in the recorded key.")}</p>
-          {files.demoAudio && (
-            <div className="certify" style={{ margin: "16px 0 0" }}>
-              <input type="checkbox" id="recording-owned" data-testid="recording-owned" required checked={form.recordingOwned} onChange={e => set("recordingOwned", e.target.checked)} />
-              <label htmlFor="recording-owned" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
-                {t("This recording is mine (or I have the owner’s permission to share it).")}
-              </label>
-            </div>
-          )}
+          {files.demoAudio && !showMaster && <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />}
         </section>
       )}
 
       {showLicense && (
         <section className="step">
           <h2><span className="n">{step()}</span>{t("What you’re giving")}</h2>
+          {isNewSong && (
+            <div className="field" style={{ margin: "0 0 16px" }}>
+              <div className="sub-type" data-testid="scope-choice">
+                {([["composition", "The composition — words, melody, chords and arrangement"], ["both", "The composition and a master recording"]] as [Scope, string][]).map(([value, label]) => (
+                  <label key={value}>
+                    <input type="radio" name="scope" value={value} checked={form.scope === value} onChange={() => set("scope", value)} />
+                    {t(label)}
+                  </label>
+                ))}
+              </div>
+              <p className="hint">{t("A church needs the composition to sing the song, so that grant comes first. A master recording is a second grant and can carry its own license.")}</p>
+            </div>
+          )}
+          <h3 style={{ margin: "0 0 4px" }}>{t("Composition license")}</h3>
           <p className="hint">{t("Every option makes the song free for worship forever. They differ in what you keep.")}</p>
           {/* radio values are the registry ids in licenses.json; only uploadable licenses are offered (SA and NC are harvest-only) */}
-          <div className="step-body" data-testid="license-choice">
-            <label className="choice">
-              <input type="radio" name="license" value="WC" checked={form.license === "WC"} onChange={() => set("license", "WC")} />
-              <span>
-                <strong>{t("Free for worship")}</strong> <span className="free-badge">{t("Recommended")}</span>
-                <LicenseRecap
-                  churches={[t("Sing it free, forever"), t("Project, print, stream worship"), t("Transpose, arrange, translate")]}
-                  keep={[t("Recordings & sheet-music sales"), t("Sync, concerts, radio"), t("Ownership of the song")]}
-                />
-                <p><Link to="/license">{t("Read the license.")}</Link></p>
-              </span>
-            </label>
-            <label className="choice">
-              <input type="radio" name="license" value="CC-BY" checked={form.license === "CC-BY"} onChange={() => set("license", "CC-BY")} />
-              <span>
-                <strong>{t("CC BY 4.0")}</strong> <span className="cc-badge">{t("Credit required")}</span>
-                <LicenseRecap
-                  churches={[t("Every use, worship and commercial, if they credit you"), t("Same rules as the wider Creative Commons world")]}
-                  keep={[t("Copyright and the right to be credited"), t("Not exclusivity — anyone may sell recordings or sheet music with credit")]}
-                />
-                <p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener">{t("Read the license.")}</a></p>
-              </span>
-            </label>
-            <label className="choice">
-              <input type="radio" name="license" value="PD" checked={form.license === "PD"} onChange={() => set("license", "PD")} />
-              <span>
-                <strong>{t("Public domain")}</strong> <span className="pd-badge">{t("Everything, everyone")}</span>
-                <LicenseRecap
-                  churches={[t("Every use — worship and commercial"), t("Same commons as the hymns")]}
-                  keep={[t("Nothing"), t("CC0 dedication, permanent, everywhere")]}
-                />
-              </span>
-            </label>
+          <LicenseRadios name="license" value={form.license} onChange={id => set("license", id)} testId="license-choice" />
+        </section>
+      )}
+
+      {showMaster && (
+        <section className="step" data-testid="master-step">
+          <h2><span className="n">{step()}</span>{t("Master recording")}</h2>
+          <p className="hint">{t("The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.")}</p>
+          <div className="step-body dz-row">
+            <Dropzone label="Master recording" hint="The finished mix · WAV, MP3, M4A or FLAC" accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg" testId="file-master" onFile={f => setFiles(x => ({ ...x, master: f }))} />
           </div>
+          <h3 style={{ margin: "16px 0 4px" }}>{t("Master recording license")}</h3>
+          <p className="hint">{t("The recording can carry a different license from the composition.")}</p>
+          <LicenseRadios name="masterLicense" value={form.masterLicense} onChange={id => set("masterLicense", id)} testId="master-license-choice" />
+          <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />
         </section>
       )}
 
@@ -510,7 +566,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
               <label htmlFor="certify" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
                 <em>{t("I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.")}</em>
                 <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This grant is the recap above — the license you chose.")}</span>
-                {form.license === "CC-BY" && <span className="hint" style={{ display: "block", marginTop: 6 }} data-testid="cc-by-hint">{t("CC BY grants commercial use to everyone, not only churches: anyone may sell recordings or sheet music of this song as long as they credit you.")}</span>}
+                {(form.license === "CC-BY" || (showMaster && form.masterLicense === "CC-BY")) && <span className="hint" style={{ display: "block", marginTop: 6 }} data-testid="cc-by-hint">{t("CC BY grants commercial use to everyone, not only churches: anyone may sell recordings or sheet music of this song as long as they credit you.")}</span>}
                 <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</span>
               </label>
             </div>

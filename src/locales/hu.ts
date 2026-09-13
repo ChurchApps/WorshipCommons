@@ -805,7 +805,7 @@ const hu: Record<string, string> = {
   "Correction": "Javítás",
   "Fix lyrics, chords, or the details — with a note saying what changed and why.": "Javítsd a szöveget, az akkordokat vagy az adatokat, egy megjegyzéssel, hogy mi változott és miért.",
   "Additional file": "További fájl",
-  "Add a score, a recording, stems, art, or a lyrics file. Nothing else changes.": "Adj hozzá kottát, felvételt, sávokat, borítót vagy szövegfájlt. Semmi más nem változik.",
+  "Add a score, a demo recording, stems, art, or a lyrics file. Nothing else changes.": "Adj hozzá kottát, demófelvételt, sávokat, borítót vagy szövegfájlt. Semmi más nem változik.",
   "Removal request": "Levételi kérelem",
   "Ask a reviewer to take this song down.": "Kérd meg egy ellenőrt, hogy vegye le ezt a dalt.",
   "Propose this edit": "Módosítás javaslása",
@@ -826,7 +826,24 @@ const hu: Record<string, string> = {
   "A reviewer asked for changes before this can go live. Continue the draft to make them and send it again.": "Egy ellenőr módosításokat kért, mielőtt élesbe kerülhet. Folytasd a piszkozatot, végezd el őket és küldd el újra.",
   "Taken down": "Levéve",
   "The song was removed from the library, as you asked.": "A dal a kérésednek megfelelően lekerült a könyvtárból.",
-  "You are credited on the song page.": "A dal oldalán fel vagy tüntetve."
+  "You are credited on the song page.": "A dal oldalán fel vagy tüntetve.",
+  // master recording: a second grant with its own license
+  "The composition — words, melody, chords and arrangement": "A kompozíció — szöveg, dallam, akkordok és hangszerelés",
+  "The composition and a master recording": "A kompozíció és egy masterfelvétel",
+  "A church needs the composition to sing the song, so that grant comes first. A master recording is a second grant and can carry its own license.": "A gyülekezetnek a kompozícióra van szüksége, hogy elénekelje a dalt, ezért ez az engedély jön először. A masterfelvétel egy második engedély, és saját licencet kaphat.",
+  "Composition license": "A kompozíció licence",
+  "Master recording": "Masterfelvétel",
+  "The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.": "A kész mix, amire egy zenekar játszhat. Feloldja a sávokat és a teljes mixet a dal oldalán; a fenti kompozíciós engedély változatlan marad.",
+  "The finished mix · WAV, MP3, M4A or FLAC": "A kész mix · WAV, MP3, M4A vagy FLAC",
+  "Master recording license": "A masterfelvétel licence",
+  "The recording can carry a different license from the composition.": "A felvétel a kompozíciótól eltérő licencet is kaphat.",
+  "About this recording": "Erről a felvételről",
+  "Add the finished recording of this song under its own license. The composition's license stays as it is.": "Add hozzá a dal kész felvételét saját licenc alatt. A kompozíció licence változatlan marad.",
+  "Propose this recording": "Felvétel beküldése",
+  "A reviewer checks the recording and its license before it joins the song.": "Egy lektor ellenőrzi a felvételt és a licencét, mielőtt a dalhoz kerül.",
+  "Thank you — your recording is in review": "Köszönjük — a felvételed ellenőrzés alatt áll",
+  "Add a master recording": "Masterfelvétel hozzáadása",
+  "master recording": "masterfelvétel"
 };
 
 export default hu;

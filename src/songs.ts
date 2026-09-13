@@ -39,6 +39,7 @@ export interface Song {
   files?: string;
   fileUrls?: Record<string, string>;
   demoAudioUrl?: string;
+  masterUrl?: string;
   sheetPdfUrl?: string;
   stemsZipUrl?: string;
   midiUrl?: string;
@@ -100,6 +101,7 @@ const songCache = new Map<string, Song | null>();
 // legacy per-file fields so the rest of the site keeps its vocabulary
 const URL_FIELDS: [keyof Song, string][] = [
   ["demoAudioUrl", "demoAudio"],
+  ["masterUrl", "master"],
   ["sheetPdfUrl", "sheetPdf"],
   ["stemsZipUrl", "stemsZip"],
   ["midiUrl", "midi"],

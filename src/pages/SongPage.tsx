@@ -532,9 +532,15 @@ export default function SongPage() {
             )}
           </section>
 
-          {(song.demoAudioUrl || song.videoUrl) && (
+          {(song.masterUrl || song.demoAudioUrl || song.videoUrl) && (
             <section className="panel" data-testid="recordings-card">
               <h3>{t("Recordings")}</h3>
+              {song.masterUrl && (
+                <>
+                  <p className="listen-kind">{t("Master recording")}{song.rights?.recording?.license ? ` · ${song.rights.recording.license}` : ""}</p>
+                  <audio controls src={song.masterUrl} style={{ width: "100%" }} data-testid="master-audio" />
+                </>
+              )}
               {song.demoAudioUrl && (
                 <>
                   <p className="listen-kind">{t("Demo recording")} · {t("As shared by {writer}", { writer: song.writer })}</p>
@@ -605,6 +611,7 @@ export default function SongPage() {
             {rateError && <p className="rel-hint" style={{ color: "var(--secondary)" }} data-testid="rating-error">{rateError}</p>}
             <p className="side-links">
               <Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
+              {!song.masterUrl && <><span aria-hidden="true">·</span><Link to={`${songPath(song)}/edit?type=recording`} data-testid="add-master">{t("Add a master recording")}</Link></>}
               <span aria-hidden="true">·</span>
               <Link to={`/report?song=${encodeURIComponent(`${song.title} — ${songPath(song)}`)}`}>{t("Report this song")}</Link>
             </p>

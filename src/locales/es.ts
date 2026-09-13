@@ -805,7 +805,7 @@ const es: Record<string, string> = {
   "Correction": "Corrección",
   "Fix lyrics, chords, or the details — with a note saying what changed and why.": "Corrige la letra, los acordes o los datos, con una nota que diga qué cambió y por qué.",
   "Additional file": "Archivo adicional",
-  "Add a score, a recording, stems, art, or a lyrics file. Nothing else changes.": "Añade una partitura, una grabación, pistas, portada o un archivo de letra. Nada más cambia.",
+  "Add a score, a demo recording, stems, art, or a lyrics file. Nothing else changes.": "Añade una partitura, una grabación de muestra, pistas, portada o un archivo de letra. Nada más cambia.",
   "Removal request": "Solicitud de retirada",
   "Ask a reviewer to take this song down.": "Pide a un revisor que retire esta canción.",
   "Propose this edit": "Proponer esta edición",
@@ -826,7 +826,24 @@ const es: Record<string, string> = {
   "A reviewer asked for changes before this can go live. Continue the draft to make them and send it again.": "Un revisor pidió cambios antes de publicarlo. Continúa el borrador para hacerlos y envíalo de nuevo.",
   "Taken down": "Retirada",
   "The song was removed from the library, as you asked.": "La canción se retiró de la biblioteca, como pediste.",
-  "You are credited on the song page.": "Apareces acreditado en la página de la canción."
+  "You are credited on the song page.": "Apareces acreditado en la página de la canción.",
+  // master recording: a second grant with its own license
+  "The composition — words, melody, chords and arrangement": "La composición — letra, melodía, acordes y arreglo",
+  "The composition and a master recording": "La composición y una grabación máster",
+  "A church needs the composition to sing the song, so that grant comes first. A master recording is a second grant and can carry its own license.": "Una iglesia necesita la composición para cantar la canción, así que esa concesión va primero. Una grabación máster es una segunda concesión y puede llevar su propia licencia.",
+  "Composition license": "Licencia de la composición",
+  "Master recording": "Grabación máster",
+  "The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.": "La mezcla final con la que una banda puede tocar. Desbloquea pistas y una mezcla completa en la página de la canción; la concesión de la composición de arriba no cambia.",
+  "The finished mix · WAV, MP3, M4A or FLAC": "La mezcla final · WAV, MP3, M4A o FLAC",
+  "Master recording license": "Licencia de la grabación máster",
+  "The recording can carry a different license from the composition.": "La grabación puede llevar una licencia distinta de la composición.",
+  "About this recording": "Sobre esta grabación",
+  "Add the finished recording of this song under its own license. The composition's license stays as it is.": "Añade la grabación final de esta canción bajo su propia licencia. La licencia de la composición no cambia.",
+  "Propose this recording": "Proponer esta grabación",
+  "A reviewer checks the recording and its license before it joins the song.": "Un revisor comprueba la grabación y su licencia antes de que se una a la canción.",
+  "Thank you — your recording is in review": "Gracias — tu grabación está en revisión",
+  "Add a master recording": "Añadir una grabación máster",
+  "master recording": "grabación máster"
 };
 
 export default es;
