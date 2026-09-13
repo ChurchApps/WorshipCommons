@@ -6,7 +6,7 @@ import { approveSubmission, pendingSubmissionFor, submissionDetail, WC_API } fro
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WAV = path.join(__dirname, "fixtures", "tiny.wav");
 const SONG_TITLE = "Master Song E2E";
-// titles other specs assert on or edit â€” the add-a-master flow picks a song none of them touch
+// titles other specs assert on or edit — the add-a-master flow picks a song none of them touch
 const RESERVED = ["Amazing Grace", "Silent Night", "Stille Nacht", "Noche de Paz", "Abide, O Dearest Jesus", "Adeste Fideles", "Be Thou My Vision", "Test Song E2E", SONG_TITLE];
 
 const fillComposition = async (page: import("@playwright/test").Page, title: string) => {
@@ -46,7 +46,7 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     await page.locator('input[name="license"][value="CC-BY"]').check();
     await page.locator('input[name="masterLicense"][value="PD"]').check();
     await page.getByTestId("file-master").setInputFiles(WAV);
-    await expect(page.locator(".dropzone", { hasText: "Attached âœ“" })).toHaveCount(1);
+    await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toHaveCount(1);
     await page.check("#recording-owned");
     await page.check("#certify");
     await page.getByTestId("submit-song").click();
@@ -86,7 +86,7 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     await page.getByTestId("add-master").click();
     await expect(page).toHaveURL(new RegExp(`/songs/[^/]*${song.id}/edit\\?type=recording`));
     await expect(page.getByTestId("proposal-type").locator('input[value="recording"]')).toBeChecked();
-    // a recording proposal is only the master, its license, the attestation and a note â€” no song fields
+    // a recording proposal is only the master, its license, the attestation and a note — no song fields
     await expect(page.locator("#title")).toHaveCount(0);
     await expect(page.locator('input[name="license"]')).toHaveCount(0);
     await expect(page.getByTestId("master-step")).toBeVisible();
