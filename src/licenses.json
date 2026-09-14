@@ -1,5 +1,5 @@
 {
-  "_comment": "Registry of the six content licenses WorshipCommons hosts. song.json \"license\" must be one of the ids below and the song must live under songs/<lang>/<section>/. tools/validate.mjs enforces that. may / mayNot / must are the church-facing deed shown on the song page; for CC licenses the legal code at legalUrl controls and is never restated. This file is vendored into WorshipCommons/src/licenses.json — keep the two copies byte-identical. Placeholders in \"notice\": {year} {writer} {version} {licenseUrl} (a song's own licenseUrl, else deedUrl).",
+  "_comment": "License registry. The six with listed !== false are the featured grants on /license (PD, WC, and the four CC flavours). Custom entries (listed: false) are also valid song.json license ids — they appear on the song page with may/mayNot/must checkboxes and a link to legalUrl, not on the hub. tools/validate.mjs accepts any id here. For CC licenses the legal code at legalUrl controls and is never restated. Vendored into WorshipCommons/src/licenses.json — keep the two copies byte-identical. Placeholders in \"notice\": {year} {writer} {version} {licenseUrl} (a song's own licenseUrl, else deedUrl).",
   "licenses": [
     {
       "id": "PD",
@@ -181,6 +181,42 @@
       ],
       "notice": "© {year} {writer}. Licensed under CC BY-NC-SA {version} (non-commercial): {licenseUrl}",
       "badge": "cc-by-nc-sa"
+    },
+    {
+      "id": "larry-holder",
+      "spdx": null,
+      "label": "Custom — Larry Holder Music",
+      "versionDefault": "permissions",
+      "section": "custom",
+      "deedUrl": "https://larryholdermusic.org/copyright.html",
+      "legalUrl": "https://larryholdermusic.org/copyright.html",
+      "attributionRequired": true,
+      "shareAlike": false,
+      "nonCommercial": true,
+      "derivativesAllowed": false,
+      "uploadable": false,
+      "listed": false,
+      "custom": true,
+      "ccliReport": false,
+      "may": [
+        "Sing, print, and project it in worship",
+        "Copy it for non-profit church use",
+        "Make internal arrangements for your band",
+        "Record or stream a non-profit service",
+        "Make a non-profit recording (free, at cost, or ministry proceeds)"
+      ],
+      "mayNot": [
+        "Translate it without asking the writer",
+        "Change the lyrics or melody",
+        "Use it on a for-profit site or a page with ads",
+        "Sell recordings or sheet music as a commercial product"
+      ],
+      "must": [
+        "Keep the original credits and copyright notice on every copy",
+        "Credit Larry Holder / Larry Holder Music"
+      ],
+      "notice": "© {year} {writer} · Custom — Larry Holder Music. Non-profit church use; keep the original credits. Full terms: {licenseUrl}",
+      "badge": "larry-holder"
     }
   ]
 }

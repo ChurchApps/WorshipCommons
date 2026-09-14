@@ -8,6 +8,13 @@ export default function LicenseBadge({ license }: { license: License }) {
   const { t } = useI18n();
   if (license.id === "WC") return <span className="free-badge" data-testid="license-badge" data-license="WC" title={t("Free for worship")}>WC</span>;
   if (license.id === "PD") return <span className="pd-badge" data-testid="license-badge" data-license="PD">{t("Public domain")}</span>;
+  if (license.custom || license.listed === false) {
+    return (
+      <span className="custom-badge" data-testid="license-badge" data-license={license.id} title={license.label}>
+        {t("Custom")}
+      </span>
+    );
+  }
   return (
     <span className={"cc-badge" + (license.nonCommercial ? " nc" : "")} data-testid="license-badge" data-license={license.id} title={license.nonCommercial ? t("Non-commercial: credit required, nothing sold or monetized") : t("Credit required")}>
       {license.label}

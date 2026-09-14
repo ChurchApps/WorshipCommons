@@ -24,6 +24,15 @@ test("ND forbids arranging but not recording; unknown licenses forbid everything
   assert.equal(matrixForLicense("ASCAP").print.allowed, false);
 });
 
+test("custom Larry Holder grant: church uses allowed, CCLI not required, translation flagged on arrange", () => {
+  const m = matrixForLicense("larry-holder");
+  assert.equal(m.print.allowed, true);
+  assert.equal(m.stream.allowed, true);
+  assert.ok(m.print.conditions.some(c => /credit/i.test(c)));
+  assert.ok(m.arrange.conditions.some(c => /translation/i.test(c)));
+  assert.equal(needsCcliReport({ license: "larry-holder" }), false);
+});
+
 test("layers compose: PD text over a CC BY tune needs credit; a WC recording adds the stream condition", () => {
   const m = composeMatrix(["PD", "CC-BY", "WC"]);
   assert.equal(m.project.allowed, true);

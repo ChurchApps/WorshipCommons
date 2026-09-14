@@ -1,8 +1,9 @@
 import registry from "./licenses.json";
 import type { RightsLayer, Song, Use } from "./songs";
 
-// The six content licenses, vendored from WorshipCommonsContent/licenses/licenses.json (keep byte-identical).
-// Every "is this WC or PD" branch in the site goes through here so a CC row never wears the wrong badge.
+// License registry, vendored from WorshipCommonsContent/licenses/licenses.json (keep byte-identical).
+// The six with listed !== false are the featured grants on /license. Custom rows are valid
+// song.json ids and get a song-page deed + link to legalUrl, not a card on the hub.
 export interface License {
   id: string;
   spdx: string | null;
@@ -16,6 +17,9 @@ export interface License {
   nonCommercial: boolean;
   derivativesAllowed: boolean;
   uploadable: boolean;
+  listed?: boolean;
+  custom?: boolean;
+  ccliReport?: boolean;
   may: string[];
   mayNot: string[];
   must: string[];
@@ -26,6 +30,9 @@ export interface License {
 export const LICENSES: License[] = registry.licenses;
 const BY_ID = Object.fromEntries(LICENSES.map(l => [l.id, l]));
 export const UPLOADABLE = LICENSES.filter(l => l.uploadable);
+/** The six featured grants on /license. Custom writer terms stay off that page. */
+export const FEATURED_LICENSES = LICENSES.filter(l => l.listed !== false);
+export const isCustomLicense = (l: License) => l.custom === true || l.listed === false;
 
 // Creative Commons flavours the registry does not carry (the ND ones — harvest-only, never uploadable) still
 // need a truthful badge and deed. Build one from the nearest registry row; the legal code at deedUrl controls.
@@ -87,5 +94,9 @@ export const layerLines = (song: Pick<Song, "rights">): { layer: RightsLayer; li
     return [{ layer, license: row.license, basis }];
   });
 
-/** Where the site explains this license: WC keeps its brand page, everything else is a card on it. */
-export const licenseHref = (id: string) => (id === "WC" ? "/license" : `/license#${licenseById(id).badge}`);
+/** Where the site explains this license: WC brand page, featured cards on it, custom grants on the writer's own page. */
+export const licenseHref = (id: string) => {
+  const l = licenseById(id);
+  if (isCustomLicense(l)) return l.legalUrl || l.deedUrl;
+  return id === "WC" ? "/license" : `/license#${l.badge}`;
+};

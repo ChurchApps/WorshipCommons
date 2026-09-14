@@ -78,7 +78,27 @@ test.describe("six licenses: deeds, upload choices, library facet", () => {
     await expect(nc).toContainText("Non-commercial");
     await expect(nc).toContainText("monetized");
     await expect(nc.locator("a[rel~='license']")).toHaveAttribute("href", "https://creativecommons.org/licenses/by-nc/4.0/legalcode");
-    // no seventh license, no ND
+    // featured hub stays the six; custom writer grants are song-page only
     await expect(page.locator("#other-licenses")).not.toContainText("ND");
+    await expect(page.locator("#other-licenses")).not.toContainText("Larry Holder");
+    await expect(page.locator("#other-licenses")).not.toContainText("Custom —");
+  });
+
+  test("a custom writer grant shows checkboxes and links the full license, not a Creative Commons card", async ({ page, request }) => {
+    await page.goto(`/songs/${await songIdByTitle(request, "Christ Alive in Me")}`);
+    await expect(page.getByTestId("license-badge")).toHaveAttribute("data-license", "larry-holder");
+    await expect(page.getByTestId("license-badge")).toContainText("Custom");
+    const grant = page.getByTestId("license-grant");
+    await expect(grant).toHaveAttribute("data-license", "larry-holder");
+    await expect(grant).toContainText("Custom — Larry Holder Music");
+    await expect(grant).not.toContainText("Creative Commons");
+    await expect(grant.locator("a[rel~='license']")).toHaveAttribute("href", "https://larryholdermusic.org/copyright.html");
+    await expect(page.getByTestId("you-may")).toContainText("Sing, print, and project it in worship");
+    await expect(page.getByTestId("you-may").locator("input[type=checkbox]:checked")).toHaveCount(5);
+    await expect(page.getByTestId("you-may-not")).toContainText("Translate it without asking the writer");
+    await expect(page.getByTestId("you-may-not").locator("input[type=checkbox]:checked")).toHaveCount(0);
+    await expect(page.getByTestId("you-must")).toContainText("Credit Larry Holder");
+    await expect(page.getByTestId("ccli-line")).toContainText("No CCLI report needed");
+    await expect(page.getByTestId("ccli-line")).toContainText("optional");
   });
 });

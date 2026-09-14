@@ -206,4 +206,5 @@ fieldset { border: 0; }
 /* Creative Commons badges — NC gets its own colour so it can never pass for "free for worship" */
 .cc-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(120,170,255,0.14); color: #a9c8ff; border: 1px solid rgba(120,170,255,0.35); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .cc-badge.nc { background: rgba(255,170,90,0.14); color: #ffc48a; border-color: rgba(255,170,90,0.4); }
+.custom-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(180,160,255,0.14); color: #cbb8ff; border: 1px solid rgba(180,160,255,0.4); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import "../styles/license.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import { LICENSES } from "../licenses";
+import { FEATURED_LICENSES } from "../licenses";
 
 const Check = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
@@ -171,9 +171,9 @@ export default function License() {
       {/* the library also hosts grants writers made elsewhere; one card each, deed + the official legal code — we never restate CC legal text */}
       <section className="section" id="other-licenses">
         <h2 style={{ marginBottom: 8 }}>{t("Other licenses in this library")}</h2>
-        <p className="note" style={{ marginBottom: 20 }}>{t("Most songs here are public domain or WorshipCommons. Some writers released their songs under a Creative Commons license before we existed; we host those as they were given. Every song page names its license. These cards are a summary — the linked legal code controls.")}</p>
+        <p className="note" style={{ marginBottom: 20 }}>{t("Most songs here are public domain or WorshipCommons. Some writers released their songs under a Creative Commons license before we existed; we host those as they were given. A few carry a custom writer grant — those are named on the song page, with checkboxes for what you may and may not do, and a link to the full terms. These cards are a summary — the linked legal code controls.")}</p>
         <div className="split">
-          {LICENSES.filter(l => l.id !== "WC").map(l => (
+          {FEATURED_LICENSES.filter(l => l.id !== "WC").map(l => (
             <div className="card" id={l.badge} key={l.id} data-testid={`license-card-${l.badge}`}>
               <h3>{t(l.label)}{l.nonCommercial && <> <span className="cc-badge nc">{t("Non-commercial")}</span></>}</h3>
               <ul className="deed">

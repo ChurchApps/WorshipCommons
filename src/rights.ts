@@ -1,4 +1,7 @@
 import type { RightsMatrix, Song, Use, UseRule } from "./songs";
+import registry from "./licenses.json" with { type: "json" };
+
+const REGISTERED = new Map(registry.licenses.map(l => [l.id, l]));
 
 export const USES: Use[] = ["project", "print", "stream", "arrange", "record"];
 
@@ -27,6 +30,17 @@ export function matrixForLicense(id: string): RightsMatrix {
     if (up.includes("-ND")) m.arrange = { allowed: false, conditions: ["No derivatives: no arrangements, translations, or transposed charts may be distributed"] };
     return m;
   }
+  const custom = REGISTERED.get(id) || REGISTERED.get(up);
+  if (custom && (custom.custom || custom.listed === false)) {
+    const cond: string[] = [];
+    if (custom.attributionRequired) cond.push("Credit the writer and keep the original notices");
+    if (custom.nonCommercial) cond.push("Non-profit use only");
+    const m = all(true, ...cond);
+    if (!custom.derivativesAllowed) {
+      m.arrange.conditions.push("Internal arrangements only. Do not change lyrics or melody. Translation needs the writer.");
+    }
+    return m;
+  }
   return all(false, "License not recognised");
 }
 
@@ -47,10 +61,15 @@ const layerLicenses = (song: Song): string[] => {
 export const rightsMatrixFor = (song: Song): RightsMatrix => song.rightsMatrix || composeMatrix(layerLicenses(song));
 
 const FREE = /^(PD|CC0|WC|CC-BY)/i;
-/** True when a US church must report project/print use to CCLI. Every PD / CC / WC package is false. */
+/** True when a US church must report project/print use to CCLI. Featured grants and custom church grants that set ccliReport false are not reported. */
 export function needsCcliReport(song: Song): boolean {
   if (typeof song.ccliReport === "boolean") return song.ccliReport;
-  return !layerLicenses(song).every(l => FREE.test(l || ""));
+  return !layerLicenses(song).every(l => {
+    if (FREE.test(l || "")) return true;
+    const row = REGISTERED.get(l || "") || REGISTERED.get((l || "").toUpperCase());
+    if (!row) return false;
+    return row.ccliReport !== true;
+  });
 }
 
 /** The ND switch: transpose, capo, Nashville, arrangement downloads, and generated audio stay off. */

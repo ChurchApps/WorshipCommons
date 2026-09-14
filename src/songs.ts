@@ -28,7 +28,7 @@ export interface Song {
   language: string;
   scripture: string;
   scriptureText?: string;
-  /** registry id from licenses.json: PD, WC, CC-BY, CC-BY-SA, CC-BY-NC, CC-BY-NC-SA */
+  /** registry id from licenses.json: the six featured grants, or a custom writer grant */
   license: string;
   licenseVersion?: string;
   licenseUrl?: string;
