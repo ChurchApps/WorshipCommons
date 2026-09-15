@@ -1,12 +1,13 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Confidence, coverOf, loadSongs, Song, songRecency, THEMES, themeList, songPath } from "../songs";
+import { isModernWorship } from "../era";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
-import { LICENSES, licenseById } from "../licenses";
+import { FEATURED_LICENSES, licenseById, licenseGroup } from "../licenses";
 import { CONFIDENCE_LABEL } from "../components/ConfidenceBadge";
 import { guitarReady, rankReason, splitLanguages } from "../catalog";
 
@@ -28,7 +29,7 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
 ];
 
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
-interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; audio: boolean; }
+interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; era: string; audio: boolean; }
 
 const XIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -61,7 +62,8 @@ export default function Songs() {
     meter: params.get("meter") || "",
     tempo: "",
     lang: params.get("lang") || SONG_LANG[lang],
-    lic: params.get("license") || "",
+    lic: licenseGroup(params.get("license") || ""),
+    era: params.get("era") || "",
     audio: false,
     guitar: params.get("guitar") === "1",
     accomp: false,
@@ -134,7 +136,8 @@ export default function Songs() {
       (skip === "meter" || !state.meter || s.meter === state.meter) &&
       (skip === "tempo" || !state.tempo || tempoBucket(s.bpm) === state.tempo) &&
       (skip === "lang" || !state.lang || s.language === state.lang) &&
-      (skip === "lic" || !state.lic || s.license === state.lic) &&
+      (skip === "lic" || !state.lic || licenseGroup(s.license) === state.lic) &&
+      (skip === "era" || !state.era || (state.era === "modern" && isModernWorship(s))) &&
       (skip === "audio" || !state.audio || !!s.demoAudioUrl) &&
       READY.every(r => skip === r.id || !state[r.id] || r.test(s));
   };
@@ -215,11 +218,12 @@ export default function Songs() {
   if (state.meter) chips.push({ label: t("Meter {meter}", { meter: state.meter }), undo: () => update({ meter: "" }) });
   if (state.tempo) chips.push({ label: t(TEMPOS[state.tempo][1]), undo: () => update({ tempo: "" }) });
   if (state.lang) chips.push({ label: t(state.lang), undo: () => update({ lang: "" }) });
-  if (state.lic) chips.push({ label: t(licenseById(state.lic).label), undo: () => update({ lic: "" }) });
+  if (state.lic) chips.push({ label: t(state.lic === "custom" ? "Custom" : licenseById(state.lic).label), undo: () => update({ lic: "" }) });
+  if (state.era === "modern") chips.push({ label: t("Modern Worship"), undo: () => update({ era: "" }) });
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
   READY.forEach(r => { if (state[r.id]) chips.push({ label: t(r.label), undo: () => update({ [r.id]: false } as Partial<Filters>) }); });
 
-  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false });
+  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false });
 
   const pagerNums = useMemo(() => {
     const nums = [...new Set([1, 2, curPage - 1, curPage, curPage + 1, pages - 1, pages].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);
@@ -322,9 +326,10 @@ export default function Songs() {
             {/* one value per registry license; a church that streams to a monetized channel can hide NC in one click */}
             <ul className="facet-list" data-testid="license-facet">
               <li><label><input type="radio" name="lic" checked={state.lic === ""} onChange={() => update({ lic: "" })} /> {t("All songs")}</label></li>
-              {LICENSES.map(l => (
-                <li key={l.id}><label><input type="radio" name="lic" value={l.id} checked={state.lic === l.id} onChange={() => update({ lic: l.id })} /> {t(l.label)}{l.nonCommercial && <span className="nc-hint" title={t("Non-commercial: credit required, nothing sold or monetized")}> ⚠</span>} <span className="cnt">{count("lic", s => s.license === l.id).toLocaleString()}</span></label></li>
+              {FEATURED_LICENSES.map(l => (
+                <li key={l.id}><label><input type="radio" name="lic" value={l.id} checked={state.lic === l.id} onChange={() => update({ lic: l.id })} /> {t(l.label)}{l.nonCommercial && <span className="nc-hint" title={t("Non-commercial: credit required, nothing sold or monetized")}> ⚠</span>} <span className="cnt">{count("lic", s => licenseGroup(s.license) === l.id).toLocaleString()}</span></label></li>
               ))}
+              <li><label><input type="radio" name="lic" value="custom" checked={state.lic === "custom"} onChange={() => update({ lic: "custom" })} /> {t("Custom")} <span className="cnt">{count("lic", s => licenseGroup(s.license) === "custom").toLocaleString()}</span></label></li>
             </ul>
           </FacetGroup>
           <FacetGroup title={t("Extras")}>

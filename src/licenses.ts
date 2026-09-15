@@ -32,7 +32,15 @@ const BY_ID = Object.fromEntries(LICENSES.map(l => [l.id, l]));
 export const UPLOADABLE = LICENSES.filter(l => l.uploadable);
 /** The six featured grants on /license. Custom writer terms stay off that page. */
 export const FEATURED_LICENSES = LICENSES.filter(l => l.listed !== false);
+export const FEATURED_IDS = new Set(FEATURED_LICENSES.map(l => l.id));
 export const isCustomLicense = (l: License) => l.custom === true || l.listed === false;
+
+/** Sidebar bucket: the six featured grants, or "custom" for every other writer grant. */
+export function licenseGroup(id?: string | null): string {
+  if (!id) return "";
+  if (FEATURED_IDS.has(id)) return id;
+  return "custom";
+}
 
 // Creative Commons flavours the registry does not carry (the ND ones — harvest-only, never uploadable) still
 // need a truthful badge and deed. Build one from the nearest registry row; the legal code at deedUrl controls.

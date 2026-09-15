@@ -54,6 +54,10 @@ test.describe("six licenses: deeds, upload choices, library facet", () => {
     for (const id of ["PD", "WC", "CC-BY", "CC-BY-SA", "CC-BY-NC", "CC-BY-NC-SA"]) {
       await expect(facet.locator(`input[name="lic"][value="${id}"]`)).toHaveCount(1);
     }
+    await expect(facet.locator('input[name="lic"][value="larry-holder"]')).toHaveCount(0);
+    await expect(facet.locator('input[name="lic"][value="custom"]')).toHaveCount(1);
+    await expect(facet).toContainText("Custom");
+    await expect(facet).not.toContainText("Larry Holder Music");
     await facet.locator('input[name="lic"][value="CC-BY"]').check();
     const rows = page.locator(".t-row");
     await expect(rows.first()).toBeVisible();

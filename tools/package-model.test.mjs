@@ -2,6 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { composeMatrix, matrixForLicense, needsCcliReport, noDerivatives, rightsMatrixFor } from "../src/rights.ts";
+import { isModernWorship } from "../src/era.ts";
 import { slidesFor } from "../src/slides.ts";
 import { chartShapes, rootAt, semitonesBetween } from "../src/chordpro.ts";
 
@@ -70,4 +71,12 @@ test("chartShapes, rootAt, and semitonesBetween agree on one key arithmetic", ()
   assert.equal(rootAt("C", -1), "B");
   assert.equal(semitonesBetween("C", "G"), -5);
   assert.equal(semitonesBetween("C", "F"), 5);
+});
+
+test("modern worship is an era, not a license: CC, PD, and WC after 1970 all count", () => {
+  assert.equal(isModernWorship({ year: 2008, license: "PD" }), true);
+  assert.equal(isModernWorship({ year: 2009, license: "CC-BY" }), true);
+  assert.equal(isModernWorship({ year: 2024, license: "WC" }), true);
+  assert.equal(isModernWorship({ year: 1997, license: "larry-holder" }), true);
+  assert.equal(isModernWorship({ year: 1779, license: "PD" }), false);
 });

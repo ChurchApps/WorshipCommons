@@ -278,8 +278,10 @@ export async function loadSongPage(id: string): Promise<SongPageData | null> {
 // the controlled vocabulary, in the order it should be offered and faceted
 export const THEMES: string[] = themeVocabulary.themes;
 
-// ponytail: "Hymn" for the public-domain hymnal, "Song" for everything a living writer shared
-export const kindOf = (song: Song) => (song.license === "PD" ? "Hymn" : "Song");
+export { isModernWorship, MODERN_YEAR } from "./era";
+import { isModernWorship } from "./era";
+
+export const kindOf = (song: Song) => (isModernWorship(song) ? "Song" : "Hymn");
 
 /** Same image the library list uses: cover art, else the writer portrait. Undefined → draw coverSvg. */
 export function coverOf(song: Song, size: "thumb" | "full" = "full"): { src: string; portrait: boolean } | undefined {

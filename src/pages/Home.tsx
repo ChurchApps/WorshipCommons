@@ -18,7 +18,7 @@ const SearchIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="n
 // the chips deep-link into the library: theme, license, readiness, and recency are all real /songs filters
 const CHIPS: [string, string][] = [
   ["All Songs", "/songs"],
-  ["Modern Worship", "/songs?license=WC"],
+  ["Modern Worship", "/songs?era=modern"],
   ["Timeless Hymns", "/songs?license=PD"],
   ["Acoustic", "/songs?guitar=1"],
   ["New Releases", "/songs?sort=new"]

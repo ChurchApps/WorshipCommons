@@ -27,6 +27,12 @@ test.describe("home", () => {
     await expect(page.locator("#active-chips .active-chip", { hasText: "Public domain" })).toBeVisible();
 
     await page.goto("/");
+    await page.getByRole("link", { name: "Modern Worship", exact: true }).click();
+    await expect(page).toHaveURL(/era=modern/);
+    await expect(page).not.toHaveURL(/license=WC/);
+    await expect(page.locator("#active-chips .active-chip", { hasText: "Modern Worship" })).toBeVisible();
+
+    await page.goto("/");
     await page.getByRole("link", { name: "New Releases", exact: true }).click();
     await expect(page).toHaveURL(/sort=new/);
     await expect(page.locator("#sort")).toHaveValue("new");
