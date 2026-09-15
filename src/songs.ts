@@ -119,7 +119,7 @@ const URL_FIELDS: [keyof Song, string][] = [
 ];
 
 /** First matching key in the API's fileUrls map. */
-export function fileUrl(song: Song, ...keys: string[]): string | undefined {
+export function fileUrl(song: Pick<Song, "fileUrls">, ...keys: string[]): string | undefined {
   const u = song.fileUrls || {};
   for (const k of keys) if (u[k]) return u[k];
   return undefined;
