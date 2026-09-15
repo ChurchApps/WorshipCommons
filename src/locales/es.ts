@@ -618,6 +618,7 @@ const es: Record<string, string> = {
   "Counting in…": "Contando…",
   "Accompaniment": "Acompañamiento",
   "Preview (synthesized)": "Vista previa (sintetizada)",
+  "The recording plays as sung": "La grabación suena tal como se cantó",
   "Instrument": "Instrumento",
   "Piano": "Piano",
   "Organ": "Órgano",
@@ -713,6 +714,9 @@ const es: Record<string, string> = {
   // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Todavía no existe un código QR que abra el reproductor en esta tonalidad.",
   "A US church reports project and print use of this song to CCLI.": "Una iglesia en EE. UU. reporta a CCLI la proyección e impresión de esta canción.",
+  "CCLI {n}": "CCLI {n}",
+  "CCLI {n} — reporting is optional.": "CCLI {n} — reportar es opcional.",
+  "Reporting to CCLI is optional.": "Reportar a CCLI es opcional.",
   "About": "Acerca de",
   "Arrange or translate": "Arreglar o traducir",
   "Artwork": "Arte",

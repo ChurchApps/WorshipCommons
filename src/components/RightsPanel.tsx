@@ -38,7 +38,7 @@ export default function RightsPanel({ song }: { song: Song }) {
                 ? <>{t("Public domain. Free for every use, including commercial — no license needed.")} <Link to={licenseHref("PD")}>{t("How that works")}</Link></>
                 : isCustomLicense(lic)
                   ? <>© {song.year} {song.writer} · {lic.label}. {t("The writer’s own grant for church use — CCLI reporting is optional.")} <a href={licenseUrl(song)} target="_blank" rel="license noopener">{t("Full license")}</a></>
-                : <>© {song.year} {song.writer} · <a href={licenseUrl(song)} target="_blank" rel="license noopener">{t("Creative Commons")} {lic.label} {licenseVersion(song)}</a>. {lic.nonCommercial ? t("Free for worship with credit — not for anything sold or monetized.") : lic.derivativesAllowed ? t("Free for every use, including commercial, as long as you credit the writer.") : t("Free to sing, print, project, and record as written, with credit — no arrangements, translations, or transposed charts may be shared.")} <Link to={licenseHref(lic.id)}>{t("How that works")}</Link></>}
+                  : <>© {song.year} {song.writer} · <a href={licenseUrl(song)} target="_blank" rel="license noopener">{t("Creative Commons")} {lic.label} {licenseVersion(song)}</a>. {lic.nonCommercial ? t("Free for worship with credit — not for anything sold or monetized.") : lic.derivativesAllowed ? t("Free for every use, including commercial, as long as you credit the writer.") : t("Free to sing, print, project, and record as written, with credit — no arrangements, translations, or transposed charts may be shared.")} <Link to={licenseHref(lic.id)}>{t("How that works")}</Link></>}
           </p>
           {/* plain-language deed from the license registry — the legal code (linked above) controls */}
           {/* empty lists are omitted: public domain forbids nothing, so it gets the one list, full width */}
@@ -99,9 +99,11 @@ export default function RightsPanel({ song }: { song: Song }) {
       <p className="rel-hint" data-testid="ccli-line">
         {needsCcliReport(song)
           ? t("A US church reports project and print use of this song to CCLI.")
-          : isCustomLicense(lic)
-            ? t("No CCLI report needed — the writer grants church use directly. Reporting to CCLI is optional.")
-            : t("No CCLI report needed — every layer of this package is public domain, WorshipCommons, or Creative Commons.")}
+          : song.ccli
+            ? t("CCLI {n} — reporting is optional.", { n: song.ccli })
+            : isCustomLicense(lic)
+              ? t("No CCLI report needed — the writer grants church use directly. Reporting to CCLI is optional.")
+              : t("No CCLI report needed — every layer of this package is public domain, WorshipCommons, or Creative Commons.")}
       </p>
 
       {layers.length > 0 && (

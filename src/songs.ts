@@ -32,6 +32,8 @@ export interface Song {
   license: string;
   licenseVersion?: string;
   licenseUrl?: string;
+  /** CCLI song id when the writer listed one. Presence does not mean reporting is required. */
+  ccli?: string | null;
   downloadCount: number;
   likeCount: number;
   chordPro?: string;
@@ -203,7 +205,7 @@ export function leadFiles(song: Song): { midi: string[]; timing?: string } {
     packageFile(song, "sources/tune.mid"),
     `${root}/works/${slug}/sources/tune.mid`
   ].filter((u, i, a): u is string => !!u && a.indexOf(u) === i);
-  const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "derivatives/timing.json");
+  const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "sources/timing.json") || packageFile(song, "derivatives/timing.json");
   return { midi, timing };
 }
 
@@ -214,7 +216,8 @@ export function listedMidi(song: Song): string | undefined {
 
 /** Lead worship can run: a listed melody plus lyrics (ChordPro or timing.json). Word-level timing is optional — the player spreads ChordPro across the tune. */
 export function canLead(song: Song) {
-  return !!(listedMidi(song) && (song.chordPro || song.lyricsUrl || fileUrl(song, "timing") || song.hasTiming));
+  const hasTune = !!(listedMidi(song) || recordingUrlOf(song));
+  return !!(hasTune && (song.chordPro || song.lyricsUrl || fileUrl(song, "timing") || song.hasTiming));
 }
 
 const listed = (song: Song, url?: string) =>

@@ -63,8 +63,14 @@ export const rightsMatrixFor = (song: Song): RightsMatrix => song.rightsMatrix |
 const FREE = /^(PD|CC0|WC|CC-BY)/i;
 /** True when a US church must report project/print use to CCLI. Featured grants and custom church grants that set ccliReport false are not reported. */
 export function needsCcliReport(song: Song): boolean {
+  const ids = layerLicenses(song);
+  // a registry row that sets ccliReport false (custom church grants) wins over the API flag
+  if (ids.some(l => {
+    const row = REGISTERED.get(l || "") || REGISTERED.get((l || "").toUpperCase());
+    return row?.ccliReport === false;
+  })) return false;
   if (typeof song.ccliReport === "boolean") return song.ccliReport;
-  return !layerLicenses(song).every(l => {
+  return !ids.every(l => {
     if (FREE.test(l || "")) return true;
     const row = REGISTERED.get(l || "") || REGISTERED.get((l || "").toUpperCase());
     if (!row) return false;

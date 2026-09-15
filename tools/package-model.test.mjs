@@ -32,6 +32,7 @@ test("custom Larry Holder grant: church uses allowed, CCLI not required, transla
   assert.ok(m.print.conditions.some(c => /credit/i.test(c)));
   assert.ok(m.arrange.conditions.some(c => /translation/i.test(c)));
   assert.equal(needsCcliReport({ license: "larry-holder" }), false);
+  assert.equal(needsCcliReport({ license: "larry-holder", ccliReport: true }), false);
 });
 
 test("layers compose: PD text over a CC BY tune needs credit; a WC recording adds the stream condition", () => {

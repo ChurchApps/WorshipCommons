@@ -48,6 +48,7 @@ export default function SongHero({ song, keyLabel, writerHref, leadHref, inLibra
         </p>
         <div className="tags">
           <LicenseBadge license={lic} />
+          {song.ccli && <span className="tag" data-testid="ccli-badge" title={t("Reporting to CCLI is optional.")}>{t("CCLI {n}", { n: song.ccli })}</span>}
           {themes.map(th => <Link className="tag" key={th} to={`/songs?theme=${encodeURIComponent(th)}`}>{th}</Link>)}
           {song.meter && <Link className="tag" data-testid="meter-chip" to={`/songs?meter=${encodeURIComponent(song.meter)}`} title={t("Meter")}>{song.meter}</Link>}
         </div>

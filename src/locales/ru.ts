@@ -618,6 +618,7 @@ const ru: Record<string, string> = {
   "Counting in…": "Отсчёт…",
   "Accompaniment": "Аккомпанемент",
   "Preview (synthesized)": "Предпросмотр (синтез)",
+  "The recording plays as sung": "Запись звучит так, как спета",
   "Instrument": "Инструмент",
   "Piano": "Фортепиано",
   "Organ": "Орган",
@@ -713,6 +714,9 @@ const ru: Record<string, string> = {
   // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "QR-код, открывающий проигрыватель в этой тональности, ещё не сделан.",
   "A US church reports project and print use of this song to CCLI.": "Церковь в США отчитывается перед CCLI за проекцию и печать этой песни.",
+  "CCLI {n}": "CCLI {n}",
+  "CCLI {n} — reporting is optional.": "CCLI {n} — отчёт необязателен.",
+  "Reporting to CCLI is optional.": "Отчёт в CCLI необязателен.",
   "About": "О песне",
   "Arrange or translate": "Аранжировать или переводить",
   "Artwork": "Оформление",

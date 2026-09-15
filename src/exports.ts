@@ -94,7 +94,7 @@ export function freeShowShow(item: ExportItem): readonly [string, FreeShowShow] 
     category: null,
     settings: { activeLayout: layoutId, template: null },
     timestamps: { created: Date.now(), modified: null, used: null },
-    meta: { title: song.title, author: song.writer, copyright: credit.join(" · "), year: String(song.year ?? ""), key: keyOf(item), CCLI: "" },
+    meta: { title: song.title, author: song.writer, copyright: credit.join(" · "), year: String(song.year ?? ""), key: keyOf(item), CCLI: song.ccli || "" },
     slides,
     layouts: { [layoutId]: { name: "Default", notes: "", slides: layout } },
     media: {}

@@ -618,6 +618,7 @@ const hu: Record<string, string> = {
   "Counting in…": "Beszámolás…",
   "Accompaniment": "Kíséret",
   "Preview (synthesized)": "Előnézet (szintetizált)",
+  "The recording plays as sung": "A felvétel úgy szól, ahogy énekelték",
   "Instrument": "Hangszer",
   "Piano": "Zongora",
   "Organ": "Orgona",
@@ -713,6 +714,9 @@ const hu: Record<string, string> = {
   // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Még nincs olyan QR-kód, amely ebben a hangnemben nyitja meg a lejátszót.",
   "A US church reports project and print use of this song to CCLI.": "Egy amerikai gyülekezet a CCLI-nek jelenti ennek az éneknek a vetítését és nyomtatását.",
+  "CCLI {n}": "CCLI {n}",
+  "CCLI {n} — reporting is optional.": "CCLI {n} — a jelentés nem kötelező.",
+  "Reporting to CCLI is optional.": "A CCLI-nek jelenteni nem kötelező.",
   "About": "Névjegy",
   "Arrange or translate": "Feldolgozás vagy fordítás",
   "Artwork": "Grafika",

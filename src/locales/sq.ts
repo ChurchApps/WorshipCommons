@@ -618,6 +618,7 @@ const sq: Record<string, string> = {
   "Counting in…": "Duke numëruar…",
   "Accompaniment": "Shoqërim",
   "Preview (synthesized)": "Paraprake (e sintetizuar)",
+  "The recording plays as sung": "Regjistrimi luhet siç është kënduar",
   "Instrument": "Instrument",
   "Piano": "Piano",
   "Organ": "Organo",
@@ -713,6 +714,9 @@ const sq: Record<string, string> = {
   // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Një kod QR që hap luajtësin në këtë tonalitet nuk është ndërtuar ende.",
   "A US church reports project and print use of this song to CCLI.": "Një kishë në SHBA i raporton CCLI-së projektimin dhe printimin e kësaj kënge.",
+  "CCLI {n}": "CCLI {n}",
+  "CCLI {n} — reporting is optional.": "CCLI {n} — raportimi është opsional.",
+  "Reporting to CCLI is optional.": "Raportimi te CCLI është opsional.",
   "About": "Rreth",
   "Arrange or translate": "Aranzho ose përkthe",
   "Artwork": "Grafikë",

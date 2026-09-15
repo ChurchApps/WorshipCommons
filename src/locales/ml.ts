@@ -618,6 +618,7 @@ const ml: Record<string, string> = {
   "Counting in…": "എണ്ണുന്നു…",
   "Accompaniment": "അകമ്പടി",
   "Preview (synthesized)": "പ്രിവ്യൂ (സിന്തസൈസ്ഡ്)",
+  "The recording plays as sung": "റെക്കോർഡിംഗ് പാടിയതുപോലെ പ്ലേ ചെയ്യുന്നു",
   "Instrument": "ഉപകരണം",
   "Piano": "പിയാനോ",
   "Organ": "ഓർഗൻ",
@@ -713,6 +714,9 @@ const ml: Record<string, string> = {
   // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "ഈ സ്വരസ്ഥാനത്തിൽ പ്ലെയർ തുറക്കുന്ന QR കോഡ് ഇതുവരെ തയ്യാറായിട്ടില്ല.",
   "A US church reports project and print use of this song to CCLI.": "അമേരിക്കയിലെ ഒരു സഭ ഈ ഗാനത്തിന്റെ പ്രൊജക്ഷനും പ്രിന്റും CCLI-ക്ക് റിപ്പോർട്ട് ചെയ്യുന്നു.",
+  "CCLI {n}": "CCLI {n}",
+  "CCLI {n} — reporting is optional.": "CCLI {n} — റിപ്പോർട്ട് ചെയ്യൽ നിർബന്ധമല്ല.",
+  "Reporting to CCLI is optional.": "CCLI-ക്ക് റിപ്പോർട്ട് ചെയ്യൽ നിർബന്ധമല്ല.",
   "About": "വിവരങ്ങൾ",
   "Arrange or translate": "ക്രമീകരിക്കുക അല്ലെങ്കിൽ വിവർത്തനം ചെയ്യുക",
   "Artwork": "ചിത്രകല",

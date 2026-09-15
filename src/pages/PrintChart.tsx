@@ -75,6 +75,7 @@ export default function PrintChart() {
       <div style={{ marginTop: 32, fontSize: 13, color: "#555" }} data-testid="print-footer">
         {/* the attribution line: for CC songs the credit + license + link is a condition of the grant, so it prints on every chart */}
         <p style={{ whiteSpace: "pre-line" }}>{attributionFor(song)}</p>
+        {song.ccli && <p style={{ marginTop: 6 }}>{t("CCLI {n} — reporting is optional.", { n: song.ccli })}</p>}
         {layers.length > 0 && (
           <p style={{ marginTop: 6 }}>
             {layers.map(l => `${t(LAYER_LABEL[l.layer])}: ${l.license}${l.basis ? ` (${l.basis})` : ""}`).join(" · ")}

@@ -192,7 +192,7 @@ export function packFilesFor(song: Song, item: SetlistItem, prefix: string): { n
   ];
 }
 
-export const licenseLineFor = (song: Song) => `${song.title} — ${song.writer}${song.year ? `, ${song.year}` : ""}\n${licenseNotice(song)}\nhttps://worshipcommons.org${songPath(song)}`;
+export const licenseLineFor = (song: Song) => `${song.title} — ${song.writer}${song.year ? `, ${song.year}` : ""}\n${licenseNotice(song)}${song.ccli ? `\nCCLI ${song.ccli} (reporting optional)` : ""}\nhttps://worshipcommons.org${songPath(song)}`;
 
 // ---- shape guards ----
 

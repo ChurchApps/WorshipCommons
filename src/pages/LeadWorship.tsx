@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { idOf, leadFiles, loadSong, Song, songPath } from "../songs";
+import { idOf, leadFiles, loadSong, recordingUrlOf, Song, songPath } from "../songs";
 import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
+import { loadRecording } from "../recordingPlayer";
 import { startMetronome, stopMetronome } from "../practice";
 import { useI18n } from "../i18n";
 import { usePageMeta } from "../seo";
@@ -89,6 +90,7 @@ export default function LeadWorship() {
   const [rate, setRate] = useState(100);
   const [countIn, setCountIn] = useState(true);
   const [instrument, setInstrument] = useState<Instrument>("acoustic_grand_piano");
+  const [fromRecording, setFromRecording] = useState(false);
   const [blank, setBlank] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [legend, setLegend] = useState(true);
@@ -104,10 +106,11 @@ export default function LeadWorship() {
     if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
   }, [id]);
 
-  // song → timing, tune, and the tune's own key (a borrowed tune may not sit in songKey)
+  // song → timing, then the recording if we have one (so words clock the vocal), else the MIDI
   useEffect(() => {
     if (!song) return;
     let dead = false;
+    setFromRecording(false);
     const files = leadFiles(song);
     const abc = song.abcUrl || files.midi[0]?.replace(/tune\.mid$/, "tune.abc");
     if (files.timing) {
@@ -116,7 +119,17 @@ export default function LeadWorship() {
       }).catch(() => { if (!dead) setStanzas([]); });
     } else setStanzas([]);
     if (abc) fetch(abc).then(r => r.ok ? r.text() : "").then(a => { if (!dead && a) setTuneRoot(abcKeyRoot(a)); }).catch(() => {});
-    const tryMidi = (i: number) => {
+    const rec = recordingUrlOf(song);
+    if (rec) {
+      loadRecording(rec).then(p => {
+        if (dead) { p.stop(); return; }
+        playerRef.current = p;
+        setFromRecording(true);
+        setDuration(d => d || p.duration);
+        setReady(true);
+      }).catch(() => { if (!dead) tryMidi(0); });
+    } else tryMidi(0);
+    function tryMidi(i: number) {
       if (dead || i >= files.midi.length) return;
       loadTune(files.midi[i]).then(p => {
         if (dead) { p.stop(); return; }
@@ -124,8 +137,7 @@ export default function LeadWorship() {
         setDuration(d => d || p.duration);
         setReady(true);
       }).catch(() => tryMidi(i + 1));
-    };
-    tryMidi(0);
+    }
     return () => { dead = true; playerRef.current?.stop(); playerRef.current = null; stopMetronome(); window.clearTimeout(countRef.current); };
   }, [song?.id]);
 
@@ -342,15 +354,17 @@ export default function LeadWorship() {
         <button className="btn btn-primary lead-play" data-testid="lead-play" disabled={!ready || !run.length} onClick={toggle}>
           {!ready ? tr("Loading…") : counting ? tr("Counting in…") : playing ? tr("❚❚ Pause") : tr("▶ Play")}
         </button>
-        <span className="lead-ctl lead-audio-label" data-testid="lead-audio-label">{song.hasAccompaniment ? tr("Accompaniment") : tr("Preview (synthesized)")}</span>
-        <span className="lead-ctl lead-seg" data-testid="lead-instrument" role="group" aria-label={tr("Instrument")}>
-          <button className={instrument === "acoustic_grand_piano" ? "on" : ""} onClick={() => setInstrument("acoustic_grand_piano")}>{tr("Piano")}</button>
-          <button className={instrument === "church_organ" ? "on" : ""} onClick={() => setInstrument("church_organ")}>{tr("Organ")}</button>
-        </span>
+        <span className="lead-ctl lead-audio-label" data-testid="lead-audio-label">{fromRecording ? tr("Demo recording") : song.hasAccompaniment ? tr("Accompaniment") : tr("Preview (synthesized)")}</span>
+        {!fromRecording && (
+          <span className="lead-ctl lead-seg" data-testid="lead-instrument" role="group" aria-label={tr("Instrument")}>
+            <button className={instrument === "acoustic_grand_piano" ? "on" : ""} onClick={() => setInstrument("acoustic_grand_piano")}>{tr("Piano")}</button>
+            <button className={instrument === "church_organ" ? "on" : ""} onClick={() => setInstrument("church_organ")}>{tr("Organ")}</button>
+          </span>
+        )}
         {/* ponytail: guide vocal on/off goes here once an engine passes the Phase 0 trial — no control until then */}
         <span className="lead-ctl">
           <label htmlFor="lead-key">{tr("Key")}</label>
-          <select id="lead-key" data-testid="lead-key" value={keySel} onChange={e => setKeySel(e.target.value)}>
+          <select id="lead-key" data-testid="lead-key" value={keySel} disabled={fromRecording} title={fromRecording ? tr("The recording plays as sung") : undefined} onChange={e => setKeySel(e.target.value)}>
             <optgroup label={tr("Published keys")}>
               {published.map(k => <option key={k} value={k}>{k === song.recommendedKey ? tr("{key} (recommended)", { key: k }) : k}</option>)}
             </optgroup>

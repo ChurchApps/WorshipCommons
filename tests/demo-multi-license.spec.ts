@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { songIdByTitle } from "./helpers/api";
+import { songIdByTitle, WC_API } from "./helpers/api";
 
 // A harvested CC BY 3.0 song from the catalog (C. Michael Pilato, github.com/cmpilato/worship-music).
 const CC_TITLE = "Home";
@@ -102,7 +102,12 @@ test.describe("six licenses: deeds, upload choices, library facet", () => {
     await expect(page.getByTestId("you-may-not")).toContainText("Translate it without asking the writer");
     await expect(page.getByTestId("you-may-not").locator("input[type=checkbox]:checked")).toHaveCount(0);
     await expect(page.getByTestId("you-must")).toContainText("Credit Larry Holder");
-    await expect(page.getByTestId("ccli-line")).toContainText("No CCLI report needed");
     await expect(page.getByTestId("ccli-line")).toContainText("optional");
+    await expect(page.getByTestId("ccli-line")).not.toContainText("A US church reports");
+    const detail = await (await request.get(`${WC_API}/songs/${await songIdByTitle(request, "Christ Alive in Me")}`)).json();
+    if (detail.ccli) {
+      await expect(page.getByTestId("ccli-badge")).toHaveText(`CCLI ${detail.ccli}`);
+      await expect(page.getByTestId("ccli-line")).toContainText(`CCLI ${detail.ccli}`);
+    }
   });
 });
