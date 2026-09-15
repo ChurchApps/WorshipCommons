@@ -79,11 +79,12 @@ test.describe("library", () => {
     await expect(page.locator("#count")).toContainText(countText(pd));
     await page.getByLabel(/All songs/).check();
 
-    const audio = songs.filter(s => s.fileUrls?.demoAudio).length;
+    const isAudio = (u?: string) => /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(u || "");
+    const audio = songs.filter(s => isAudio(s.fileUrls?.demoAudio) || isAudio(s.fileUrls?.master) || isAudio(s.fileUrls?.song)).length;
     await page.getByLabel(/Has demo recording/).check();
     await expect(page.locator("#count")).toContainText(countText(audio));
 
-    const audioAndStems = songs.filter(s => s.fileUrls?.demoAudio && s.fileUrls?.stemsZip).length;
+    const audioAndStems = songs.filter(s => (isAudio(s.fileUrls?.demoAudio) || isAudio(s.fileUrls?.master) || isAudio(s.fileUrls?.song)) && s.fileUrls?.stemsZip).length;
     await page.getByLabel(/Has stems/).check();  // moved from Extras to the Ready to use group
     await expect(page.locator("#count")).toContainText(countText(audioAndStems));
   });

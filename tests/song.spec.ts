@@ -122,12 +122,24 @@ test.describe("song page", () => {
     await expect(parts.locator(".part-btn.on")).toHaveText("Tenor");
   });
 
-  test("songs without timing data get no player and no Lead worship link", async ({ page }) => {
+  test("songs without a melody file get no player and no Lead worship link", async ({ page }) => {
     await page.goto(BARE_SONG);
     await expect(page.locator(".song-title")).toBeVisible();
     await expect(page.getByTestId("hero-play")).toHaveCount(0);
     await expect(page.getByTestId("sing-along")).toHaveCount(0);
     await expect(page.getByTestId("lead-worship")).toHaveCount(0);
+  });
+
+  test("a hymn with a melody file links Lead worship even without timing.json", async ({ page, request }) => {
+    const list = await (await request.get(`${WC_API}/songs`)).json();
+    const row = list.find((s: { fileUrls?: Record<string, string> }) => s.fileUrls?.midi && !s.fileUrls?.timing);
+    test.skip(!row, "no seeded song with midi and no timing.json");
+    const detail = await (await request.get(`${WC_API}/songs/${row.id}`)).json();
+    test.skip(!detail.chordPro, "candidate has no ChordPro to spread across the tune");
+    await page.goto(`/songs/${row.id}`);
+    const lead = page.getByTestId("lead-worship");
+    await expect(lead).toBeVisible();
+    expect(await lead.getAttribute("href")).toMatch(/\/lead\?key=/);
   });
 
   test("print chart renders a printable page in the chosen key", async ({ page }) => {

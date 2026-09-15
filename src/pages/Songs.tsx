@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Confidence, coverOf, loadSongs, Song, songRecency, THEMES, themeList, songPath } from "../songs";
+import { Confidence, coverOf, hasDemoRecording, loadSongs, Song, songRecency, THEMES, themeList, songPath } from "../songs";
 import { isModernWorship } from "../era";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
@@ -138,7 +138,7 @@ export default function Songs() {
       (skip === "lang" || !state.lang || s.language === state.lang) &&
       (skip === "lic" || !state.lic || licenseGroup(s.license) === state.lic) &&
       (skip === "era" || !state.era || (state.era === "modern" && isModernWorship(s))) &&
-      (skip === "audio" || !state.audio || !!s.demoAudioUrl) &&
+      (skip === "audio" || !state.audio || hasDemoRecording(s)) &&
       READY.every(r => skip === r.id || !state[r.id] || r.test(s));
   };
 

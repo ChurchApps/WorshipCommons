@@ -125,6 +125,13 @@ export function fileUrl(song: Song, ...keys: string[]): string | undefined {
   return undefined;
 }
 
+const AUDIO_EXT = /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i;
+
+/** A listen-able recording: listed demo, listed master, or a harvested writer MP3 mis-keyed as "song". */
+export function hasDemoRecording(song: Song) {
+  return AUDIO_EXT.test(song.demoAudioUrl || song.masterUrl || fileUrl(song, "demoAudio", "master", "song") || "");
+}
+
 /** CDN origin + /commons prefix, so shared assets (pads) can be addressed from any song. */
 export function contentRootOf(song: Song): string {
   const u = Object.values(song.fileUrls || {}).find(Boolean) || song.midiUrl || song.abcUrl || song.artUrl || "";
@@ -197,6 +204,16 @@ export function leadFiles(song: Song): { midi: string[]; timing?: string } {
   return { midi, timing };
 }
 
+/** Melody URL the API already listed — no HEAD. */
+export function listedMidi(song: Song): string | undefined {
+  return song.midiUrl || fileUrl(song, "midi");
+}
+
+/** Lead worship can run: a listed melody plus lyrics (ChordPro or timing.json). Word-level timing is optional — the player spreads ChordPro across the tune. */
+export function canLead(song: Song) {
+  return !!(listedMidi(song) && (song.chordPro || song.lyricsUrl || fileUrl(song, "timing") || song.hasTiming));
+}
+
 const listed = (song: Song, url?: string) =>
   !!url && (url === song.midiUrl || url === song.lyricsUrl || url === fileUrl(song, "midi") || url === fileUrl(song, "timing"));
 
@@ -206,18 +223,19 @@ async function urlOk(song: Song, url?: string) {
   try { return (await fetch(url, { method: "HEAD" })).ok; } catch { return false; }
 }
 
-/** Confirm MIDI/timing exist (API listings skip them; the files are still on the content bucket). */
+/** Confirm a melody file exists (API listings skip it; the file is still on the content bucket). Timing.json is optional. */
 export async function resolveLead(song: Song): Promise<{ midi?: string; timing?: string }> {
   const files = leadFiles(song);
   let midi: string | undefined;
   for (const u of files.midi) if (await urlOk(song, u)) { midi = u; break; }
-  const timing = (await urlOk(song, files.timing)) ? files.timing : undefined;
-  return { midi, timing };
+  return { midi, timing: listed(song, files.timing) ? files.timing : undefined };
 }
 
 export function songFromApi(raw: any): Song {
   const urls = raw.fileUrls || {};
   for (const [field, key] of URL_FIELDS) if (urls[key]) raw[field] = urls[key];
+  // harvested writer recordings live at sources/master/song.mp3; basename "song" used to collide with song.json
+  if (!raw.demoAudioUrl && AUDIO_EXT.test(urls.song || "")) raw.demoAudioUrl = urls.song;
   return raw as Song;
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { idOf, writerPath, contentRootOf, coverOf, kitFile, leadFiles, loadSongPage, resolveLead, Song, SongPageData, songPath } from "../songs";
+import { idOf, writerPath, contentRootOf, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -183,6 +183,8 @@ export default function SongPage() {
 
   useEffect(() => {
     if (!song) { setMidiUrl(undefined); return; }
+    const listed = listedMidi(song);
+    if (listed) { setMidiUrl(listed); return; }
     let dead = false;
     resolveLead(song).then(r => { if (!dead) setMidiUrl(r.midi); });
     return () => { dead = true; };
@@ -239,7 +241,9 @@ export default function SongPage() {
     ? writerPath(song.authorId || song.writerId || "", song.writer)
     : `/songs?q=${encodeURIComponent(song.writer)}`;
 
-  const leadHref = midiUrl ? `${songPath(song)}/lead?key=${encodeURIComponent(keyLabel)}` : undefined;
+  const leadHref = (canLead(song) || (midiUrl && !!(song.chordPro || song.hasTiming || song.lyricsUrl)))
+    ? `${songPath(song)}/lead?key=${encodeURIComponent(keyLabel)}`
+    : undefined;
   // provenance footnote: whether CCLI needs a report
   const ccliFree = !needsCcliReport(song);
   const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : song.hasAccompaniment ? t("Play") : t("Preview (synthesized)");

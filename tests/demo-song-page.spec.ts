@@ -87,6 +87,21 @@ test.describe("song page: hero, modes, rights", () => {
     expect(await lead.getAttribute("href")).toMatch(new RegExp(`/songs/[a-z0-9-]+-${timed!.id}/lead\\?key=`));
   });
 
+  test("a hymn with a melody file and lyrics links Lead worship even without timing.json", async ({ page, request }) => {
+    const row = rows.find(s => s.fileUrls?.midi && !s.fileUrls?.timing);
+    test.skip(!row, "no seeded song with midi and no timing.json");
+    const detail = await (await request.get(`${WC_API}/songs/${row!.id}`)).json();
+    test.skip(!detail.chordPro, "candidate has no ChordPro to spread across the tune");
+    await page.goto(`/songs/${row!.id}`);
+    const lead = page.getByTestId("lead-worship");
+    await expect(lead).toBeVisible();
+    expect(await lead.getAttribute("href")).toMatch(/\/lead\?key=/);
+    await lead.click();
+    await expect(page.getByTestId("lead-worship")).toBeVisible();
+    await expect(page.getByTestId("lead-play")).toBeEnabled({ timeout: 30000 });
+    await expect(page.getByTestId("lead-line")).not.toBeEmpty();
+  });
+
   test("Listen offers Watch a performance as a plain external link — no iframe", async ({ page }) => {
     const withVideo = rows.find(s => s.videoUrl && s.fileUrls?.midi) || rows.find(s => s.videoUrl);
     test.skip(!withVideo, "no seeded song with a YouTube link");
