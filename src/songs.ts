@@ -128,9 +128,12 @@ export function fileUrl(song: Song, ...keys: string[]): string | undefined {
 const AUDIO_EXT = /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i;
 
 /** A listen-able recording: listed demo, listed master, or a harvested writer MP3 mis-keyed as "song". */
-export function hasDemoRecording(song: Song) {
-  return AUDIO_EXT.test(song.demoAudioUrl || song.masterUrl || fileUrl(song, "demoAudio", "master", "song") || "");
+export function recordingUrlOf(song: Pick<Song, "demoAudioUrl" | "masterUrl" | "fileUrls">): string | undefined {
+  const u = song.demoAudioUrl || song.masterUrl || fileUrl(song, "demoAudio", "master", "song");
+  return u && AUDIO_EXT.test(u) ? u : undefined;
 }
+
+export const hasDemoRecording = (song: Song) => !!recordingUrlOf(song);
 
 /** CDN origin + /commons prefix, so shared assets (pads) can be addressed from any song. */
 export function contentRootOf(song: Song): string {

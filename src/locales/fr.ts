@@ -710,13 +710,12 @@ const fr: Record<string, string> = {
   "New setlist name": "Nom de la nouvelle liste",
   "Create": "Créer",
   "Open {name} →": "Ouvrir {name} →",
-  // song page: hero, modes, rights matrix, ND switch
+  // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Un code QR qui ouvre le lecteur dans cette tonalité n'existe pas encore.",
   "A US church reports project and print use of this song to CCLI.": "Une église aux États-Unis déclare à CCLI la projection et l'impression de ce chant.",
   "About": "À propos",
   "Arrange or translate": "Arranger ou traduire",
   "Artwork": "Illustration",
-  "As written only.": "Tel qu'écrit seulement.",
   "Chart PDF": "Grille en PDF",
   "Charts": "Grilles",
   "Check the notes against a hymnal before Sunday; corrections are welcome.": "Comparez les notes à un recueil avant dimanche ; les corrections sont bienvenues.",
@@ -768,11 +767,9 @@ const fr: Record<string, string> = {
   "This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.": "Ce chant n'a que des paroles et des accords — pas encore de paroles synchronisées ni de fichier mélodie, donc rien pour diriger. Utilisez Grilles ou Projeter.",
   "This version, use by use": "Cette version, usage par usage",
   "Translation": "Traduction",
-  "Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.": "Transposition, capo, chiffres Nashville, le pack à télécharger et l'aperçu synthétisé sont désactivés pour ce chant.",
   "Tune": "Mélodie",
   "Watch a performance": "Voir une interprétation",
   "Writer": "Auteur",
-  "off — as written only": "désactivé — tel qu'écrit seulement",
   // submission proposal types
   "Translator — as it should appear publicly": "Traducteur·rice — tel qu’il doit apparaître publiquement",
   "Who wrote these words in this language": "Qui a écrit ces paroles dans cette langue",

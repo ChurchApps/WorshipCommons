@@ -710,13 +710,12 @@ const de: Record<string, string> = {
   "New setlist name": "Name der neuen Setliste",
   "Create": "Anlegen",
   "Open {name} →": "{name} öffnen →",
-  // song page: hero, modes, rights matrix, ND switch
+  // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Ein QR-Code, der den Player in dieser Tonart öffnet, ist noch nicht gebaut.",
   "A US church reports project and print use of this song to CCLI.": "Eine Gemeinde in den USA meldet Projektion und Druck dieses Liedes an CCLI.",
   "About": "Über",
   "Arrange or translate": "Arrangieren oder übersetzen",
   "Artwork": "Bildmaterial",
-  "As written only.": "Nur wie geschrieben.",
   "Chart PDF": "Akkordblatt als PDF",
   "Charts": "Akkordblätter",
   "Check the notes against a hymnal before Sunday; corrections are welcome.": "Vergleiche die Noten vor dem Sonntag mit einem Gesangbuch; Korrekturen sind willkommen.",
@@ -768,11 +767,9 @@ const de: Record<string, string> = {
   "This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.": "Dieses Lied hat nur Text und Akkorde — noch keinen synchronisierten Text und keine Melodiedatei, also nichts zum Leiten. Nutze Akkordblätter oder Projizieren.",
   "This version, use by use": "Diese Fassung, Nutzung für Nutzung",
   "Translation": "Übersetzung",
-  "Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.": "Transponieren, Kapodaster, Nashville-Zahlen, das Download-Paket und die synthetische Vorschau sind für dieses Lied aus.",
   "Tune": "Melodie",
   "Watch a performance": "Eine Aufführung ansehen",
   "Writer": "Autor",
-  "off — as written only": "aus — nur wie geschrieben",
   // submission proposal types
   "Translator — as it should appear publicly": "Übersetzer:in — so, wie es öffentlich erscheinen soll",
   "Who wrote these words in this language": "Wer diese Worte in dieser Sprache geschrieben hat",

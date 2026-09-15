@@ -75,7 +75,7 @@ test.describe("song page: hero, modes, rights", () => {
   });
 
   test("a timed hymn previews from the hero, practices from the sidebar, and links Lead worship in the chosen key", async ({ page }) => {
-    const timed = rows.find(s => s.fileUrls?.midi && s.fileUrls?.timing);
+    const timed = rows.find(s => s.fileUrls?.midi && s.fileUrls?.timing && !s.fileUrls?.demoAudio && !s.fileUrls?.song);
     test.skip(!timed, "no seeded song with timing and a melody file");
     await page.goto(`/songs/${timed!.id}`);
     await expect(page.getByTestId("hero-play")).toHaveAttribute("aria-label", "Preview (synthesized)");
@@ -85,6 +85,16 @@ test.describe("song page: hero, modes, rights", () => {
     const lead = page.getByTestId("lead-worship");
     await expect(lead).toBeVisible();
     expect(await lead.getAttribute("href")).toMatch(new RegExp(`/songs/[a-z0-9-]+-${timed!.id}/lead\\?key=`));
+  });
+
+  test("a writer recording plays in the hero instead of the synthesized midi", async ({ page }) => {
+    const rec = rows.find(s => s.fileUrls?.demoAudio || s.fileUrls?.song);
+    test.skip(!rec, "no seeded song with a demo recording");
+    await page.goto(`/songs/${rec!.id}`);
+    await expect(page.getByTestId("hero-play")).toHaveAttribute("aria-label", "Play");
+    await expect(page.locator(".player-meta")).toContainText("Demo recording");
+    await expect(page.locator(".player-meta")).not.toContainText("Synthesized preview");
+    await expect(page.locator(".player-meta")).not.toContainText("Piano preview");
   });
 
   test("a hymn with a melody file and lyrics links Lead worship even without timing.json", async ({ page, request }) => {

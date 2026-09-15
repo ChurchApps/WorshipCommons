@@ -710,13 +710,12 @@ const ml: Record<string, string> = {
   "New setlist name": "പുതിയ സെറ്റ്‌ലിസ്റ്റിന്റെ പേര്",
   "Create": "ഉണ്ടാക്കുക",
   "Open {name} →": "{name} തുറക്കുക →",
-  // song page: hero, modes, rights matrix, ND switch
+  // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "ഈ സ്വരസ്ഥാനത്തിൽ പ്ലെയർ തുറക്കുന്ന QR കോഡ് ഇതുവരെ തയ്യാറായിട്ടില്ല.",
   "A US church reports project and print use of this song to CCLI.": "അമേരിക്കയിലെ ഒരു സഭ ഈ ഗാനത്തിന്റെ പ്രൊജക്ഷനും പ്രിന്റും CCLI-ക്ക് റിപ്പോർട്ട് ചെയ്യുന്നു.",
   "About": "വിവരങ്ങൾ",
   "Arrange or translate": "ക്രമീകരിക്കുക അല്ലെങ്കിൽ വിവർത്തനം ചെയ്യുക",
   "Artwork": "ചിത്രകല",
-  "As written only.": "എഴുതിയതുപോലെ മാത്രം.",
   "Chart PDF": "കോർഡ് ഷീറ്റ് PDF",
   "Charts": "കോർഡ് ഷീറ്റുകൾ",
   "Check the notes against a hymnal before Sunday; corrections are welcome.": "ഞായറാഴ്ചയ്ക്ക് മുമ്പ് ഒരു ഗാനപുസ്തകവുമായി സ്വരങ്ങൾ ഒത്തുനോക്കുക; തിരുത്തലുകൾ സ്വാഗതം.",
@@ -768,11 +767,9 @@ const ml: Record<string, string> = {
   "This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.": "ഈ ഗാനത്തിന് വരികളും കോർഡുകളും മാത്രമേയുള്ളൂ — സമയബദ്ധമായ വരികളോ ഈണ ഫയലോ ഇതുവരെയില്ല, അതിനാൽ നയിക്കാൻ ഒന്നുമില്ല. കോർഡ് ഷീറ്റുകളോ പ്രൊജക്റ്റോ ഉപയോഗിക്കുക.",
   "This version, use by use": "ഈ പതിപ്പ്, ഓരോ ഉപയോഗത്തിനും",
   "Translation": "വിവർത്തനം",
-  "Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.": "സ്വരമാറ്റം, കാപ്പോ, നാഷ്‌വിൽ നമ്പറുകൾ, ഡൗൺലോഡ് പാക്ക്, സിന്തസൈസ് ചെയ്ത പ്രിവ്യൂ എന്നിവ ഈ ഗാനത്തിന് ഓഫാണ്.",
   "Tune": "ഈണം",
   "Watch a performance": "ഒരു അവതരണം കാണുക",
   "Writer": "രചയിതാവ്",
-  "off — as written only": "ഓഫ് — എഴുതിയതുപോലെ മാത്രം",
   // submission proposal types
   "Translator — as it should appear publicly": "പരിഭാഷകൻ — പരസ്യമായി കാണിക്കേണ്ടതുപോലെ",
   "Who wrote these words in this language": "ഈ ഭാഷയിൽ ഈ വരികൾ എഴുതിയത് ആരാണ്",

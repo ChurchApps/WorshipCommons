@@ -104,8 +104,6 @@ a.tag:hover { border-color: var(--purple); color: var(--text); }
 .chart-links a { color: var(--purple-2); text-decoration: none; }
 .chart-links a:hover { text-decoration: underline; }
 .sheet-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.75rem; color: var(--dim); line-height: 1.6; }
-.nd-notice { margin: 0 0 16px; background: rgba(255,170,90,0.12); color: #ffc48a; border: 1px solid rgba(255,170,90,0.35); border-radius: 12px; padding: 10px 14px; font-size: 0.8125rem; line-height: 1.45; }
-
 /* sheet music tab */
 .pdf-embed { display: block; width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid var(--line-2); border-radius: 12px; background: #fff; }
 .melody-paper { overflow: hidden; background: #fff; color: #111; border-radius: 12px; padding: 10px; }

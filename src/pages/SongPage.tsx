@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { idOf, writerPath, contentRootOf, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, resolveLead, Song, SongPageData, songPath } from "../songs";
+import { idOf, writerPath, contentRootOf, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -14,7 +14,7 @@ import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import { needsCcliReport, noDerivatives, rightsMatrixFor } from "../rights";
+import { needsCcliReport } from "../rights";
 import { coverSvg } from "../cover.mjs";
 import SongHero, { clock } from "../components/SongHero";
 import AboutPanel from "../components/AboutPanel";
@@ -80,17 +80,24 @@ export default function SongPage() {
   const [metro, setMetro] = useState(false);
   const [tab, setTab] = useState<Tab>("chords");
   const [midiUrl, setMidiUrl] = useState<string>();
+  const [audioDur, setAudioDur] = useState<number | null>(null);
   const playerRef = useRef<TunePlayer | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const stopPlayback = () => {
+    audioRef.current?.pause();
+    audioRef.current = null;
     playerRef.current?.stop();
     setPlayState("idle");
   };
 
   useEffect(() => () => {
+    audioRef.current?.pause();
+    audioRef.current = null;
     playerRef.current?.stop();
     playerRef.current = null;
     setPlayState("idle");
+    setAudioDur(null);
     setRate(100);
     setCapo(0);
     setParts([]);
@@ -153,7 +160,7 @@ export default function SongPage() {
   // the player strip clock
   useEffect(() => {
     if (playState !== "playing") { setPos(0); return; }
-    const tick = setInterval(() => setPos(playerRef.current?.getTime() ?? 0), 500);
+    const tick = setInterval(() => setPos(audioRef.current?.currentTime ?? playerRef.current?.getTime() ?? 0), 500);
     return () => clearInterval(tick);
   }, [playState]);
 
@@ -213,20 +220,13 @@ export default function SongPage() {
   }
   if (!song || !data) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
 
-  // ---- the ND switch: no transposed charts, no arrangement downloads, no generated audio ----
-  const matrix = rightsMatrixFor(song);
-  const nd = noDerivatives(song);
-  const ndReason = nd ? (matrix.arrange.conditions.map(c => t(c)).join(" · ") || t("No derivatives: no arrangements, translations, or transposed charts may be distributed")) : "";
-
   const { root: origRoot, suffix: keySuffix } = splitKey(song.songKey);
-  const effCapo = nd ? 0 : capo;
   // capo shifts the written shapes down; sounding key (and audio) stays selectedKey
-  const { keyLabel, shift, dispShift, useFlats } = chartShapes(song, nd ? song.songKey : selectedKey, effCapo);
+  const { keyLabel, shift, dispShift, useFlats } = chartShapes(song, selectedKey, capo);
   const selRoot = splitKey(keyLabel).root;
   // ± stepper walks the same 12 roots the key select offers
   const bumpKey = (n: number) => setSelectedKey(rootAt(selRoot, n) + keySuffix);
   const signedShift = shift > 6 ? shift - 12 : shift;
-  const nash = nashville && !nd;
   // metronome follows the tempo slider; rate is 100 when there is no tune to slow down
   const practiceBpm = Math.round((song.bpm || 100) * rate / 100);
   const beatsPerBar = Number(song.timeSignature?.split("/")[0]) || 4;
@@ -235,7 +235,7 @@ export default function SongPage() {
     else startMetronome(practiceBpm, beatsPerBar);
     setMetro(!metro);
   };
-  const showChord = (chord: string) => nash ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
+  const showChord = (chord: string) => nashville ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
 
   const writerHref = song.authorId || song.writerId
     ? writerPath(song.authorId || song.writerId || "", song.writer)
@@ -246,12 +246,21 @@ export default function SongPage() {
     : undefined;
   // provenance footnote: whether CCLI needs a report
   const ccliFree = !needsCcliReport(song);
-  const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : song.hasAccompaniment ? t("Play") : t("Preview (synthesized)");
-  const playPiano = async () => {
-    if (nd) return;
+  const recordingUrl = recordingUrlOf(song);
+  const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : (recordingUrl || song.hasAccompaniment) ? t("Play") : t("Preview (synthesized)");
+  const playPreview = async () => {
     if (playState === "playing") { stopPlayback(); return; }
     setPlayState("loading");
     try {
+      if (recordingUrl) {
+        const a = new Audio(recordingUrl);
+        audioRef.current = a;
+        a.onended = () => setPlayState("idle");
+        a.onloadedmetadata = () => setAudioDur(a.duration);
+        await a.play();
+        setPlayState("playing");
+        return;
+      }
       let p = playerRef.current;
       if (!p && midiUrl) {
         try { p = await loadTune(midiUrl); } catch { p = undefined; }
@@ -300,7 +309,7 @@ export default function SongPage() {
 
   // one zip: chart, lyrics, melody, art, and the license line — built in the browser from files already on the page
   const downloadPack = async () => {
-    if (packing || nd) return;
+    if (packing) return;
     setPacking(true);
     try {
       const base = slug(song.title);
@@ -318,7 +327,7 @@ export default function SongPage() {
     }
   };
 
-  const printHref = `${songPath(song)}/print?key=${encodeURIComponent(keyLabel)}${effCapo ? `&capo=${effCapo}` : ""}${showChords ? "" : "&chords=0"}`;
+  const printHref = `${songPath(song)}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}${showChords ? "" : "&chords=0"}`;
   const sheetHref = `${songPath(song)}/sheet?key=${encodeURIComponent(keyLabel)}`;
   const hasSheet = !!(song.sheetPdfUrl || song.abcUrl || song.midiUrl);
   const kitRoot = selRoot === "F#" ? "Fs" : selRoot;
@@ -341,25 +350,25 @@ export default function SongPage() {
 
       <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={toggleLib} />
 
-      {midiUrl && (
-        <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={t("Piano preview")}>
+      {(recordingUrl || midiUrl) && (
+        <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={recordingUrl ? t("Demo recording") : t("Piano preview")}>
           <div className="player-meta">
-            <b>{song.hasAccompaniment ? t("Piano") : t("Piano preview")}</b>
-            <span>{song.hasAccompaniment ? t("From the melody file, in the key on the page") : t("Synthesized preview")}</span>
+            <b>{recordingUrl ? (song.demoAudioUrl ? t("Demo recording") : t("Master recording")) : song.hasAccompaniment ? t("Piano") : t("Piano preview")}</b>
+            <span>{recordingUrl ? t("As shared by {writer}", { writer: song.writer }) : song.hasAccompaniment ? t("From the melody file, in the key on the page") : t("Synthesized preview")}</span>
           </div>
           <button
             type="button"
             className={"play-round" + (playState === "playing" ? " on" : "")}
             data-testid="hero-play"
-            disabled={playState === "loading" || !!ndReason}
-            title={ndReason || playLabel}
+            disabled={playState === "loading"}
+            title={playLabel}
             aria-label={playLabel}
-            onClick={playPiano}
+            onClick={playPreview}
           >
             {playState === "playing" ? <StopIcon /> : <PlayIcon />}
           </button>
           <svg className="wave" viewBox="0 0 640 48" preserveAspectRatio="none" aria-hidden="true"><path fill="currentColor" d={WAVE} /></svg>
-          <span className="time">{clock(pos) || "0:00"}{song.singTimeSeconds ? ` / ${clock(song.singTimeSeconds)}` : ""}</span>
+          <span className="time">{clock(pos) || "0:00"}{(audioDur || song.singTimeSeconds) ? ` / ${clock(audioDur || song.singTimeSeconds)}` : ""}</span>
         </section>
       )}
 
@@ -372,36 +381,30 @@ export default function SongPage() {
           </div>
 
           <div hidden={tab !== "chords"} className="sheet-body" data-testid="panel-charts">
-            {nd && (
-              <p className="nd-notice" data-testid="nd-notice" role="note">
-                <b>{t("As written only.")}</b> {ndReason} {t("Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.")}
-              </p>
-            )}
-
             <div className="toolbar">
               {hasChords && (
                 <>
                   <label className="ctl" htmlFor="transpose">{t("Key")}
-                    <select id="transpose" value={selRoot} disabled={nd} title={nd ? ndReason : undefined} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
+                    <select id="transpose" value={selRoot} onChange={e => setSelectedKey(e.target.value + keySuffix)}>
                       {KEY_CHOICES.map(k => <option key={k} value={k}>{k + keySuffix === song.songKey ? t("{key} (original)", { key: k + keySuffix }) : k + keySuffix}</option>)}
                     </select>
                   </label>
                   <label className="ctl" htmlFor="capo">{t("Capo")}
-                    <select id="capo" value={effCapo} disabled={nd} title={nd ? ndReason : undefined} onChange={e => setCapo(Number(e.target.value))}>
+                    <select id="capo" value={capo} onChange={e => setCapo(Number(e.target.value))}>
                       <option value={0}>0</option>
                       {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: rootAt(selRoot, -n) + keySuffix })}</option>)}
                     </select>
                   </label>
                   <div className="ctl"><span id="transpose-label">{t("Transpose")}</span>
                     <div className="stepper" role="group" aria-labelledby="transpose-label" data-testid="transpose-stepper">
-                      <button type="button" onClick={() => bumpKey(-1)} aria-label="−1" disabled={nd} title={nd ? ndReason : undefined}>−</button>
+                      <button type="button" onClick={() => bumpKey(-1)} aria-label="−1">−</button>
                       <span>{signedShift > 0 ? `+${signedShift}` : signedShift}</span>
-                      <button type="button" onClick={() => bumpKey(1)} aria-label="+1" disabled={nd} title={nd ? ndReason : undefined}>+</button>
+                      <button type="button" onClick={() => bumpKey(1)} aria-label="+1">+</button>
                     </div>
                   </div>
                   <div className="ctl">{t("Display")}
                     <label className="switch"><input type="checkbox" id="chords-toggle" checked={showChords} onChange={e => setShowChords(e.target.checked)} /> {t("Chords")}</label>
-                    <label className="switch" title={nd ? ndReason : undefined}><input type="checkbox" id="nashville-toggle" checked={nash} disabled={!showChords || nd} onChange={e => setNashville(e.target.checked)} /> {t("Nashville")}</label>
+                    <label className="switch"><input type="checkbox" id="nashville-toggle" checked={nashville} disabled={!showChords} onChange={e => setNashville(e.target.checked)} /> {t("Nashville")}</label>
                   </div>
                 </>
               )}
@@ -526,7 +529,7 @@ export default function SongPage() {
               <span className="tempo-val" data-testid="metronome-bpm">{practiceBpm} BPM</span>
             </div>
             <button type="button" className="btn btn-ghost practice-pitch" data-testid="pitch-pipe" onClick={() => playPitch(60 + noteIndex(selRoot))}>{t("Play {note}", { note: selRoot })}</button>
-            <p className="rel-hint">{song.midiUrl ? t("The preview, tempo, and click follow the key on the page — piano from the melody file, not a recording.") : t("A click in {time} at the tempo above, plus the starting note of {key} to pitch the room.", { time: song.timeSignature, key: keyLabel })}</p>
+            <p className="rel-hint">{!recordingUrl && song.midiUrl ? t("The preview, tempo, and click follow the key on the page — piano from the melody file, not a recording.") : t("A click in {time} at the tempo above, plus the starting note of {key} to pitch the room.", { time: song.timeSignature, key: keyLabel })}</p>
             {(kitFile(song, "piano.mp3", "tune") || kitFile(song, "organ.mp3", "tune") || kitFile(song, "click.mp3")) && (
               <div className="kit-audio" data-testid="kit-audio">
                 {kitFile(song, "piano.mp3", "tune") && <p className="listen-kind">{t("Piano")}<audio controls src={kitFile(song, "piano.mp3", "tune")} preload="none" /></p>}
@@ -561,7 +564,7 @@ export default function SongPage() {
             <h3>{t("Downloads")}</h3>
             <p className="hint">{t("Get the resources you need.")}</p>
             <ul className="dl">
-              <li><FileIcon /><Link to={printHref}>{t("Chord chart (print)")}</Link> <span className="fmt">PDF · {keyLabel}{effCapo ? ` · ${t("capo {n}", { n: effCapo })}` : ""}</span></li>
+              <li><FileIcon /><Link to={printHref}>{t("Chord chart (print)")}</Link> <span className="fmt">PDF · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
               {song.abcUrl && <li><NoteIcon /><Link to={sheetHref} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="fmt">PDF · {keyLabel}</span></li>}
               {song.sheetPdfUrl && <li><NoteIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a> <span className="fmt">PDF</span></li>}
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="fmt">TXT</span></li>
@@ -588,8 +591,8 @@ export default function SongPage() {
                 {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`${songPath(song)}/transcribe`}>{t("No sheet music yet — help transcribe it")}</Link></li>}
               </ul>
             </details>
-            <button type="button" className="btn btn-primary btn-block" style={{ marginTop: 12 }} data-testid="download-pack" disabled={packing || nd} title={nd ? ndReason : t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })} onClick={downloadPack}>
-              {packing ? t("Packing…") : nd ? t("Download pack — off, as written only") : t("↓ Download pack")}
+            <button type="button" className="btn btn-primary btn-block" style={{ marginTop: 12 }} data-testid="download-pack" disabled={packing} title={t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })} onClick={downloadPack}>
+              {packing ? t("Packing…") : t("↓ Download pack")}
             </button>
             <p className="rel-hint dl-count">{t("Downloads")}: <span data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</span></p>
           </section>

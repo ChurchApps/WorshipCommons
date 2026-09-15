@@ -710,13 +710,12 @@ const ru: Record<string, string> = {
   "New setlist name": "Название нового сет-листа",
   "Create": "Создать",
   "Open {name} →": "Открыть «{name}» →",
-  // song page: hero, modes, rights matrix, ND switch
+  // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "QR-код, открывающий проигрыватель в этой тональности, ещё не сделан.",
   "A US church reports project and print use of this song to CCLI.": "Церковь в США отчитывается перед CCLI за проекцию и печать этой песни.",
   "About": "О песне",
   "Arrange or translate": "Аранжировать или переводить",
   "Artwork": "Оформление",
-  "As written only.": "Только как написано.",
   "Chart PDF": "Аккорды в PDF",
   "Charts": "Аккорды",
   "Check the notes against a hymnal before Sunday; corrections are welcome.": "Сверьте ноты со сборником до воскресенья; исправления приветствуются.",
@@ -768,11 +767,9 @@ const ru: Record<string, string> = {
   "This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.": "У этой песни только текст и аккорды — синхронизированного текста и файла мелодии пока нет, вести не из чего. Используйте Аккорды или Проецировать.",
   "This version, use by use": "Эта версия, по каждому виду использования",
   "Translation": "Перевод",
-  "Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.": "Транспонирование, каподастр, нэшвиллские цифры, пакет для скачивания и синтезированный предпросмотр для этой песни отключены.",
   "Tune": "Мелодия",
   "Watch a performance": "Посмотреть исполнение",
   "Writer": "Автор",
-  "off — as written only": "выключено — только как написано",
   // submission proposal types
   "Translator — as it should appear publicly": "Переводчик — как должно отображаться публично",
   "Who wrote these words in this language": "Кто написал эти слова на этом языке",

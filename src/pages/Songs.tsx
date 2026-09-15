@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Confidence, coverOf, hasDemoRecording, loadSongs, Song, songRecency, THEMES, themeList, songPath } from "../songs";
+import { Confidence, coverOf, hasDemoRecording, loadSongs, recordingUrlOf, Song, songRecency, THEMES, themeList, songPath } from "../songs";
 import { isModernWorship } from "../era";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
@@ -15,7 +15,7 @@ const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
 // facet label, then the chip label
 const TEMPOS: Record<string, [string, string]> = { slow: ["Slow · under 73", "Slow"], mid: ["Moderate · 73–100", "Moderate"], fast: ["Upbeat · 100+", "Upbeat"] };
-const playableUrl = (s: Song) => s.demoAudioUrl || s.midiUrl;
+const playableUrl = (s: Song) => recordingUrlOf(s) || s.midiUrl;
 const CONFIDENCES = Object.keys(CONFIDENCE_LABEL) as Confidence[];
 const songSelectUrl = (q: string) => `https://songselect.ccli.com/search/results?SearchText=${encodeURIComponent(q)}`;
 
@@ -193,8 +193,9 @@ export default function Songs() {
     if (wasPlaying || !playableUrl(s)) return;
     setPlayingId(s.id);
     wantRef.current = s.id;
-    if (s.demoAudioUrl) {
-      const audio = new Audio(s.demoAudioUrl);
+    const rec = recordingUrlOf(s);
+    if (rec) {
+      const audio = new Audio(rec);
       audio.onended = () => setPlayingId(null);
       audio.play();
       audioRef.current = audio;

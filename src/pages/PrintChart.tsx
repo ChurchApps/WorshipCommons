@@ -4,7 +4,6 @@ import { idOf, loadSong, Song, songPath } from "../songs";
 import { parseChordPro, transposeChord, chartShapes } from "../chordpro";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import { noDerivatives } from "../rights";
 import { attributionFor, LAYER_LABEL, layerLines } from "../licenses";
 
 // the fourth size is for the music stand and the back pew: ≥ 22px body text
@@ -28,10 +27,8 @@ export default function PrintChart() {
   if (notFound) return <main style={{ padding: 40 }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></main>;
   if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 
-  // the ND switch reaches the print page too: a transposed or capoed chart is a derivative
-  const nd = noDerivatives(song);
-  const capo = nd ? 0 : Math.min(11, Math.max(0, Number(params.get("capo")) || 0));
-  const { keyLabel, shapeLabel, dispShift, useFlats } = chartShapes(song, nd ? song.songKey : params.get("key") || "", capo);
+  const capo = Math.min(11, Math.max(0, Number(params.get("capo")) || 0));
+  const { keyLabel, shapeLabel, dispShift, useFlats } = chartShapes(song, params.get("key") || "", capo);
   const layers = layerLines(song);
 
   return (

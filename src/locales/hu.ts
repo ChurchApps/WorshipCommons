@@ -710,13 +710,12 @@ const hu: Record<string, string> = {
   "New setlist name": "Új énekrend neve",
   "Create": "Létrehozás",
   "Open {name} →": "{name} megnyitása →",
-  // song page: hero, modes, rights matrix, ND switch
+  // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Még nincs olyan QR-kód, amely ebben a hangnemben nyitja meg a lejátszót.",
   "A US church reports project and print use of this song to CCLI.": "Egy amerikai gyülekezet a CCLI-nek jelenti ennek az éneknek a vetítését és nyomtatását.",
   "About": "Névjegy",
   "Arrange or translate": "Feldolgozás vagy fordítás",
   "Artwork": "Grafika",
-  "As written only.": "Csak ahogy írva van.",
   "Chart PDF": "Akkordlap PDF-ben",
   "Charts": "Akkordlapok",
   "Check the notes against a hymnal before Sunday; corrections are welcome.": "Vasárnap előtt vesd össze a kottát egy énekeskönyvvel; a javításokat szívesen fogadjuk.",
@@ -768,11 +767,9 @@ const hu: Record<string, string> = {
   "This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.": "Ennek az éneknek csak szövege és akkordjai vannak — még nincs időzített szöveg vagy dallamfájl, így nincs miből vezetni. Használd az Akkordlapok vagy a Vetítés módot.",
   "This version, use by use": "Ez a változat, használatonként",
   "Translation": "Fordítás",
-  "Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.": "Transzponálás, kapodaszter, Nashville-számok, a letöltőcsomag és a szintetizált előnézet ki van kapcsolva ennél az éneknél.",
   "Tune": "Dallam",
   "Watch a performance": "Előadás megtekintése",
   "Writer": "Szerző",
-  "off — as written only": "kikapcsolva — csak ahogy írva van",
   // submission proposal types
   "Translator — as it should appear publicly": "Fordító — ahogy nyilvánosan megjelenjen",
   "Who wrote these words in this language": "Ki írta ezeket a szavakat ezen a nyelven",

@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { coverOf, kindOf, loadSongs, Song, songPath } from "../songs";
+import { coverOf, kindOf, loadSongs, recordingUrlOf, Song, songPath } from "../songs";
 import { coverSvg } from "../cover.mjs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { libraryIds, setInLibrary } from "../library";
@@ -51,10 +51,11 @@ export default function Home() {
   const togglePlay = async (s: Song) => {
     const was = playing === s.id;
     stopAll();
-    if (was || !(s.demoAudioUrl || s.midiUrl)) return;
+    const rec = recordingUrlOf(s);
+    if (was || !(rec || s.midiUrl)) return;
     setPlaying(s.id);
-    if (s.demoAudioUrl) {
-      const a = new Audio(s.demoAudioUrl);
+    if (rec) {
+      const a = new Audio(rec);
       a.onended = () => setPlaying(null);
       a.play();
       audioRef.current = a;
@@ -126,26 +127,26 @@ export default function Home() {
           {set.map(s => {
             const cover = coverOf(s);
             return (
-            <li key={s.id} className="album">
-              <div className="album-art">
-                <Link to={`${songPath(s)}`} aria-label={s.title}>
-                  {cover
-                    ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
-                    : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
-                  {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
-                </Link>
-                {(s.demoAudioUrl || s.midiUrl) && (
-                  <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => togglePlay(s)}>
-                    {playing === s.id ? <StopIcon /> : <PlayIcon />}
+              <li key={s.id} className="album">
+                <div className="album-art">
+                  <Link to={`${songPath(s)}`} aria-label={s.title}>
+                    {cover
+                      ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
+                      : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
+                    {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
+                  </Link>
+                  {(recordingUrlOf(s) || s.midiUrl) && (
+                    <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => togglePlay(s)}>
+                      {playing === s.id ? <StopIcon /> : <PlayIcon />}
+                    </button>
+                  )}
+                  <button className={"save" + (saved.includes(s.id) ? " on" : "")} type="button" aria-pressed={saved.includes(s.id)} aria-label={t(saved.includes(s.id) ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => toggleSave(s)}>
+                    <SaveIcon on={saved.includes(s.id)} />
                   </button>
-                )}
-                <button className={"save" + (saved.includes(s.id) ? " on" : "")} type="button" aria-pressed={saved.includes(s.id)} aria-label={t(saved.includes(s.id) ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => toggleSave(s)}>
-                  <SaveIcon on={saved.includes(s.id)} />
-                </button>
-              </div>
-              <h3><Link to={`${songPath(s)}`} className="album">{s.title}</Link></h3>
-              <p className="kind">{t(kindOf(s))}</p>
-            </li>
+                </div>
+                <h3><Link to={`${songPath(s)}`} className="album">{s.title}</Link></h3>
+                <p className="kind">{t(kindOf(s))}</p>
+              </li>
             );
           })}
         </ul>

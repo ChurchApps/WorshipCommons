@@ -20,20 +20,8 @@ const firstT = (st: TimedStanza | undefined) => st?.lines[0]?.[0]?.t ?? 0;
 // The MIDI plays every verse in the timing file's order, so a picked section is a time slice of the tune.
 // Labels repeat ("Chorus") and a form may name a section the timing lacks — walk forward for the next match,
 // fall back to the first, drop what has no timing.
-// lyrics-only charts often put a blank line between every line, so parseChordPro
-// sees each line as a stanza label with no body — fold those into one stanza
-function stanzasFromChordPro(chordPro: string) {
-  const parsed = parseChordPro(chordPro);
-  if (parsed.some(s => s.lines.length)) return parsed;
-  const lines = parsed
-    .map(s => s.label.trim())
-    .filter(t => t && !t.startsWith(">") && !/^\(.*\)$/.test(t) && !/^(verse\s*\d*|chorus|bridge|intro|introduction|tag|ending|outro|pre-?chorus)$/i.test(t))
-    .map(t => [{ text: t }]);
-  return lines.length ? [{ label: "Lyrics", lines }] : [];
-}
-
 function timingFromChordPro(chordPro: string, duration: number): TimedStanza[] {
-  const parsed = stanzasFromChordPro(chordPro);
+  const parsed = parseChordPro(chordPro);
   const lineCount = Math.max(1, parsed.reduce((n, s) => n + s.lines.length, 0));
   const step = duration / lineCount;
   let t = 0;

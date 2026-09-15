@@ -710,13 +710,12 @@ const sq: Record<string, string> = {
   "New setlist name": "Emri i setlistës së re",
   "Create": "Krijo",
   "Open {name} →": "Hap {name} →",
-  // song page: hero, modes, rights matrix, ND switch
+  // song page: hero, modes, rights matrix
   "A QR code that opens the player in this key is not built yet.": "Një kod QR që hap luajtësin në këtë tonalitet nuk është ndërtuar ende.",
   "A US church reports project and print use of this song to CCLI.": "Një kishë në SHBA i raporton CCLI-së projektimin dhe printimin e kësaj kënge.",
   "About": "Rreth",
   "Arrange or translate": "Aranzho ose përkthe",
   "Artwork": "Grafikë",
-  "As written only.": "Vetëm siç është shkruar.",
   "Chart PDF": "Akordet në PDF",
   "Charts": "Akordet",
   "Check the notes against a hymnal before Sunday; corrections are welcome.": "Krahaso notat me një himnar para së dielës; korrigjimet janë të mirëpritura.",
@@ -768,11 +767,9 @@ const sq: Record<string, string> = {
   "This song has lyrics and chords only — no timed lyrics or melody file yet, so there is nothing to lead from. Use Charts or Project instead.": "Kjo këngë ka vetëm tekst dhe akorde — ende pa tekst të sinkronizuar ose skedar melodie, kështu që nuk ka nga ku të udhëhiqet. Përdor Akordet ose Projekto.",
   "This version, use by use": "Ky version, përdorim pas përdorimi",
   "Translation": "Përkthim",
-  "Transpose, capo, Nashville numbers, the download pack, and the synthesized preview are off for this song.": "Transpozimi, kapo, numrat Nashville, paketa e shkarkimit dhe pamja paraprake e sintetizuar janë të fikura për këtë këngë.",
   "Tune": "Melodia",
   "Watch a performance": "Shiko një interpretim",
   "Writer": "Autori",
-  "off — as written only": "fikur — vetëm siç është shkruar",
   // submission proposal types
   "Translator — as it should appear publicly": "Përkthyesi — siç duhet të shfaqet publikisht",
   "Who wrote these words in this language": "Kush i shkroi këto fjalë në këtë gjuhë",

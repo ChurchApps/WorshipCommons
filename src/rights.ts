@@ -71,6 +71,3 @@ export function needsCcliReport(song: Song): boolean {
     return row.ccliReport !== true;
   });
 }
-
-/** The ND switch: transpose, capo, Nashville, arrangement downloads, and generated audio stay off. */
-export const noDerivatives = (song: Song) => !rightsMatrixFor(song).arrange.allowed;

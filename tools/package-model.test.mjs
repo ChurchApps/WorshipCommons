@@ -1,10 +1,10 @@
 // The one runnable check for the package-model helpers: node --test tools/package-model.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { composeMatrix, matrixForLicense, needsCcliReport, noDerivatives, rightsMatrixFor } from "../src/rights.ts";
+import { composeMatrix, matrixForLicense, needsCcliReport, rightsMatrixFor } from "../src/rights.ts";
 import { isModernWorship } from "../src/era.ts";
 import { slidesFor } from "../src/slides.ts";
-import { chartShapes, rootAt, semitonesBetween } from "../src/chordpro.ts";
+import { chartShapes, parseChordPro, rootAt, semitonesBetween } from "../src/chordpro.ts";
 
 test("PD permits everything with no conditions", () => {
   const m = matrixForLicense("PD");
@@ -45,9 +45,6 @@ test("layers compose: PD text over a CC BY tune needs credit; a WC recording add
 test("song helpers prefer what the API sent and fall back to the layers, then the asset license", () => {
   const pd = { license: "PD" };
   assert.equal(needsCcliReport(pd), false);
-  assert.equal(noDerivatives(pd), false);
-  const nd = { license: "PD", rights: { text: { license: "PD" }, tune: { license: "CC-BY-ND" } } };
-  assert.equal(noDerivatives(nd), true);
   assert.equal(needsCcliReport({ license: "PD", ccliReport: true }), true);
   assert.equal(needsCcliReport({ license: "CCLI" }), true);
   const sent = { license: "PD", rightsMatrix: { project: { allowed: false, conditions: ["x"] } } };
@@ -61,6 +58,27 @@ test("slides follow the form map order, strip chords, and fall back to written o
   assert.deepEqual(deck.slides[0].lines, ["Amazing grace how sweet"]);
   assert.deepEqual(slidesFor({ title: "T", chordPro }).slides.map(s => s.label), ["Verse 1", "Chorus", "Verse 2"]);
   assert.deepEqual(slidesFor({ title: "T", chordPro }, ["Chorus"]).slides.map(s => s.label), ["Chorus"]);
+});
+
+test("blank-line ChordPro keeps the first line as the stanza label", () => {
+  const s = parseChordPro("Verse 1\n[G]Amazing [C]grace\n\nChorus\nPraise [D]Him");
+  assert.deepEqual(s.map(x => x.label), ["Verse 1", "Chorus"]);
+  assert.equal(s[0].lines.length, 1);
+  assert.equal(s[1].lines.length, 1);
+});
+
+test("double-spaced lyrics fold onto section headings instead of one stanza per line", () => {
+  const s = parseChordPro(">Lyrics\n\nIntroduction\n\n(Mary sings verse 1)\n\nFor the wonder of God's love,\n\nBridge\n\nTo the least of all His servants,");
+  assert.deepEqual(s.map(x => x.label), ["Introduction", "Bridge"]);
+  assert.deepEqual(s[0].lines.map(l => l.map(g => g.text).join("")), ["(Mary sings verse 1)", "For the wonder of God's love,"]);
+  assert.equal(s[1].lines.length, 1);
+});
+
+test("double-spaced lyrics with no headings become one Lyrics stanza", () => {
+  const s = parseChordPro("{title: X}\n\nAmazing grace\n\nhow sweet the sound");
+  assert.equal(s.length, 1);
+  assert.equal(s[0].label, "Lyrics");
+  assert.equal(s[0].lines.length, 2);
 });
 
 test("chartShapes, rootAt, and semitonesBetween agree on one key arithmetic", () => {

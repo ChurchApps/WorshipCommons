@@ -47,6 +47,31 @@ export function chartShapes(song: { songKey: string }, key: string, capo: number
 export interface Segment { chord?: string; text: string; }
 export interface Stanza { label: string; lines: Segment[][]; }
 
+const lineSegments = (line: string): Segment[] => {
+  const parts = line.split(/\[([^\]]+)\]/);
+  const segments: Segment[] = [];
+  if (parts[0]) segments.push({ text: parts[0] });
+  for (let i = 1; i < parts.length; i += 2) segments.push({ chord: parts[i], text: parts[i + 1] || "" });
+  return segments;
+};
+
+// harvested lyrics-only files often put a blank line between every line, so each line
+// parses as a label with no body. Fold those into real sections so Jump to / slides / print
+// don't get one entry per lyric line.
+const SECTION_HEADING = /^(verse\s*\d*|chorus\s*\d*|bridge\s*\d*|refrain|pre[- ]?chorus|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental)$/i;
+const isDirective = (line: string) => /^\s*[>{]/.test(line);
+
+function foldLoneLabels(stanzas: Stanza[]): Stanza[] {
+  const out: Stanza[] = [];
+  for (const { label } of stanzas) {
+    if (isDirective(label)) continue;
+    if (SECTION_HEADING.test(label)) { out.push({ label, lines: [] }); continue; }
+    if (!out.length) out.push({ label: "Lyrics", lines: [] });
+    out[out.length - 1].lines.push(lineSegments(label));
+  }
+  return out;
+}
+
 // chordPro: stanzas separated by blank lines, first line = label, chords inline as [D]
 export function parseChordPro(chordPro: string): Stanza[] {
   const stanzas: Stanza[] = [];
@@ -54,16 +79,10 @@ export function parseChordPro(chordPro: string): Stanza[] {
     const lines = block.split(/\r?\n/).filter(l => l.trim() !== "");
     if (lines.length === 0) continue;
     const stanza: Stanza = { label: lines[0].trim(), lines: [] };
-    for (const line of lines.slice(1)) {
-      const parts = line.split(/\[([^\]]+)\]/);
-      const segments: Segment[] = [];
-      if (parts[0]) segments.push({ text: parts[0] });
-      for (let i = 1; i < parts.length; i += 2) segments.push({ chord: parts[i], text: parts[i + 1] || "" });
-      stanza.lines.push(segments);
-    }
+    for (const line of lines.slice(1)) stanza.lines.push(lineSegments(line));
     stanzas.push(stanza);
   }
-  return stanzas;
+  return stanzas.some(s => s.lines.length) ? stanzas : foldLoneLabels(stanzas);
 }
 
 // Nashville numbers: chord root → scale degree of the original key (flats for non-diatonic roots); invariant under transpose and capo.
