@@ -200,6 +200,7 @@ export function leadFiles(song: Song): { midi: string[]; timing?: string } {
   const root = contentPrefix(song);
   const slug = folderSlug(song.title);
   const midi = [
+    packageFile(song, "output/composition/score.mid"),
     song.midiUrl,
     fileUrl(song, "midi"),
     packageFile(song, "sources/tune.mid"),

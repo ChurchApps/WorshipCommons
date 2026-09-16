@@ -190,10 +190,8 @@ export default function SongPage() {
 
   useEffect(() => {
     if (!song) { setMidiUrl(undefined); return; }
-    const listed = listedMidi(song);
-    if (listed) { setMidiUrl(listed); return; }
     let dead = false;
-    resolveLead(song).then(r => { if (!dead) setMidiUrl(r.midi); });
+    resolveLead(song).then(r => { if (!dead) setMidiUrl(r.midi || listedMidi(song)); });
     return () => { dead = true; };
   }, [song?.id]);
 
