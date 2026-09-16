@@ -151,7 +151,7 @@ export const extraFilesOf = (song: Pick<Song, "fileUrls">) =>
 /** CDN origin + /commons prefix, so shared assets (pads) can be addressed from any song. */
 export function contentRootOf(song: Song): string {
   const u = Object.values(song.fileUrls || {}).find(Boolean) || song.midiUrl || song.abcUrl || song.artUrl || "";
-  const hit = ["/songs/", "/works/", "/assets/", "/writers/"].map(s => String(u).indexOf(s)).filter(n => n > 0).sort((a, b) => a - b)[0];
+  const hit = ["/songs/", "/assets/", "/writers/"].map(s => String(u).indexOf(s)).filter(n => n > 0).sort((a, b) => a - b)[0];
   return hit ? String(u).slice(0, hit) : "";
 }
 
@@ -160,7 +160,7 @@ const beside = (url: string | undefined, name: string) =>
 
 /**
  * Kit files live in derivatives/ but the API's fileUrls map does not list them yet.
- * Build the URL next to the tune (work/song midi or abc) or the song chart.
+ * Build the URL next to the tune (midi or abc) or the song chart.
  */
 export function kitFile(song: Song, name: string, from: "tune" | "song" = "song"): string | undefined {
   const mapped = fileUrl(song, name, name.replace(/-([a-z])/g, (_, c) => c.toUpperCase()), name.replace(/\.pdf$/, "Pdf").replace(/-([a-zA-Z])/g, (_, c) => c.toUpperCase()));
@@ -208,14 +208,11 @@ export function packageFile(song: Song, rel: string): string | undefined {
  * after the package-layout cutover; the files still live at the package/work paths.
  */
 export function leadFiles(song: Song): { midi: string[]; timing?: string } {
-  const root = contentPrefix(song);
-  const slug = folderSlug(song.title);
   const midi = [
     packageFile(song, "output/composition/score.mid"),
     song.midiUrl,
     fileUrl(song, "midi"),
-    packageFile(song, "sources/tune.mid"),
-    `${root}/works/${slug}/sources/tune.mid`
+    packageFile(song, "sources/tune.mid")
   ].filter((u, i, a): u is string => !!u && a.indexOf(u) === i);
   const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "sources/timing.json") || packageFile(song, "derivatives/timing.json");
   return { midi, timing };

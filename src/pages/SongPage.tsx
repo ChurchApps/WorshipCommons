@@ -310,6 +310,8 @@ export default function SongPage() {
   const relatives = data.family.filter(f => f.id !== song.id && f.language === song.language);
   const translations = data.family.filter(f => f.id !== song.id && f.language !== song.language);
   const rowSub = (r: Song) => (r.id === parent?.id ? `${t("Original")} · ${r.writer}, ${r.year}` : r.relationLabel || `${r.writer}, ${r.year}`);
+  // a translation plays its parent's recording (the file lives in the parent's package): say what language the vocal is in
+  const sharedRecording = parent && recordingUrl && !recordingUrl.includes(song.id) ? parent : null;
 
   const tabs: [Tab, string][] = [["chords", t("Chords & lyrics")], ...(hasSheet ? [["sheet", t("Sheet music")] as [Tab, string]] : []), ["about", t("About & rights")]];
 
@@ -327,7 +329,7 @@ export default function SongPage() {
         <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={recordingUrl ? t("Demo recording") : t("Piano preview")}>
           <div className="player-meta">
             <b>{recordingUrl ? (song.demoAudioUrl ? t("Demo recording") : t("Master recording")) : song.hasAccompaniment ? t("Piano") : t("Piano preview")}</b>
-            <span>{recordingUrl ? t("As shared by {writer}", { writer: song.writer }) : song.hasAccompaniment ? t("From the melody file, in the key on the page") : t("Synthesized preview")}</span>
+            <span>{sharedRecording ? t("Sung in {language} · as shared by {writer}", { language: t(sharedRecording.language), writer: sharedRecording.writer }) : recordingUrl ? t("As shared by {writer}", { writer: song.writer }) : song.hasAccompaniment ? t("From the melody file, in the key on the page") : t("Synthesized preview")}</span>
           </div>
           <button
             type="button"
