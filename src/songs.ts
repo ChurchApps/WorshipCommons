@@ -180,7 +180,16 @@ const LANG_CODE: Record<string, string> = {
   Albanian: "sq",
   Malayalam: "ml",
   Latin: "la",
-  Zulu: "zu"
+  Zulu: "zu",
+  Swedish: "sv",
+  Dutch: "nl",
+  Italian: "it",
+  Chinese: "zh",
+  Afrikaans: "af",
+  Maltese: "mt",
+  Romanian: "ro",
+  Slovak: "sk",
+  Finnish: "fi"
 };
 const licenseSection = (id: string) => id === "PD" ? "public-domain" : id === "WC" ? "wc-license" : id.toLowerCase();
 
