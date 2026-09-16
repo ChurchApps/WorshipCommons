@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { idOf, writerPath, contentRootOf, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
+import { idOf, writerPath, contentRootOf, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, extraFilesOf, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -568,6 +568,7 @@ export default function SongPage() {
               <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="fmt">TXT</span></li>
               {song.midiUrl && <li><MidiIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a> <span className="fmt">MIDI</span></li>}
               {song.stemsZipUrl && <li><NoteIcon /><a href={song.stemsZipUrl} className="mt-zip" download onClick={recordDownload}>{t("Multitracks (ZIP)")}</a> <span className="fmt">ZIP · {song.songKey}</span></li>}
+              {extraFilesOf(song).map(f => <li key={f.url}><NoteIcon /><a href={f.url} download onClick={recordDownload}>{f.name}</a> <span className="fmt">{f.name.split(".").pop()?.toUpperCase()}</span></li>)}
             </ul>
             <details className="dl-more">
               <summary>··· {t("More formats")}</summary>

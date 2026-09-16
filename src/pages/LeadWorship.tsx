@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { idOf, leadFiles, loadSong, recordingUrlOf, Song, songPath } from "../songs";
+import { idOf, leadFiles, loadSong, instrumentalUrlOf, recordingUrlOf, Song, songPath } from "../songs";
 import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
@@ -119,7 +119,8 @@ export default function LeadWorship() {
       }).catch(() => { if (!dead) setStanzas([]); });
     } else setStanzas([]);
     if (abc) fetch(abc).then(r => r.ok ? r.text() : "").then(a => { if (!dead && a) setTuneRoot(abcKeyRoot(a)); }).catch(() => {});
-    const rec = recordingUrlOf(song);
+    // karaoke: the vocal-free stem bed when the pack built one, else the recording, else MIDI
+    const rec = instrumentalUrlOf(song) || recordingUrlOf(song);
     if (rec) {
       loadRecording(rec).then(p => {
         if (dead) { p.stop(); return; }
@@ -354,7 +355,7 @@ export default function LeadWorship() {
         <button className="btn btn-primary lead-play" data-testid="lead-play" disabled={!ready || !run.length} onClick={toggle}>
           {!ready ? tr("Loading…") : counting ? tr("Counting in…") : playing ? tr("❚❚ Pause") : tr("▶ Play")}
         </button>
-        <span className="lead-ctl lead-audio-label" data-testid="lead-audio-label">{fromRecording ? tr("Demo recording") : song.hasAccompaniment ? tr("Accompaniment") : tr("Preview (synthesized)")}</span>
+        <span className="lead-ctl lead-audio-label" data-testid="lead-audio-label">{fromRecording ? (instrumentalUrlOf(song) ? tr("Instrumental") : tr("Demo recording")) : song.hasAccompaniment ? tr("Accompaniment") : tr("Preview (synthesized)")}</span>
         {!fromRecording && (
           <span className="lead-ctl lead-seg" data-testid="lead-instrument" role="group" aria-label={tr("Instrument")}>
             <button className={instrument === "acoustic_grand_piano" ? "on" : ""} onClick={() => setInstrument("acoustic_grand_piano")}>{tr("Piano")}</button>

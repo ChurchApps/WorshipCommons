@@ -137,6 +137,13 @@ export function recordingUrlOf(song: Pick<Song, "demoAudioUrl" | "masterUrl" | "
 
 export const hasDemoRecording = (song: Song) => !!recordingUrlOf(song);
 
+/** Vocal-free bed built from the stems (output/audio/*-instrumental.m4a) — the karaoke track when there is one. */
+export const instrumentalUrlOf = (song: Pick<Song, "fileUrls">) => Object.values(song.fileUrls || {}).find(u => /-instrumental\.m4a(\?|#|$)/i.test(u));
+
+/** Files granted as-is and never processed (sources/extra/*): tabs, alternate recordings, accompaniment tracks. */
+export const extraFilesOf = (song: Pick<Song, "fileUrls">) =>
+  Object.values(song.fileUrls || {}).filter(u => /\/sources\/extra\//.test(u)).map(u => ({ url: u, name: decodeURIComponent(u.split("/").pop() || "") }));
+
 /** CDN origin + /commons prefix, so shared assets (pads) can be addressed from any song. */
 export function contentRootOf(song: Song): string {
   const u = Object.values(song.fileUrls || {}).find(Boolean) || song.midiUrl || song.abcUrl || song.artUrl || "";
