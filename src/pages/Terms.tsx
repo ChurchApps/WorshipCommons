@@ -29,6 +29,11 @@ export default function Terms() {
         <p>{t("When you share a song, the license you choose is the legal grant — the license named on the song: WorshipCommons License, CC BY, or a CC0 public-domain dedication. Read about them on the")} <Link to="/license">{t("license page")}</Link>. {t("These site terms don’t rewrite that grant.")}</p>
       </section>
 
+      <section className="card" style={{ marginBottom: 20 }} id="ai">
+        <h2 style={{ fontSize: "1.25rem", marginBottom: 10 }}>{t("Written by people")}</h2>
+        <p>{t("Words and melodies must be written by a person. AI-generated lyrics or tunes are not accepted and will be taken down when reported. Using AI tools to make a recording of a song a person wrote is fine. Each account can share 20 songs; if you have more, email us and we’ll raise the limit.")}</p>
+      </section>
+
       <section className="card" style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: "1.25rem", marginBottom: 10 }}>{t("Reporting")}</h2>
         <p>{t("The commons runs on the promise that whoever shares a song actually owns it. If a song wasn’t theirs to share — especially if it’s yours —")} <Link to="/report">{t("report it")}</Link>. {t("We’ll look into it and take it down when the claim holds.")}</p>

@@ -46,6 +46,7 @@ const REVIEW_REASONS: Record<string, string> = {
   duplicate: "This looks like a song that’s already in the library.",
   licensing: "There’s a rights or licensing issue with this submission.",
   ccli: "This looks like a song in the CCLI catalog, so it can’t be released here.",
+  ai: "The words or melody appear to be AI-generated. The library only takes songs written by people; AI-assisted recordings of a human-written song are fine.",
   offtopic: "This doesn’t fit the worship-song library.",
   incomplete: "This submission is missing something we need to publish it.",
   other: "This one didn’t make it into the library."

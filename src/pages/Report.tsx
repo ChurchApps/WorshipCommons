@@ -69,6 +69,7 @@ export default function Report() {
             <select id="reason" value={form.reason} onChange={e => set("reason", e.target.value)}>
               {/* value stays English so reports read the same for reviewers */}
               <option value="copyright">{t("Someone shared a song they don’t own")}</option>
+              <option value="ai">{t("The words or melody are AI-generated")}</option>
               <option value="policy">{t("It breaks the community rules")}</option>
               <option value="quality">{t("The chart or files are wrong")}</option>
               <option value="other">{t("Something else")}</option>
