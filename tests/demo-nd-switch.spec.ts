@@ -35,7 +35,7 @@ test.describe("license does not disable song tools", () => {
     await expect(page.locator("#capo")).toBeEnabled();
     await expect(page.locator("#nashville-toggle")).toBeEnabled();
     await expect(page.getByTestId("transpose-stepper").getByRole("button", { name: "+1" })).toBeEnabled();
-    await expect(page.getByTestId("download-pack")).toBeEnabled();
+    await expect(page.getByRole("link", { name: "Composition pack" })).toBeVisible();
     await expect(page.getByTestId("hero-play")).toBeEnabled();
   });
 

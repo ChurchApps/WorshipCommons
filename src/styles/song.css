@@ -154,6 +154,7 @@ a.tag:hover { border-color: var(--purple); color: var(--text); }
 .dl-more > summary::after { content: "›"; margin-left: auto; color: var(--dim); }
 .dl-more[open] > summary::after { content: "⌄"; }
 .dl-more .dl li:first-child { border-top: 1px solid var(--line); }
+.dl-kicker { margin-top: 14px; }
 .dl-count { margin-top: 8px; text-align: center; }
 
 .proj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }

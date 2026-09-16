@@ -8,7 +8,7 @@ test("downloading a file increments the count once per client", async ({ page, r
   const countEl = page.getByTestId("download-count");
   const before = Number((await countEl.textContent())?.replace(/\D/g, ""));
 
-  const midiLink = page.getByRole("link", { name: "Melody (MIDI)" });
+  const midiLink = page.getByRole("link", { name: "Composition pack" });
   const isDownloadPost = (r: import("@playwright/test").Response) => r.url() === `${WC_API}/assets/${id}/download` && r.request().method() === "POST";
 
   await Promise.all([

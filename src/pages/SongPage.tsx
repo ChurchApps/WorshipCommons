@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { idOf, writerPath, contentRootOf, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, extraFilesOf, Song, SongPageData, songPath } from "../songs";
+import { idOf, writerPath, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import ChordDiagram from "../components/ChordDiagram";
 import { wcPost, wcPut, COMMONS_API } from "../api";
-import { makeZip } from "../zip";
-import { downloadFile, slug } from "../exports";
-import { licenseLineFor } from "../setlists";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -28,9 +25,7 @@ const FileIcon = () => (
 const NoteIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
 );
-const MidiIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 20V4l16 2v14" /><circle cx="7" cy="18" r="2" /></svg>
-);
+
 const ExternalIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
 );
@@ -72,7 +67,6 @@ export default function SongPage() {
   const [rate, setRate] = useState(100);
   const [capo, setCapo] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [packing, setPacking] = useState(false);
   const [textSize, setTextSize] = useState(1);
   const [columns, setColumns] = useState(1);
   const [parts, setParts] = useState<string[]>([]);
@@ -154,7 +148,7 @@ export default function SongPage() {
     import("abcjs").then(m => { if (!stale && melodyRef.current) m.default.renderAbc(melodyRef.current, melody, { visualTranspose: audioShift, responsive: "resize", paddingtop: 0, paddingbottom: 0 }); });
     return () => { stale = true; };
   }, [melody, audioShift, tab]);
-  useEffect(() => { playerRef.current?.setRate(rate / 100); }, [rate]);
+  useEffect(() => { playerRef.current?.setRate(rate / 100); if (audioRef.current) audioRef.current.playbackRate = rate / 100; }, [rate]);
   useEffect(() => { if (metro) setMetronomeBpm(Math.round((song?.bpm || 100) * rate / 100)); }, [metro, song?.bpm, rate]);
   useEffect(() => { playerRef.current?.setSolo(solo); }, [solo]);
   // the player strip clock
@@ -253,6 +247,8 @@ export default function SongPage() {
       if (recordingUrl) {
         const a = new Audio(recordingUrl);
         audioRef.current = a;
+        a.preservesPitch = true; // ponytail: native time-stretch; key control still MIDI-only
+        a.playbackRate = rate / 100;
         a.onended = () => setPlayState("idle");
         a.onloadedmetadata = () => setAudioDur(a.duration);
         await a.play();
@@ -305,30 +301,9 @@ export default function SongPage() {
     wcPost(`/assets/${song.id}/download`, {}).then(resp => { if (resp?.downloadCount != null) setCount(resp.downloadCount); }).catch(() => {});
   };
 
-  // one zip: chart, lyrics, melody, art, and the license line — built in the browser from files already on the page
-  const downloadPack = async () => {
-    if (packing) return;
-    setPacking(true);
-    try {
-      const base = slug(song.title);
-      const fetchBytes = async (url: string) => new Uint8Array(await (await fetch(url)).arrayBuffer());
-      const sources: [string, string][] = [[`${base}.cho`, `${COMMONS_API}/songs/${song.id}/chordpro`], [`${base}-lyrics.txt`, `${COMMONS_API}/songs/${song.id}/lyrics`]];
-      if (song.midiUrl) sources.push([`${base}.mid`, song.midiUrl]);
-      if (song.artUrl) sources.push([`${base}-art${song.artUrl.match(/\.\w+$/)?.[0] || ".jpg"}`, song.artUrl]);
-      const files = await Promise.all(sources.map(async ([name, url]) => ({ name, data: await fetchBytes(url) })));
-      // the notice is a condition of CC grants, so the zip carries the registry line verbatim: writer, license + version, URL
-      files.push({ name: "LICENSE.txt", data: new TextEncoder().encode(licenseLineFor(song) + "\n") });
-      downloadFile({ name: `${base}.zip`, type: "application/zip", body: makeZip(files) });
-      recordDownload();
-    } finally {
-      setPacking(false);
-    }
-  };
-
   const printHref = `${songPath(song)}/print?key=${encodeURIComponent(keyLabel)}${capo ? `&capo=${capo}` : ""}${showChords ? "" : "&chords=0"}`;
   const sheetHref = `${songPath(song)}/sheet?key=${encodeURIComponent(keyLabel)}`;
   const hasSheet = !!(song.sheetPdfUrl || song.abcUrl || song.midiUrl);
-  const kitRoot = selRoot === "F#" ? "Fs" : selRoot;
 
   // the bottom strip: same-language relatives + similar titles, the scripture line, and the translations
   const parent = data.family.find(f => f.id === song.parentSongId) || null;
@@ -528,11 +503,9 @@ export default function SongPage() {
             </div>
             <button type="button" className="btn btn-ghost practice-pitch" data-testid="pitch-pipe" onClick={() => playPitch(60 + noteIndex(selRoot))}>{t("Play {note}", { note: selRoot })}</button>
             <p className="rel-hint">{!recordingUrl && song.midiUrl ? t("The preview, tempo, and click follow the key on the page — piano from the melody file, not a recording.") : t("A click in {time} at the tempo above, plus the starting note of {key} to pitch the room.", { time: song.timeSignature, key: keyLabel })}</p>
-            {(kitFile(song, "piano.mp3", "tune") || kitFile(song, "organ.mp3", "tune") || kitFile(song, "click.mp3")) && (
+            {kitFile(song, "click.mp3") && (
               <div className="kit-audio" data-testid="kit-audio">
-                {kitFile(song, "piano.mp3", "tune") && <p className="listen-kind">{t("Piano")}<audio controls src={kitFile(song, "piano.mp3", "tune")} preload="none" /></p>}
-                {kitFile(song, "organ.mp3", "tune") && <p className="listen-kind">{t("Organ")}<audio controls src={kitFile(song, "organ.mp3", "tune")} preload="none" /></p>}
-                {kitFile(song, "click.mp3") && <p className="listen-kind">{t("Click")}<audio controls src={kitFile(song, "click.mp3")} preload="none" /></p>}
+                <p className="listen-kind">{t("Click")}<audio controls src={kitFile(song, "click.mp3")} preload="none" /></p>
               </div>
             )}
           </section>
@@ -563,36 +536,14 @@ export default function SongPage() {
             <p className="hint">{t("Get the resources you need.")}</p>
             <ul className="dl">
               <li><FileIcon /><Link to={printHref}>{t("Chord chart (print)")}</Link> <span className="fmt">PDF · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
-              {song.abcUrl && <li><NoteIcon /><Link to={sheetHref} data-testid="sheet-music-link">{t("Sheet music (print)")}</Link> <span className="fmt">PDF · {keyLabel}</span></li>}
-              {song.sheetPdfUrl && <li><NoteIcon /><a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Sheet music (PDF)")}</a> <span className="fmt">PDF</span></li>}
-              <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics only (TXT)")}</a> <span className="fmt">TXT</span></li>
-              {song.midiUrl && <li><MidiIcon /><a href={song.midiUrl} download onClick={recordDownload}>{t("Melody (MIDI)")}</a> <span className="fmt">MIDI</span></li>}
+              {song.compositionZipUrl && (
+                <li><FileIcon /><span><a href={song.compositionZipUrl} download onClick={recordDownload}>{t("Composition pack")}</a><small style={{ display: "block", color: "var(--muted)", fontSize: "0.8125rem" }}>{t("Chord chart, lead sheet, sheet music, MIDI, ChordPro, license")}</small></span> <span className="fmt">ZIP</span></li>
+              )}
+              {song.audioZipUrl && (
+                <li><NoteIcon /><span><a href={song.audioZipUrl} download onClick={recordDownload}>{t("Audio pack")}</a><small style={{ display: "block", color: "var(--muted)", fontSize: "0.8125rem" }}>{t("Master recording, full mix, instrumental, extras, license")}</small></span> <span className="fmt">ZIP</span></li>
+              )}
               {song.stemsZipUrl && <li><NoteIcon /><a href={song.stemsZipUrl} className="mt-zip" download onClick={recordDownload}>{t("Multitracks (ZIP)")}</a> <span className="fmt">ZIP · {song.songKey}</span></li>}
-              {extraFilesOf(song).map(f => <li key={f.url}><NoteIcon /><a href={f.url} download onClick={recordDownload}>{f.name}</a> <span className="fmt">{f.name.split(".").pop()?.toUpperCase()}</span></li>)}
             </ul>
-            <details className="dl-more">
-              <summary>··· {t("More formats")}</summary>
-              <ul className="dl">
-                {song.chartPdfUrl && <li><FileIcon /><a href={song.chartPdfUrl} download onClick={recordDownload}>{t("Chart PDF")}</a> <span className="fmt">PDF</span></li>}
-                {song.abcUrl && kitFile(song, "lead.pdf", "tune") && <li><FileIcon /><a href={kitFile(song, "lead.pdf", "tune")} download onClick={recordDownload}>{t("Lead sheet (PDF)")}</a> <span className="fmt">{t("melody + chords")}</span></li>}
-                {song.abcUrl && kitFile(song, "piano-vocal.pdf", "tune") && <li><FileIcon /><a href={kitFile(song, "piano-vocal.pdf", "tune")} download onClick={recordDownload}>{t("Piano / vocal (PDF)")}</a> <span className="fmt">{t("SATB")}</span></li>}
-                {song.abcUrl && ["soprano", "alto", "tenor", "bass"].map(part => (
-                  <li key={part}><FileIcon /><a href={kitFile(song, `${part}.pdf`, "tune")} download onClick={recordDownload}>{t("{part} part (PDF)", { part: part[0].toUpperCase() + part.slice(1) })}</a> <span className="fmt">PDF</span></li>
-                ))}
-                {song.hasChords && <li><FileIcon /><a href={kitFile(song, `stage-${kitRoot}.pdf`)} download onClick={recordDownload}>{t("Stage chart (PDF)")}</a> <span className="fmt">{keyLabel}</span></li>}
-                {song.hasChords && <li><FileIcon /><a href={kitFile(song, `chart-${kitRoot}.pdf`)} download onClick={recordDownload}>{t("Chord chart (PDF)")}</a> <span className="fmt">{keyLabel}</span></li>}
-                {song.midiUrl && <li><NoteIcon /><a href={kitFile(song, "piano.mp3", "tune")} download onClick={recordDownload}>{t("Piano accompaniment (MP3)")}</a> <span className="fmt">MP3</span></li>}
-                {song.midiUrl && <li><NoteIcon /><a href={kitFile(song, "organ.mp3", "tune")} download onClick={recordDownload}>{t("Organ accompaniment (MP3)")}</a> <span className="fmt">MP3</span></li>}
-                <li><NoteIcon /><a href={kitFile(song, "click.mp3")} download onClick={recordDownload}>{t("Click track (MP3)")}</a> <span className="fmt">{song.bpm ? `${song.bpm} BPM` : "MP3"}</span></li>
-                {contentRootOf(song) && <li><NoteIcon /><a href={`${contentRootOf(song)}/assets/pads/${kitRoot}.mp3`} download onClick={recordDownload}>{t("Pad ({key})", { key: selRoot })}</a> <span className="fmt">{t("loop")}</span></li>}
-                {song.abcUrl && <li><FileIcon /><a href={song.abcUrl} download onClick={recordDownload}>{t("Notation (ABC)")}</a> <span className="fmt">ABC</span></li>}
-                <li><FileIcon /><a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro (.cho)</a> <span className="fmt">CHO</span></li>
-                {!song.abcUrl && song.midiUrl && <li><FileIcon /><Link to={`${songPath(song)}/transcribe`}>{t("No sheet music yet — help transcribe it")}</Link></li>}
-              </ul>
-            </details>
-            <button type="button" className="btn btn-primary btn-block" style={{ marginTop: 12 }} data-testid="download-pack" disabled={packing} title={t("chart · lyrics{midi}{art}", { midi: song.midiUrl ? " · MIDI" : "", art: song.artUrl ? " · art" : "" })} onClick={downloadPack}>
-              {packing ? t("Packing…") : t("↓ Download pack")}
-            </button>
             <p className="rel-hint dl-count">{t("Downloads")}: <span data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</span></p>
           </section>
 

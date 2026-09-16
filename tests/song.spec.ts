@@ -92,12 +92,12 @@ test.describe("song page", () => {
     await page.selectOption("#transpose", "C");
     await expect(firstChord).toHaveText("C");
 
-    // real PD melody MIDI from the Open Hymnal import
-    const midiLink = page.getByRole("link", { name: "Melody (MIDI)" });
-    await expect(midiLink).toBeVisible();
-    const midi = await page.request.get(await midiLink.getAttribute("href"));
-    expect(midi.ok()).toBeTruthy();
-    expect((await midi.body()).subarray(0, 4).toString()).toBe("MThd");
+    // the composition pack carries the real PD melody MIDI from the Open Hymnal import
+    const packLink = page.getByRole("link", { name: "Composition pack" });
+    await expect(packLink).toBeVisible();
+    const pack = await page.request.get(await packLink.getAttribute("href"));
+    expect(pack.ok()).toBeTruthy();
+    expect((await pack.body()).subarray(0, 2).toString()).toBe("PK");
   });
 
   test("tempo control and the Lead worship link on a timed hymn", async ({ page }) => {

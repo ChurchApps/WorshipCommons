@@ -44,6 +44,8 @@ export interface Song {
   masterUrl?: string;
   sheetPdfUrl?: string;
   stemsZipUrl?: string;
+  compositionZipUrl?: string;
+  audioZipUrl?: string;
   midiUrl?: string;
   lyricsUrl?: string;
   abcUrl?: string;
@@ -106,6 +108,8 @@ const URL_FIELDS: [keyof Song, string][] = [
   ["masterUrl", "master"],
   ["sheetPdfUrl", "sheetPdf"],
   ["stemsZipUrl", "stemsZip"],
+  ["compositionZipUrl", "compositionZip"],
+  ["audioZipUrl", "audioZip"],
   ["midiUrl", "midi"],
   ["abcUrl", "abc"],
   ["lyricsUrl", "timing"],
