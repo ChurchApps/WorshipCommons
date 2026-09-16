@@ -62,9 +62,8 @@ test.describe("six licenses: deeds, upload choices, library facet", () => {
     const rows = page.locator(".t-row");
     await expect(rows.first()).toBeVisible();
     await expect(page.locator(".t-row", { hasText: CC_TITLE })).toHaveCount(1);
-    const badges = rows.locator("[data-testid='license-badge']");
-    await expect(badges.first()).toHaveAttribute("data-license", "CC-BY");
-    expect(await badges.evaluateAll(els => els.every(e => e.getAttribute("data-license") === "CC-BY"))).toBe(true);
+    await expect(rows.first()).toHaveAttribute("data-license", "CC-BY");
+    expect(await rows.evaluateAll(els => els.every(e => e.getAttribute("data-license") === "CC-BY"))).toBe(true);
     await expect(page.locator("#active-chips")).toContainText("CC BY");
   });
 

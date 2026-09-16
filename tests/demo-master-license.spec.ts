@@ -7,7 +7,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WAV = path.join(__dirname, "fixtures", "tiny.wav");
 const SONG_TITLE = "Master Song E2E";
 // titles other specs assert on or edit — the add-a-master flow picks a song none of them touch
-const RESERVED = ["Amazing Grace", "Silent Night", "Stille Nacht", "Noche de Paz", "Abide, O Dearest Jesus", "Adeste Fideles", "Be Thou My Vision", "Test Song E2E", SONG_TITLE];
+const RESERVED = [
+  "Amazing Grace", "Silent Night", "Stille Nacht", "Noche de Paz", "Abide, O Dearest Jesus", "Adeste Fideles", "Be Thou My Vision", "Test Song E2E", SONG_TITLE
+];
 
 const fillComposition = async (page: import("@playwright/test").Page, title: string) => {
   await page.fill("#title", title);
@@ -78,11 +80,13 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
   test("an existing composition gains a master from the song page, under its own license", async ({ page, request }) => {
     const songs = await (await request.get(`${WC_API}/songs`)).json();
     // change-proposals takes the last free English song and edit.spec the first; this one takes the second-to-last
-    const free = songs.filter((s: any) => !RESERVED.includes(s.title) && s.language === "English" && !s.fileUrls?.master);
+    // custom writer grants (larry-holder) cannot carry a proposal license, so only registry licenses qualify
+    const free = songs.filter((s: any) => !RESERVED.includes(s.title) && s.language === "English" && !s.fileUrls?.master && ["WC", "PD", "CC-BY"].includes(s.license));
     const song = free[free.length - 2];
     expect(song, "a free English song without a master").toBeTruthy();
 
     await page.goto(`/songs/${song.id}`);
+    await page.getByTestId("tab-about").click();
     await page.getByTestId("add-master").click();
     await expect(page).toHaveURL(new RegExp(`/songs/[^/]*${song.id}/edit\\?type=recording`));
     await expect(page.getByTestId("proposal-type").locator('input[value="recording"]')).toBeChecked();

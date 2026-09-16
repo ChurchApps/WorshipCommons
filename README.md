@@ -4,9 +4,14 @@ The worshipcommons.org site — an open library of worship music. React 19 + Vit
 
 ```bash
 yarn dev     # localhost:3104
-yarn test    # Playwright (reseeds demo data via ../Api `yarn reset-commons`)
+yarn demo    # reseed local commons DB + content from ../WorshipCommonsContent (core Api `yarn reset-commons`)
+yarn test    # Playwright: runs the same reseed first, starts the core Api (:8084) and Vite (:3104) if not already up
 yarn lint
 ```
+
+Local stack: this site -> core Api (`ChurchApps/Api`, commons module, :8084) -> local MySQL. The core Api is found at
+`../Api`, `../ChurchApps/Api` or `../../ChurchApps/Api`; set `CORE_API_DIR` for anything else. Login: `demo@b1.church` / `password`.
+On Windows run from a correctly-cased path (`D:\Code\WC`, not `d:\code\wc`) or Playwright loads two copies of itself and reports "No tests found".
 
 ## Deployment
 

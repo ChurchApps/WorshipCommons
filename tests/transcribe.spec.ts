@@ -11,8 +11,9 @@ test.describe("transcribe flow", () => {
     test.skip(!song, "no MIDI-only song in the seed catalog");
 
     await page.goto(`/songs/${song.id}`);
+    await page.getByTestId("tab-sheet").click();
     await page.getByTestId("transcribe-link").click();
-    await expect(page).toHaveURL(new RegExp(`/songs/${song.id}/transcribe`));
+    await expect(page).toHaveURL(new RegExp(`/songs/[^/]*${song.id}/transcribe`));
 
     // exercises parseMidi + draftAbc end-to-end against a real seed MIDI
     await page.getByTestId("abc-draft").click();

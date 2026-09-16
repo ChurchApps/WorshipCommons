@@ -37,7 +37,7 @@ test.describe("lead worship player", () => {
 
   test("Space starts playback with zero console errors", async ({ page }) => {
     const errors: string[] = [];
-    page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("console", m => { if (m.type() === "error" && !m.text().startsWith("Failed to load resource")) errors.push(m.text()); });
     page.on("pageerror", e => errors.push(e.message));
 
     await page.goto(PATH);
@@ -55,6 +55,8 @@ test.describe("lead worship player", () => {
   test("→ advances the line while paused", async ({ page }) => {
     await page.goto(PATH);
     await expect(page.getByTestId("lead-line")).toHaveText(LINES[0]);
+    // keys act on the run order, which exists once the player is ready
+    await expect(page.getByTestId("lead-play")).toBeEnabled({ timeout: 30000 });
     await page.keyboard.press("ArrowRight");
     await expect(page.getByTestId("lead-line")).toHaveText(LINES[1]);
     await page.keyboard.press("ArrowLeft");

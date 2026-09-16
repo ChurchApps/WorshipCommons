@@ -363,7 +363,7 @@ export default function Songs() {
               </div>
               <div>
                 {slice.map(s => (
-                  <div className="t-row" key={s.id}>
+                  <div className="t-row" key={s.id} data-license={s.license}>
                     <button className={"play-btn" + (playableUrl(s) ? "" : " mute")} aria-label={playableUrl(s) ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => togglePlay(s)}>
                       {playingId === s.id
                         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>

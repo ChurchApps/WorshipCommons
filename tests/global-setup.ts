@@ -4,6 +4,7 @@ import * as fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { verifyEnv } from "./setup/verify-env.mjs";
+import { coreApiDir } from "./setup/core-api-dir.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORAGE_STATE_PATH = path.join(__dirname, ".auth-state.json");
@@ -18,12 +19,12 @@ async function globalSetup(config: FullConfig) {
   await verifyEnv({ fullCheck: true });
 
   // fresh demo data every run — reset-commons is the reset
-  const coreApiDir = process.env.CORE_API_DIR || path.resolve(__dirname, "..", "..", "Api");
+  const apiDir = coreApiDir();
   const contentRepo = process.env.COMMONS_CONTENT_REPO || firstExisting([
     path.resolve(__dirname, "../../WorshipCommonsContent"),
     path.resolve(__dirname, "../../../WorshipCommonsContent")
   ]);
-  execSync("yarn reset-commons", { cwd: coreApiDir, stdio: "inherit", env: { ...process.env, COMMONS_CONTENT_REPO: contentRepo } });
+  execSync("yarn reset-commons", { cwd: apiDir, stdio: "inherit", env: { ...process.env, COMMONS_CONTENT_REPO: contentRepo } });
 
   const baseURL = (config.projects[0].use.baseURL as string) || process.env.BASE_URL || "http://localhost:3104";
 

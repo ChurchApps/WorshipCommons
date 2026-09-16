@@ -45,6 +45,7 @@ test.describe("song page: hero, modes, rights", () => {
     const expected = (detail.attribution || "").trim() || "Public domain. Free for every use, including commercial.";
 
     await page.goto(`/songs/${song!.id}`);
+    await page.getByTestId("tab-about").click();
     const btn = page.getByTestId("rights-copy-attribution");
     await expect(btn).toHaveText("Copy attribution");
     await btn.click();

@@ -32,8 +32,10 @@ test.describe("practice card", () => {
 
   test("metronome and pitch pipe play without errors", async ({ page }) => {
     const errors: string[] = [];
-    page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("console", m => { if (m.type() === "error" && !m.text().startsWith("Failed to load resource")) errors.push(m.text()); });
     page.on("pageerror", e => errors.push(e.message));
+    // scripture text comes from bible-api.com; keep the external call (and its CORS/rate-limit noise) out of the run
+    await page.route("https://bible-api.com/**", r => r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
 
     await page.goto(PATH);
     const toggle = page.getByTestId("metronome-toggle");

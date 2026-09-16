@@ -18,7 +18,7 @@ test.describe.serial("propose an edit", () => {
 
     await page.goto(`/songs/${songId}`);
     await page.getByTestId("propose-edit").click();
-    await expect(page).toHaveURL(new RegExp(`/songs/${songId}/edit`));
+    await expect(page).toHaveURL(new RegExp(`/songs/[^/]*${songId}/edit`));
     await expect(page.getByText("has no veto")).toBeVisible();
 
     // the form arrives prefilled from the live song

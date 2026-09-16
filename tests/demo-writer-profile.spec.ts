@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { approveSubmission, createPendingSong, songIdByTitle, userJwt } from "./helpers/api";
+import { approveSubmission, createPendingSong, songIdByTitle, userJwt, WC_API } from "./helpers/api";
 
 const TITLE = "Writer Profile Spec Song";
 const BIO = "I write hymns for a small congregation in Kansas.";
@@ -8,7 +8,8 @@ const LINK = "https://specwriter.example/songs";
 test.describe.serial("writer profile", () => {
   test("publishing a solo-credited song claims a writer page the submitter can edit", async ({ page, request }) => {
     const jwt = await userJwt(request);
-    const draft = await createPendingSong(request, jwt, TITLE);
+    const mine = await (await request.get(`${WC_API}/authors/mine`, { headers: { Authorization: `Bearer ${jwt}` } })).json().catch(() => null);
+    const draft = await createPendingSong(request, jwt, TITLE, mine?.name ? { writer: mine.name } : {});
     await approveSubmission(request, draft.submissionId);
 
     await page.goto("/my-songs");
@@ -33,6 +34,7 @@ test.describe.serial("writer profile", () => {
 
     const id = await songIdByTitle(request, TITLE);
     await page.goto(`/songs/${id}`);
+    await page.getByTestId("tab-about").click();
     await expect(page.getByTestId("about-the-writer")).toBeVisible();
     await expect(page.getByTestId("song-writer-bio")).toHaveText(BIO);
   });

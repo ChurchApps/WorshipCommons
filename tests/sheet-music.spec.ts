@@ -13,6 +13,7 @@ test.describe("sheet music", () => {
   test("song page links to the engraved score and ABC download", async ({ page }) => {
     await page.goto(`/songs/${AMAZING_GRACE}`);
     await expect(page.getByTestId("sheet-music-link")).toBeVisible();
+    await page.locator("details.dl-more summary").click();
     await expect(page.locator(`a[href$="tune.abc"]`)).toBeVisible();
   });
 

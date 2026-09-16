@@ -44,13 +44,12 @@ test.describe("chordpro lint", () => {
     await page.fill("#lyrics", "{key: A}\nVerse 1\n[D]Every valley shall be [G]lifted.");
     await expect(lint.locator("li")).toHaveText([/Line 1 — Key directive A disagrees with the song key D\./]);
 
-    // warnings alone never block: submitting stops on the unanswered society question, not the lyrics
+    // warnings alone never block: submitting stops on the missing writer, not the lyrics
     await page.fill("#title", "ChordPro Lint Warnings E2E");
-    await page.fill("#writers", "Playwright Linter");
     await page.check("#certify");
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     const error = page.getByTestId("upload-error");
-    await expect(error).toContainText("Collecting societies & licensing admins");
+    await expect(error).toContainText("Writer(s)");
     await expect(error).not.toContainText("fix the errors listed under the preview");
   });
 });

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import path from "path";
 import { fileURLToPath } from "url";
+import { coreApiDir } from "./tests/setup/core-api-dir.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORAGE_STATE_PATH = path.join(__dirname, "tests", ".auth-state.json");
@@ -32,7 +33,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: `npm --prefix ${process.env.CORE_API_DIR || "../Api"} run dev`,
+      command: `npm --prefix ${coreApiDir()} run dev`,
       url: "http://localhost:8084/health",
       reuseExistingServer: true,
       timeout: 60 * 1000,
