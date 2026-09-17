@@ -21,7 +21,8 @@ const CATALOG_THRESHOLD = 25;
 // expectations are computed from the live seed so the catalog can grow without breaking specs
 let songs: SeedSong[] = [];
 const countText = (n: number) => (n ? `of ${n.toLocaleString()} songs` : "No songs found");
-const guitarReady = (s: SeedSong) => !!s.hasChords && !!(s.hasAccompaniment || s.hasScore);
+const hasAccomp = (s: SeedSong) => !!(s.hasAccompaniment || Object.values(s.fileUrls || {}).some(u => /(^|[-/])instrumental\.m4a(\?|#|$)/i.test(u || "") || /\/output\/audio\/[^/?#]+\.zip(\?|#|$)/i.test(u || "")));
+const guitarReady = (s: SeedSong) => !!s.hasChords && !!(hasAccomp(s) || s.hasScore);
 // mirrors src/catalog.ts: Sunday-ready set, with the transitional scored-package fallback
 const isCatalog = (language: string) => {
   const rows = songs.filter(s => s.language === language);

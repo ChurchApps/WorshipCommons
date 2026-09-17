@@ -255,11 +255,20 @@ export async function resolveLead(song: Song): Promise<{ midi?: string; timing?:
   return { midi, timing: listed(song, files.timing) ? files.timing : undefined };
 }
 
+/** Pipeline stems pack: a zip in output/audio/, not the listening pack at output/audio.zip. */
+export function stemsZipUrlOf(song: Pick<Song, "stemsZipUrl" | "fileUrls">): string | undefined {
+  if (song.stemsZipUrl) return song.stemsZipUrl;
+  return Object.values(song.fileUrls || {}).find(u => /\/output\/audio\/[^/?#]+\.zip(\?|#|$)/i.test(u));
+}
+
 export function songFromApi(raw: any): Song {
   const urls = raw.fileUrls || {};
   for (const [field, key] of URL_FIELDS) if (urls[key]) raw[field] = urls[key];
   // harvested writer recordings live at sources/master/song.mp3; basename "song" used to collide with song.json
   if (!raw.demoAudioUrl && AUDIO_EXT.test(urls.song || "")) raw.demoAudioUrl = urls.song;
+  // catalog.json already names stemsZipUrl; recover when the API still keys the pack by its title-BPM filename
+  if (!raw.stemsZipUrl) raw.stemsZipUrl = stemsZipUrlOf(raw);
+  if (!raw.hasAccompaniment) raw.hasAccompaniment = !!(instrumentalUrlOf(raw) || raw.stemsZipUrl);
   return raw as Song;
 }
 

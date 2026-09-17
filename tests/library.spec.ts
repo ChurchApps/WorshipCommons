@@ -80,11 +80,12 @@ test.describe("library", () => {
     await page.getByLabel(/All songs/).check();
 
     const isAudio = (u?: string) => /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(u || "");
+    const hasStems = (s: SeedSong) => !!(s.fileUrls?.stemsZip || Object.values(s.fileUrls || {}).some(u => /\/output\/audio\/[^/?#]+\.zip(\?|#|$)/i.test(u || "")));
     const audio = songs.filter(s => isAudio(s.fileUrls?.demoAudio) || isAudio(s.fileUrls?.master) || isAudio(s.fileUrls?.song)).length;
     await page.getByLabel(/Has demo recording/).check();
     await expect(page.locator("#count")).toContainText(countText(audio));
 
-    const audioAndStems = songs.filter(s => (isAudio(s.fileUrls?.demoAudio) || isAudio(s.fileUrls?.master) || isAudio(s.fileUrls?.song)) && s.fileUrls?.stemsZip).length;
+    const audioAndStems = songs.filter(s => (isAudio(s.fileUrls?.demoAudio) || isAudio(s.fileUrls?.master) || isAudio(s.fileUrls?.song)) && hasStems(s)).length;
     await page.getByLabel(/Has stems/).check();  // moved from Extras to the Ready to use group
     await expect(page.locator("#count")).toContainText(countText(audioAndStems));
   });
