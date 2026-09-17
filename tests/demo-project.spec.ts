@@ -73,7 +73,7 @@ test.describe("project panel exports", () => {
     await expect(panel.getByTestId("open-projector")).toHaveAttribute("href", new RegExp(`/songs/[a-z0-9-]+-${AG}/project`));
     await expect(panel.getByTestId("project-note")).toContainText("form map");
 
-    for (const [id, ext] of [["export-freeshow", ".show"], ["export-openlyrics", ".xml"], ["export-pptx", ".pptx"]]) {
+    for (const [id, ext] of [["export-freeshow", ".show"], ["export-openlyrics", ".xml"], ["export-pptx", ".pptx"], ["export-propresenter", ".txt"]]) {
       const [download] = await Promise.all([page.waitForEvent("download"), panel.getByTestId(id).click()]);
       expect(download.suggestedFilename(), id).toBe(`amazing-grace${ext}`);
     }

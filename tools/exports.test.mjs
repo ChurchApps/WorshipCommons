@@ -1,7 +1,7 @@
 // The one runnable check for the projector exports: node --test tools/exports.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { creditLines, exportFreeShow, exportOnSongPaste, exportOpenLP, exportOpenLyrics, exportPptx, freeShowShow, openLyricsXml, onSongText } from "../src/exports.ts";
+import { creditLines, exportFreeShow, exportOnSongPaste, exportOpenLP, exportOpenLyrics, exportPptx, exportProPresenter, freeShowShow, openLyricsXml, onSongText, proPresenterText } from "../src/exports.ts";
 
 const chordPro = "Verse 1\n[G]Amazing [C]grace how [G]sweet\nThat saved a [D]wretch\n\nChorus\nPraise [D]Him\n\nVerse 2\nT'was [G]grace";
 const song = {
@@ -90,6 +90,15 @@ test("OpenLyrics: well-formed 0.9 XML whose verseOrder follows the form map; Ope
   assert.match(openLyricsXml({ song: { ...song, title: "Rock & <Roll>" } }), /<title>Rock &amp; &lt;Roll&gt;<\/title>/);
   assert.equal(exportOpenLP([{ song }]).name, "amazing-grace.openlp.xml");
   assert.equal(exportOpenLP([{ song }]).body, exportOpenLyrics([{ song }]).body);
+});
+
+test("ProPresenter: label line then lyrics, a blank line between slides, the credit last; a set becomes a zip", async () => {
+  const text = proPresenterText({ song, order: ["Verse 2", "Chorus"] });
+  assert.equal(text, "Verse 2\nT'was grace\n\nChorus\nPraise Him\n\nJohn Newton, 1779\nPublic domain. Free for every use, including commercial.\nText: PD\nTune: CC-BY · A. Tune\n");
+  assert.equal(exportProPresenter([{ song }]).name, "amazing-grace.txt");
+  const zip = exportProPresenter([{ song }, { song: second }]);
+  assert.equal(zip.name, "propresenter-songs.zip");
+  assert.deepEqual([...zipEntries(await bytesOf(zip.body)).keys()], ["01-amazing-grace.txt", "02-silent-night.txt"]);
 });
 
 test("PPTX: every part referenced from [Content_Types].xml and the rels exists; one slide per section", async () => {

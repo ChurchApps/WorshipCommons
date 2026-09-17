@@ -8,7 +8,7 @@ import {
 import { chartShapes } from "../chordpro";
 import { licenseNotice } from "../licenses";
 import { makeZip, textEntry } from "../zip";
-import { downloadFile, slug } from "../exports";
+import { downloadFile, exportFreeShow, exportOpenLyrics, exportPptx, exportProPresenter, slug, type ExportFile, type ExportItem } from "../exports";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import "../styles/setlist.css";
@@ -195,6 +195,11 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
       setPacking(false);
     }
   };
+  /** The whole set for projection software: every loaded song in set order, in the key and sections the set chose. */
+  const project = (write: (items: ExportItem[]) => ExportFile) => {
+    const file = write(setlist.items.flatMap(i => { const song = songs.get(i.songId); return song ? [{ song, key: i.key, order: i.order }] : []; }));
+    downloadFile({ ...file, name: `${slug(setlist.name)}-${file.name}` });
+  };
   const saveCopy = () => {
     const copy = createSetlist(setlist.name, setlist.items, { shareAlike: setlist.shareAlike });
     navigate(`/setlists/${copy.id}`);
@@ -222,7 +227,13 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
         <Link className="btn btn-primary" to={sub("stage")} data-testid="stage-mode">{t("Stage mode")}</Link>
       </div>
       {copied === "link" && <input className="setlist-share-url" type="text" readOnly value={link} data-testid="share-url" onFocus={e => e.target.select()} />}
-      <p className="hint">{t("The pack holds every song's chart in your key, lyrics, slides, and attribution, plus one LICENSE.txt. Band pack and FreeShow / OpenLP / B1 Serving exports follow the per-song exports.")}</p>
+      <p className="hint">{t("The pack holds every song's chart in your key, lyrics, slides, and attribution, plus one LICENSE.txt.")}</p>
+      <div className="setlist-actions" data-testid="setlist-exports">
+        <button type="button" className="btn btn-ghost" data-testid="set-export-freeshow" title={t("Download for FreeShow")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportFreeShow)}>FreeShow</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-openlyrics" title={t("Download OpenLyrics (OpenLP)")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportOpenLyrics)}>OpenLP</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-propresenter" title={t("Download for ProPresenter")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportProPresenter)}>ProPresenter</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-pptx" title={t("Download PPTX")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportPptx)}>PowerPoint</button>
+      </div>
 
       {saSongs.length > 0 && (
         <div className="setlist-notice" data-testid="sa-notice">

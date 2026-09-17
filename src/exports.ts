@@ -154,6 +154,18 @@ export const exportOpenLyrics = (items: ExportItem[]): ExportFile => oneOrZip(it
 /** OpenLP has no format of its own for import: it reads OpenLyrics XML (Songs → Import → OpenLyrics). */
 export const exportOpenLP = (items: ExportItem[]): ExportFile => oneOrZip(items, ".openlp.xml", "openlp-songs.zip", openLyricsXml);
 
+// ---- ProPresenter ----
+// ponytail: ProPresenter 7's native .pro is an undocumented protobuf, so this writes the plain text its own
+// File → Import → File… reads: a group-name line ("Verse 1", "Chorus") starts a group, a blank line ends a slide,
+// the file name becomes the presentation name. Write .pro only if Renewed Vision ever publishes the schema.
+
+export function proPresenterText(item: ExportItem): string {
+  const deck = slidesFor(item.song, item.order);
+  return [...deck.slides.map(s => [s.label, ...s.lines].join("\n")), creditLines(item.song).join("\n")].join("\n\n") + "\n";
+}
+
+export const exportProPresenter = (items: ExportItem[]): ExportFile => oneOrZip(items, ".txt", "propresenter-songs.zip", proPresenterText);
+
 // ---- PPTX ----
 // The smallest package PowerPoint, Keynote and LibreOffice all open: one blank layout on one master, a black
 // background, one text box per slide. Every part below is referenced from [Content_Types].xml and its rels,
