@@ -48,14 +48,14 @@ export default function Report() {
       <div className="process">
         <div className="card"><span className="n">1</span><b>{t("You report it")}</b><p>{t("Point us at the song and tell us why the sharing wasn’t legit. Ownership claims jump the queue.")}</p></div>
         <div className="card"><span className="n">2</span><b>{t("We review it")}</b><p>{t("A real person contacts the uploader, hears both sides, checks the claim, and pulls the song from the library while ownership is genuinely in dispute.")}</p></div>
-        <div className="card"><span className="n">3</span><b>{t("We take it down")}</b><p>{t("If the claim holds up, the song comes down from the library and stays down.")}</p></div>
+        <div className="card"><span className="n">3</span><b>{t("We take it down")}</b><p>{t("If the claim holds up, we aim to take the song down within 48 hours, and it stays down.")}</p></div>
       </div>
 
       {submitted ? (
         <div className="thanks card show" data-testid="report-thanks">
           <span className="free-badge">{t("Report received")}</span>
           <h2 style={{ marginTop: 16 }}>{t("Thanks for guarding the commons")}</h2>
-          <p>{t("A real person will get back to you within two business days — ownership claims are read first.")}</p>
+          <p>{t("A real person will get back to you within two business days — ownership claims are read first. We aim to take reported material down within 48 hours when the claim holds.")}</p>
           <Link to="/songs" className="btn btn-ghost">{t("Back to the library")}</Link>
         </div>
       ) : (

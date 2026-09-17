@@ -63,7 +63,7 @@ export function page(shell, { title, description, canonical, ogImage, ogImageAlt
     .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
 }
 
-function songBody(song) {
+export function songBody(song) {
   const parts = [
     `<main style="max-width:700px;margin:0 auto;padding:40px 24px;font-family:Georgia,serif">`,
     `<p><a href="/songs/">← All songs</a></p>`,
@@ -76,7 +76,7 @@ function songBody(song) {
     parts.push(`<p>${st.lines.map(esc).join("<br>")}</p></section>`);
   }
   parts.push(song.license === "PD"
-    ? `<p>Public domain. Free for churches.</p>`
+    ? `<p>${esc("Public domain in the United States (best-effort). Free for every use, including commercial — no license needed. Other countries may differ.")}</p>`
     : `<p>© ${esc(song.year)} ${esc(song.writer)} · Shared through WorshipCommons — free for worship everywhere, always.</p>`);
   parts.push(`</main>`);
   return parts.join("\n");

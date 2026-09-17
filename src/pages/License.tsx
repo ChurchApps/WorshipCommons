@@ -195,6 +195,10 @@ export default function License() {
       <section className="section" id="faq">
         <h2 style={{ marginBottom: 22 }}>{t("Common questions")}</h2>
         <details>
+          <summary>{t("Should we cancel our CCLI license?")}</summary>
+          <p>{t("No. Keep CCLI (and SongSelect) for the copyrighted songs you already sing. WorshipCommons does not replace that license. You can log these songs for statistics if a provider asks; no royalty attaches.")}</p>
+        </details>
+        <details>
           <summary>{t("Do we still report these songs to our licensing service?")}</summary>
           <p>{t("Nothing is owed to anyone for WorshipCommons songs. If your projection-license provider asks you to log everything you sing, you can list them for their statistics — but no royalty attaches.")}</p>
         </details>
@@ -212,7 +216,7 @@ export default function License() {
         </details>
         <details>
           <summary>{t("What’s the difference between “Free” and “Public domain” here?")}</summary>
-          <p>{t("A public-domain song is in the public domain in the United States — free for churches. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. A Creative Commons song follows the writer’s CC grant: credit is required, and the non-commercial variants rule out anything sold or monetized. The library labels every song.")}</p>
+          <p>{t("A public-domain song is a best-effort determination that the work is in the public domain in the United States — other countries may still protect it. A “Free” (WorshipCommons) song is free for worship while the writer keeps the commercial rights. A Creative Commons song follows the writer’s CC grant: credit is required, and the non-commercial variants rule out anything sold or monetized. The library labels every song.")}</p>
         </details>
         <details>
           <summary>{t("I co-wrote my song with someone. Can I add it?")}</summary>

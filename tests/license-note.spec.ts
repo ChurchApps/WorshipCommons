@@ -10,6 +10,8 @@ test.describe("license note: you may / you may not", () => {
     await page.goto(`/songs/${await songIdByTitle(request, "Amazing Grace")}`);
     const note = page.locator(".license-note");
     await expect(note).toContainText("Public domain");
+    await expect(note).toContainText("United States");
+    await expect(note).toContainText("best-effort");
     await expect(note).toContainText("including commercial");
     await expect(note).not.toContainText("Free for churches");
     // the sentence used to render twice, the second copy overlapping the grid
