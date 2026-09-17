@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { coverOf, kindOf, loadSongs, recordingUrlOf, Song, songPath } from "../songs";
 import { coverSvg } from "../cover.mjs";
-import { loadTune, TunePlayer } from "../midiPlayer";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import "../styles/home.css";
@@ -29,44 +28,34 @@ export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  usePageMeta(t("WorshipCommons — Great music. For every church."), t("Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church."));
+  usePageMeta(t("WorshipCommons — Great music. For every church."), t("Public-domain hymns and writer-shared songs, with charts and slides. Keep CCLI for the copyrighted songs your church already sings."));
   const [songs, setSongs] = useState<Song[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [playing, setPlaying] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const tuneRef = useRef<TunePlayer | null>(null);
   const [q, setQ] = useState("");
 
   useEffect(() => { loadSongs().then(setSongs); }, []);
   useEffect(() => { if (user) libraryIds().then(setSaved); else setSaved([]); }, [user]);
-  const stopAll = () => { audioRef.current?.pause(); tuneRef.current?.stop(); tuneRef.current = null; setPlaying(null); };
-  useEffect(() => () => { audioRef.current?.pause(); tuneRef.current?.stop(); }, []);
+  const stopAll = () => { audioRef.current?.pause(); setPlaying(null); };
+  useEffect(() => () => { audioRef.current?.pause(); }, []);
 
   const block = topBlock(songs, SONG_LANG[lang]);
   const set = block.songs.slice(0, 4);
   const { catalog, browse } = splitLanguages(songs);
   const counted = catalog.length ? songs.filter(s => catalog.includes(s.language)) : songs;
 
-  // demo recording if there is one, otherwise the melody file through the piano soundfont
-  const togglePlay = async (s: Song) => {
+  // homepage plays a writer-shared recording only — MIDI is not a track
+  const togglePlay = (s: Song) => {
     const was = playing === s.id;
     stopAll();
     const rec = recordingUrlOf(s);
-    if (was || !(rec || s.midiUrl)) return;
+    if (was || !rec) return;
     setPlaying(s.id);
-    if (rec) {
-      const a = new Audio(rec);
-      a.onended = () => setPlaying(null);
-      a.play();
-      audioRef.current = a;
-      return;
-    }
-    try {
-      const p = await loadTune(s.midiUrl!);
-      tuneRef.current = p;
-      p.onEnd = () => setPlaying(null);
-      p.play();
-    } catch { setPlaying(null); }
+    const a = new Audio(rec);
+    a.onended = () => setPlaying(null);
+    a.play();
+    audioRef.current = a;
   };
 
   const toggleSave = async (s: Song) => {
@@ -85,7 +74,7 @@ export default function Home() {
           <div>
             <p className="eyebrow rise">{t("Freely given. Freely shared.")}</p>
             <h1 className="rise">{t("Great music.")}<br /><em>{t("For every church.")}</em></h1>
-            <p className="lede rise rise-2">{t("Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church.")}</p>
+            <p className="lede rise rise-2">{t("Public-domain hymns and writer-shared songs, with charts and slides. Keep CCLI for the copyrighted songs your church already sings.")}</p>
             <div className="hero-ctas rise rise-2">
               <Link to="/songs" className="btn btn-primary btn-lg">{t("Find your next song →")}</Link>
               <Link to="/mission" className="btn btn-ghost btn-lg">{t("Our Mission")}</Link>
@@ -126,6 +115,7 @@ export default function Home() {
         <ul className="albums" data-testid="home-top-list">
           {set.map(s => {
             const cover = coverOf(s);
+            const rec = recordingUrlOf(s);
             return (
               <li key={s.id} className="album">
                 <div className="album-art">
@@ -135,8 +125,8 @@ export default function Home() {
                       : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
                     {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
                   </Link>
-                  {(recordingUrlOf(s) || s.midiUrl) && (
-                    <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => togglePlay(s)}>
+                  {rec && (
+                    <button className="play" type="button" data-testid="home-play" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => togglePlay(s)}>
                       {playing === s.id ? <StopIcon /> : <PlayIcon />}
                     </button>
                   )}
@@ -169,7 +159,7 @@ export default function Home() {
               </li>
               <li>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                {t("Tracks for rehearsal & worship")}
+                {t("A recording when the writer shared one — charts and slides either way")}
               </li>
             </ul>
             <Link className="more" to="/songs">{t("Explore the library →")}</Link>
@@ -182,6 +172,8 @@ export default function Home() {
             <div className="rule"></div>
             <div className="banner-side">
               {t("A growing library of freely shared worship music. Writers keep every commercial right.")}
+              <br />
+              <a href="https://churchapps.org">{t("A ChurchApps project — B1 Church / FreeShow.")}</a>
               <br />
               <Link className="more" to="/mission">{t("Meet WorshipCommons →")}</Link>
               <br />

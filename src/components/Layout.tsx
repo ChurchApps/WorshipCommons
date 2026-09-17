@@ -92,6 +92,9 @@ export default function Layout() {
             <span>{t("© 2026 WorshipCommons")}</span>
             <LangToggle />
           </p>
+          <p className="foot-legal" data-testid="churchapps-credit">
+            <a href="https://churchapps.org">{t("A ChurchApps project — B1 Church / FreeShow.")}</a>
+          </p>
         </div>
       </footer>
     </>
