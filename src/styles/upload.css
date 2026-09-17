@@ -54,6 +54,11 @@
   .proposal-type label > span > .hint { margin: 0; font-size: 0.8125rem; }
   .note-count { margin: 6px 0 0; font-size: 0.8125rem; }
   .note-count.short { color: var(--secondary); }
+  .grant-recap { border: 1px solid #E4DEF2; border-left: 4px solid var(--purple-2); border-radius: 12px; background: var(--surface); padding: 14px 18px; margin-bottom: 16px; }
+  .grant-recap p { margin: 0; color: var(--text-2); font-size: 0.9375rem; line-height: 1.5; }
+  .certify-list { display: flex; flex-direction: column; gap: 12px; }
+  .certify-list label { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 0.9375rem; margin: 0; cursor: pointer; line-height: 1.4; }
+  .certify-list input { margin-top: 3px; flex: none; accent-color: var(--primary); width: 16px; height: 16px; }
   .removal-warning { border: 1px solid #E4DEF2; border-left: 4px solid var(--secondary); border-radius: 12px; background: var(--surface); padding: 14px 18px; margin-bottom: 18px; font-size: 0.9375rem; }
   .removal-warning b { display: block; margin-bottom: 6px; }
   .removal-warning p { margin: 0; color: var(--text-2); font-size: 0.875rem; }

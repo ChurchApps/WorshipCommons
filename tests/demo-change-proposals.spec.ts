@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
 import { adminJwt, mySubmissionFor, pendingSubmissionFor, rejectSubmission, submissionDetail, WC_API } from "./helpers/api";
@@ -92,7 +93,7 @@ test.describe.serial("change proposals", () => {
     await page.getByTestId("file-lyrics").setInputFiles(path.join(__dirname, "fixtures", "tiny.cho"));
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toContainText("tiny.cho");
     await page.fill("#edit-note", "Plain ChordPro of the lyrics for projection.");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Propose these files" }).click();
     await expect(page.getByTestId("edit-thanks")).toBeVisible();
 

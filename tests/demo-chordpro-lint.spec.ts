@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 
 const CLEAN = "Verse 1\n[D]Every valley shall be [G]lifted,\nand the [A]rough places [D]plain.";
 const BROKEN = "Verse 1\n[D]Every valley shall be [G lifted,\nand the [A]rough places [D]plain.";
@@ -19,7 +20,7 @@ test.describe("chordpro lint", () => {
     await expect(lint).toBeVisible();
     await expect(lint.locator("li.error")).toHaveText(/Line 2 — Unmatched bracket/);
 
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-error")).toContainText("fix the errors listed under the preview");
     await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
@@ -46,7 +47,7 @@ test.describe("chordpro lint", () => {
 
     // warnings alone never block: submitting stops on the missing writer, not the lyrics
     await page.fill("#title", "ChordPro Lint Warnings E2E");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     const error = page.getByTestId("upload-error");
     await expect(error).toContainText("Writer(s)");

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
 import { approveSubmission, pendingSubmissionFor, submissionDetail, WC_API } from "./helpers/api";
@@ -36,7 +37,7 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     // a master without the file does not submit
     await fillComposition(page, "Unfinished master");
     await page.check("#recording-owned");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByTestId("submit-song").click();
     await expect(page.getByTestId("upload-error")).toContainText("Master recording");
   });
@@ -50,7 +51,7 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     await page.getByTestId("file-master").setInputFiles(WAV);
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toHaveCount(1);
     await page.check("#recording-owned");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByTestId("submit-song").click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible({ timeout: 30000 });
 
@@ -98,7 +99,7 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     await page.getByTestId("file-master").setInputFiles(WAV);
     await page.locator('input[name="masterLicense"][value="WC"]').check();
     await page.check("#recording-owned");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.fill("#edit-note", "Studio master, mixed in the original key.");
     await page.getByRole("button", { name: "Propose this recording" }).click();
     await expect(page.getByTestId("edit-thanks")).toBeVisible({ timeout: 30000 });

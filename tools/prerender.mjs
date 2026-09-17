@@ -179,14 +179,15 @@ const wrap = (inner) => `<main style="max-width:700px;margin:0 auto;padding:40px
 
 function callForSongsBody() {
   return wrap(`
-<h1>Call for songs</h1>
-<p>For worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while every commercial right stays yours.</p>
+<h1>Write a song the church can actually sing.</h1>
+<p>This is for a song you already mean to release. Churches anywhere can sing it free. Every commercial right stays yours. Worship use cannot be taken back.</p>
+<p><b>If you are ready to give churches this song forever.</b> A publishing deal does not unwind worship use. Asking us to take the song off the site does not either. Copies churches already have keep the grant. You must be 18 or older and own the song.</p>
 <h2>What WorshipCommons is</h2>
-<ul><li>Free — no subscription, no reporting, no per-song fee.</li><li>Legally clear — one page you can read out loud to your team.</li><li>Remixable — new keys, new arrangements, new translations.</li><li>Permanent — released under the WorshipCommons License, Version 1.0.</li></ul>
+<ul><li>Free — no subscription, no reporting, no per-song fee.</li><li>Legally clear — one page you can read out loud to your team.</li><li>Remixable — new keys, new arrangements, new translations.</li><li>Permanent — worship use stays with every copy, even if we stop hosting.</li></ul>
 <h2>You keep</h2>
 <ul><li>Album sales &amp; streaming royalties</li><li>Sync — film, TV, and advertising</li><li>Radio &amp; broadcast royalties</li><li>Ticketed concerts &amp; tours</li><li>Sheet music &amp; songbook sales</li><li>Full ownership of your song</li></ul>
 <h2>How it works</h2>
-<ol><li>The song — title, key, tempo, themes, and the words and chords.</li><li>The files — a chord chart, a demo recording, stems if you have them.</li><li>What you are giving — worship use, and nothing else.</li><li>Your word that it is yours to give — you wrote it, and every co-writer agrees.</li></ol>
+<ol><li>The song — title, key, tempo, themes, and the words and chords.</li><li>The files — a chord chart, a demo recording, stems if you have them.</li><li>What you are giving — worship use, forever.</li><li>Your word — you are 18, you wrote it, every co-writer agreed, and copies already out keep the grant.</li></ol>
 <p><a href="/upload">Share your song</a> · <a href="/license">Read the license</a></p>`);
 }
 
@@ -281,7 +282,7 @@ export function staticPages(songs, site = DEFAULT_SITE) {
     { slug: "terms", title: "Terms — WorshipCommons", description: "Short terms for using WorshipCommons, including the copyright / DMCA contact.", canonical: `${site}/terms/`, body: termsBody() },
     { slug: "upload", title: "Share your song — WorshipCommons", description: "Share a song under the WorshipCommons License so churches anywhere can sing it free.", canonical: `${site}/upload/`, body: uploadBody() },
     { slug: "new", title: "New songs — WorshipCommons", description: "Every song added to the commons, newest first.", canonical: `${site}/new/`, body: newBody(songs) },
-    { slug: "call-for-songs", title: "Call for songs — WorshipCommons", description: "A call for songs from worship, music, and seminary students: release what you write under the WorshipCommons License so churches anywhere can sing it free, while you keep every commercial right.", canonical: `${site}/call-for-songs/`, body: callForSongsBody() },
+    { slug: "call-for-songs", title: "Call for songs — WorshipCommons", description: "Release a song you already mean to publish under the WorshipCommons License: churches anywhere can sing it free, you keep every commercial right, and worship use cannot be taken back.", canonical: `${site}/call-for-songs/`, body: callForSongsBody() },
     { slug: "report", title: "Report a song — WorshipCommons", description: "Report a song that wasn’t the uploader’s to share.", canonical: `${site}/report/`, body: reportBody() }
   ];
 }
