@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Confidence, coverOf, hasDemoRecording, loadSongs, recordingUrlOf, Song, songRecency, THEMES, themeList, songPath } from "../songs";
+import { Confidence, coverOf, hasDemoRecording, loadSongs, recordingUrlOf, Song, songRecency, stemsZipUrlOf, THEMES, themeList, songPath } from "../songs";
 import { isModernWorship } from "../era";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
@@ -25,7 +25,7 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
   { id: "accomp", label: "Has accompaniment", test: s => !!s.hasAccompaniment },
   { id: "chart", label: "Has chart", test: s => !!s.hasChords },
   { id: "score", label: "Has score", test: s => !!s.hasScore },
-  { id: "mt", label: "Has stems", test: s => !!s.stemsZipUrl }
+  { id: "mt", label: "Has stems", test: s => !!s.stemsZipUrl || !!stemsZipUrlOf(s) }
 ];
 
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
@@ -377,7 +377,7 @@ export default function Songs() {
                     })()}
                     <div className="t-main">
                       <Link to={`${songPath(s)}`}>{s.title}</Link>
-                      <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{s.stemsZipUrl ? <> • <b className="mt-flag">stems</b></> : null}</span>
+                      <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{stemsZipUrlOf(s) ? <> • <b className="mt-flag">stems</b></> : null}</span>
                       {/* why this row leads — only where a completeness or provenance signal adds to the badges */}
                       {rankReason(s).length > 0 && <span className="t-reason" data-testid="rank-reason">{rankReason(s).map(r => t(r)).join(" · ")}</span>}
                     </div>
