@@ -36,12 +36,12 @@ export default function Terms() {
 
       <section className="card" style={{ marginBottom: 20 }}>
         <h2 style={{ fontSize: "1.25rem", marginBottom: 10 }}>{t("Reporting")}</h2>
-        <p>{t("The commons runs on the promise that whoever shares a song actually owns it. If a song wasn’t theirs to share — especially if it’s yours —")} <Link to="/report">{t("report it")}</Link>. {t("We’ll look into it and take it down when the claim holds.")}</p>
+        <p>{t("The commons runs on the promise that whoever shares a song actually owns it. If a song wasn’t theirs to share — especially if it’s yours —")} <Link to="/report">{t("report it")}</Link>. {t("We’ll look into it and aim to take reported material down within 48 hours when the claim holds.")}</p>
       </section>
 
       <section className="card" style={{ marginBottom: 20 }} id="copyright" data-testid="dmca-section">
         <h2 style={{ fontSize: "1.25rem", marginBottom: 10 }}>{t("Copyright / DMCA")}</h2>
-        <p>{t("If a song here infringes your copyright, send a takedown notice. The fastest route is the")} <Link to="/report">{t("report form")}</Link> {t("— it asks for everything a notice needs under 17 U.S.C. § 512(c)(3): what you own, where it is on this site, how to reach you, a good-faith statement, and your signature.")}</p>
+        <p>{t("If a song here infringes your copyright, send a takedown notice. The fastest route is the")} <Link to="/report">{t("report form")}</Link> {t("— it asks for everything a notice needs under 17 U.S.C. § 512(c)(3): what you own, where it is on this site, how to reach you, a good-faith statement, and your signature. We aim to take reported material down within 48 hours when the claim holds.")}</p>
         <p style={{ marginTop: 10 }}>{t("You can also write to our designated copyright agent:")}<br />
           {t("WorshipCommons copyright agent")}<br />
           <a href="mailto:support@worshipcommons.org" data-testid="dmca-agent-email">support@worshipcommons.org</a><br />

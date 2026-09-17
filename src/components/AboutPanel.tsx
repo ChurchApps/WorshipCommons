@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { HistoryEntry, Song, themeList, songPath } from "../songs";
 import { useI18n } from "../i18n";
+import { CONFIDENCE_LABEL } from "./ConfidenceBadge";
 import RightsPanel from "./RightsPanel";
 
 const ArrowRight = () => (
@@ -65,6 +66,7 @@ export default function AboutPanel({ song, similar, history, writerHref }: Props
         )}
         {song.meter && <p className="about-line"><b>{t("Meter")}</b> <Link to={`/songs?meter=${encodeURIComponent(song.meter)}`}>{song.meter}</Link>{song.tune ? ` · ${song.tune}` : ""}</p>}
         {(song.hymnalCount ?? 0) > 0 && <p className="about-line" data-testid="hymnal-count">{t("In {n} hymnals", { n: song.hymnalCount as number })}</p>}
+        {song.confidence && <p className="about-line" data-testid="how-complete">{t("How complete: {label}", { label: t(CONFIDENCE_LABEL[song.confidence]) })}</p>}
       </section>
 
       {tuneSwap.length > 0 && (

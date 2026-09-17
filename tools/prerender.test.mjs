@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { songPage, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages } from "./prerender.mjs";
+import { songPage, songBody, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages } from "./prerender.mjs";
 import { idOf, songPath, writerPath } from "../src/slug.mjs";
 import * as os from "os";
 
@@ -40,6 +40,16 @@ const SONGS = [
 ];
 
 const jsonLdOf = (html) => JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+
+test("PD song body is US-centric and never says Free for churches", () => {
+  const pd = songBody(SONGS[0]);
+  assert.match(pd, /Public domain in the United States \(best-effort\)/);
+  assert.match(pd, /including commercial/);
+  assert.doesNotMatch(pd, /Free for churches/);
+  const wc = songBody(SONGS[2]);
+  assert.match(wc, /Shared through WorshipCommons/);
+  assert.doesNotMatch(wc, /Public domain/);
+});
 
 test("hreflang alternates cover the translated family", () => {
   const original = songPage(shell, SONGS[0], SONGS, SITE);

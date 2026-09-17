@@ -437,7 +437,7 @@ export default function SongPage() {
                 <a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics (TXT)")}</a>
                 <button type="button" className="link-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
               </span>
-              <span>{ccliFree ? (song.ccli ? t("CCLI {n} — reporting is optional.", { n: song.ccli }) : t("Free to sing, print, project and stream. No reporting required.")) : t("Report this song to CCLI when you use it.")}</span>
+              <span data-testid="ccli-footnote">{ccliFree ? <>{song.ccli ? t("CCLI {n} — reporting is optional.", { n: song.ccli }) : t("Free to sing, print, project and stream. No reporting required.")} {t("Keep CCLI for other songs you sing.")}</> : t("Report this song to CCLI when you use it.")}</span>
             </div>
           </div>
 
