@@ -34,7 +34,7 @@ export default defineConfig({
   webServer: [
     {
       command: `npm --prefix ${coreApiDir()} run dev`,
-      url: "http://localhost:8084/health",
+      url: `${process.env.CORE_API || "http://localhost:8084"}/health`,
       reuseExistingServer: true,
       timeout: 60 * 1000,
       stdout: "pipe",
@@ -42,7 +42,7 @@ export default defineConfig({
     },
     {
       command: "yarn start",
-      url: "http://localhost:3104",
+      url: baseURL,
       reuseExistingServer: true,
       timeout: 120 * 1000
     }

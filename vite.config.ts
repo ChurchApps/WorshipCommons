@@ -21,6 +21,6 @@ function spaOverRootFiles(): Plugin {
 
 export default defineConfig({
   plugins: [react(), spaOverRootFiles()],
-  server: { port: 3104 },
+  server: { port: Number(process.env.PORT) || 3104, strictPort: true },
   build: { outDir: "build" }
 });
