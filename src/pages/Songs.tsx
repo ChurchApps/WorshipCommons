@@ -2,7 +2,6 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Confidence, coverOf, hasDemoRecording, loadSongs, recordingUrlOf, Song, songRecency, THEMES, themeList, songPath } from "../songs";
 import { isModernWorship } from "../era";
-import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
 import "../styles/songs.css";
 import { usePageMeta } from "../seo";
@@ -15,7 +14,9 @@ const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
 // facet label, then the chip label
 const TEMPOS: Record<string, [string, string]> = { slow: ["Slow · under 73", "Slow"], mid: ["Moderate · 73–100", "Moderate"], fast: ["Upbeat · 100+", "Upbeat"] };
-const playableUrl = (s: Song) => recordingUrlOf(s) || s.midiUrl;
+// library play is the demo/master recording — MIDI is a score, not a rehearsal track
+const playableUrl = (s: Song) => recordingUrlOf(s);
+const isIncomplete = (s: Song) => s.confidence === "lyrics-only" || !(s.songKey || "").trim();
 const CONFIDENCES = Object.keys(CONFIDENCE_LABEL) as Confidence[];
 const songSelectUrl = (q: string) => `https://songselect.ccli.com/search/results?SearchText=${encodeURIComponent(q)}`;
 
@@ -29,7 +30,7 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
 ];
 
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
-interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; era: string; audio: boolean; }
+interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; era: string; audio: boolean; hideIncomplete: boolean; }
 
 const XIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -69,7 +70,8 @@ export default function Songs() {
     accomp: false,
     chart: false,
     score: false,
-    mt: false
+    mt: false,
+    hideIncomplete: params.get("all") !== "1"
   }));
   const [sort, setSort] = useState(params.get("sort") === "new" ? "new" : "downloads");
   const [page, setPage] = useState(1);
@@ -79,14 +81,9 @@ export default function Songs() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const tuneRef = useRef<TunePlayer | null>(null);
-  const wantRef = useRef<string | null>(null);
 
   const stopAll = () => {
     audioRef.current?.pause();
-    tuneRef.current?.stop();
-    tuneRef.current = null;
-    wantRef.current = null;
   };
 
   useEffect(() => { loadSongs().then(setSongs); }, []);
@@ -139,6 +136,7 @@ export default function Songs() {
       (skip === "lic" || !state.lic || licenseGroup(s.license) === state.lic) &&
       (skip === "era" || !state.era || (state.era === "modern" && isModernWorship(s))) &&
       (skip === "audio" || !state.audio || hasDemoRecording(s)) &&
+      (skip === "hideIncomplete" || !state.hideIncomplete || !isIncomplete(s)) &&
       READY.every(r => skip === r.id || !state[r.id] || r.test(s));
   };
 
@@ -185,34 +183,21 @@ export default function Songs() {
   const start = (curPage - 1) * PAGE_SIZE;
   const slice = list.slice(start, start + PAGE_SIZE);
 
-  // demo recording if there is one, otherwise the midi tune
-  const togglePlay = async (s: Song) => {
+  const togglePlay = (s: Song) => {
     const wasPlaying = playingId === s.id;
     stopAll();
     setPlayingId(null);
-    if (wasPlaying || !playableUrl(s)) return;
-    setPlayingId(s.id);
-    wantRef.current = s.id;
     const rec = recordingUrlOf(s);
-    if (rec) {
-      const audio = new Audio(rec);
-      audio.onended = () => setPlayingId(null);
-      audio.play();
-      audioRef.current = audio;
-      return;
-    }
-    try {
-      const p = await loadTune(s.midiUrl!);
-      if (wantRef.current !== s.id) { p.stop(); return; }  // clicked elsewhere while loading
-      tuneRef.current = p;
-      p.onEnd = () => setPlayingId(null);
-      p.play();
-    } catch {
-      if (wantRef.current === s.id) setPlayingId(null);
-    }
+    if (wasPlaying || !rec) return;
+    setPlayingId(s.id);
+    const audio = new Audio(rec);
+    audio.onended = () => setPlayingId(null);
+    audio.play();
+    audioRef.current = audio;
   };
 
   const chips: { label: string; undo: () => void }[] = [];
+  if (state.hideIncomplete) chips.push({ label: t("Hide incomplete"), undo: () => update({ hideIncomplete: false }) });
   state.themes.forEach(th => chips.push({ label: th, undo: () => toggleTheme(th, false) }));
   state.conf.forEach(c => chips.push({ label: t(CONFIDENCE_LABEL[c as Confidence] || c), undo: () => toggleConf(c, false) }));
   if (state.key) chips.push({ label: t("Key of {key}", { key: state.key }), undo: () => update({ key: "" }) });
@@ -224,7 +209,7 @@ export default function Songs() {
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
   READY.forEach(r => { if (state[r.id]) chips.push({ label: t(r.label), undo: () => update({ [r.id]: false } as Partial<Filters>) }); });
 
-  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false });
+  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false, hideIncomplete: false });
 
   const pagerNums = useMemo(() => {
     const nums = [...new Set([1, 2, curPage - 1, curPage, curPage + 1, pages - 1, pages].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);
@@ -289,6 +274,7 @@ export default function Songs() {
           <FacetGroup title={t("Ready to use")}>
             {/* vocal range is not offered: no package carries range data yet */}
             <ul className="facet-list" data-testid="ready-facet">
+              <li><label><input type="checkbox" data-testid="hide-incomplete" checked={state.hideIncomplete} onChange={e => update({ hideIncomplete: e.target.checked })} /> {t("Hide incomplete (lyrics-only or no key)")} <span className="cnt">{count("hideIncomplete", s => !isIncomplete(s)).toLocaleString()}</span></label></li>
               {READY.map(r => (
                 <li key={r.id}><label><input type="checkbox" name={r.id} checked={state[r.id]} onChange={e => update({ [r.id]: e.target.checked } as Partial<Filters>)} /> {t(r.label)} <span className="cnt">{count(r.id, r.test).toLocaleString()}</span></label></li>
               ))}
@@ -355,6 +341,7 @@ export default function Songs() {
             </span>
             {chips.length > 0 && <button className="clear-all" onClick={clearAll}>{t("Clear all filters")}</button>}
           </div>
+          <p className="keep-ccli" data-testid="keep-ccli">{t("This library does not replace CCLI or SongSelect for copyrighted songs.")}</p>
 
           {list.length > 0 && (
             <div className="table" id="table">

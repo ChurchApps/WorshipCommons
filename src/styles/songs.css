@@ -42,6 +42,7 @@
   .results-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; min-height: 34px; }
   .results-head .count { font-size: 0.875rem; color: var(--muted); font-weight: 500; margin-right: auto; }
   .results-head .count b { color: var(--ink); font-weight: 700; }
+  .keep-ccli { font-size: 0.8125rem; color: var(--muted); margin: -4px 0 14px; line-height: 1.4; }
   .active-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 0.8125rem; font-weight: 500; background: rgba(108,43,217,0.08); color: var(--primary-dark); border: 0; border-radius: 999px; padding: 6px 8px 6px 13px; cursor: pointer; font-family: var(--font-body); }
   .active-chip:hover { background: rgba(108,43,217,0.15); }
   .active-chip svg { flex: none; }

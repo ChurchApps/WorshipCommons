@@ -16,10 +16,11 @@ test.beforeAll(async ({ request }) => {
   songs = await (await request.get(`${WC_API}/songs`)).json();
 });
 
-// the site language pre-filters the library — clear it to assert against the whole catalog
+// the site language pre-filters the library, and incomplete rows are hidden by default — clear both to assert against the whole catalog
 async function openLibrary(page: Page) {
   await page.goto("/songs");
   await page.getByLabel("Language", { exact: true }).selectOption("");
+  await page.getByTestId("hide-incomplete").uncheck();
   await expect(page.locator("#count")).toContainText(countText(songs.length));
 }
 
@@ -116,7 +117,7 @@ test.describe("library", () => {
   });
 
   test("the language toggle translates the page and filters the list", async ({ page }) => {
-    await page.goto("/songs");
+    await page.goto("/songs?all=1");
     const english = songs.filter(s => s.language === "English").length;
     await expect(page.locator("#count")).toContainText(countText(english));
 
