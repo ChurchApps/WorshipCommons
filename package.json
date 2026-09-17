@@ -14,8 +14,8 @@
   },
   "scripts": {
     "preinstall": "node -e \"if(!(process.env.npm_config_user_agent||'').startsWith('yarn')){console.error('\\n[WorshipCommons] This project uses Yarn (Berry). Run \\'yarn install\\' instead of npm/pnpm.\\n');process.exit(1)}\"",
-    "dev": "vite --port 3104",
-    "start": "vite --port 3104",
+    "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint --fix src/ tests/",

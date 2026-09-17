@@ -1,5 +1,5 @@
 const DEFAULT_BASE_URL = "http://localhost:3104";
-const CORE_API = "http://localhost:8084";
+const CORE_API = process.env.CORE_API || "http://localhost:8084";
 const ALLOWED_ENVIRONMENTS = ["demo", "dev"];
 
 class VerifyEnvError extends Error {

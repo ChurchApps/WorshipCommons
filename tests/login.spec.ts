@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { CORE_API } from "./helpers/api";
 
 test.describe("auth", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -28,7 +29,7 @@ test.describe("auth", () => {
   });
 
   test("admin routes reject anonymous API calls", async ({ request }) => {
-    const resp = await request.get("http://localhost:8084/commons/admin/submissions");
+    const resp = await request.get(`${CORE_API}/commons/admin/submissions`);
     expect(resp.status()).toBe(401);
   });
 });
