@@ -5,6 +5,7 @@ interface SeedSong {
   id: string; title: string; language: string; license: string; rank?: number;
   confidence?: string; sundayReady?: boolean; featured?: boolean; firstLine?: string | null; tune?: string | null;
   hasChords?: boolean; hasScore?: boolean; hasAccompaniment?: boolean; fileUrls?: Record<string, string>;
+  demoAudioUrl?: string | null; masterUrl?: string | null;
 }
 
 // the same six labels the badge wears (src/components/ConfidenceBadge.tsx)
@@ -147,7 +148,9 @@ test.describe("home", () => {
 
     // the block is ranked within the UI language; the first card is the top-ranked eligible English title
     const pool = heading === "Sunday-ready" ? english.filter(s => s.sundayReady || s.featured) : heading.startsWith("Scored") ? english.filter(s => s.hasScore) : english;
-    const first = [...pool].sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0))[0];
+    // mirrors recordingUrlOf in src/songs.ts: the home page puts real recordings ahead of MIDI-only titles
+    const recorded = (s: SeedSong) => /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(s.demoAudioUrl || s.masterUrl || s.fileUrls?.demoAudio || s.fileUrls?.master || s.fileUrls?.song || "");
+    const first = [...pool].sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0)).sort((a, b) => +recorded(b) - +recorded(a))[0];
     await expect(page.getByTestId("home-top-list").locator("li").first()).toContainText(first.title);
     await expect(page.locator(".row-list [data-testid='confidence-badge'], .row-list .free-badge")).toHaveCount(0);
   });

@@ -18,8 +18,8 @@ const SearchIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="n
 // the chips deep-link into the library: theme, license, readiness, and recency are all real /songs filters
 const CHIPS: [string, string][] = [
   ["All Songs", "/songs"],
-  ["Modern Worship", "/songs?era=modern"],
   ["Timeless Hymns", "/songs?license=PD"],
+  ["Modern Worship", "/songs?era=modern"],
   ["Acoustic", "/songs?guitar=1"],
   ["New Releases", "/songs?sort=new"]
 ];
@@ -43,7 +43,8 @@ export default function Home() {
   useEffect(() => () => { audioRef.current?.pause(); tuneRef.current?.stop(); }, []);
 
   const block = topBlock(songs, SONG_LANG[lang]);
-  const set = block.songs.slice(0, 4);
+  // real recordings first (stable sort keeps rank order within each group), so the play button isn't all synth piano
+  const set = [...block.songs].sort((a, b) => +!!recordingUrlOf(b) - +!!recordingUrlOf(a)).slice(0, 4);
   const { catalog, browse } = splitLanguages(songs);
   const counted = catalog.length ? songs.filter(s => catalog.includes(s.language)) : songs;
 
