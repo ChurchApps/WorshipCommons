@@ -163,9 +163,8 @@ a.tag:hover { border-color: var(--purple); color: var(--text); }
 .proj svg { color: var(--purple-2); }
 .project-note { margin-top: 12px; font-size: 0.8125rem; color: var(--dim); }
 
-.rate-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.rating-stars { display: flex; gap: 2px; }
-.rating-stars button { border: 0; background: none; color: var(--purple-2); font-size: 1.25rem; line-height: 1; padding: 2px; }
+
+
 .side-links { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.8125rem; color: var(--dim); margin-top: 10px; }
 .side-links a { color: var(--muted); }
 

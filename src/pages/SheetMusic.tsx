@@ -6,7 +6,6 @@ import { abcKeyRoot, abcTitle, abcVoices, partName, soloVoice, stripLyrics, titl
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { attributionFor } from "../licenses";
-import { isDerivedScore } from "../components/ConfidenceBadge";
 
 export default function SheetMusic() {
   const { t } = useI18n();
@@ -94,14 +93,11 @@ export default function SheetMusic() {
       <div ref={paperRef} data-testid="sheet-paper" />
       {abc && (
         <p style={{ marginTop: 32, fontSize: 13, color: "#555" }} data-testid="sheet-footer" data-score-source={source}>
-          {/* data-driven: the package says where the score came from and whether a person has proofread it */}
-          {source === "master"
-            ? t("Engraved in your browser from the proofread score.")
-            : source === "midi"
-              ? t("Engraved in your browser from a score generated from the MIDI file.")
-              : isDerivedScore(song.confidence) || source === "abc"
-                ? t("Engraved in your browser from the Open Hymnal Project ABC.")
-                : t("Engraved in your browser from the package score.")}
+          {source === "midi"
+            ? t("Engraved in your browser from a score generated from the MIDI file.")
+            : source === "abc"
+              ? t("Engraved in your browser from the Open Hymnal Project ABC.")
+              : t("Engraved in your browser from the package score.")}
           {" "}{attributionFor(song)}
         </p>
       )}

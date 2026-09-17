@@ -19,7 +19,8 @@ test.beforeAll(async ({ request }) => {
 });
 
 const pdWithFirstLine = () => rows.find(s => s.license === "PD" && s.firstLine && s.fileUrls?.midi) || rows.find(s => s.license === "PD" && s.firstLine);
-const byConfidence = (c: string) => rows.filter(s => s.confidence === c);
+const confOf = (s: Row) => s.confidence === "proofread-score" || s.confidence === "converted-from-abc" ? "score" : s.confidence;
+const byConfidence = (c: string) => rows.filter(s => confOf(s) === c);
 
 test.describe("song page: hero, modes, rights", () => {
   test("hero shows the first line and license on a public-domain song", async ({ page }) => {
@@ -149,8 +150,8 @@ test.describe("song page: hero, modes, rights", () => {
   });
 
   test("no proofread caveat on the song or sheet page, whatever the confidence", async ({ page }) => {
-    const derived = byConfidence("converted-from-abc")[0];
-    test.skip(!derived, "seed lacks a converted-from-abc song");
+    const derived = byConfidence("score").find(s => s.fileUrls?.abc) || byConfidence("score")[0];
+    test.skip(!derived, "seed lacks a scored song");
 
     await page.goto(`/songs/${derived.id}`);
     await expect(page.getByTestId("song-hero")).toBeVisible();

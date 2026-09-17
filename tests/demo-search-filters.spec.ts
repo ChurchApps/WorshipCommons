@@ -7,12 +7,12 @@ interface SeedSong {
   hasChords?: boolean; hasScore?: boolean; hasAccompaniment?: boolean; fileUrls?: Record<string, string>;
   demoAudioUrl?: string | null; masterUrl?: string | null;
 }
+const confOf = (s: { confidence?: string }) => s.confidence === "proofread-score" || s.confidence === "converted-from-abc" ? "score" : s.confidence;
 
 // the same six labels the badge wears (src/components/ConfidenceBadge.tsx)
 const LABEL: Record<string, string> = {
   "sunday-ready": "Sunday-ready",
-  "proofread-score": "Proofread score",
-  "converted-from-abc": "Converted from ABC",
+  "score": "Score",
   "generated-from-midi": "Generated from MIDI",
   "chart-only": "Chart only",
   "lyrics-only": "Lyrics only"
@@ -44,7 +44,7 @@ async function openLibrary(page: Page) {
 test.describe("search, filters and ranking", () => {
   test("the confidence facet lists the values in the seed and filters to one badge", async ({ page }) => {
     await openLibrary(page);
-    const present = [...new Set(songs.map(s => s.confidence).filter(Boolean))] as string[];
+    const present = [...new Set(songs.map(confOf).filter(Boolean))] as string[];
     expect(present.length).toBeGreaterThan(0);
     const facet = page.getByTestId("confidence-facet");
     await expect(facet.locator("input[type=checkbox]")).toHaveCount(present.length);
@@ -52,12 +52,12 @@ test.describe("search, filters and ranking", () => {
     // a value the seed does not carry is never offered
     for (const c of Object.keys(LABEL).filter(c => !present.includes(c))) await expect(facet.locator(`input[value="${c}"]`)).toHaveCount(0);
 
-    test.skip(!present.includes("converted-from-abc"), "seed has no converted-from-abc package");
-    const abc = songs.filter(s => s.confidence === "converted-from-abc").length;
-    await facet.locator('input[value="converted-from-abc"]').check();
-    await expect(page.locator("#count")).toContainText(countText(abc));
-    await expect(page.locator("#active-chips")).toContainText("Converted from ABC");
-    await expect(page.locator(".t-row")).toHaveCount(Math.min(50, abc));
+    test.skip(!present.includes("score"), "seed has no scored package");
+    const scored = songs.filter(s => confOf(s) === "score").length;
+    await facet.locator('input[value="score"]').check();
+    await expect(page.locator("#count")).toContainText(countText(scored));
+    await expect(page.locator("#active-chips")).toContainText("Score");
+    await expect(page.locator(".t-row")).toHaveCount(Math.min(50, scored));
   });
 
   test("rows carry no badges; the reason line names a signal where one exists", async ({ page }) => {
@@ -65,6 +65,8 @@ test.describe("search, filters and ranking", () => {
     const rows = page.locator(".t-row");
     await expect(rows).toHaveCount(Math.min(50, songs.length));
     await expect(rows.locator("[data-testid='confidence-badge'], [data-testid='license-badge']")).toHaveCount(0);
+    await expect(page.getByTestId("song-stats").first()).toBeVisible();
+    await expect(page.getByTestId("song-stats").first()).toContainText("downloads");
 
     // a reason shows only where a completeness or provenance signal adds to the badges
     const reasons = page.getByTestId("rank-reason");
