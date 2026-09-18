@@ -853,7 +853,15 @@ const hu: Record<string, string> = {
   "A reviewer checks the recording and its license before it joins the song.": "Egy lektor ellenőrzi a felvételt és a licencét, mielőtt a dalhoz kerül.",
   "Thank you — your recording is in review": "Köszönjük — a felvételed ellenőrzés alatt áll",
   "Add a master recording": "Masterfelvétel hozzáadása",
-  "master recording": "masterfelvétel"
+  "master recording": "masterfelvétel",
+  "A support link on your writer page": "Támogatói link a szerzői oldaladon",
+  "Support the writer": "A szerző támogatása",
+  "Support links": "Támogatói linkek",
+  "Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.": "Az istentiszteleti használat ingyenes. Ha azt szeretnéd, hogy a gyülekezetek a többi munkádat is támogassák, add meg a helyeket — weboldal, bolt, szolgálati oldal. Ez nem feltétele az engedélynek.",
+  "Add a support link": "Támogatói link hozzáadása",
+  "Ways to support {writer}": "{writer} támogatása",
+  "Does this mean writers work for free?": "Akkor a szerzők ingyen dolgoznak?",
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Az istentiszteleti használat ajándék. Nem szedünk jogdíjat az éneklésért. A szerzőké marad az album, a sync, a koncert, és tehetnek támogatói linket az oldalukra. A gyülekezeti siker nem fizetés. Ha magának az éneklésnek kellene a lakbért fizetnie, ne add ezt az engedélyt. Tartsd meg a CCLI-t arra a katalógusra, amely ezt teszi."
 };
 
 export default hu;

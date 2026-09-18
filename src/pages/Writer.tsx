@@ -5,14 +5,16 @@ import { wcGet } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
+import SupportWriter, { linkLabel, parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 
-export interface WriterLink { label?: string; url: string }
+export type { WriterLink } from "../components/SupportWriter";
 
 interface Profile {
   name: string;
   bio?: string;
   portraitUrl?: string;
   links: WriterLink[];
+  supportLinks: WriterLink[];
 }
 
 const matchesWriter = (song: Song, q: string) => {
@@ -21,18 +23,12 @@ const matchesWriter = (song: Song, q: string) => {
   return writer.split(/[,&;]| and /i).map(p => p.trim()).includes(q);
 };
 
-// A label is optional on a saved link — fall back to the host so the anchor is never blank.
-const linkLabel = (link: WriterLink) => {
-  if (link.label) return link.label;
-  try { return new URL(link.url).hostname.replace(/^www\./, ""); } catch { return link.url; }
-};
-
 export default function Writer() {
   const { t } = useI18n();
   const { name = "" } = useParams();
   const query = idOf(decodeURIComponent(name).trim());
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<Profile>({ name: query, links: [] });
+  const [profile, setProfile] = useState<Profile>({ name: query, links: [], supportLinks: [] });
   const [songs, setSongs] = useState<Song[] | null>(null);
 
   usePageMeta(profile.name ? t("{writer} — WorshipCommons", { writer: profile.name }) : "WorshipCommons");
@@ -52,7 +48,8 @@ export default function Writer() {
           name: raw?.name || raw?.writer || query,
           bio: raw?.bio || undefined,
           portraitUrl: raw?.portraitUrl || undefined,
-          links: Array.isArray(raw?.links) ? raw.links.filter((l: WriterLink) => l?.url) : []
+          links: parseWriterLinks(raw?.links),
+          supportLinks: parseWriterLinks(raw?.supportLinks)
         });
         if (listed.length && typeof listed[0] === "string") {
           const ids = new Set(listed);
@@ -64,7 +61,7 @@ export default function Writer() {
         }
       } catch {
         if (live) {
-          setProfile({ name: query, links: [] });
+          setProfile({ name: query, links: [], supportLinks: [] });
           setSongs(fromCatalog(all));
         }
       }
@@ -81,12 +78,17 @@ export default function Writer() {
         <p className="lede">{t("Songs in the commons by this writer.")}</p>
       </div>
 
-      {(profile.portraitUrl || profile.bio || profile.links.length > 0) && (
+      {(profile.portraitUrl || profile.bio || profile.links.length > 0 || profile.supportLinks.length > 0) && (
         <div className="card" style={{ padding: 24, marginBottom: 24 }} data-testid="writer-profile">
           <div className="writer-row">
             {profile.portraitUrl && <img className="writer-photo" src={profile.portraitUrl} alt={t("Portrait of {writer}", { writer: profile.name })} loading="lazy" data-testid="writer-portrait" />}
             <div>
               {profile.bio && <p className="writer-bio" data-testid="writer-bio">{profile.bio}</p>}
+              {profile.supportLinks.length > 0 && (
+                <div style={{ marginTop: 12, maxWidth: 280 }}>
+                  <SupportWriter links={profile.supportLinks} writer={profile.name} />
+                </div>
+              )}
               {profile.links.length > 0 && (
                 <p className="hint" style={{ marginTop: 10, marginBottom: 0, display: "flex", gap: 12, flexWrap: "wrap" }} data-testid="writer-links">
                   {profile.links.map(l => (

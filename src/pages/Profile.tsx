@@ -5,7 +5,7 @@ import { writerPath } from "../songs";
 import { wcGet, wcPut } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import type { WriterLink } from "./Writer";
+import type { WriterLink } from "../components/SupportWriter";
 
 const BIO_MAX = 2000;
 const LINKS_MAX = 5;
@@ -15,9 +15,35 @@ interface Profile {
   name?: string;
   bio?: string;
   links?: WriterLink[];
+  supportLinks?: WriterLink[];
 }
 
 const blank = { label: "", url: "" };
+
+function LinkRows({ items, onChange, testId, addLabel }: {
+  items: WriterLink[];
+  onChange: (next: WriterLink[]) => void;
+  testId: string;
+  addLabel: string;
+}) {
+  const { t } = useI18n();
+  const setField = (i: number, field: keyof WriterLink, value: string) =>
+    onChange(items.map((l, n) => n === i ? { ...l, [field]: value } : l));
+  return (
+    <>
+      {items.map((l, i) => (
+        <div className="field-row field" key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr auto", gap: 12, alignItems: "start" }}>
+          <input type="text" aria-label={t("Link label")} data-testid={`${testId}-label`} placeholder={t("Label")} maxLength={60} value={l.label || ""} onChange={e => setField(i, "label", e.target.value)} />
+          <input type="url" aria-label={t("Link address")} data-testid={`${testId}-url`} placeholder="https://" value={l.url} onChange={e => setField(i, "url", e.target.value)} />
+          <button type="button" className="btn btn-ghost" data-testid={`${testId}-remove`} onClick={() => onChange(items.length > 1 ? items.filter((_, n) => n !== i) : [{ ...blank }])}>{t("Remove")}</button>
+        </div>
+      ))}
+      {items.length < LINKS_MAX && (
+        <button type="button" className="btn btn-ghost" data-testid={`${testId}-add`} onClick={() => onChange([...items, { ...blank }])}>{addLabel}</button>
+      )}
+    </>
+  );
+}
 
 export default function Profile() {
   const { t } = useI18n();
@@ -27,6 +53,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [bio, setBio] = useState("");
   const [links, setLinks] = useState<WriterLink[]>([]);
+  const [supportLinks, setSupportLinks] = useState<WriterLink[]>([]);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -37,13 +64,11 @@ export default function Profile() {
       setProfile(mine || {});
       setBio(mine?.bio || "");
       setLinks(mine?.links?.length ? mine.links : [{ ...blank }]);
+      setSupportLinks(mine?.supportLinks?.length ? mine.supportLinks : [{ ...blank }]);
     }).catch(() => setProfile({}));
   }, [user]);
 
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
-
-  const setLink = (i: number, field: keyof WriterLink, value: string) =>
-    setLinks(ls => ls.map((l, n) => n === i ? { ...l, [field]: value } : l));
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,9 +76,14 @@ export default function Profile() {
     setStatus("");
     setBusy(true);
     try {
-      const saved: Profile = await wcPut("/authors/mine", { bio, links: links.filter(l => l.url.trim()) }, true);
+      const saved: Profile = await wcPut("/authors/mine", {
+        bio,
+        links: links.filter(l => l.url.trim()),
+        supportLinks: supportLinks.filter(l => l.url.trim())
+      }, true);
       setProfile(saved);
       setLinks(saved.links?.length ? saved.links : [{ ...blank }]);
+      setSupportLinks(saved.supportLinks?.length ? saved.supportLinks : [{ ...blank }]);
       setStatus(t("Saved."));
     } catch (err) {
       setError((err as Error).message);
@@ -89,16 +119,11 @@ export default function Profile() {
             </div>
 
             <label>{t("Links")}</label>
-            {links.map((l, i) => (
-              <div className="field-row field" key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr auto", gap: 12, alignItems: "start" }}>
-                <input type="text" aria-label={t("Link label")} data-testid="profile-link-label" placeholder={t("Label")} maxLength={60} value={l.label || ""} onChange={e => setLink(i, "label", e.target.value)} />
-                <input type="url" aria-label={t("Link address")} data-testid="profile-link-url" placeholder="https://" value={l.url} onChange={e => setLink(i, "url", e.target.value)} />
-                <button type="button" className="btn btn-ghost" data-testid="profile-link-remove" onClick={() => setLinks(ls => ls.length > 1 ? ls.filter((_, n) => n !== i) : [{ ...blank }])}>{t("Remove")}</button>
-              </div>
-            ))}
-            {links.length < LINKS_MAX && (
-              <button type="button" className="btn btn-ghost" data-testid="profile-link-add" onClick={() => setLinks(ls => [...ls, { ...blank }])}>{t("Add a link")}</button>
-            )}
+            <LinkRows items={links} onChange={setLinks} testId="profile-link" addLabel={t("Add a link")} />
+
+            <label style={{ marginTop: 20 }}>{t("Support links")}</label>
+            <p className="hint">{t("Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.")}</p>
+            <LinkRows items={supportLinks} onChange={setSupportLinks} testId="profile-support" addLabel={t("Add a support link")} />
 
             {error && <p className="hint" style={{ color: "var(--secondary)", fontWeight: 600, marginTop: 16 }} data-testid="profile-error">{error}</p>}
             {status && <p className="hint" style={{ fontWeight: 600, marginTop: 16 }} data-testid="profile-status">{status}</p>}

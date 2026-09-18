@@ -65,6 +65,7 @@ export default function CallForSongs() {
               <li><Star />{t("Radio & broadcast royalties")}</li>
               <li><Star />{t("Ticketed concerts & tours")}</li>
               <li><Star />{t("Sheet music & songbook sales")}</li>
+              <li><Star />{t("A support link on your writer page")}</li>
               <li><Star />{t("Full ownership of your song")}</li>
             </ul>
           </div>

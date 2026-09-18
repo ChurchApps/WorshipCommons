@@ -853,7 +853,15 @@ const ml: Record<string, string> = {
   "A reviewer checks the recording and its license before it joins the song.": "പാട്ടിൽ ചേരുന്നതിന് മുമ്പ് ഒരു റിവ്യൂവർ റെക്കോർഡിംഗും ലൈസൻസും പരിശോധിക്കും.",
   "Thank you — your recording is in review": "നന്ദി — നിങ്ങളുടെ റെക്കോർഡിംഗ് പരിശോധനയിലാണ്",
   "Add a master recording": "മാസ്റ്റർ റെക്കോർഡിംഗ് ചേർക്കുക",
-  "master recording": "മാസ്റ്റർ റെക്കോർഡിംഗ്"
+  "master recording": "മാസ്റ്റർ റെക്കോർഡിംഗ്",
+  "A support link on your writer page": "നിങ്ങളുടെ രചയിതാവ് പേജിലെ പിന്തുണാ ലിങ്ക്",
+  "Support the writer": "രചയിതാവിനെ പിന്തുണയ്ക്കുക",
+  "Support links": "പിന്തുണാ ലിങ്കുകൾ",
+  "Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.": "ആരാധനയിലെ ഉപയോഗം സൗജന്യമാണ്. സഭകൾ നിങ്ങളുടെ മറ്റ് ജോലിയെ പിന്തുണയ്ക്കണമെങ്കിൽ അവ പോകേണ്ട സ്ഥലങ്ങൾ ചേർക്കുക — ഒരു സൈറ്റ്, ഒരു സ്റ്റോർ, ഒരു ശുശ്രൂഷാ പേജ്. ഇത് അനുമതിയുടെ നിബന്ധനയല്ല.",
+  "Add a support link": "ഒരു പിന്തുണാ ലിങ്ക് ചേർക്കുക",
+  "Ways to support {writer}": "{writer}നെ പിന്തുണയ്ക്കാനുള്ള വഴികൾ",
+  "Does this mean writers work for free?": "എന്നാൽ രചയിതാക്കൾ സൗജന്യമായി ജോലി ചെയ്യുന്നുവോ?",
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "ആരാധനയിലെ ഉപയോഗം ഒരു ദാനമാണ്. പാട്ടിന് ഞങ്ങൾ റോയൽറ്റി ഈടാക്കുന്നില്ല. ആൽബങ്ങൾ, സിങ്ക്, കച്ചേരികൾ രചയിതാക്കളുടേതായി തന്നെ നിൽക്കും; അവർക്ക് പേജിൽ ഒരു പിന്തുണാ ലിങ്ക് വയ്ക്കാം. സഭയിലെ വിജയം ശമ്പളമല്ല. പാട്ട് തന്നെ വാടക കൊടുക്കണമെങ്കിൽ ഈ അനുമതി നൽകരുത്. അത് ചെയ്യുന്ന കാറ്റലോഗിന് CCLI നിലനിർത്തുക."
 };
 
 export default ml;

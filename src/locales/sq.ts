@@ -853,7 +853,15 @@ const sq: Record<string, string> = {
   "A reviewer checks the recording and its license before it joins the song.": "Një shqyrtues kontrollon regjistrimin dhe licencën e tij para se t’i bashkohet këngës.",
   "Thank you — your recording is in review": "Faleminderit — regjistrimi yt është në shqyrtim",
   "Add a master recording": "Shto një regjistrim master",
-  "master recording": "regjistrim master"
+  "master recording": "regjistrim master",
+  "A support link on your writer page": "Një lidhje mbështetjeje në faqen tënde të autorit",
+  "Support the writer": "Mbështet autorin",
+  "Support links": "Lidhje mbështetjeje",
+  "Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.": "Përdorimi në adhurim është falas. Nëse do që kishat të mbështesin punën tënde tjetër, shto vendet ku duhet të shkojnë — një faqe, një dyqan, një faqe shërbimi. Nuk është kusht i dhënies.",
+  "Add a support link": "Shto një lidhje mbështetjeje",
+  "Ways to support {writer}": "Mënyra për të mbështetur {writer}",
+  "Does this mean writers work for free?": "A punojnë autorët falas?",
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Përdorimi në adhurim është dhuratë. Nuk mbledhim tantiemë për këndim. Autorët mbajnë albumet, sinkronizimin, koncertet, dhe mund të vënë një lidhje mbështetjeje në faqen e tyre. Suksesi i kongregacionit nuk është rrogë. Nëse të duhet që vetë këndimi të paguajë qiranë, mos e jep këtë dhënie. Mbaje CCLI për katalogun që e bën këtë."
 };
 
 export default sq;

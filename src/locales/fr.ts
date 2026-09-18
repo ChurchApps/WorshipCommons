@@ -853,7 +853,15 @@ const fr: Record<string, string> = {
   "A reviewer checks the recording and its license before it joins the song.": "Un relecteur vérifie l’enregistrement et sa licence avant qu’il rejoigne le chant.",
   "Thank you — your recording is in review": "Merci — votre enregistrement est en relecture",
   "Add a master recording": "Ajouter un enregistrement master",
-  "master recording": "enregistrement master"
+  "master recording": "enregistrement master",
+  "A support link on your writer page": "Un lien de soutien sur votre page d’auteur",
+  "Support the writer": "Soutenir l’auteur",
+  "Support links": "Liens de soutien",
+  "Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.": "L’usage cultuel est libre. Si vous voulez que les églises soutiennent votre autre travail, indiquez où aller — un site, une boutique, une page de ministère. Ce n’est pas une condition de la licence.",
+  "Add a support link": "Ajouter un lien de soutien",
+  "Ways to support {writer}": "Soutenir {writer}",
+  "Does this mean writers work for free?": "Les auteurs travaillent-ils donc gratuitement ?",
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "L’usage cultuel est un don. Nous ne prélevons aucune redevance pour le chant. Les auteurs gardent albums, sync, concerts, et peuvent mettre un lien de soutien sur leur page. Le succès auprès de l’assemblée n’est pas un salaire. Si vous avez besoin que le chant lui-même paie le loyer, n’accordez pas cette licence. Gardez CCLI pour le catalogue qui le fait."
 };
 
 export default fr;
