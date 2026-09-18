@@ -67,6 +67,9 @@ test.describe("upload required fields", () => {
     await page.goto("/upload");
     await fillSongFields(page, "Partial Grant Song");
     await expect(page.getByTestId("grant-recap")).toContainText("Churches may keep every copy");
+    await expect(page.getByTestId("grant-recap")).toContainText("If you did not hold them, there was no grant");
+    await expect(page.getByTestId("grant-recap")).not.toContainText("not the churches that trusted it");
+    await expect(page.getByText("is how we take it down.")).toBeVisible();
     await expect(page.getByTestId("certifyAdult")).toBeVisible();
     await page.getByTestId("certifyForever").check();
     await page.getByRole("button", { name: "Add it to the commons" }).click();

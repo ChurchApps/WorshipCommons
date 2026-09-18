@@ -584,7 +584,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
           <p className="hint">{t("This is the decision. Churches will not come back to check if you changed your mind.")}</p>
           <div className="step-body">
             <div className="grant-recap" data-testid="grant-recap">
-              <p>{t("Churches may keep every copy even if you later ask us to take this song down. A publishing deal does not unwind worship use. You can only grant rights you actually hold. We host, convert, transpose, show your name, and deliver these files to the tools churches use. If you were wrong, that is on you — not the churches that trusted it, and not WorshipCommons.")}</p>
+              <p>{t("Churches may keep every copy even if you later ask us to take this song down. A publishing deal does not unwind worship use. You can only grant rights you actually hold. We host, convert, transpose, show your name, and deliver these files to the tools churches use. If you did not hold them, there was no grant. That is on you, not WorshipCommons.")}</p>
             </div>
             <div className="certify-list">
               {([
@@ -603,7 +603,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
             </div>
             <p className="hint" style={{ marginTop: 12 }}>{t("This grant is the recap above — the license you chose.")}</p>
             {(form.license === "CC-BY" || (showMaster && form.masterLicense === "CC-BY")) && <p className="hint" data-testid="cc-by-hint">{t("CC BY grants commercial use to everyone, not only churches: anyone may sell recordings or sheet music of this song as long as they credit you.")}</p>}
-            <p className="hint">{t("If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</p>
+            <p className="hint">{t("If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("is how we take it down.")}</p>
           </div>
         </section>
       )}
@@ -615,7 +615,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
             {proposalType === "removal" && (
               <div className="removal-warning" data-testid="removal-warning">
                 <b>{t("This asks a reviewer to take the song down.")}</b>
-                <p>{t("Nothing changes until a reviewer agrees. If they do, the song leaves the library and its page; churches that already downloaded it keep the license they received. Say who you are and why it should come down — a rights problem, a mistake, or your own wish as the writer.")}</p>
+                <p>{t("Nothing changes until a reviewer agrees. If we take it down because you asked, churches that already have a copy keep the grant they received. If we take it down because it was never yours to share, there was no grant to keep. Say who you are and why it should come down — a rights problem, a mistake, or your own wish as the writer.")}</p>
               </div>
             )}
             <div className="field">

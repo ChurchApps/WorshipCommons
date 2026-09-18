@@ -231,7 +231,7 @@ function licenseBody() {
 <h3>5. If local law gets in the way</h3>
 <p>This license is meant to work in every country. Where local law will not carry all of it, the Writer grants as much as that law allows and promises not to sue anyone for Worship Use.</p>
 <h3>6. Credit, warranties, version</h3>
-<p>Crediting the Writer is appreciated and is not a condition of this license, except where the law requires credit. The Song is provided as-is, with no warranties, as far as the law allows.</p>
+<p>Crediting the Writer is appreciated and is not a condition of this license, except where the law requires credit. The Song is provided as-is, with no warranties, as far as the law allows. This license covers only rights the Writer actually holds.</p>
 <p>Each Song carries the license version in effect on the day it was shared. Only someone who owns the Song can apply this license.</p>
 <p><a href="/upload">Share your song</a> · <a href="/terms">Site terms</a></p>`);
 }

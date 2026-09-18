@@ -51,6 +51,17 @@ test.describe("license note: you may / you may not", () => {
     await expect(page.getByText("Page not found.")).toHaveCount(0);
   });
 
+  test("the fine print does not tell churches they are off the hook", async ({ page }) => {
+    await page.goto("/license/");
+    await page.getByText("Whoever shares a song promises they own it").click();
+    await expect(page.getByText("A promise from someone who did not own the song is not a grant from the owner.")).toBeVisible();
+    await expect(page.getByText("not the churches that trusted the library")).toHaveCount(0);
+    await page.getByText("Songs come as-is").click();
+    await expect(page.getByText("Keep CCLI for the copyrighted catalog you already sing.")).toBeVisible();
+    await expect(page.getByText("on the hook")).toHaveCount(0);
+    await expect(page.getByText("This license covers only rights the Writer actually holds.")).toBeVisible();
+  });
+
   test("a Creative Commons song adds the You must list: credit, license name, link", async ({ page, request }) => {
     await page.goto(`/songs/${await songIdByTitle(request, CC_BY_TITLE)}`);
     const note = page.locator(".license-note");
