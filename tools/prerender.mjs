@@ -195,8 +195,8 @@ function missionBody() {
   return wrap(`
 <h1>Worship music does not belong on an invoice.</h1>
 <p>We exist to take worship songs out of the marketplace — and to put in every church’s hands the songs, charts, slides, and audio they actually need on Sunday morning.</p>
-<p>A song is for singing. A church is for gathering. Sunday morning should never have been for sale.</p>
-<p>The people who write the songs should still make a living. The singing itself should never have been a product. We are here to decommercialize worship music, without asking writers to give their careers away.</p>
+<p>A song is for singing. A church is for gathering. Sunday morning should not be for sale.</p>
+<p>The people who write the songs should make a living — from everything except the congregation’s own voice. The singing itself should not be a product. We are here to decommercialize worship music, without asking writers to give their careers away.</p>
 <h2>Two jobs. One library.</h2>
 <p><b>Quality songs a church can actually use.</b> Public-domain hymns done properly. Originals whose writers certified a free-use grant.</p>
 <p><b>Everything required to use them on Sunday.</b> Hear it. Change the key. Print the chart. Put lyrics on a screen. Lead worship from a browser tab.</p>
@@ -245,7 +245,7 @@ function termsBody() {
 <h2>The license is the grant</h2>
 <p>When you share a song, the license you choose is the legal grant. Read it on the <a href="/license">license page</a>.</p>
 <h2 id="copyright">Copyright / DMCA</h2>
-<p>If a song here infringes your copyright, send a takedown notice. The fastest route is the <a href="/report">report form</a>. You can also write to our designated copyright agent: <a href="mailto:support@worshipcommons.org">support@worshipcommons.org</a>.</p>
+<p>If a song here infringes your copyright, send a takedown notice. The fastest route is the <a href="/report">report form</a>. You can also write to our designated copyright agent: Micheal Byrd, WorshipCommons copyright agent, P.O. Box 1553, Broken Arrow, OK 74013, (918) 860-0053, <a href="mailto:support@worshipcommons.org">support@worshipcommons.org</a>.</p>
 <p>Accounts that repeatedly share songs they do not have the right to share are closed.</p>
 <h2>No warranty</h2>
 <p>WorshipCommons is provided as-is. The songs belong to their writers; we host what they shared.</p>`);

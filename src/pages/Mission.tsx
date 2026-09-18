@@ -20,14 +20,14 @@ export default function Mission() {
 
       <div className="wrap-narrow">
         <div className="dark-panel mission-quote">
-          <p>{t("A song is for singing. A church is for gathering. Sunday morning should never have been for sale.")}</p>
+          <p>{t("A song is for singing. A church is for gathering. Sunday morning should not be for sale.")}</p>
         </div>
       </div>
 
       <article className="wrap-narrow mission-prose">
-        <p>{t("For a generation, churches have rented the songs they sing. A monthly fee. A reporting spreadsheet. A key you cannot change without buying another chart. A livestream that might trigger a claim. The music became inventory. The congregation became a customer.")}</p>
+        <p>{t("For a generation, we have rented the songs we sing. A monthly fee. A reporting spreadsheet. A livestream that might trigger a claim. The music became inventory. The congregation became a customer.")}</p>
         <p>{t("That is not how worship works.")}</p>
-        <p>{t("The people who write the songs should still make a living — from recordings, from sync, from the work that is actually a career. The singing itself should never have been a product. We are here to reverse that: to decommercialize worship music, without asking writers to give their careers away.")}</p>
+        <p>{t("Licensing solved a real problem: churches were copying songs and writers were not being paid. It solved it by turning the congregation into a customer. We think there is a better answer. The people who write the songs should make a living — from recordings, concerts, sync, commissions, everything except the congregation’s own voice. The singing itself should not be a product. We are here to decommercialize worship music, without asking writers to give their careers away.")}</p>
       </article>
 
       <section className="wrap-narrow mission-jobs">
