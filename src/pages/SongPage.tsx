@@ -6,7 +6,7 @@ import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import ChordDiagram from "../components/ChordDiagram";
-import { wcPost, wcPut, COMMONS_API } from "../api";
+import { wcPost, COMMONS_API } from "../api";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -101,21 +101,18 @@ export default function SongPage() {
     setTab("chords");
   }, [id]);
 
-  // one fetch: detail + rating (mine needs the JWT) + history + family + similar
+  // one fetch: detail + history + family + similar
   const [data, setData] = useState<SongPageData | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [rateError, setRateError] = useState("");
   useEffect(() => {
     setData(null);
     setNotFound(false);
-    setRateError("");
     if (!id) return;
     let stale = false;
     loadSongPage(id).then(d => { if (stale) return; d ? setData(d) : setNotFound(true); });
     return () => { stale = true; };
   }, [id, user]);
   const song = data?.song ?? null;
-  const rating = data?.rating;
 
   // 44 curated charts are keyed for congregational singing while the OH tune file
   // stays in its hymnal key — the ABC's K: is the audio's true base, not songKey
@@ -284,17 +281,6 @@ export default function SongPage() {
     if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
     await setInLibrary(song.id, !inLib);
     setInLib(!inLib);
-  };
-
-  const setStars = async (stars: number) => {
-    if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
-    setRateError("");
-    try {
-      const result = await wcPut(`/assets/${song.id}/rating`, { stars: rating?.mine === stars ? null : stars }, true);
-      setData(d => d && ({ ...d, rating: { average: result?.ratingAverage ?? d.rating.average, count: result?.ratingCount ?? d.rating.count, mine: result?.myRating ?? null } }));
-    } catch (e) {
-      setRateError((e as Error).message);
-    }
   };
 
   const recordDownload = () => {
@@ -546,7 +532,10 @@ export default function SongPage() {
               )}
               {song.stemsZipUrl && <li><NoteIcon /><a href={song.stemsZipUrl} className="mt-zip" download onClick={recordDownload}>{t("Multitracks (ZIP)")}</a> <span className="fmt">ZIP · {song.songKey}</span></li>}
             </ul>
-            <p className="rel-hint dl-count">{t("Downloads")}: <span data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</span></p>
+            <p className="rel-hint dl-count">
+              {t("Downloads")}: <span data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</span>
+              {(song.saveCount || 0) > 0 && <> · {t("Saves")}: <span data-testid="save-count">{(song.saveCount as number).toLocaleString()}</span></>}
+            </p>
           </section>
 
           <section className="panel">
@@ -556,18 +545,7 @@ export default function SongPage() {
           </section>
 
           <section className="panel">
-            <h3>{t("Rate it")}</h3>
-            <div className="rate-row">
-              <div className="rating-stars" role="group" aria-label={t("Rate this song")} data-testid="rating-stars">
-                {[1, 2, 3, 4, 5].map(n => (
-                  <button type="button" key={n} aria-label={t("{n} stars", { n })} aria-pressed={(rating?.mine || 0) >= n} data-testid={`rating-star-${n}`} onClick={() => setStars(n)}>
-                    {(rating?.mine || 0) >= n ? "★" : "☆"}
-                  </button>
-                ))}
-              </div>
-              {rating?.average != null && (rating.count ?? 0) >= 3 && <span className="rel-hint" style={{ marginTop: 0 }} data-testid="rating-average">{rating.average} ★ ({rating.count})</span>}
-            </div>
-            {rateError && <p className="rel-hint" style={{ color: "var(--secondary)" }} data-testid="rating-error">{rateError}</p>}
+            <h3>{t("Improve it")}</h3>
             <p className="side-links">
               <Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
               {!song.masterUrl && <><span aria-hidden="true">·</span><Link to={`${songPath(song)}/edit?type=recording`} data-testid="add-master">{t("Add a master recording")}</Link></>}

@@ -8,7 +8,7 @@ import "../styles/songs.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 import { FEATURED_LICENSES, licenseById, licenseGroup } from "../licenses";
-import { CONFIDENCE_LABEL } from "../components/ConfidenceBadge";
+import { CONFIDENCE_LABEL, normalizeConfidence } from "../components/ConfidenceBadge";
 import { guitarReady, rankReason, splitLanguages } from "../catalog";
 
 const PAGE_SIZE = 50;
@@ -57,7 +57,7 @@ export default function Songs() {
   const [state, setState] = useState<Filters>(() => ({
     q: (params.get("q") || "").trim().toLowerCase(),
     themes: new Set(params.get("theme") ? [params.get("theme")] : []),
-    conf: new Set(params.get("confidence") ? [params.get("confidence")] : []),
+    conf: new Set(params.get("confidence") ? [normalizeConfidence(params.get("confidence")) || params.get("confidence")] : []),
     key: "",
     meter: params.get("meter") || "",
     tempo: "",
@@ -71,7 +71,7 @@ export default function Songs() {
     score: false,
     mt: false
   }));
-  const [sort, setSort] = useState(params.get("sort") === "new" ? "new" : "downloads");
+  const [sort, setSort] = useState(params.get("sort") === "new" ? "new" : params.get("sort") === "saves" ? "saves" : "downloads");
   const [page, setPage] = useState(1);
   // ponytail: sidebar starts open on desktop, closed on phones — one boolean, no resize listener
   const [facetsOpen, setFacetsOpen] = useState(() => window.innerWidth > 900);
@@ -174,6 +174,7 @@ export default function Songs() {
     // the API blends usage with moderation quality into rank; ties keep the API's order
     filtered.sort((a, b) =>
       sort === "downloads" ? (b.rank ?? 0) - (a.rank ?? 0) :
+        sort === "saves" ? (b.saveCount ?? 0) - (a.saveCount ?? 0) || (b.downloadCount ?? 0) - (a.downloadCount ?? 0) :
         sort === "new" ? songRecency(b) - songRecency(a) :
           a.title.localeCompare(b.title));
     return filtered;
@@ -249,6 +250,7 @@ export default function Songs() {
             <div className="search-sort">
               <select id="sort" aria-label={t("Sort by")} value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}>
                 <option value="downloads">{t("Most downloaded")}</option>
+                <option value="saves">{t("Most saved")}</option>
                 <option value="new">{t("Newest")}</option>
                 <option value="az">{t("Title A–Z")}</option>
               </select>
@@ -378,7 +380,8 @@ export default function Songs() {
                     <div className="t-main">
                       <Link to={`${songPath(s)}`}>{s.title}</Link>
                       <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{stemsZipUrlOf(s) ? <> • <b className="mt-flag">stems</b></> : null}</span>
-                      {/* why this row leads — only where a completeness or provenance signal adds to the badges */}
+                      <span className="t-stats" data-testid="song-stats">{t("{n} downloads", { n: (s.downloadCount || 0).toLocaleString() })}{(s.saveCount || 0) > 0 ? ` · ${t("{n} saves", { n: (s.saveCount as number).toLocaleString() })}` : ""}</span>
+                      {/* why this row leads — hymnal prior and completeness, not star ratings */}
                       {rankReason(s).length > 0 && <span className="t-reason" data-testid="rank-reason">{rankReason(s).map(r => t(r)).join(" · ")}</span>}
                     </div>
                     <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>

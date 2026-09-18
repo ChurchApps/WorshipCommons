@@ -4,7 +4,7 @@ import { CORE_API, wcGet } from "./api";
 import themeVocabulary from "./themes.json";
 
 // ---- package model: what masters/ and derivatives/ hold, as the API reports it ----
-export type Confidence = "sunday-ready" | "proofread-score" | "converted-from-abc" | "generated-from-midi" | "chart-only" | "lyrics-only";
+export type Confidence = "sunday-ready" | "score" | "generated-from-midi" | "chart-only" | "lyrics-only";
 export type RightsLayer = "text" | "translation" | "tune" | "arrangement" | "recording" | "artwork";
 export interface RightsRow { license: string; basis?: string | null; source?: string | null; holder?: string | null; note?: string | null; review?: string | null; }
 export type Rights = Partial<Record<RightsLayer, RightsRow | null>>;
@@ -35,6 +35,7 @@ export interface Song {
   /** CCLI song id when the writer listed one. Presence does not mean reporting is required. */
   ccli?: string | null;
   downloadCount: number;
+  saveCount?: number;
   likeCount: number;
   chordPro?: string;
   path?: string;
@@ -269,6 +270,7 @@ export function songFromApi(raw: any): Song {
   // catalog.json already names stemsZipUrl; recover when the API still keys the pack by its title-BPM filename
   if (!raw.stemsZipUrl) raw.stemsZipUrl = stemsZipUrlOf(raw);
   if (!raw.hasAccompaniment) raw.hasAccompaniment = !!(instrumentalUrlOf(raw) || raw.stemsZipUrl);
+  if (raw.confidence === "proofread-score" || raw.confidence === "converted-from-abc") raw.confidence = "score";
   return raw as Song;
 }
 
@@ -297,10 +299,8 @@ export async function loadSong(id: string): Promise<Song | null> {
 }
 
 export interface HistoryEntry { submissionId: string; submittedByName?: string; approvedAt?: string; note?: string; filesChanged?: { name: string; action: string }[] }
-export interface SongRating { average: number | null; count: number; mine: number | null; }
 export interface SongPageData {
   song: Song;
-  rating: SongRating;
   history: HistoryEntry[];
   /** parent + siblings + children via parentSongId, in catalog order */
   family: Song[];
@@ -308,15 +308,13 @@ export interface SongPageData {
   similar: (Song & { reason?: string })[];
 }
 
-// The one fetch the song page needs: detail + rating (mine needs the JWT) + history + family + similar.
-// Not cached — `rating.mine` depends on who is asking.
+// The one fetch the song page needs: detail + history + family + similar.
 export async function loadSongPage(id: string): Promise<SongPageData | null> {
   try {
     const raw = await wcGet(`/songs/${id}/page`, true);
     if (!raw?.song) return null;
     return {
       song: songFromApi(raw.song),
-      rating: { average: raw.rating?.average ?? null, count: raw.rating?.count ?? 0, mine: raw.rating?.mine ?? null },
       history: raw.history || [],
       family: (raw.family || []).map(songFromApi),
       similar: (raw.similar || []).map(songFromApi)
