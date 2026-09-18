@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
 import { pendingSubmissionFor, submissionDetail, WC_API } from "./helpers/api";
@@ -35,7 +36,7 @@ test.describe.serial("submission type", () => {
     await page.fill("#title", TRANSLATION_TITLE);
     await page.fill("#writers", "Playwright Hymnwriter");
     await page.fill("#lyrics", LYRICS);
-    await page.check("#certify");
+    await checkGrant(page);
 
     // no translator, still English — the form refuses both, in the server's own words
     await page.getByRole("button", { name: "Add it to the commons" }).click();
@@ -67,7 +68,7 @@ test.describe.serial("submission type", () => {
     await page.fill("#lyrics", LYRICS);
     await page.getByTestId("file-midi").setInputFiles(path.join(__dirname, "fixtures", "tiny.mid"));
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toContainText("tiny.mid");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
 

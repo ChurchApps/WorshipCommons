@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
 import { approveSubmission, pendingSubmissionFor, submissionDetail } from "./helpers/api";
@@ -19,7 +20,7 @@ test.describe.serial("cover art", () => {
     // the preview only appears once the canvas has encoded the art in the browser
     await expect(page.locator(".dropzone img.dz-art")).toBeVisible();
 
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
 

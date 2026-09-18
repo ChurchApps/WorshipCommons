@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
 import { approveSubmission, pendingSubmissionFor } from "./helpers/api";
@@ -24,7 +25,7 @@ test.describe.serial("upload flow", () => {
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toBeVisible();
 
     await page.check("#recording-owned");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
 
     await expect(page.getByTestId("upload-thanks")).toBeVisible();

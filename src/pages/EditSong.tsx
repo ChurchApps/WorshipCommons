@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-r
 import { useAuth } from "../auth";
 import { idOf } from "../songs";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
-import SongForm, { conventionalName, FILE_LABEL, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import SongForm, { conventionalName, FILE_LABEL, grantComplete, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -27,8 +27,8 @@ const asType = (v: string | null): ProposalType | null => (PROPOSAL_TYPES as str
 /** The payload each proposal type sends: a removal names the song and nothing more, files ride on the live payload untouched, a correction is the form. */
 function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFiles, base: any) {
   if (type === "removal") return { type, name: base.name, language: base.language, license: base.license, detail: { writer: base.detail?.writer, songKey: base.detail?.songKey } };
-  if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, certified: form.certified, recordingOwned: files.demoAudio ? form.recordingOwned : base.detail?.recordingOwned } };
-  if (type === "recording") return { ...base, type, detail: { ...base.detail, certified: form.certified, recordingOwned: form.recordingOwned, masterLicense: form.masterLicense } };
+  if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, certified: grantComplete(form), recordingOwned: files.demoAudio ? form.recordingOwned : base.detail?.recordingOwned } };
+  if (type === "recording") return { ...base, type, detail: { ...base.detail, certified: grantComplete(form), recordingOwned: form.recordingOwned, masterLicense: form.masterLicense } };
   return { ...payloadFrom(form, hasRecording(files), base), type };
 }
 
@@ -132,8 +132,6 @@ export default function EditSong() {
 
   const fromDraft = draft && asType(draft.type || draft.payload?.type) === type;
   const initial = songFromPayload(fromDraft ? draft.payload : base);
-  // adding files is a fresh attestation — the checkbox starts empty unless the reopened draft already carried it
-  if (type === "additionalFile" || type === "recording") initial.certified = fromDraft ? !!draft.payload?.detail?.certified : false;
   const draftFiles: string[] = fromDraft ? (draft.files || []).filter((f: any) => f.action !== "remove").map((f: any) => f.name) : [];
 
   return (

@@ -49,9 +49,19 @@ export interface SongFormValues {
   scope: Scope;
   masterLicense: string;
   proAnswer: string;
-  certified: boolean;
+  certifyAdult: boolean;
+  certifyWrote: boolean;
+  certifyCowriters: boolean;
+  certifyClear: boolean;
+  certifyForever: boolean;
+  certifyHuman: boolean;
   recordingOwned: boolean;
 }
+
+export const GRANT_KEYS = ["certifyAdult", "certifyWrote", "certifyCowriters", "certifyClear", "certifyForever", "certifyHuman"] as const;
+export type GrantKey = typeof GRANT_KEYS[number];
+export const grantComplete = (f: Pick<SongFormValues, GrantKey>) => GRANT_KEYS.every(k => f[k]);
+const blankGrant = (): Pick<SongFormValues, GrantKey> => ({ certifyAdult: false, certifyWrote: false, certifyCowriters: false, certifyClear: false, certifyForever: false, certifyHuman: false });
 
 export type SongFiles = { demoAudio?: File; master?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File; score?: File; scoreImage?: File; lyrics?: File };
 
@@ -61,7 +71,7 @@ export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.ma
 /** Progress-line names for every upload role, keyed by SongFiles key. */
 export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", master: "master recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
 
-export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", certified: false, recordingOwned: false });
+export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false });
 
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
@@ -86,7 +96,12 @@ export const songFromPayload = (payload: any): SongFormValues => {
     scope: d.masterLicense ? "both" : "composition",
     masterLicense: UPLOADABLE.some(l => l.id === d.masterLicense) ? d.masterLicense : "WC",
     proAnswer: d.proAnswer || "",
-    certified: true,
+    certifyAdult: !!d.certifyAdult,
+    certifyWrote: !!d.certifyWrote,
+    certifyCowriters: !!d.certifyCowriters,
+    certifyClear: !!d.certifyClear,
+    certifyForever: !!d.certifyForever,
+    certifyHuman: !!d.certifyHuman,
     recordingOwned: false
   };
 };
@@ -104,7 +119,7 @@ export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: any)
   language: form.language,
   license: form.license,
   licenseVersion: licenseById(form.license).versionDefault, // WC 1.0 · CC BY 4.0 · PD is a CC0 dedication
-  attestationVersion: "1.1", // 1.1 added the human-written words-and-melody promise
+  attestationVersion: "1.2", // 1.2 split the grant into adult / authorship / co-writers / unencumbered / forever / human
   attestedAt: new Date().toISOString(),
   detail: {
     ...base?.detail,
@@ -123,7 +138,13 @@ export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: any)
     proAnswer: form.proAnswer,
     // the master's own grant; a composition-only submission carries whatever the live song already has
     masterLicense: form.scope === "both" ? form.masterLicense : base?.detail?.masterLicense,
-    certified: form.certified,
+    certified: grantComplete(form),
+    certifyAdult: form.certifyAdult,
+    certifyWrote: form.certifyWrote,
+    certifyCowriters: form.certifyCowriters,
+    certifyClear: form.certifyClear,
+    certifyForever: form.certifyForever,
+    certifyHuman: form.certifyHuman,
     recordingOwned: hasAudio ? form.recordingOwned : base?.detail?.recordingOwned
   }
 });
@@ -331,7 +352,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
       if (!form.chordPro.trim()) gaps.push(t("Lyrics and chords"));
       else if (lint.some(i => i.level === "error")) gaps.push(t("Lyrics and chords — fix the errors listed under the preview"));
     }
-    if (showWord && !form.certified) gaps.push(t("Your word"));
+    if (showWord && !grantComplete(form)) gaps.push(t("Your word — every box in this step"));
     if (showMaster && !files.master) gaps.push(t("Master recording"));
     if (hasRecording(files) && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
     if (proposalType && noteShort) gaps.push(proposalType === "removal" ? t("A note of at least {n} characters is required: say why the song should come down", { n: MIN_NOTE_LENGTH }) : t("A note of at least {n} characters is required: say what changed and why", { n: MIN_NOTE_LENGTH }));
@@ -558,18 +579,31 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
       )}
 
       {showWord && (
-        <section className="step">
+        <section className="step" data-testid="grant-step">
           <h2><span className="n">{step()}</span>{t("Your word")}</h2>
+          <p className="hint">{t("This is the decision. Churches will not come back to check if you changed your mind.")}</p>
           <div className="step-body">
-            <div className="certify">
-              <input type="checkbox" id="certify" required checked={form.certified} onChange={e => set("certified", e.target.checked)} />
-              <label htmlFor="certify" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
-                <em>{t("I wrote this song or control its copyright — words, music, and every file I’m uploading — and every co-writer, publisher, and recording owner is on board. No society, publisher, or admin has taken away my right to make this grant. I release the song under the license I chose, permanently. I let WorshipCommons host, convert, transpose, show my name, and deliver these files, including to the tools churches use. I can ask you to stop hosting; copies already out keep the license. If I was wrong, that’s on me — not the churches that trusted it, and not WorshipCommons.")} {t("The words and melody were written by people, not generated by AI. A recording made with AI tools of a human-written song is fine.")}</em>
-                <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This grant is the recap above — the license you chose.")}</span>
-                {(form.license === "CC-BY" || (showMaster && form.masterLicense === "CC-BY")) && <span className="hint" style={{ display: "block", marginTop: 6 }} data-testid="cc-by-hint">{t("CC BY grants commercial use to everyone, not only churches: anyone may sell recordings or sheet music of this song as long as they credit you.")}</span>}
-                <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("This promise is the whole trust model of the commons. If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</span>
-              </label>
+            <div className="grant-recap" data-testid="grant-recap">
+              <p>{t("Churches may keep every copy even if you later ask us to take this song down. A publishing deal does not unwind worship use. You can only grant rights you actually hold. We host, convert, transpose, show your name, and deliver these files to the tools churches use. If you were wrong, that is on you — not the churches that trusted it, and not WorshipCommons.")}</p>
             </div>
+            <div className="certify-list">
+              {([
+                ["certifyAdult", "I am 18 or older."],
+                ["certifyWrote", "I wrote this song, or I control its copyright — words, music, and every file I’m uploading."],
+                ["certifyCowriters", "Every co-writer has agreed in writing. If I am the only writer, there is no silent partner."],
+                ["certifyClear", "No publisher, performing-rights society, or admin has taken away my right to make this grant."],
+                ["certifyForever", "I understand worship use is forever. Asking you to stop hosting does not recall copies already out."],
+                ["certifyHuman", "The words and melody were written by people, not generated by AI. A recording made with AI tools of a human-written song is fine."]
+              ] as [GrantKey, string][]).map(([key, label]) => (
+                <label key={key}>
+                  <input type="checkbox" id={key} data-testid={key} required checked={form[key]} onChange={e => set(key, e.target.checked)} />
+                  {t(label)}
+                </label>
+              ))}
+            </div>
+            <p className="hint" style={{ marginTop: 12 }}>{t("This grant is the recap above — the license you chose.")}</p>
+            {(form.license === "CC-BY" || (showMaster && form.masterLicense === "CC-BY")) && <p className="hint" data-testid="cc-by-hint">{t("CC BY grants commercial use to everyone, not only churches: anyone may sell recordings or sheet music of this song as long as they credit you.")}</p>}
+            <p className="hint">{t("If a song gets shared by someone who doesn’t own it, the")} <Link to="/report">{t("reporting process")}</Link> {t("makes it right.")}</p>
           </div>
         </section>
       )}

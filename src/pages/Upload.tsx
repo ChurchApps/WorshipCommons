@@ -33,7 +33,6 @@ export default function Upload() {
       if (!live) return;
       const payload = sub.payload || sub;
       const values = songFromPayload(payload);
-      values.certified = !!payload?.detail?.certified;
       values.recordingOwned = !!payload?.detail?.recordingOwned;
       draftIdRef.current = sub.id || sub.submissionId || draftParam;
       setReviewNote(sub.reviewReason === "changes" && sub.reviewNote ? sub.reviewNote : "");

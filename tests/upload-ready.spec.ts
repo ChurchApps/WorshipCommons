@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { checkGrant } from "./helpers/attest";
 import * as fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -38,7 +39,7 @@ test.describe("upload required fields", () => {
     await page.goto("/upload");
     await page.fill("#writers", "Playwright Composer");
     await page.fill("#lyrics", LYRICS);
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
     await expect(page).toHaveURL(/\/upload/);
@@ -48,7 +49,7 @@ test.describe("upload required fields", () => {
     await page.goto("/upload");
     await page.fill("#title", "Missing Lyrics Song");
     await page.fill("#writers", "Playwright Composer");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
     await expect(page).toHaveURL(/\/upload/);
@@ -62,19 +63,30 @@ test.describe("upload required fields", () => {
     await expect(page).toHaveURL(/\/upload/);
   });
 
+  test("one grant box is not enough; recap names the forever rule", async ({ page }) => {
+    await page.goto("/upload");
+    await fillSongFields(page, "Partial Grant Song");
+    await expect(page.getByTestId("grant-recap")).toContainText("Churches may keep every copy");
+    await expect(page.getByTestId("certifyAdult")).toBeVisible();
+    await page.getByTestId("certifyForever").check();
+    await page.getByRole("button", { name: "Add it to the commons" }).click();
+    await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
+    await expect(page.getByTestId("upload-error")).toContainText("Your word");
+  });
+
   test("demo without recording-owned fails; lyrics-only does not need it", async ({ page }) => {
     await page.goto("/upload");
     await fillSongFields(page, "No Recording Owned");
     await page.getByTestId("file-demo").setInputFiles(WAV);
     await expect(page.getByTestId("recording-owned")).toBeVisible();
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
 
     await page.goto("/upload");
     await fillSongFields(page, "Lyrics Only No Demo");
     await expect(page.getByTestId("recording-owned")).toHaveCount(0);
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
   });
@@ -110,7 +122,7 @@ test.describe.serial("pending is private then reject deletes files", () => {
     await fillSongFields(page, TITLE);
     await page.getByTestId("file-demo").setInputFiles(WAV);
     await page.check("#recording-owned");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
 
@@ -172,7 +184,7 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     await page.getByTestId("file-sheet").setInputFiles(PDF);
     await page.getByTestId("file-stems").setInputFiles(ZIP);
     await page.check("#recording-owned");
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
   });
@@ -238,7 +250,7 @@ test.describe.serial("PD submit label", () => {
     await page.goto("/upload");
     await fillSongFields(page, TITLE);
     await page.check('input[name="license"][value="PD"]');
-    await page.check("#certify");
+    await checkGrant(page);
     await page.getByRole("button", { name: "Add it to the commons" }).click();
     await expect(page.getByTestId("upload-thanks")).toBeVisible();
   });

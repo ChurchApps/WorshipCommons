@@ -142,7 +142,12 @@ test("static SPA routes write crawlable HTML under build/<route>/index.html", ()
     assert.match(fs.readFileSync(path.join(dir, "terms", "index.html"), "utf8"), /support@worshipcommons\.org/);
     assert.match(fs.readFileSync(path.join(dir, "upload", "index.html"), "utf8"), /Sign in to share your song/);
     assert.match(fs.readFileSync(path.join(dir, "new", "index.html"), "utf8"), /Steady Light/);
-    assert.match(fs.readFileSync(path.join(dir, "call-for-songs", "index.html"), "utf8"), /Call for songs/);
+    const call = fs.readFileSync(path.join(dir, "call-for-songs", "index.html"), "utf8");
+    assert.match(call, /Call for songs/);
+    assert.match(call, /give churches this song forever/);
+    assert.match(call, /You must be 18 or older/);
+    assert.doesNotMatch(call, /seminary students/);
+    assert.doesNotMatch(call, /first published song/);
     assert.match(fs.readFileSync(path.join(dir, "report", "index.html"), "utf8"), /Report a song/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });

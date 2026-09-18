@@ -186,7 +186,7 @@ export default function Home() {
               <br />
               <Link className="more" to="/mission">{t("Meet WorshipCommons →")}</Link>
               <br />
-              <Link className="more" to="/call-for-songs">{t("For students and seminaries →")}</Link>
+              <Link className="more" to="/call-for-songs" data-testid="home-call-for-songs">{t("Release a song →")}</Link>
             </div>
           </div>
           <div className="banner-photo">
