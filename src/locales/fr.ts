@@ -32,7 +32,7 @@ const fr: Record<string, string> = {
   "Copyright / DMCA": "Droits d’auteur / DMCA",
   "Privacy": "Confidentialité",
   "Terms": "Conditions",
-  "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. Les chants appartiennent à leurs auteurs. Le chant appartient à tous.",
+  "A service of ChurchApps": "Un service de ChurchApps",
   "Page not found.": "Page introuvable.",
   "← Home": "← Accueil",
 

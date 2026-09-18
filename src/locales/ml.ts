@@ -32,7 +32,7 @@ const ml: Record<string, string> = {
   "Copyright / DMCA": "പകർപ്പവകാശം / DMCA",
   "Privacy": "സ്വകാര്യത",
   "Terms": "നിബന്ധനകൾ",
-  "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. പാട്ടുകൾ അവയുടെ രചയിതാക്കളുടേത്. പാടുന്നത് എല്ലാവരുടേതും.",
+  "A service of ChurchApps": "ChurchApps-ന്റെ ഒരു സേവനം",
   "Page not found.": "പേജ് കണ്ടെത്തിയില്ല.",
   "← Home": "← ഹോം",
 

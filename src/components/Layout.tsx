@@ -89,7 +89,7 @@ export default function Layout() {
             <Link to="/terms#copyright" data-testid="foot-dmca">{t("Copyright / DMCA")}</Link>
             <a href="https://churchapps.org/privacy">{t("Privacy")}</a>
             <Link to="/terms">{t("Terms")}</Link>
-            <span>{t("© 2026 WorshipCommons")}</span>
+            <a href="https://churchapps.org" data-testid="foot-churchapps">{t("A service of ChurchApps")}</a>
             <LangToggle />
           </p>
         </div>
