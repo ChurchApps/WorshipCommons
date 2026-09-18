@@ -600,7 +600,6 @@ const ru: Record<string, string> = {
   "has score": "есть ноты",
   "chart with chords": "текст с аккордами",
   "browse": "обзор",
-  "+ {count} browse languages": "+ {count} языков в обзоре",
   "Scored hymns, ready to sing": "Гимны с нотами, готовые к пению",
   "Start here": "Начните здесь",
   "Forty hymns with a score and a chart.": "Сорок гимнов с нотами и аккордами.",

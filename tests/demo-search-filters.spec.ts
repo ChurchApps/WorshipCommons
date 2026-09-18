@@ -161,17 +161,11 @@ test.describe("home", () => {
     await expect(page.locator(".row-list [data-testid='confidence-badge'], .row-list .free-badge")).toHaveCount(0);
   });
 
-  test("headline totals count catalog languages and note the browse languages", async ({ page }) => {
-    const langs = [...new Set(songs.map(s => s.language))];
-    const catalog = langs.filter(isCatalog);
-    const browse = langs.filter(l => !isCatalog(l));
+  test("headline totals count every song and every language", async ({ page }) => {
+    const langs = [...new Set(songs.map(s => s.language).filter(Boolean))];
     await page.goto("/");
-    if (catalog.length && browse.length) {
-      await expect(page.getByTestId("browse-langs").first()).toHaveText(`+ ${browse.length} browse languages`);
-      await expect(page.locator(".hero-proof")).toContainText(`${catalog.length} languages`);
-      await expect(page.locator(".hero-proof")).toContainText(`${songs.filter(s => catalog.includes(s.language)).length.toLocaleString()} songs`);
-    } else {
-      await expect(page.getByTestId("browse-langs")).toHaveCount(0);
-    }
+    await expect(page.getByTestId("home-langs")).toHaveText(`${langs.length} languages`);
+    await expect(page.getByTestId("browse-langs")).toHaveCount(0);
+    await expect(page.locator(".hero-proof")).toContainText(`${songs.length.toLocaleString()} songs`);
   });
 });

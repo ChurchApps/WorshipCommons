@@ -600,7 +600,6 @@ const hu: Record<string, string> = {
   "has score": "van kottája",
   "chart with chords": "akkordos lap",
   "browse": "böngészés",
-  "+ {count} browse languages": "+ {count} böngészhető nyelv",
   "Scored hymns, ready to sing": "Kottás énekek, énekelhetők",
   "Start here": "Kezd itt",
   "Forty hymns with a score and a chart.": "Negyven ének kottával és akkordokkal.",

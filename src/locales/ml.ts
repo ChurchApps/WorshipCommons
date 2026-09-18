@@ -600,7 +600,6 @@ const ml: Record<string, string> = {
   "has score": "സ്വരലിപിയുണ്ട്",
   "chart with chords": "കോർഡുകളോടെ ഷീറ്റ്",
   "browse": "ബ്രൗസ്",
-  "+ {count} browse languages": "+ {count} ബ്രൗസ് ഭാഷകൾ",
   "Scored hymns, ready to sing": "സ്വരലിപിയുള്ള ഗീതങ്ങൾ, പാടാൻ തയ്യാർ",
   "Start here": "ഇവിടെ തുടങ്ങുക",
   "Forty hymns with a score and a chart.": "സ്വരലിപിയും കോർഡ് ചാർട്ടും ഉള്ള നാല്പത് ഗീതങ്ങൾ.",

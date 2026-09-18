@@ -600,7 +600,6 @@ const fr: Record<string, string> = {
   "has score": "avec partition",
   "chart with chords": "grille avec accords",
   "browse": "découverte",
-  "+ {count} browse languages": "+ {count} langues en découverte",
   "Scored hymns, ready to sing": "Cantiques avec partition, prêts à chanter",
   "Start here": "Commencer ici",
   "Forty hymns with a score and a chart.": "Quarante cantiques avec partition et grille.",
