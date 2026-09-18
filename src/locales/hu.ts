@@ -32,7 +32,7 @@ const hu: Record<string, string> = {
   "Copyright / DMCA": "Szerzői jog / DMCA",
   "Privacy": "Adatvédelem",
   "Terms": "Feltételek",
-  "© 2026 WorshipCommons. The songs belong to their writers. The singing belongs to everyone.": "© 2026 WorshipCommons. Az énekek a szerzőiké. Az éneklés mindenkié.",
+  "A service of ChurchApps": "A ChurchApps szolgáltatása",
   "Page not found.": "Az oldal nem található.",
   "← Home": "← Főoldal",
 
