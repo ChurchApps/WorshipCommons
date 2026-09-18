@@ -6,7 +6,8 @@ import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
 import ChordDiagram from "../components/ChordDiagram";
-import { wcPost, COMMONS_API } from "../api";
+import { wcGet, wcPost, COMMONS_API } from "../api";
+import { parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
@@ -113,6 +114,19 @@ export default function SongPage() {
     return () => { stale = true; };
   }, [id, user]);
   const song = data?.song ?? null;
+  const [supportLinks, setSupportLinks] = useState<WriterLink[]>([]);
+  useEffect(() => {
+    const authorId = song?.authorId || song?.writerId;
+    if (!authorId || song?.license === "PD") {
+      setSupportLinks([]);
+      return;
+    }
+    let live = true;
+    wcGet(`/authors/${encodeURIComponent(authorId)}`)
+      .then(raw => { if (live) setSupportLinks(parseWriterLinks(raw?.supportLinks)); })
+      .catch(() => { if (live) setSupportLinks([]); });
+    return () => { live = false; };
+  }, [song?.authorId, song?.writerId, song?.license]);
 
   // 44 curated charts are keyed for congregational singing while the OH tune file
   // stays in its hymnal key — the ABC's K: is the audio's true base, not songKey
@@ -309,7 +323,7 @@ export default function SongPage() {
         <span className="crumb-here">{song.title}</span>
       </p>
 
-      <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={toggleLib} />
+      <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={toggleLib} supportLinks={supportLinks} />
 
       {(recordingUrl || midiUrl) && (
         <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={recordingUrl ? t("Demo recording") : t("Piano preview")}>

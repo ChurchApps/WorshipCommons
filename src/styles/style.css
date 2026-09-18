@@ -97,6 +97,15 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 700; }
 .writer-photo { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; object-position: top; flex: none; border: 1px solid var(--line-2); filter: grayscale(0.2) sepia(0.12); }
 .writer-row b { font-size: 1.0313rem; display: block; letter-spacing: -0.01em; margin-bottom: 4px; }
 .writer-bio { font-size: 0.875rem; color: var(--text-2); line-height: 1.55; }
+.support-picker { position: relative; }
+.support-picker > .btn { width: 100%; }
+.support-menu {
+  position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; right: 0; min-width: 220px;
+  background: var(--surface); border: 1px solid var(--line-2); border-radius: 14px; padding: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+.support-menu a { display: block; padding: 10px 12px; border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9375rem; }
+.support-menu a:hover { background: rgba(255, 255, 255, 0.06); }
 .writer-src { font-size: 0.7188rem; color: var(--muted); margin-top: 12px; }
 
 /* ===== forms ===== */

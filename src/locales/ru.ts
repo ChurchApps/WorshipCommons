@@ -853,7 +853,15 @@ const ru: Record<string, string> = {
   "A reviewer checks the recording and its license before it joins the song.": "Рецензент проверяет запись и её лицензию, прежде чем она присоединится к песне.",
   "Thank you — your recording is in review": "Спасибо — ваша запись на проверке",
   "Add a master recording": "Добавить мастер-запись",
-  "master recording": "мастер-запись"
+  "master recording": "мастер-запись",
+  "A support link on your writer page": "Ссылка для поддержки на странице автора",
+  "Support the writer": "Поддержать автора",
+  "Support links": "Ссылки для поддержки",
+  "Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.": "Богослужебное использование бесплатно. Если хотите, чтобы церкви поддерживали вашу другую работу, укажите куда идти — сайт, магазин, страницу служения. Это не условие лицензии.",
+  "Add a support link": "Добавить ссылку для поддержки",
+  "Ways to support {writer}": "Как поддержать {writer}",
+  "Does this mean writers work for free?": "Значит, авторы работают бесплатно?",
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Богослужебное использование — дар. Мы не собираем роялти за пение. Авторам остаются альбомы, синхронизация, концерты; они могут поставить ссылку для поддержки на своей странице. Успех в собрании — не зарплата. Если вам нужно, чтобы само пение платило за жильё, не давайте эту лицензию. Оставьте CCLI для каталога, который это делает."
 };
 
 export default ru;

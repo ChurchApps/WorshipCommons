@@ -853,7 +853,15 @@ const pt: Record<string, string> = {
   "A reviewer checks the recording and its license before it joins the song.": "Um revisor verifica a gravação e a sua licença antes de ela se juntar à canção.",
   "Thank you — your recording is in review": "Obrigado — a sua gravação está em revisão",
   "Add a master recording": "Adicionar uma gravação master",
-  "master recording": "gravação master"
+  "master recording": "gravação master",
+  "A support link on your writer page": "Um link de apoio na sua página de autor",
+  "Support the writer": "Apoiar o autor",
+  "Support links": "Links de apoio",
+  "Worship use is free. If you want churches to support your other work, add the places they should go — a site, a store, a ministry page. Not a condition of the grant.": "O uso na adoração é gratuito. Se quiser que as igrejas apoiem o seu outro trabalho, indique os lugares — um site, uma loja, uma página de ministério. Não é condição da concessão.",
+  "Add a support link": "Adicionar um link de apoio",
+  "Ways to support {writer}": "Formas de apoiar {writer}",
+  "Does this mean writers work for free?": "Então os autores trabalham de graça?",
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "O uso na adoração é um dom. Não cobramos royalties por cantar. Os autores ficam com álbuns, sync, concertos, e podem colocar um link de apoio na página. Sucesso congregacional não é salário. Se precisa que o canto pague o aluguel, não faça esta concessão. Mantenha o CCLI para o catálogo que faz isso."
 };
 
 export default pt;

@@ -199,6 +199,10 @@ export default function License() {
           <p>{t("No. Keep CCLI (and SongSelect) for the copyrighted songs you already sing. WorshipCommons does not replace that license. You can log these songs for statistics if a provider asks; no royalty attaches.")}</p>
         </details>
         <details>
+          <summary>{t("Does this mean writers work for free?")}</summary>
+          <p>{t("Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.")}</p>
+        </details>
+        <details>
           <summary>{t("Do we still report these songs to our licensing service?")}</summary>
           <p>{t("Nothing is owed to anyone for WorshipCommons songs. If your projection-license provider asks you to log everything you sing, you can list them for their statistics — but no royalty attaches.")}</p>
         </details>
