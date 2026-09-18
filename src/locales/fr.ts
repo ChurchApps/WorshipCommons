@@ -602,6 +602,9 @@ const fr: Record<string, string> = {
   "browse": "découverte",
   "+ {count} browse languages": "+ {count} langues en découverte",
   "Scored hymns, ready to sing": "Cantiques avec partition, prêts à chanter",
+  "Start here": "Commencer ici",
+  "Forty hymns with a score and a chart.": "Quarante cantiques avec partition et grille.",
+  "See all 40 →": "Voir les 40 →",
   "Looking for a copyrighted song?": "Vous cherchez un chant sous droits d'auteur ?",
   "Search SongSelect →": "Chercher sur SongSelect →",
   // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports

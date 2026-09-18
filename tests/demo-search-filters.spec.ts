@@ -1,5 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import { WC_API } from "./helpers/api";
+import { START_HERE } from "../src/catalog";
 
 interface SeedSong {
   id: string; title: string; language: string; license: string; rank?: number;
@@ -142,14 +143,17 @@ test.describe("search, filters and ranking", () => {
 test.describe("home", () => {
   test("the first block is Sunday-ready, or says honestly what it shows instead", async ({ page }) => {
     const english = songs.filter(s => s.language === "English");
-    const heading = english.some(s => s.sundayReady || s.featured) ? "Sunday-ready"
-      : english.some(s => s.hasScore) ? "Scored hymns, ready to sing" : "Most downloaded in the commons";
+    const heading = english.some(s => s.sundayReady) ? "Sunday-ready"
+        : english.some(s => START_HERE.has(s.id)) ? "Start here"
+        : english.some(s => s.hasScore) ? "Scored hymns, ready to sing" : "Most downloaded in the commons";
     await page.goto("/");
     await expect(page.getByTestId("home-top-heading")).toHaveText(heading);
     if (heading !== "Sunday-ready") await expect(page.getByTestId("home-top-heading")).not.toContainText("Sunday-ready");
 
     // the block is ranked within the UI language; the first card is the top-ranked eligible English title
-    const pool = heading === "Sunday-ready" ? english.filter(s => s.sundayReady || s.featured) : heading.startsWith("Scored") ? english.filter(s => s.hasScore) : english;
+    const pool = heading === "Sunday-ready" ? english.filter(s => s.sundayReady)
+        : heading === "Start here" ? english.filter(s => START_HERE.has(s.id))
+        : heading.startsWith("Scored") ? english.filter(s => s.hasScore) : english;
     // mirrors recordingUrlOf in src/songs.ts: the home page puts real recordings ahead of MIDI-only titles
     const recorded = (s: SeedSong) => /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(s.demoAudioUrl || s.masterUrl || s.fileUrls?.demoAudio || s.fileUrls?.master || s.fileUrls?.song || "");
     const first = [...pool].sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0)).sort((a, b) => +recorded(b) - +recorded(a))[0];

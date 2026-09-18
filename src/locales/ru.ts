@@ -602,6 +602,9 @@ const ru: Record<string, string> = {
   "browse": "обзор",
   "+ {count} browse languages": "+ {count} языков в обзоре",
   "Scored hymns, ready to sing": "Гимны с нотами, готовые к пению",
+  "Start here": "Начните здесь",
+  "Forty hymns with a score and a chart.": "Сорок гимнов с нотами и аккордами.",
+  "See all 40 →": "Смотреть все 40 →",
   "Looking for a copyrighted song?": "Ищете песню, защищённую авторским правом?",
   "Search SongSelect →": "Искать в SongSelect →",
   // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports

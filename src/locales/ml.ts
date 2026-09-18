@@ -602,6 +602,9 @@ const ml: Record<string, string> = {
   "browse": "ബ്രൗസ്",
   "+ {count} browse languages": "+ {count} ബ്രൗസ് ഭാഷകൾ",
   "Scored hymns, ready to sing": "സ്വരലിപിയുള്ള ഗീതങ്ങൾ, പാടാൻ തയ്യാർ",
+  "Start here": "ഇവിടെ തുടങ്ങുക",
+  "Forty hymns with a score and a chart.": "സ്വരലിപിയും കോർഡ് ചാർട്ടും ഉള്ള നാല്പത് ഗീതങ്ങൾ.",
+  "See all 40 →": "40-ഉം കാണുക →",
   "Looking for a copyrighted song?": "പകർപ്പവകാശമുള്ള പാട്ട് തിരയുകയാണോ?",
   "Search SongSelect →": "SongSelect-ൽ തിരയുക →",
   // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports

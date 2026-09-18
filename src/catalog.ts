@@ -51,14 +51,67 @@ export function rankReason(s: Song): string[] {
 const byRank = (a: Song, b: Song) => (b.rank ?? 0) - (a.rank ?? 0);
 
 /**
- * The first block, ranked within the UI language: Sunday-ready, then featured; when neither
- * exists yet, the best scored titles under a heading that says so — never "Sunday-ready".
+ * Editorial "Start here" set: well-known English PD hymns that already have a typeset
+ * score (Open Hymnal ABC) and a chord chart. Not Sunday-ready — that stamp is the listen gate.
+ * Order is hymnal ubiquity, then a few Christmas/Easter titles churches actually start with.
+ */
+export const START_HERE_IDS = [
+  "T0B8i41oasf", // All Hail the Power of Jesus' Name
+  "b13IrZfZXWm", // Rock of Ages
+  "ggzFvLEr9mK", // Nearer, My God, to Thee
+  "PcwqBQ0pxuT", // Blest Be the Tie That Binds
+  "jY7zZ5DB4YC", // My Faith Looks Up to Thee
+  "FMd8ryghVRb", // Come Thou Fount Of Every Blessing
+  "WE26JDTfHyQ", // How Firm a Foundation
+  "5XkXjIIePgD", // When I Survey the Wondrous Cross
+  "_X94hS2ZTgf", // Joy to the World
+  "QnYa8cJdeLc", // Guide Me, O Thou Great Jehovah
+  "DmZMgNX0L6p", // What a Friend We Have in Jesus
+  "w5-RXH9uPli", // Jesus Shall Reign
+  "gspxyxVctNx", // Come, Thou Almighty King
+  "3tR86sWVTNC", // O For a Thousand Tongues to Sing
+  "Ft0nnpxQbbt", // Abide with Me
+  "Z8zZ1SBRMoo", // Holy, Holy, Holy
+  "YxPfAFYWOaG", // Amazing Grace
+  "2F9k4IkmoHX", // Doxology
+  "pSpS9dU7qHg", // Hark! The Herald Angels Sing
+  "GewWFBLDxRd", // He Leadeth Me
+  "XHeQW0SBedC", // Take My Life and Let It Be
+  "erVpuKigTL9", // O God, Our Help in Ages Past
+  "TtpzMXOT4AO", // Jesus Christ Is Risen Today
+  "0YyJoAE9Ge4", // Blessed Assurance
+  "Uo8aHwRz1ez", // Savior, Like a Shepherd Lead Us
+  "wy7meh0qqDc", // My Hope Is Built
+  "_ALrpxFXZIG", // I Need Thee Every Hour
+  "2zMeQ2kdb2n", // Pass Me Not, O Gentle Savior
+  "a19OdmA8uPt", // O Little Town of Bethlehem
+  "mp8_CK_E5qS", // The Church's One Foundation
+  "MUIfLlOxrqc", // Faith of Our Fathers
+  "zfrKD0J-OPJ", // Crown Him with Many Crowns
+  "_UFqNA48X8n", // It Is Well with My Soul
+  "9jxQoj5H8ma", // A Mighty Fortress Is Our God
+  "DdnkGm4QMhD", // Silent Night
+  "e0RA7WIC3mU", // O Come, All Ye Faithful
+  "sdbr4rHG9yR", // The Old Rugged Cross
+  "yumBImJYymh", // To God Be the Glory
+  "HLUq1nNdYTI", // Be Thou My Vision
+  "efSPV6ob7E5"  // Fairest Lord Jesus
+] as const;
+
+export const START_HERE = new Set<string>(START_HERE_IDS);
+
+/**
+ * The first block, ranked within the UI language: Sunday-ready only when the listen gate
+ * has actually run; otherwise the Start here set; otherwise scored titles under a heading
+ * that says so. Featured is not Sunday-ready.
  * The heading is an English key for t().
  */
 export function topBlock(songs: Song[], language: string): { heading: string; songs: Song[] } {
   const inLang = songs.filter(s => s.language === language).sort(byRank);
-  const ready = [...inLang.filter(s => s.sundayReady), ...inLang.filter(s => s.featured && !s.sundayReady)];
-  if (ready.length) return { heading: "Sunday-ready", songs: ready };
+  const sunday = inLang.filter(s => s.sundayReady);
+  if (sunday.length) return { heading: "Sunday-ready", songs: sunday };
+  const start = inLang.filter(s => START_HERE.has(s.id));
+  if (start.length) return { heading: "Start here", songs: start };
   const scored = inLang.filter(s => s.hasScore);
   if (scored.length) return { heading: "Scored hymns, ready to sing", songs: scored };
   return { heading: "Most downloaded in the commons", songs: inLang };
