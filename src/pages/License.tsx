@@ -142,7 +142,7 @@ export default function License() {
         </details>
         <details>
           <summary>{t("Whoever shares a song promises they own it")}</summary>
-          <p>{t("Uploading means certifying you wrote the song or control its rights — words, music, and every recording or file shared with it — with every co-writer, publisher, and recording owner on board, and that no society, publisher, or admin has taken away your right to make the grant. If someone shares a song that wasn’t theirs to share, the true owner can have it removed, and the uploader — not the churches that trusted the library — answers for the mistake.")}</p>
+          <p>{t("Uploading means certifying you wrote the song or control its rights — words, music, and every recording or file shared with it — with every co-writer, publisher, and recording owner on board, and that no society, publisher, or admin has taken away your right to make the grant. If someone shares a song that wasn’t theirs to share, the true owner can have it removed. The license covers only rights the writer actually holds. A promise from someone who did not own the song is not a grant from the owner.")}</p>
         </details>
         <details>
           <summary>{t("Arrangements and translations stay in the family")}</summary>
@@ -154,7 +154,7 @@ export default function License() {
         </details>
         <details>
           <summary>{t("Songs come as-is")}</summary>
-          <p>{t("The commons is a gift economy. Songs are shared in good faith and come without warranties. The uploader stands behind the promise of ownership; churches that relied on the license in good faith aren’t the ones on the hook if that promise fails.")}</p>
+          <p>{t("The commons is a gift economy. Songs are shared in good faith and come without warranties. The license covers only rights the writer actually holds. If that promise fails, we take the song down. Keep CCLI for the copyrighted catalog you already sing.")}</p>
         </details>
       </section>
 

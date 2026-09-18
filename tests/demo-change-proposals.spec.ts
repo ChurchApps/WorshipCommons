@@ -118,6 +118,9 @@ test.describe.serial("change proposals", () => {
     await page.goto(`/songs/${songId}/edit?type=removal`);
     await expect(page.getByTestId("proposal-type").locator('input[value="removal"]')).toBeChecked();
     await expect(page.getByTestId("removal-warning")).toBeVisible();
+    await expect(page.getByTestId("removal-warning")).toContainText("If we take it down because you asked");
+    await expect(page.getByTestId("removal-warning")).toContainText("there was no grant to keep");
+    await expect(page.getByTestId("removal-warning")).not.toContainText("keep the license they received");
     await expect(page.locator("#title")).toHaveCount(0);
     await expect(page.locator(".dropzone")).toHaveCount(0);
 
