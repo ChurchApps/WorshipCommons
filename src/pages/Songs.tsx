@@ -9,7 +9,7 @@ import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 import { FEATURED_LICENSES, licenseById, licenseGroup } from "../licenses";
 import { CONFIDENCE_LABEL, normalizeConfidence } from "../components/ConfidenceBadge";
-import { guitarReady, rankReason, splitLanguages } from "../catalog";
+import { guitarReady, rankReason, splitLanguages, START_HERE } from "../catalog";
 
 const PAGE_SIZE = 50;
 const tempoBucket = (bpm: number) => bpm <= 72 ? "slow" : bpm <= 100 ? "mid" : "fast";
@@ -29,7 +29,7 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
 ];
 
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
-interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; era: string; audio: boolean; }
+interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; era: string; audio: boolean; startHere: boolean; }
 
 const XIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -69,7 +69,8 @@ export default function Songs() {
     accomp: false,
     chart: false,
     score: false,
-    mt: false
+    mt: false,
+    startHere: params.get("start") === "1"
   }));
   const [sort, setSort] = useState(params.get("sort") === "new" ? "new" : params.get("sort") === "saves" ? "saves" : "downloads");
   const [page, setPage] = useState(1);
@@ -139,6 +140,7 @@ export default function Songs() {
       (skip === "lic" || !state.lic || licenseGroup(s.license) === state.lic) &&
       (skip === "era" || !state.era || (state.era === "modern" && isModernWorship(s))) &&
       (skip === "audio" || !state.audio || hasDemoRecording(s)) &&
+      (skip === "startHere" || !state.startHere || START_HERE.has(s.id)) &&
       READY.every(r => skip === r.id || !state[r.id] || r.test(s));
   };
 
@@ -223,9 +225,10 @@ export default function Songs() {
   if (state.lic) chips.push({ label: t(state.lic === "custom" ? "Custom" : licenseById(state.lic).label), undo: () => update({ lic: "" }) });
   if (state.era === "modern") chips.push({ label: t("Modern Worship"), undo: () => update({ era: "" }) });
   if (state.audio) chips.push({ label: t("Has demo"), undo: () => update({ audio: false }) });
+  if (state.startHere) chips.push({ label: t("Start here"), undo: () => update({ startHere: false }) });
   READY.forEach(r => { if (state[r.id]) chips.push({ label: t(r.label), undo: () => update({ [r.id]: false } as Partial<Filters>) }); });
 
-  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false });
+  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false, startHere: false });
 
   const pagerNums = useMemo(() => {
     const nums = [...new Set([1, 2, curPage - 1, curPage, curPage + 1, pages - 1, pages].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);

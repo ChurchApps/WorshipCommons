@@ -18,6 +18,7 @@ const SearchIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="n
 // the chips deep-link into the library: theme, license, readiness, and recency are all real /songs filters
 const CHIPS: [string, string][] = [
   ["All Songs", "/songs"],
+  ["Start here", "/songs?start=1"],
   ["Timeless Hymns", "/songs?license=PD"],
   ["Modern Worship", "/songs?era=modern"],
   ["Acoustic", "/songs?guitar=1"],
@@ -111,7 +112,7 @@ export default function Home() {
           <button className="btn btn-primary" type="submit">{t("Search")}</button>
         </form>
         <div className="chips">
-          {CHIPS.map(([label, to], i) => <Link key={label} className={"chip" + (i === 0 ? " on" : "")} to={to}>{t(label)}</Link>)}
+          {CHIPS.map(([label, to], i) => <Link key={label} className={"chip" + (i === 0 ? " on" : "")} to={to} {...(label === "Start here" ? { "data-testid": "start-here-chip" } : {})}>{t(label)}</Link>)}
           <Link className="chip" to="/songs?theme=Kids" data-testid="kids-chip">{t("Kids & VBS")}</Link>
         </div>
 
@@ -119,9 +120,9 @@ export default function Home() {
           <div>
             <p className="kicker" data-testid="home-top-heading">{t(block.heading)}</p>
             <h2>{t("Find your next Sunday set.")}</h2>
-            <p>{t("Songs worth singing. Resources ready to go.")}</p>
+            <p>{t(block.heading === "Start here" ? "Forty hymns with a score and a chart." : "Songs worth singing. Resources ready to go.")}</p>
           </div>
-          <Link className="more" to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : "/songs"}>{t("Explore all songs →")}</Link>
+          <Link className="more" data-testid="home-top-more" to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : block.heading === "Start here" ? "/songs?start=1" : "/songs"}>{t(block.heading === "Start here" ? "See all 40 →" : "Explore all songs →")}</Link>
         </div>
 
         <ul className="albums" data-testid="home-top-list">

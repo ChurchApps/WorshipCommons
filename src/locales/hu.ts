@@ -602,6 +602,9 @@ const hu: Record<string, string> = {
   "browse": "böngészés",
   "+ {count} browse languages": "+ {count} böngészhető nyelv",
   "Scored hymns, ready to sing": "Kottás énekek, énekelhetők",
+  "Start here": "Kezd itt",
+  "Forty hymns with a score and a chart.": "Negyven ének kottával és akkordokkal.",
+  "See all 40 →": "A 40 megtekintése →",
   "Looking for a copyrighted song?": "Szerzői jogvédett éneket keresel?",
   "Search SongSelect →": "Keresés a SongSelecten →",
   // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports

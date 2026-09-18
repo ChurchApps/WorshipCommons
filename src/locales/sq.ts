@@ -602,6 +602,9 @@ const sq: Record<string, string> = {
   "browse": "shfleto",
   "+ {count} browse languages": "+ {count} gjuhë për shfletim",
   "Scored hymns, ready to sing": "Himne me partiturë, gati për t'u kënduar",
+  "Start here": "Fillo këtu",
+  "Forty hymns with a score and a chart.": "Dyzet himne me partiturë dhe akorde.",
+  "See all 40 →": "Shiko të 40-at →",
   "Looking for a copyrighted song?": "Kërkon një këngë me të drejta autori?",
   "Search SongSelect →": "Kërko në SongSelect →",
   // project mode: web projector + FreeShow / OpenLyrics / PPTX / paste exports
