@@ -600,7 +600,6 @@ const sq: Record<string, string> = {
   "has score": "ka partiturë",
   "chart with chords": "tekst me akorde",
   "browse": "shfleto",
-  "+ {count} browse languages": "+ {count} gjuhë për shfletim",
   "Scored hymns, ready to sing": "Himne me partiturë, gati për t'u kënduar",
   "Start here": "Fillo këtu",
   "Forty hymns with a score and a chart.": "Dyzet himne me partiturë dhe akorde.",

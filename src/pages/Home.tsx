@@ -8,7 +8,7 @@ import { useAuth } from "../auth";
 import "../styles/home.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
-import { splitLanguages, topBlock } from "../catalog";
+import { topBlock } from "../catalog";
 
 const PlayIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>;
 const StopIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg>;
@@ -46,8 +46,7 @@ export default function Home() {
   const block = topBlock(songs, SONG_LANG[lang]);
   // real recordings first (stable sort keeps rank order within each group), so the play button isn't all synth piano
   const set = [...block.songs].sort((a, b) => +!!recordingUrlOf(b) - +!!recordingUrlOf(a)).slice(0, 4);
-  const { catalog, browse } = splitLanguages(songs);
-  const counted = catalog.length ? songs.filter(s => catalog.includes(s.language)) : songs;
+  const langCount = new Set(songs.map(s => s.language).filter(Boolean)).size;
 
   // demo recording if there is one, otherwise the melody file through the piano soundfont
   const togglePlay = async (s: Song) => {
@@ -93,8 +92,8 @@ export default function Home() {
               <Link to="/mission" className="btn btn-ghost btn-lg">{t("Our Mission")}</Link>
             </div>
             <p className="hero-proof rise rise-3">
-              <span><strong>{t("{count} songs", { count: counted.length.toLocaleString() })}</strong> {t("free for your church to use")}</span>
-              <span><strong>{t("{count} languages", { count: catalog.length || browse.length })}</strong>{catalog.length > 0 && browse.length > 0 && <> <small data-testid="browse-langs">{t("+ {count} browse languages", { count: browse.length })}</small></>}</span>
+              <span><strong>{t("{count} songs", { count: songs.length.toLocaleString() })}</strong> {t("free for your church to use")}</span>
+              <span><strong data-testid="home-langs">{t("{count} languages", { count: langCount })}</strong></span>
             </p>
           </div>
           <div className="hero-photo rise rise-3">

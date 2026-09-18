@@ -2,7 +2,7 @@ import type { Song } from "./songs";
 
 // ---- catalog vs browse language ----
 // A language is a catalog once it has a Sunday-ready set of its own; until then it is a
-// browse language: searchable and badged, but not counted in the headline totals.
+// browse language: searchable and tagged in the library facet.
 export const CATALOG_THRESHOLD = 25;
 
 export function isCatalogLanguage(songs: Song[], language: string): boolean {
