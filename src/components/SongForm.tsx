@@ -44,6 +44,7 @@ export interface SongFormValues {
   themes: string;
   language: string;
   scripture: string;
+  ccli: string;
   chordPro: string;
   license: string;
   scope: Scope;
@@ -71,7 +72,7 @@ export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.ma
 /** Progress-line names for every upload role, keyed by SongFiles key. */
 export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", master: "master recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
 
-export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", chordPro: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false });
+export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", ccli: "", chordPro: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false });
 
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
@@ -91,6 +92,7 @@ export const songFromPayload = (payload: any): SongFormValues => {
     themes: payload?.tags || "",
     language: payload?.language || "English",
     scripture: d.scripture || "",
+    ccli: d.ccli ? String(d.ccli) : "",
     chordPro: d.chordPro || "",
     license: UPLOADABLE.some(l => l.id === payload?.license) ? payload.license : "WC",
     scope: d.masterLicense ? "both" : "composition",
@@ -134,6 +136,7 @@ export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: any)
     bpm: form.bpm ? Number(form.bpm) : undefined,
     timeSignature: base?.detail?.timeSignature || "4/4",
     scripture: form.scripture,
+    ccli: form.ccli.trim() || undefined,
     chordPro: form.chordPro,
     proAnswer: form.proAnswer,
     // the master's own grant; a composition-only submission carries whatever the live song already has
@@ -349,6 +352,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
     if (showSong) {
       if (!form.title.trim()) gaps.push(t("Title"));
       if (!form.writer.trim()) gaps.push(t("Writer(s)"));
+      if (form.ccli.trim() && !/^\d{4,8}$/.test(form.ccli.trim())) gaps.push(t("CCLI number must be 4–8 digits"));
       if (!form.chordPro.trim()) gaps.push(t("Lyrics and chords"));
       else if (lint.some(i => i.level === "error")) gaps.push(t("Lyrics and chords — fix the errors listed under the preview"));
     }
@@ -482,6 +486,11 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
                 <label htmlFor="scripture">{t("Scripture reference")}</label>
                 <input type="text" id="scripture" placeholder="Isaiah 40:4" value={form.scripture} onChange={e => set("scripture", e.target.value)} />
               </div>
+            </div>
+            <div className="field">
+              <label htmlFor="ccli">{t("CCLI number (optional)")}</label>
+              <input type="text" id="ccli" data-testid="ccli-number" inputMode="numeric" pattern="[0-9]{4,8}" maxLength={8} placeholder="22025" value={form.ccli} onChange={e => set("ccli", e.target.value.replace(/\D/g, "").slice(0, 8))} />
+              <p className="hint">{t("If churches already report this song to CCLI, add the SongSelect number so nothing changes in their workflow. Reporting is optional for songs on this site.")}</p>
             </div>
             <div className="field">
               <label htmlFor="lyrics">{t("Lyrics and chords")}</label>
