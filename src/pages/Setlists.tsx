@@ -29,7 +29,7 @@ function Row({ setlist, songs }: { setlist: Setlist; songs: Song[] }) {
     <div className="card setlist-row" data-testid="setlist-row" data-id={setlist.id}>
       <div className="setlist-row-main">
         {renaming
-          ? <input type="text" value={name} autoFocus aria-label={t("Setlist name")} data-testid="setlist-rename-input" onChange={e => setName(e.target.value)} onBlur={rename} onKeyDown={e => { if (e.key === "Enter") rename(); if (e.key === "Escape") { setName(setlist.name); setRenaming(false); } }} />
+          ? <input type="text" value={name} autoFocus aria-label={t("Service plan name")} data-testid="setlist-rename-input" onChange={e => setName(e.target.value)} onBlur={rename} onKeyDown={e => { if (e.key === "Enter") rename(); if (e.key === "Escape") { setName(setlist.name); setRenaming(false); } }} />
           : <h3><Link to={`/setlists/${setlist.id}`} data-testid="setlist-name">{setlist.name}</Link></h3>}
         <p className="hint" data-testid="setlist-meta">
           {t("{n} songs", { n: setlist.items.length })} · <span data-testid="setlist-duration">{duration.approx ? "≈ " : ""}{t("{n} min", { n: formatMinutes(duration.seconds) })}</span> · {t("Updated {date}", { date: new Date(setlist.updatedAt).toLocaleDateString(lang) })}
@@ -47,7 +47,7 @@ function Row({ setlist, songs }: { setlist: Setlist; songs: Song[] }) {
 
 export default function Setlists() {
   const { t } = useI18n();
-  usePageMeta(t("Setlists — WorshipCommons"), t("Build a set for Sunday: order the songs, pick the keys and verses, share a link with the band, download the pack."));
+  usePageMeta(t("Service plans — WorshipCommons"), t("Build a set for Sunday: order the songs, pick the keys and verses, share a link with the band, download the pack."));
   const lists = useSetlists();
   const [songs, setSongs] = useState<Song[]>([]);
   const [name, setName] = useState("");
@@ -62,20 +62,20 @@ export default function Setlists() {
   return (
     <main className="wrap-narrow">
       <div className="page-head">
-        <span className="eyebrow">{t("Setlists")}</span>
-        <h1>{t("Your setlists")}</h1>
+        <span className="eyebrow">{t("Service plans")}</span>
+        <h1>{t("Your service plans")}</h1>
         <p className="lede">{t("Order the songs, pick a key and the verses for each, and share one link with the band — no account needed to open it.")}</p>
-        <p className="hint">{t("Setlists live in this browser. A share link carries the whole set, so save the link if you switch devices.")}</p>
+        <p className="hint">{t("Service plans live in this browser. A share link carries the whole set, so save the link if you switch devices.")}</p>
       </div>
 
       <form className="card setlist-create" onSubmit={e => { e.preventDefault(); create(); }}>
-        <input type="text" value={name} placeholder={t("Name the set — Sunday 14 Sept, Youth night…")} aria-label={t("Setlist name")} data-testid="new-setlist-name" onChange={e => setName(e.target.value)} />
-        <button type="submit" className="btn btn-primary" data-testid="new-setlist" disabled={!name.trim()}>{t("Create setlist")}</button>
+        <input type="text" value={name} placeholder={t("Name the set — Sunday 14 Sept, Youth night…")} aria-label={t("Service plan name")} data-testid="new-setlist-name" onChange={e => setName(e.target.value)} />
+        <button type="submit" className="btn btn-primary" data-testid="new-setlist" disabled={!name.trim()}>{t("Create service plan")}</button>
       </form>
 
       {lists.length === 0 && (
         <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="setlists-empty">
-          <p style={{ marginBottom: 16 }}>{t("No setlists yet. Open any song and press “+ Add to setlist”, or name one above.")}</p>
+          <p style={{ marginBottom: 16 }}>{t("No service plans yet. Open any song and press “+ Add to service plan”, or name one above.")}</p>
           <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
         </div>
       )}

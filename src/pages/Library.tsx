@@ -30,7 +30,7 @@ export default function Library() {
       <div className="page-head">
         <span className="eyebrow">{t("Saved songs")}</span>
         <h1>{t("Songs you’ve saved")}</h1>
-        <p className="lede">{t("Saved to your account — on every device you sign in from.")} <Link to="/setlists" data-testid="library-setlists">{t("Building a set for Sunday? Setlists →")}</Link></p>
+        <p className="lede">{t("Saved to your account — on every device you sign in from.")} <Link to="/setlists" data-testid="library-setlists">{t("Building a set for Sunday? Service plans →")}</Link></p>
       </div>
 
       {!songs && <p>{t("Loading…")}</p>}

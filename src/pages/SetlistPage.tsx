@@ -159,7 +159,7 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
   const [name, setName] = useState(setlist.name);
   const [packing, setPacking] = useState(false);
   useEffect(() => setName(setlist.name), [setlist.name]);
-  usePageMeta(t("{name} — setlist | WorshipCommons", { name: setlist.name }));
+  usePageMeta(t("{name} — service plan | WorshipCommons", { name: setlist.name }));
 
   const loaded = setlist.items.map(i => songs.get(i.songId)).filter((s): s is Song => !!s);
   const allLoaded = setlist.items.every(i => songs.has(i.songId));
@@ -208,11 +208,11 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
 
   return (
     <main className="wrap-narrow setlist-page">
-      <p className="crumb" style={{ paddingTop: 32 }}><Link to="/setlists">{t("← Setlists")}</Link></p>
+      <p className="crumb" style={{ paddingTop: 32 }}><Link to="/setlists">{t("← Service plans")}</Link></p>
       <div className="setlist-head">
         {readOnly
-          ? <><span className="eyebrow">{t("Shared setlist")}</span><h1 data-testid="setlist-title">{setlist.name}</h1></>
-          : <input className="setlist-title" type="text" value={name} aria-label={t("Setlist name")} data-testid="setlist-title" onChange={e => setName(e.target.value)} onBlur={() => { if (name.trim() && name.trim() !== setlist.name) patch(s => ({ ...s, name: name.trim() })); else setName(setlist.name); }} />}
+          ? <><span className="eyebrow">{t("Shared service plan")}</span><h1 data-testid="setlist-title">{setlist.name}</h1></>
+          : <input className="setlist-title" type="text" value={name} aria-label={t("Service plan name")} data-testid="setlist-title" onChange={e => setName(e.target.value)} onBlur={() => { if (name.trim() && name.trim() !== setlist.name) patch(s => ({ ...s, name: name.trim() })); else setName(setlist.name); }} />}
         <p className="hint" data-testid="setlist-meta">
           {t("{n} songs", { n: setlist.items.length })} · <span data-testid="setlist-duration">{duration.approx ? "≈ " : ""}{t("{n} min", { n: formatMinutes(duration.seconds) })}</span>
         </p>
@@ -248,7 +248,7 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
 
       {setlist.items.length === 0 && (
         <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="setlist-empty">
-          <p style={{ marginBottom: 16 }}>{t("No songs yet. Open a song and press “+ Add to setlist”.")}</p>
+          <p style={{ marginBottom: 16 }}>{t("No songs yet. Open a song and press “+ Add to service plan”.")}</p>
           <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
         </div>
       )}
@@ -261,7 +261,7 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
             onDrop={from => setItems(move(setlist.items, from, i))} />
         ))}
       </div>
-      {!readOnly && setlist.items.length > 0 && <p className="hint"><Link to="/songs">{t("+ Add more songs")}</Link> · {t("Open a song and press “+ Add to setlist” — it joins the set in the key on screen.")}</p>}
+      {!readOnly && setlist.items.length > 0 && <p className="hint"><Link to="/songs">{t("+ Add more songs")}</Link> · {t("Open a song and press “+ Add to service plan” — it joins the set in the key on screen.")}</p>}
     </main>
   );
 }
@@ -317,7 +317,7 @@ function Stage({ setlist, songs, exitTo }: { setlist: Setlist; songs: SongMap; e
         <button type="button" data-testid="stage-fullscreen" onClick={() => (document.fullscreenElement ? document.exitFullscreen?.() : document.documentElement.requestFullscreen?.())}>{t("Fullscreen")}</button>
         <span className={"stage-awake" + (awake ? " on" : "")} data-testid="wake-lock" data-awake={awake}>{awake ? t("● Keeping the screen awake") : t("○ Screen may sleep")}</span>
       </header>
-      {!item && <p className="stage-empty">{t("No songs in this setlist.")}</p>}
+      {!item && <p className="stage-empty">{t("No songs in this service plan.")}</p>}
       {item && song === undefined && <p className="stage-empty">{t("Loading…")}</p>}
       {item && song === null && <p className="stage-empty">{t("This song is no longer in the commons.")}</p>}
       {item && song && (
@@ -348,7 +348,7 @@ function Booklet({ setlist, songs, backTo }: { setlist: Setlist; songs: SongMap;
         <button type="button" onClick={() => window.print()}>{t("Print")}</button>
         <label><input type="checkbox" checked={large} data-testid="booklet-large" onChange={e => setLarge(e.target.checked)} /> {t("Large text")}</label>
         <label><input type="checkbox" checked={chords} data-testid="booklet-chords" onChange={e => setChords(e.target.checked)} /> {t("Show chords")}</label>
-        <Link to={backTo}>{t("← Back to setlist")}</Link>
+        <Link to={backTo}>{t("← Back to service plan")}</Link>
       </div>
       <section className="booklet-cover">
         <h1>{setlist.name}</h1>
@@ -384,7 +384,7 @@ export default function SetlistPage({ mode }: { mode: Mode }) {
   if (!setlist) {
     return (
       <main className="wrap-narrow" data-testid="setlist-missing">
-        <p className="crumb" style={{ padding: "60px 0" }}>{shared ? t("This share link is not a setlist.") : t("Setlist not found.")} <Link to="/setlists">{t("← Setlists")}</Link></p>
+        <p className="crumb" style={{ padding: "60px 0" }}>{shared ? t("This share link is not a service plan.") : t("Service plan not found.")} <Link to="/setlists">{t("← Service plans")}</Link></p>
       </main>
     );
   }

@@ -33,15 +33,15 @@ export default function AddToSetlist({ song }: { song: Song }) {
     setName("");
   };
 
-  const label = inLists.length === 0 ? t("+ Add to setlist") : inLists.length === 1 ? t("✓ In {name}", { name: inLists[0].name }) : t("✓ In {n} setlists", { n: inLists.length });
+  const label = inLists.length === 0 ? t("+ Add to service plan") : inLists.length === 1 ? t("✓ In {name}", { name: inLists[0].name }) : t("✓ In {n} service plans", { n: inLists.length });
 
   return (
     <div className="setlist-picker" ref={box}>
       <button type="button" className={"btn " + (inLists.length ? "btn-ghost" : "btn-primary")} data-testid="add-to-setlist" data-song={song.id} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(!open)}>{label}</button>
       {open && (
-        <div className="setlist-popover" role="dialog" aria-label={t("Add to setlist")} data-testid="setlist-popover">
-          <p className="setlist-popover-head">{t("Add to setlist")} <span className="hint">{t("Key of {key}", { key })}</span></p>
-          {lists.length === 0 && <p className="hint">{t("No setlists yet — name your first one below.")}</p>}
+        <div className="setlist-popover" role="dialog" aria-label={t("Add to service plan")} data-testid="setlist-popover">
+          <p className="setlist-popover-head">{t("Add to service plan")} <span className="hint">{t("Key of {key}", { key })}</span></p>
+          {lists.length === 0 && <p className="hint">{t("No service plans yet — name your first one below.")}</p>}
           <ul className="setlist-options">
             {lists.map(l => {
               const has = l.items.some(i => i.songId === song.id);
@@ -55,7 +55,7 @@ export default function AddToSetlist({ song }: { song: Song }) {
             })}
           </ul>
           <form className="setlist-new" onSubmit={e => { e.preventDefault(); create(); }}>
-            <input type="text" value={name} placeholder={t("New setlist…")} aria-label={t("New setlist name")} data-testid="setlist-new-name" onChange={e => setName(e.target.value)} />
+            <input type="text" value={name} placeholder={t("New service plan…")} aria-label={t("New service plan name")} data-testid="setlist-new-name" onChange={e => setName(e.target.value)} />
             <button type="submit" className="btn btn-primary" data-testid="setlist-new-create" disabled={!name.trim()}>{t("Create")}</button>
           </form>
           {inLists.length > 0 && <p className="hint"><Link to={`/setlists/${inLists[inLists.length - 1].id}`} data-testid="open-setlist">{t("Open {name} →", { name: inLists[inLists.length - 1].name })}</Link></p>}

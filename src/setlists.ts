@@ -51,7 +51,7 @@ export const getSetlist = (id: string): Setlist | undefined => loadSetlists().fi
 
 export function createSetlist(name: string, items: SetlistItem[] = [], extra: Partial<Setlist> = {}): Setlist {
   const now = new Date().toISOString();
-  const setlist: Setlist = { ...extra, id: newId(), name: name.trim() || "Untitled setlist", createdAt: now, updatedAt: now, items: items.map(cleanItem) };
+  const setlist: Setlist = { ...extra, id: newId(), name: name.trim() || "Untitled service plan", createdAt: now, updatedAt: now, items: items.map(cleanItem) };
   saveAll([setlist, ...loadSetlists()]);
   return setlist;
 }
