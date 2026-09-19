@@ -863,7 +863,14 @@ const hu: Record<string, string> = {
   "Add a support link": "Támogatói link hozzáadása",
   "Ways to support {writer}": "{writer} támogatása",
   "Does this mean writers work for free?": "Akkor a szerzők ingyen dolgoznak?",
-  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Az istentiszteleti használat ajándék. Nem szedünk jogdíjat az éneklésért. A szerzőké marad az album, a sync, a koncert, és tehetnek támogatói linket az oldalukra. A gyülekezeti siker nem fizetés. Ha magának az éneklésnek kellene a lakbért fizetnie, ne add ezt az engedélyt. Tartsd meg a CCLI-t arra a katalógusra, amely ezt teszi."
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Az istentiszteleti használat ajándék. Nem szedünk jogdíjat az éneklésért. A szerzőké marad az album, a sync, a koncert, és tehetnek támogatói linket az oldalukra. A gyülekezeti siker nem fizetés. Ha magának az éneklésnek kellene a lakbért fizetnie, ne add ezt az engedélyt. Tartsd meg a CCLI-t arra a katalógusra, amely ezt teszi.",
+
+  // terms / DMCA agent
+  "You can also write to our designated copyright agent:": "Írhatsz a kijelölt szerzői jogi ügynökünknek is:",
+  "Phone:": "Telefon:",
+  "Email:": "E-mail:",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "A kijelölt ügynök nyilvántartási száma DMCA-1080721, a LIVE CHURCH SOLUTIONS INC. alatt.",
+
 };
 
 export default hu;

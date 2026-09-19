@@ -245,7 +245,7 @@ function termsBody() {
 <h2>The license is the grant</h2>
 <p>When you share a song, the license you choose is the legal grant. Read it on the <a href="/license">license page</a>.</p>
 <h2 id="copyright">Copyright / DMCA</h2>
-<p>If a song here infringes your copyright, send a takedown notice. The fastest route is the <a href="/report">report form</a>. You can also write to our designated copyright agent: Micheal Byrd, WorshipCommons copyright agent, P.O. Box 1553, Broken Arrow, OK 74013, (918) 860-0053, <a href="mailto:support@worshipcommons.org">support@worshipcommons.org</a>.</p>
+<p>If a song here infringes your copyright, send a takedown notice. The fastest route is the <a href="/report">report form</a>. You can also write to our designated copyright agent: Micheal Byrd, LIVE CHURCH SOLUTIONS INC, PO Box 1553, Broken Arrow, OK 74013, 918-994-2638, <a href="mailto:micheal@livechurchsolutions.org">micheal@livechurchsolutions.org</a>. The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.</p>
 <p>Accounts that repeatedly share songs they do not have the right to share are closed.</p>
 <h2>No warranty</h2>
 <p>WorshipCommons is provided as-is. The songs belong to their writers; we host what they shared.</p>`);
