@@ -1,6 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { songIdByTitle } from "./helpers/api";
 
+test("the report page lists support@churchapps.org", async ({ page }) => {
+  await page.goto("/report");
+  const mail = page.getByTestId("report-support-email");
+  await expect(mail).toBeVisible();
+  await expect(mail).toHaveAttribute("href", "mailto:support@churchapps.org");
+  await expect(mail).toHaveText("support@churchapps.org");
+});
+
 test("copyright report needs the signed ownership claim", async ({ page }) => {
   await page.goto("/report");
   await expect(page.getByRole("heading", { name: "Report a song" })).toBeVisible();

@@ -448,7 +448,7 @@ const ru: Record<string, string> = {
   "Not accepted": "Не принята",
   "A human reads every song before it goes live — usually within a few days.": "Перед публикацией каждую песню читает человек — обычно за несколько дней.",
   "In the library, free for churches to sing.": "В библиотеке — церкви могут петь её бесплатно.",
-  "This one didn't make it into the library. Questions? support@worshipcommons.org": "Эта песня не попала в библиотеку. Вопросы? support@worshipcommons.org",
+  "This one didn't make it into the library. Questions? support@churchapps.org": "Эта песня не попала в библиотеку. Вопросы? support@churchapps.org",
   " · submitted {date}": " · отправлена {date}",
   " {count} churches sing it.": " Её поют церквей: {count}.",
 
@@ -866,6 +866,7 @@ const ru: Record<string, string> = {
   "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Богослужебное использование — дар. Мы не собираем роялти за пение. Авторам остаются альбомы, синхронизация, концерты; они могут поставить ссылку для поддержки на своей странице. Успех в собрании — не зарплата. Если вам нужно, чтобы само пение платило за жильё, не давайте эту лицензию. Оставьте CCLI для каталога, который это делает.",
 
   // terms / DMCA agent
+  "You can also write to": "Вы также можете написать на",
   "You can also write to our designated copyright agent:": "Вы также можете написать нашему назначенному агенту по авторским правам:",
   "Phone:": "Телефон:",
   "Email:": "Эл. почта:",

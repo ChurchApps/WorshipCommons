@@ -448,7 +448,7 @@ const ml: Record<string, string> = {
   "Not accepted": "സ്വീകരിച്ചില്ല",
   "A human reads every song before it goes live — usually within a few days.": "പ്രസിദ്ധീകരിക്കുംമുമ്പ് ഓരോ പാട്ടും ഒരു വ്യക്തി വായിക്കുന്നു — സാധാരണ ഏതാനും ദിവസത്തിനുള്ളിൽ.",
   "In the library, free for churches to sing.": "ലൈബ്രറിയിൽ, സഭകൾക്ക് പാടാൻ സൗജന്യം.",
-  "This one didn't make it into the library. Questions? support@worshipcommons.org": "ഇത് ലൈബ്രറിയിൽ ഉൾപ്പെട്ടില്ല. ചോദ്യങ്ങളുണ്ടോ? support@worshipcommons.org",
+  "This one didn't make it into the library. Questions? support@churchapps.org": "ഇത് ലൈബ്രറിയിൽ ഉൾപ്പെട്ടില്ല. ചോദ്യങ്ങളുണ്ടോ? support@churchapps.org",
   " · submitted {date}": " · {date} സമർപ്പിച്ചു",
   " {count} churches sing it.": " {count} സഭകൾ ഇത് പാടുന്നു.",
 
@@ -866,6 +866,7 @@ const ml: Record<string, string> = {
   "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "ആരാധനയിലെ ഉപയോഗം ഒരു ദാനമാണ്. പാട്ടിന് ഞങ്ങൾ റോയൽറ്റി ഈടാക്കുന്നില്ല. ആൽബങ്ങൾ, സിങ്ക്, കച്ചേരികൾ രചയിതാക്കളുടേതായി തന്നെ നിൽക്കും; അവർക്ക് പേജിൽ ഒരു പിന്തുണാ ലിങ്ക് വയ്ക്കാം. സഭയിലെ വിജയം ശമ്പളമല്ല. പാട്ട് തന്നെ വാടക കൊടുക്കണമെങ്കിൽ ഈ അനുമതി നൽകരുത്. അത് ചെയ്യുന്ന കാറ്റലോഗിന് CCLI നിലനിർത്തുക.",
 
   // terms / DMCA agent
+  "You can also write to": "നിങ്ങൾക്ക് ഇതിലേക്കും എഴുതാം",
   "You can also write to our designated copyright agent:": "നിങ്ങൾക്ക് ഞങ്ങളുടെ നിയുക്ത പകർപ്പവകാശ ഏജന്റിനും എഴുതാം:",
   "Phone:": "ഫോൺ:",
   "Email:": "ഇമെയിൽ:",

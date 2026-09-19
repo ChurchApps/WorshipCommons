@@ -27,7 +27,7 @@ const STATUS: Record<string, { label: string; note: string }> = {
   pending: { label: "In review", note: "A human reads every song before it goes live — usually within a few days." },
   approved: { label: "Live", note: "In the library, free for churches to sing." },
   removed: { label: "Taken down", note: "The song was removed from the library, as you asked." },
-  rejected: { label: "Not accepted", note: "This one didn't make it into the library. Questions? support@worshipcommons.org" },
+  rejected: { label: "Not accepted", note: "This one didn't make it into the library. Questions? support@churchapps.org" },
   withdrawn: { label: "Withdrawn", note: "You pulled this one back before it was reviewed." }
 };
 

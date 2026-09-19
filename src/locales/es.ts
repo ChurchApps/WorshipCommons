@@ -448,7 +448,7 @@ const es: Record<string, string> = {
   "Not accepted": "No aceptada",
   "A human reads every song before it goes live — usually within a few days.": "Una persona lee cada canción antes de publicarla, normalmente en unos días.",
   "In the library, free for churches to sing.": "En la biblioteca, gratis para que las iglesias la canten.",
-  "This one didn't make it into the library. Questions? support@worshipcommons.org": "Esta no entró a la biblioteca. ¿Preguntas? support@worshipcommons.org",
+  "This one didn't make it into the library. Questions? support@churchapps.org": "Esta no entró a la biblioteca. ¿Preguntas? support@churchapps.org",
   " · submitted {date}": " · enviada el {date}",
   " {count} churches sing it.": " {count} iglesias la cantan.",
 
@@ -866,6 +866,7 @@ const es: Record<string, string> = {
   "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "El uso en la adoración es un don. No cobramos regalía por cantar. Los autores conservan álbumes, sincro, conciertos, y pueden poner un enlace de apoyo en su página. El éxito congregacional no es un sueldo. Si necesitas que el canto mismo pague el alquiler, no hagas esta concesión. Conserva CCLI para el catálogo que sí lo hace.",
 
   // terms / DMCA agent
+  "You can also write to": "También puedes escribir a",
   "You can also write to our designated copyright agent:": "También puedes escribir a nuestro agente de derechos de autor designado:",
   "Phone:": "Teléfono:",
   "Email:": "Correo:",

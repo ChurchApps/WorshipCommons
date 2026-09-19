@@ -448,7 +448,7 @@ const hu: Record<string, string> = {
   "Not accepted": "Nem fogadtuk el",
   "A human reads every song before it goes live — usually within a few days.": "Megjelenés előtt minden éneket ember olvas át — általában néhány napon belül.",
   "In the library, free for churches to sing.": "A könyvtárban, ingyen énekelhetik a gyülekezetek.",
-  "This one didn't make it into the library. Questions? support@worshipcommons.org": "Ez nem került be a könyvtárba. Kérdés? support@worshipcommons.org",
+  "This one didn't make it into the library. Questions? support@churchapps.org": "Ez nem került be a könyvtárba. Kérdés? support@churchapps.org",
   " · submitted {date}": " · beküldve: {date}",
   " {count} churches sing it.": " {count} gyülekezet énekli.",
 
@@ -866,6 +866,7 @@ const hu: Record<string, string> = {
   "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Az istentiszteleti használat ajándék. Nem szedünk jogdíjat az éneklésért. A szerzőké marad az album, a sync, a koncert, és tehetnek támogatói linket az oldalukra. A gyülekezeti siker nem fizetés. Ha magának az éneklésnek kellene a lakbért fizetnie, ne add ezt az engedélyt. Tartsd meg a CCLI-t arra a katalógusra, amely ezt teszi.",
 
   // terms / DMCA agent
+  "You can also write to": "Írhatsz ide:",
   "You can also write to our designated copyright agent:": "Írhatsz a kijelölt szerzői jogi ügynökünknek is:",
   "Phone:": "Telefon:",
   "Email:": "E-mail:",

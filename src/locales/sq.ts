@@ -448,7 +448,7 @@ const sq: Record<string, string> = {
   "Not accepted": "E papranuar",
   "A human reads every song before it goes live — usually within a few days.": "Një person e lexon çdo këngë para publikimit — zakonisht brenda pak ditësh.",
   "In the library, free for churches to sing.": "Në bibliotekë, falas që kishat ta këndojnë.",
-  "This one didn't make it into the library. Questions? support@worshipcommons.org": "Kjo nuk hyri në bibliotekë. Pyetje? support@worshipcommons.org",
+  "This one didn't make it into the library. Questions? support@churchapps.org": "Kjo nuk hyri në bibliotekë. Pyetje? support@churchapps.org",
   " · submitted {date}": " · dërguar më {date}",
   " {count} churches sing it.": " {count} kisha e këndojnë.",
 
@@ -866,6 +866,7 @@ const sq: Record<string, string> = {
   "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Përdorimi në adhurim është dhuratë. Nuk mbledhim tantiemë për këndim. Autorët mbajnë albumet, sinkronizimin, koncertet, dhe mund të vënë një lidhje mbështetjeje në faqen e tyre. Suksesi i kongregacionit nuk është rrogë. Nëse të duhet që vetë këndimi të paguajë qiranë, mos e jep këtë dhënie. Mbaje CCLI për katalogun që e bën këtë.",
 
   // terms / DMCA agent
+  "You can also write to": "Mund t’i shkruani edhe",
   "You can also write to our designated copyright agent:": "Mund t’i shkruani edhe agjentit tonë të caktuar për të drejtat e autorit:",
   "Phone:": "Telefon:",
   "Email:": "E-mail:",
