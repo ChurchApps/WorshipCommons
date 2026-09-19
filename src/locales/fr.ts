@@ -863,7 +863,14 @@ const fr: Record<string, string> = {
   "Add a support link": "Ajouter un lien de soutien",
   "Ways to support {writer}": "Soutenir {writer}",
   "Does this mean writers work for free?": "Les auteurs travaillent-ils donc gratuitement ?",
-  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "L’usage cultuel est un don. Nous ne prélevons aucune redevance pour le chant. Les auteurs gardent albums, sync, concerts, et peuvent mettre un lien de soutien sur leur page. Le succès auprès de l’assemblée n’est pas un salaire. Si vous avez besoin que le chant lui-même paie le loyer, n’accordez pas cette licence. Gardez CCLI pour le catalogue qui le fait."
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "L’usage cultuel est un don. Nous ne prélevons aucune redevance pour le chant. Les auteurs gardent albums, sync, concerts, et peuvent mettre un lien de soutien sur leur page. Le succès auprès de l’assemblée n’est pas un salaire. Si vous avez besoin que le chant lui-même paie le loyer, n’accordez pas cette licence. Gardez CCLI pour le catalogue qui le fait.",
+
+  // terms / DMCA agent
+  "You can also write to our designated copyright agent:": "Vous pouvez aussi écrire à notre agent de droits d’auteur désigné :",
+  "Phone:": "Téléphone :",
+  "Email:": "E-mail :",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "L’enregistrement de l’agent désigné est DMCA-1080721, au nom de LIVE CHURCH SOLUTIONS INC.",
+
 };
 
 export default fr;

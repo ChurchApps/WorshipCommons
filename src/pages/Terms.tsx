@@ -43,10 +43,13 @@ export default function Terms() {
         <h2 style={{ fontSize: "1.25rem", marginBottom: 10 }}>{t("Copyright / DMCA")}</h2>
         <p>{t("If a song here infringes your copyright, send a takedown notice. The fastest route is the")} <Link to="/report">{t("report form")}</Link> {t("— it asks for everything a notice needs under 17 U.S.C. § 512(c)(3): what you own, where it is on this site, how to reach you, a good-faith statement, and your signature. We aim to take reported material down within 48 hours when the claim holds.")}</p>
         <p style={{ marginTop: 10 }}>{t("You can also write to our designated copyright agent:")}<br />
-          Micheal Byrd, {t("WorshipCommons copyright agent")}<br />
-          P.O. Box 1553, Broken Arrow, OK 74013<br />
-          (918) 860-0053<br />
-          <a href="mailto:support@worshipcommons.org" data-testid="dmca-agent-email">support@worshipcommons.org</a></p>
+          Micheal Byrd<br />
+          LIVE CHURCH SOLUTIONS INC<br />
+          PO Box 1553<br />
+          Broken Arrow, OK 74013<br />
+          {t("Phone:")} 918-994-2638<br />
+          {t("Email:")}{" "}<a href="mailto:micheal@livechurchsolutions.org" data-testid="dmca-agent-email">micheal@livechurchsolutions.org</a></p>
+        <p style={{ marginTop: 10 }} data-testid="dmca-registration">{t("The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.")}</p>
         <p style={{ marginTop: 10 }}>{t("If we take your material down and you believe that was a mistake, reply to the takedown email with a counter-notice. Under 17 U.S.C. § 512(g) it needs your signature, the material and where it was, a statement under penalty of perjury that it came down by mistake or misidentification, and your name, address, phone number, and consent to the jurisdiction of the federal court for your district (or, if you are outside the United States, any district where we may be found).")}</p>
         <p style={{ marginTop: 10 }}>{t("Accounts that repeatedly share songs they do not have the right to share are closed.")}</p>
       </section>

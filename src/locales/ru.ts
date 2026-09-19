@@ -863,7 +863,14 @@ const ru: Record<string, string> = {
   "Add a support link": "Добавить ссылку для поддержки",
   "Ways to support {writer}": "Как поддержать {writer}",
   "Does this mean writers work for free?": "Значит, авторы работают бесплатно?",
-  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Богослужебное использование — дар. Мы не собираем роялти за пение. Авторам остаются альбомы, синхронизация, концерты; они могут поставить ссылку для поддержки на своей странице. Успех в собрании — не зарплата. Если вам нужно, чтобы само пение платило за жильё, не давайте эту лицензию. Оставьте CCLI для каталога, который это делает."
+  "Worship use is a gift. We do not collect a royalty for singing. Writers keep albums, sync, concerts, and may put a support link on their page. Congregational success is not a paycheck. If you need the singing itself to pay rent, do not make this grant. Keep CCLI for the catalog that does.": "Богослужебное использование — дар. Мы не собираем роялти за пение. Авторам остаются альбомы, синхронизация, концерты; они могут поставить ссылку для поддержки на своей странице. Успех в собрании — не зарплата. Если вам нужно, чтобы само пение платило за жильё, не давайте эту лицензию. Оставьте CCLI для каталога, который это делает.",
+
+  // terms / DMCA agent
+  "You can also write to our designated copyright agent:": "Вы также можете написать нашему назначенному агенту по авторским правам:",
+  "Phone:": "Телефон:",
+  "Email:": "Эл. почта:",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "Регистрация назначенного агента: DMCA-1080721, на LIVE CHURCH SOLUTIONS INC.",
+
 };
 
 export default ru;

@@ -139,7 +139,11 @@ test("static SPA routes write crawlable HTML under build/<route>/index.html", ()
     assert.match(license, /<title>The WorshipCommons License — WorshipCommons<\/title>/);
     assert.match(license, /WorshipCommons License, Version 1.0 — Legal Code/);
     assert.match(license, /The Writer grants everyone a free, worldwide, non-exclusive, perpetual, irrevocable license/);
-    assert.match(fs.readFileSync(path.join(dir, "terms", "index.html"), "utf8"), /support@worshipcommons\.org/);
+    const terms = fs.readFileSync(path.join(dir, "terms", "index.html"), "utf8");
+    assert.match(terms, /micheal@livechurchsolutions\.org/);
+    assert.match(terms, /DMCA-1080721/);
+    assert.match(terms, /LIVE CHURCH SOLUTIONS INC/);
+    assert.match(terms, /918-994-2638/);
     assert.match(fs.readFileSync(path.join(dir, "upload", "index.html"), "utf8"), /Sign in to share your song/);
     assert.match(fs.readFileSync(path.join(dir, "new", "index.html"), "utf8"), /Steady Light/);
     const call = fs.readFileSync(path.join(dir, "call-for-songs", "index.html"), "utf8");
