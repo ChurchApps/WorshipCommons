@@ -272,7 +272,7 @@ function reportBody() {
   return wrap(`
 <h1>Report a song</h1>
 <p>The commons runs on the promise that whoever shares a song actually owns it. If a song wasn’t theirs to share — especially if it’s yours — tell us.</p>
-<p>Open the site to send a report, or write to <a href="mailto:support@worshipcommons.org">support@worshipcommons.org</a>.</p>`);
+<p>Open the site to send a report, or write to <a href="mailto:support@churchapps.org">support@churchapps.org</a>.</p>`);
 }
 
 export function staticPages(songs, site = DEFAULT_SITE) {

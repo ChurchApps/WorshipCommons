@@ -42,7 +42,7 @@ export default function Report() {
       <div className="page-head">
         <span className="eyebrow">{t("Keep the commons honest")}</span>
         <h1>{t("Report a song")}</h1>
-        <p className="lede">{t("The commons runs on one promise: whoever shares a song actually owns it. If someone gave away a song that wasn’t theirs — especially if it’s yours — tell us and we’ll look into it.")}</p>
+        <p className="lede">{t("The commons runs on one promise: whoever shares a song actually owns it. If someone gave away a song that wasn’t theirs — especially if it’s yours — tell us and we’ll look into it.")} {t("You can also write to")}{" "}<a href="mailto:support@churchapps.org" data-testid="report-support-email">support@churchapps.org</a>.</p>
       </div>
 
       <div className="process">
