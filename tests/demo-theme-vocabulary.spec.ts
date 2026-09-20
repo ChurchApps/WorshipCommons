@@ -35,6 +35,10 @@ test.describe("theme vocabulary", () => {
     expect(labels).toContain("Advent");
     expect(labels).toContain("Christmas");
     expect(labels).toContain("Kids");
+    expect(labels).toContain("Invitation");
+    expect(labels).toContain("Lament");
+    expect(labels).toContain("Return");
+    expect(labels).not.toContain("Guidance");
     // nothing outside the vocabulary survived normalization
     for (const label of labels) expect(THEMES).toContain(label);
     // and what is shown follows the vocabulary's own order
