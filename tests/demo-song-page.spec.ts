@@ -6,6 +6,7 @@ interface Row {
   title: string;
   writer: string;
   license: string;
+  ccli?: string | null;
   confidence?: string;
   firstLine?: string | null;
   videoUrl?: string;
@@ -34,7 +35,8 @@ test.describe("song page: hero, modes, rights", () => {
     await expect(hero.getByTestId("license-badge")).toHaveAttribute("data-license", "PD");
     await expect(hero.getByTestId("license-badge")).toHaveText("Public domain");
     await expect(page.getByTestId("confidence-badge")).toHaveCount(0);
-    await expect(page.getByTestId("ccli-badge")).toHaveCount(0);
+    if (song!.ccli) await expect(page.getByTestId("ccli-badge")).toHaveText(`CCLI ${song!.ccli}`);
+    else await expect(page.getByTestId("ccli-badge")).toHaveCount(0);
     await expect(page.getByTestId("add-to-setlist")).toBeVisible();
   });
 
