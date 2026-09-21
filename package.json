@@ -23,6 +23,7 @@
     "test": "playwright test",
     "demo": "node tests/setup/demo.mjs",
     "test:prerender": "node --test tools/prerender.test.mjs tools/ensure-spa-fallback.test.mjs",
+    "test:slug": "node --test tools/slug.test.mjs",
     "test:feed": "node --test tools/feed.test.mjs",
     "predeploy-staging": "VITE_CORE_API=https://api.staging.churchapps.org yarn build",
     "exec-deploy-staging": "aws s3 sync build/ s3://staging-worshipcommons-app --delete",
