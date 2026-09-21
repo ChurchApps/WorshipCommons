@@ -11,6 +11,7 @@ import { makeZip, textEntry } from "../zip";
 import { downloadFile, exportFreeShow, exportOpenLyrics, exportPptx, exportProPresenter, slug, type ExportFile, type ExportItem } from "../exports";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import EmptyState from "../components/EmptyState";
 import "../styles/setlist.css";
 
 type Mode = "edit" | "shared" | "stage" | "print";
@@ -247,10 +248,7 @@ function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap
       )}
 
       {setlist.items.length === 0 && (
-        <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="setlist-empty">
-          <p style={{ marginBottom: 16 }}>{t("No songs yet. Open a song and press “+ Add to service plan”.")}</p>
-          <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
-        </div>
+        <EmptyState testId="setlist-empty" message={t("No songs yet. Open a song and press “+ Add to service plan”.")} to="/songs" action={t("Explore the songs")} />
       )}
       <div className="setlist-items">
         {setlist.items.map((item, i) => (

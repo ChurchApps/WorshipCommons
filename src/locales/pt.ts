@@ -873,7 +873,7 @@ const pt: Record<string, string> = {
   "You can also write to our designated copyright agent:": "Você também pode escrever ao nosso agente de direitos autorais designado:",
   "Phone:": "Telefone:",
   "Email:": "E-mail:",
-  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "O registro do agente designado é DMCA-1080721, em nome de LIVE CHURCH SOLUTIONS INC.",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "O registro do agente designado é DMCA-1080721, em nome de LIVE CHURCH SOLUTIONS INC."
 
 };
 

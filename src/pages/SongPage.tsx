@@ -575,12 +575,12 @@ export default function SongPage() {
           <h4>♪ {t("Related songs")} <button type="button" className="more" onClick={() => { setTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("View all →")}</button></h4>
           {relatives.length > 0 && (
             <ul className="rel-list" data-testid="family-list">
-              {relatives.map(r => <li key={r.id}><Thumb s={r} /><div><Link to={`${songPath(r)}`}>{r.title}</Link><span>{rowSub(r)}</span></div><Chevron /></li>)}
+              {relatives.map(r => <li key={r.id}><Thumb s={r} /><div><Link to={songPath(r)}>{r.title}</Link><span>{rowSub(r)}</span></div><Chevron /></li>)}
             </ul>
           )}
           {data.similar.length > 0 && (
             <ul className="rel-list" data-testid="similar-songs">
-              {data.similar.map(s => <li key={s.id}><Thumb s={s} /><div><Link to={`${songPath(s)}`}>{s.title}</Link><span>{s.writer}{s.reason ? ` · ${s.reason}` : ""}</span></div><Chevron /></li>)}
+              {data.similar.map(s => <li key={s.id}><Thumb s={s} /><div><Link to={songPath(s)}>{s.title}</Link><span>{s.writer}{s.reason ? ` · ${s.reason}` : ""}</span></div><Chevron /></li>)}
             </ul>
           )}
           {relatives.length === 0 && data.similar.length === 0 && <p className="empty">{t("Nothing related yet.")}</p>}
@@ -591,7 +591,7 @@ export default function SongPage() {
           {translations.length > 0
             ? (
               <ul className="rel-list" data-testid="translations">
-                {translations.map(r => <li key={r.id}><div><Link to={`${songPath(r)}`}>{r.title} · {t(r.language)}</Link></div><Chevron /></li>)}
+                {translations.map(r => <li key={r.id}><div><Link to={songPath(r)}>{r.title} · {t(r.language)}</Link></div><Chevron /></li>)}
               </ul>
             )
             : <p className="empty">{t("No translations in the commons yet.")}</p>}

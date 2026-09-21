@@ -44,6 +44,7 @@ export default function Home() {
   useEffect(() => () => { audioRef.current?.pause(); tuneRef.current?.stop(); }, []);
 
   const block = topBlock(songs, SONG_LANG[lang]);
+  const startHere = block.heading === "Start here";
   // real recordings first (stable sort keeps rank order within each group), so the play button isn't all synth piano
   const set = [...block.songs].sort((a, b) => +!!recordingUrlOf(b) - +!!recordingUrlOf(a)).slice(0, 4);
   const langCount = new Set(songs.map(s => s.language).filter(Boolean)).size;
@@ -119,18 +120,19 @@ export default function Home() {
           <div>
             <p className="kicker" data-testid="home-top-heading">{t(block.heading)}</p>
             <h2>{t("Find your next Sunday set.")}</h2>
-            <p>{t(block.heading === "Start here" ? "Forty hymns with a score and a chart." : "Songs worth singing. Resources ready to go.")}</p>
+            <p>{t(startHere ? "Forty hymns with a score and a chart." : "Songs worth singing. Resources ready to go.")}</p>
           </div>
-          <Link className="more" data-testid="home-top-more" to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : block.heading === "Start here" ? "/songs?start=1" : "/songs"}>{t(block.heading === "Start here" ? "See all 40 →" : "Explore all songs →")}</Link>
+          <Link className="more" data-testid="home-top-more" to={block.heading === "Sunday-ready" ? "/songs?confidence=sunday-ready" : startHere ? "/songs?start=1" : "/songs"}>{t(startHere ? "See all 40 →" : "Explore all songs →")}</Link>
         </div>
 
         <ul className="albums" data-testid="home-top-list">
           {set.map(s => {
             const cover = coverOf(s);
+            const isSaved = saved.includes(s.id);
             return (
               <li key={s.id} className="album">
                 <div className="album-art">
-                  <Link to={`${songPath(s)}`} aria-label={s.title}>
+                  <Link to={songPath(s)} aria-label={s.title}>
                     {cover
                       ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
                       : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
@@ -141,11 +143,11 @@ export default function Home() {
                       {playing === s.id ? <StopIcon /> : <PlayIcon />}
                     </button>
                   )}
-                  <button className={"save" + (saved.includes(s.id) ? " on" : "")} type="button" aria-pressed={saved.includes(s.id)} aria-label={t(saved.includes(s.id) ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => toggleSave(s)}>
-                    <SaveIcon on={saved.includes(s.id)} />
+                  <button className={"save" + (isSaved ? " on" : "")} type="button" aria-pressed={isSaved} aria-label={t(isSaved ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => toggleSave(s)}>
+                    <SaveIcon on={isSaved} />
                   </button>
                 </div>
-                <h3><Link to={`${songPath(s)}`} className="album">{s.title}</Link></h3>
+                <h3><Link to={songPath(s)} className="album">{s.title}</Link></h3>
                 <p className="kind">{t(kindOf(s))}</p>
               </li>
             );

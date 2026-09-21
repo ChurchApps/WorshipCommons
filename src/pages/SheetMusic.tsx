@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { idOf, loadSong, Song, songPath } from "../songs";
+import { idOf, songPath } from "../songs";
 import { splitKey, KEY_CHOICES, semitonesBetween } from "../chordpro";
 import { abcKeyRoot, abcTitle, abcVoices, partName, soloVoice, stripLyrics, titlesMatch } from "../abc";
+import { useSong } from "../useSong";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { attributionFor } from "../licenses";
@@ -11,17 +12,13 @@ export default function SheetMusic() {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
-  const [song, setSong] = useState<Song | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const { song, notFound } = useSong(id);
   const [abc, setAbc] = useState("");
   const [abcFailed, setAbcFailed] = useState(false);
   const [selRoot, setSelRoot] = useState("");
   const [part, setPart] = useState("");
   const paperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
-  }, [id]);
 
   useEffect(() => {
     if (!song) return;
@@ -86,7 +83,7 @@ export default function SheetMusic() {
             </select>
           </label>
         )}
-        <Link className="back" to={`${songPath(song)}`}>{t("← Back to song")}</Link>
+        <Link className="back" to={songPath(song)}>{t("← Back to song")}</Link>
       </div>
       {abcFailed && <p>{t("No engraved score is available for this song yet.")} {song.midiUrl && <Link to={`${songPath(song)}/transcribe`}>{t("Help transcribe it →")}</Link>}</p>}
       {borrowedTune && !abcFailed && <p className="no-print" style={{ fontSize: 14, color: "#555" }}>{t("This song is sung to a shared tune — the score shows the music without words.")}</p>}

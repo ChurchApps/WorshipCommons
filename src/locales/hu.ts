@@ -873,7 +873,7 @@ const hu: Record<string, string> = {
   "You can also write to our designated copyright agent:": "Írhatsz a kijelölt szerzői jogi ügynökünknek is:",
   "Phone:": "Telefon:",
   "Email:": "E-mail:",
-  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "A kijelölt ügynök nyilvántartási száma DMCA-1080721, a LIVE CHURCH SOLUTIONS INC. alatt.",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "A kijelölt ügynök nyilvántartási száma DMCA-1080721, a LIVE CHURCH SOLUTIONS INC. alatt."
 
 };
 

@@ -217,3 +217,10 @@ fieldset { border: 0; }
 .cc-badge.nc { background: rgba(255,170,90,0.14); color: #ffc48a; border-color: rgba(255,170,90,0.4); }
 .custom-badge { display: inline-block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; background: rgba(180,160,255,0.14); color: #cbb8ff; border: 1px solid rgba(180,160,255,0.4); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 
+
+.empty-state { padding: 32px; text-align: center; }
+.empty-state p { margin-bottom: 16px; }
+
+.terms-card { margin-bottom: 20px; }
+.terms-card h2 { font-size: 1.25rem; margin-bottom: 10px; }
+.terms-card p + p { margin-top: 10px; }

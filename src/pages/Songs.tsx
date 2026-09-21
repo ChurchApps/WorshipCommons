@@ -25,7 +25,7 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
   { id: "accomp", label: "Has accompaniment", test: s => !!s.hasAccompaniment },
   { id: "chart", label: "Has chart", test: s => !!s.hasChords },
   { id: "score", label: "Has score", test: s => !!s.hasScore },
-  { id: "mt", label: "Has stems", test: s => !!s.stemsZipUrl || !!stemsZipUrlOf(s) }
+  { id: "mt", label: "Has stems", test: s => !!stemsZipUrlOf(s) }
 ];
 
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
@@ -91,6 +91,8 @@ export default function Songs() {
   };
 
   useEffect(() => { loadSongs().then(setSongs); }, []);
+  // facet counts run matches() once per song per facet value — build the search text once, not tens of thousands of times
+  const haystacks = useMemo(() => new Map(songs.map(s => [s, [s.title, s.writer, s.scripture, s.themes, s.firstLine, s.tune].join(" ").toLowerCase()])), [songs]);
   useEffect(() => () => stopAll(), []);
 
   // "/" jumps to the search box, unless something else already has the keystroke
@@ -130,7 +132,7 @@ export default function Songs() {
   const matches = (s: Song, skip?: string) => {
     const th = themeList(s);
     const q = state.q.trim().toLowerCase();
-    return (skip === "q" || !q || [s.title, s.writer, s.scripture, s.themes, s.firstLine, s.tune].join(" ").toLowerCase().includes(q)) &&
+    return (skip === "q" || !q || (haystacks.get(s) || "").includes(q)) &&
       (skip === "themes" || !state.themes.size || th.some(t => state.themes.has(t))) &&
       (skip === "conf" || !state.conf.size || state.conf.has(s.confidence || "")) &&
       (skip === "key" || !state.key || s.songKey === state.key) &&
@@ -177,10 +179,9 @@ export default function Songs() {
     filtered.sort((a, b) =>
       sort === "downloads" ? (b.rank ?? 0) - (a.rank ?? 0) :
         sort === "saves" ? (b.saveCount ?? 0) - (a.saveCount ?? 0) || (b.downloadCount ?? 0) - (a.downloadCount ?? 0) :
-        sort === "new" ? songRecency(b) - songRecency(a) :
-          a.title.localeCompare(b.title));
+          sort === "new" ? songRecency(b) - songRecency(a) :
+            a.title.localeCompare(b.title));
     return filtered;
-
   }, [songs, state, sort]);
 
   const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
@@ -367,31 +368,31 @@ export default function Songs() {
                 <span></span><span></span><span>{t("Song")}</span><span>{t("Themes")}</span><span className="c">{t("Key")}</span><span className="c">{t("BPM")}</span>
               </div>
               <div>
-                {slice.map(s => (
-                  <div className="t-row" key={s.id} data-license={s.license}>
-                    <button className={"play-btn" + (playableUrl(s) ? "" : " mute")} aria-label={playableUrl(s) ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => togglePlay(s)}>
-                      {playingId === s.id
-                        ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
-                        : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
-                    </button>
-                    {(() => {
-                      const cover = coverOf(s, "thumb");
-                      return cover
-                        ? <Link to={`${songPath(s)}`} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={cover.portrait ? "" : "art"} src={cover.src} alt="" loading="lazy" /></Link>
-                        : <Link to={`${songPath(s)}`} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />;
-                    })()}
-                    <div className="t-main">
-                      <Link to={`${songPath(s)}`}>{s.title}</Link>
-                      <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{stemsZipUrlOf(s) ? <> • <b className="mt-flag">stems</b></> : null}</span>
-                      <span className="t-stats" data-testid="song-stats">{t("{n} downloads", { n: (s.downloadCount || 0).toLocaleString() })}{(s.saveCount || 0) > 0 ? ` · ${t("{n} saves", { n: (s.saveCount as number).toLocaleString() })}` : ""}</span>
-                      {/* why this row leads — hymnal prior and completeness, not star ratings */}
-                      {rankReason(s).length > 0 && <span className="t-reason" data-testid="rank-reason">{rankReason(s).map(r => t(r)).join(" · ")}</span>}
-                    </div>
-                    <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>
-                    <span className="t-num t-key c">{s.songKey}</span>
-                    <span className="t-num t-bpm c">{s.bpm}</span>
-                  </div>
-                ))}
+                {slice.map(s => {
+                  const cover = coverOf(s, "thumb");
+                  const reasons = rankReason(s).map(r => t(r));
+                  return (
+                    <div className="t-row" key={s.id} data-license={s.license}>
+                      <button className={"play-btn" + (playableUrl(s) ? "" : " mute")} aria-label={playableUrl(s) ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => togglePlay(s)}>
+                        {playingId === s.id
+                          ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
+                          : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
+                      </button>
+                      {cover
+                        ? <Link to={songPath(s)} className="t-cover" tabIndex={-1} aria-hidden="true"><img className={cover.portrait ? "" : "art"} src={cover.src} alt="" loading="lazy" /></Link>
+                        : <Link to={songPath(s)} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
+                      <div className="t-main">
+                        <Link to={songPath(s)}>{s.title}</Link>
+                        <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{stemsZipUrlOf(s) ? <> • <b className="mt-flag">stems</b></> : null}</span>
+                        <span className="t-stats" data-testid="song-stats">{t("{n} downloads", { n: (s.downloadCount || 0).toLocaleString() })}{(s.saveCount || 0) > 0 ? ` · ${t("{n} saves", { n: (s.saveCount as number).toLocaleString() })}` : ""}</span>
+                        {/* why this row leads — hymnal prior and completeness, not star ratings */}
+                        {reasons.length > 0 && <span className="t-reason" data-testid="rank-reason">{reasons.join(" · ")}</span>}
+                      </div>
+                      <span className="t-themes">{themeList(s).slice(0, 3).map(th => <span className="th" key={th}>{th}</span>)}</span>
+                      <span className="t-num t-key c">{s.songKey}</span>
+                      <span className="t-num t-bpm c">{s.bpm}</span>
+                    </div>);
+                })}
               </div>
             </div>
           )}

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { idOf, leadFiles, loadSong, instrumentalUrlOf, recordingUrlOf, Song, songPath } from "../songs";
+import { idOf, leadFiles, instrumentalUrlOf, recordingUrlOf, songPath } from "../songs";
 import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
 import { loadRecording } from "../recordingPlayer";
 import { startMetronome, stopMetronome } from "../practice";
 import { useI18n } from "../i18n";
+import { useSong } from "../useSong";
 import { usePageMeta } from "../seo";
 import "../styles/lead.css";
 
@@ -75,8 +76,7 @@ export default function LeadWorship() {
   const navigate = useNavigate();
   const { t: tr } = useI18n();
 
-  const [song, setSong] = useState<Song | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const { song, notFound } = useSong(id);
   const [stanzas, setStanzas] = useState<TimedStanza[] | null>(null);
   const [duration, setDuration] = useState(0);
   const [tuneRoot, setTuneRoot] = useState("");
@@ -102,9 +102,6 @@ export default function LeadWorship() {
 
   usePageMeta(song ? `${tr("Lead worship")} — ${song.title}` : tr("Lead worship"));
 
-  useEffect(() => {
-    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
-  }, [id]);
 
   // song → timing, then the recording if we have one (so words clock the vocal), else the MIDI
   useEffect(() => {
@@ -351,7 +348,7 @@ export default function LeadWorship() {
       )}
 
       <header className="lead-bar">
-        <Link className="lead-close" data-testid="lead-close" to={`${songPath(song)}`} aria-label={tr("← Back to song")}>✕</Link>
+        <Link className="lead-close" data-testid="lead-close" to={songPath(song)} aria-label={tr("← Back to song")}>✕</Link>
         <button className="btn btn-primary lead-play" data-testid="lead-play" disabled={!ready || !run.length} onClick={toggle}>
           {!ready ? tr("Loading…") : counting ? tr("Counting in…") : playing ? tr("❚❚ Pause") : tr("▶ Play")}
         </button>

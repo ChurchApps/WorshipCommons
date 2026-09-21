@@ -873,7 +873,7 @@ const ml: Record<string, string> = {
   "You can also write to our designated copyright agent:": "നിങ്ങൾക്ക് ഞങ്ങളുടെ നിയുക്ത പകർപ്പവകാശ ഏജന്റിനും എഴുതാം:",
   "Phone:": "ഫോൺ:",
   "Email:": "ഇമെയിൽ:",
-  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "നിയുക്ത ഏജന്റ് രജിസ്ട്രേഷൻ DMCA-1080721 ആണ്, LIVE CHURCH SOLUTIONS INC-ന്റെ പേരിൽ.",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "നിയുക്ത ഏജന്റ് രജിസ്ട്രേഷൻ DMCA-1080721 ആണ്, LIVE CHURCH SOLUTIONS INC-ന്റെ പേരിൽ."
 
 };
 
