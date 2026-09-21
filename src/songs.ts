@@ -156,12 +156,19 @@ export function contentRootOf(song: Song): string {
   return hit ? String(u).slice(0, hit) : "";
 }
 
-const beside = (url: string | undefined, name: string) =>
-  url ? url.replace(/\/(sources|masters|derivatives)\/[^/?#]+$/, `/derivatives/${name}`) : undefined;
+// Only substitutes when the URL really sits in a package folder. String.replace returns the subject
+// unchanged on no match, so without this guard a pipeline-layout URL (output/composition/chart.pdf)
+// came back as itself and every song rendered a "Click" player pointing at its chart PDF.
+const beside = (url: string | undefined, name: string) => {
+  if (!url) return undefined;
+  const next = url.replace(/\/(sources|masters|derivatives)\/[^/?#]+$/, `/derivatives/${name}`);
+  return next === url ? undefined : next;
+};
 
 /**
  * Kit files live in derivatives/ but the API's fileUrls map does not list them yet.
- * Build the URL next to the tune (midi or abc) or the song chart.
+ * Build the URL next to the tune (midi or abc) or the song chart. The pipeline layout
+ * (output/composition/) carries no kit audio, so there nothing is guessed and no player shows.
  */
 export function kitFile(song: Song, name: string, from: "tune" | "song" = "song"): string | undefined {
   const mapped = fileUrl(song, name, name.replace(/-([a-z])/g, (_, c) => c.toUpperCase()), name.replace(/\.pdf$/, "Pdf").replace(/-([a-zA-Z])/g, (_, c) => c.toUpperCase()));
