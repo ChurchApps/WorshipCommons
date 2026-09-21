@@ -92,7 +92,9 @@ test.describe("song page: hero, modes, rights", () => {
   });
 
   test("a writer recording plays in the hero instead of the synthesized midi", async ({ page }) => {
-    const rec = rows.find(s => s.fileUrls?.demoAudio || s.fileUrls?.song);
+    // every package registers its song.json under the "song" role, so only an audio one is a recording —
+    // the same test songFromApi applies before it promotes urls.song to demoAudioUrl
+    const rec = rows.find(s => s.fileUrls?.demoAudio || /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(s.fileUrls?.song || ""));
     test.skip(!rec, "no seeded song with a demo recording");
     await page.goto(`/songs/${rec!.id}`);
     await expect(page.getByTestId("hero-play")).toHaveAttribute("aria-label", "Play");
