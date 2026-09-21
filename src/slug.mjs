@@ -1,11 +1,26 @@
+import { translit } from "./translit.mjs";
+
 // SEO paths, shared by the React app and tools/prerender.mjs.
 // /songs/<slug>-<id> mirrors the content bucket's folder names; ids are always 11 chars,
 // so idOf() peels the slug back off and bare-id links keep working.
-export const folderSlug = (title) => String(title || "").normalize("NFC").toLowerCase()
-  .replace(/['\u2019\u02BC]/g, "")
-  .replace(/[^a-z0-9\u00c0-\u024f]+/g, "-")
-  .replace(/^-+|-+$/g, "") || "untitled";
+export const folderSlug = (title, fallback = "") => {
+  const latin = String(title || "").normalize("NFC").toLowerCase()
+    .replace(/['\u2019\u02BC]/g, "")
+    .replace(/[^a-z0-9\u00c0-\u024f]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (latin) return latin;
+  // Malayalam and Cyrillic titles have nothing in that range, so slug their transliteration rather
+  // than let 175 songs share "untitled".
+  return translit(title).toLowerCase()
+    .replace(/['\u2019\u02BC]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    // a script we do not transliterate (CJK needs a dictionary, not a table): the language reads
+    // better than "untitled" and still tells a visitor what they are looking at
+    || String(fallback || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    || "untitled";
+};
 
 export const idOf = (param = "") => param.length > 12 && param[param.length - 12] === "-" ? param.slice(-11) : param;
-export const songPath = (song) => `/songs/${folderSlug(song.title)}-${song.id}`;
+export const songPath = (song) => `/songs/${folderSlug(song.title, song.language)}-${song.id}`;
 export const writerPath = (id, name) => `/writers/${folderSlug(name)}-${id}`;
