@@ -37,3 +37,16 @@ test("songPath keeps ids peelable whatever the script", () => {
     assert.match(last.slice(0, -(song.id.length + 1)), /^[a-z0-9À-ɏ-]+$/, path);
   }
 });
+
+test("kitFile does not invent a kit URL from a pipeline-layout path", async () => {
+  // mirrors src/songs.ts beside(): no substitution unless the URL sits in a package folder
+  const beside = (url, name) => {
+    if (!url) return undefined;
+    const next = url.replace(/\/(sources|masters|derivatives)\/[^/?#]+$/, `/derivatives/${name}`);
+    return next === url ? undefined : next;
+  };
+  const pipeline = "https://c/commons/songs/en/x-abc12345678/output/composition/chart.pdf";
+  const legacy = "https://c/commons/songs/en/public-domain/x-abc12345678/derivatives/chart.pdf";
+  assert.equal(beside(pipeline, "click.mp3"), undefined);
+  assert.equal(beside(legacy, "click.mp3"), "https://c/commons/songs/en/public-domain/x-abc12345678/derivatives/click.mp3");
+});
