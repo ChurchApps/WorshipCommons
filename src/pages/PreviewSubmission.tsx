@@ -19,9 +19,9 @@ export default function PreviewSubmission() {
   useEffect(() => {
     if (!id) return;
     const token = params.get("token");
-    const req = params.has("token")
-      ? wcGet(`/submissions/${id}/preview?token=${encodeURIComponent(token || "")}`)
-      : wcGet(`/submissions/${id}`, true);
+    const req = token === null
+      ? wcGet(`/submissions/${id}`, true)
+      : wcGet(`/submissions/${id}/preview?token=${encodeURIComponent(token)}`);
     req.then(setPreview).catch(() => setError(true));
   }, [id, params]);
 
@@ -43,6 +43,7 @@ export default function PreviewSubmission() {
 
   const p = preview.payload || {};
   const d = p.detail || {};
+  const license = licenseById(p.license);
 
   return (
     <main style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px" }}>
@@ -50,8 +51,8 @@ export default function PreviewSubmission() {
       <p className="hint">{d.writer}{d.year ? ` · ${d.year}` : ""}</p>
       <ul className="dl-list" data-testid="preview-meta">
         <li>Key {d.songKey}{d.bpm ? ` · ${d.bpm} BPM` : ""}{d.timeSignature ? ` · ${d.timeSignature}` : ""}</li>
-        <li data-testid="preview-license">{p.language} · {licenseById(p.license).label}{p.licenseVersion ? ` ${p.licenseVersion}` : ""}{p.tags ? ` · ${p.tags}` : ""}</li>
-        {licenseById(p.license).must.length > 0 && <li data-testid="preview-must">You must: {licenseById(p.license).must.join(" · ")}</li>}
+        <li data-testid="preview-license">{p.language} · {license.label}{p.licenseVersion ? ` ${p.licenseVersion}` : ""}{p.tags ? ` · ${p.tags}` : ""}</li>
+        {license.must.length > 0 && <li data-testid="preview-must">You must: {license.must.join(" · ")}</li>}
         {d.scripture && <li>{d.scripture}</li>}
         {preview.note && <li>{preview.note}</li>}
       </ul>

@@ -6,8 +6,7 @@ import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
 import SupportWriter, { linkLabel, parseWriterLinks, type WriterLink } from "../components/SupportWriter";
-
-export type { WriterLink } from "../components/SupportWriter";
+import EmptyState from "../components/EmptyState";
 
 interface Profile {
   name: string;
@@ -103,15 +102,12 @@ export default function Writer() {
 
       {!songs && <p>{t("Loading…")}</p>}
       {songs?.length === 0 && (
-        <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="writer-empty">
-          <p style={{ marginBottom: 16 }}>{t("No songs found")}</p>
-          <Link to={`/songs?q=${encodeURIComponent(query)}`} className="btn btn-primary">{t("Search the library")}</Link>
-        </div>
+        <EmptyState testId="writer-empty" message={t("No songs found")} to={`/songs?q=${encodeURIComponent(query)}`} action={t("Search the library")} />
       )}
       <ul data-testid="writer-songs" style={{ listStyle: "none" }}>
         {songs?.map(s => (
           <li key={s.id} className="card" style={{ padding: 24, marginBottom: 16 }} data-testid="writer-song">
-            <h3 style={{ marginBottom: 4 }}><Link to={`${songPath(s)}`}>{s.title}</Link></h3>
+            <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
             <p className="hint">{s.year}{s.songKey ? ` · ${t("Key")} ${s.songKey}` : ""}{themeList(s).length ? ` · ${themeList(s).slice(0, 3).join(", ")}` : ""}{` · ${t(licenseOf(s).label)}`}</p>
           </li>
         ))}

@@ -6,6 +6,7 @@ import { wcGet, wcPut } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import type { WriterLink } from "../components/SupportWriter";
+import EmptyState from "../components/EmptyState";
 
 const BIO_MAX = 2000;
 const LINKS_MAX = 5;
@@ -103,10 +104,7 @@ export default function Profile() {
       {!profile && <p>{t("Loading…")}</p>}
 
       {profile && !profile.id && (
-        <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="no-writer-page">
-          <p style={{ marginBottom: 16 }}>{t("You’ll have a writer page once one of your songs is live and credits you on your own.")}</p>
-          <Link to="/upload" className="btn btn-primary">{t("Share a song")}</Link>
-        </div>
+        <EmptyState testId="no-writer-page" message={t("You’ll have a writer page once one of your songs is live and credits you on your own.")} to="/upload" action={t("Share a song")} />
       )}
 
       {profile?.id && (

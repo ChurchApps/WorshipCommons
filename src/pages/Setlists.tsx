@@ -5,6 +5,7 @@ import { createSetlist, deleteSetlist, duplicateSetlist, durationSeconds, format
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import "../styles/setlist.css";
+import EmptyState from "../components/EmptyState";
 
 function Row({ setlist, songs }: { setlist: Setlist; songs: Song[] }) {
   const { t, lang } = useI18n();
@@ -74,10 +75,7 @@ export default function Setlists() {
       </form>
 
       {lists.length === 0 && (
-        <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="setlists-empty">
-          <p style={{ marginBottom: 16 }}>{t("No service plans yet. Open any song and press “+ Add to service plan”, or name one above.")}</p>
-          <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
-        </div>
+        <EmptyState testId="setlists-empty" message={t("No service plans yet. Open any song and press “+ Add to service plan”, or name one above.")} to="/songs" action={t("Explore the songs")} />
       )}
       {lists.map(s => <Row key={s.id} setlist={s} songs={songs} />)}
     </main>

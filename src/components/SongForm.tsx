@@ -437,7 +437,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
                 <b>{t("This looks like {title} by {writer}, already in the library", { title: similar[0].title, writer: similar[0].writer })}</b>
                 <ul>
                   {similar.map(s => (
-                    <li key={s.id}><Link to={`${songPath(s)}`}>{s.writer ? t("{title} — {writer}", { title: s.title, writer: s.writer }) : s.title}</Link></li>
+                    <li key={s.id}><Link to={songPath(s)}>{s.writer ? t("{title} — {writer}", { title: s.title, writer: s.writer }) : s.title}</Link></li>
                   ))}
                 </ul>
                 <p>{t("If it is the same song, propose an edit there instead.")}</p>

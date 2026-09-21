@@ -89,29 +89,29 @@ export default function Report() {
             <textarea id="details" rows={6} placeholder={t("Tell us what this song is, who actually owns it, and how you know. Links to registrations, releases, or publisher catalogs help us move fast.")} required value={form.details} onChange={e => set("details", e.target.value)} />
           </div>
           {ownership && <>
-          <div className="field-row field" style={{ gridTemplateColumns: "1fr 1fr" }}>
-            <div>
-              <label htmlFor="name">{t("Your name")}</label>
-              <input type="text" id="name" required value={form.name} onChange={e => set("name", e.target.value)} />
+            <div className="field-row field" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div>
+                <label htmlFor="name">{t("Your name")}</label>
+                <input type="text" id="name" required value={form.name} onChange={e => set("name", e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="email">{t("Email")}</label>
+                <input type="email" id="email" required value={form.email} onChange={e => set("email", e.target.value)} />
+              </div>
             </div>
-            <div>
-              <label htmlFor="email">{t("Email")}</label>
-              <input type="email" id="email" required value={form.email} onChange={e => set("email", e.target.value)} />
+
+            <div className="certify">
+              <input type="checkbox" id="goodfaith" required checked={form.goodfaith} onChange={e => set("goodfaith", e.target.checked)} />
+              <label htmlFor="goodfaith" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
+                <em>{t("I believe in good faith that this song was shared without the owner’s permission, and everything in this report is accurate. If I’m claiming to be the owner or their agent, I make that claim under penalty of perjury.")}</em>
+                <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("The legal-sounding sentence is the one part we can’t soften — it’s what makes takedowns enforceable.")}</span>
+              </label>
             </div>
-          </div>
 
-          <div className="certify">
-            <input type="checkbox" id="goodfaith" required checked={form.goodfaith} onChange={e => set("goodfaith", e.target.checked)} />
-            <label htmlFor="goodfaith" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
-              <em>{t("I believe in good faith that this song was shared without the owner’s permission, and everything in this report is accurate. If I’m claiming to be the owner or their agent, I make that claim under penalty of perjury.")}</em>
-              <span className="hint" style={{ display: "block", marginTop: 8 }}>{t("The legal-sounding sentence is the one part we can’t soften — it’s what makes takedowns enforceable.")}</span>
-            </label>
-          </div>
-
-          <div className="field" style={{ marginTop: 26 }}>
-            <label htmlFor="signature">{t("Signature")}</label>
-            <input type="text" id="signature" placeholder={t("Type your full legal name")} required value={form.signature} onChange={e => set("signature", e.target.value)} />
-          </div>
+            <div className="field" style={{ marginTop: 26 }}>
+              <label htmlFor="signature">{t("Signature")}</label>
+              <input type="text" id="signature" placeholder={t("Type your full legal name")} required value={form.signature} onChange={e => set("signature", e.target.value)} />
+            </div>
           </>}
 
           {error && <p className="hint" style={{ color: "var(--secondary)", fontWeight: 600 }}>{error}</p>}

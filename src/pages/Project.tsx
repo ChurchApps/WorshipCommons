@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { idOf, loadSong, Song, songPath } from "../songs";
+import { idOf, songPath } from "../songs";
 import { slidesFor } from "../slides";
 import { creditLines } from "../exports";
+import { useSong } from "../useSong";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import "../styles/project.css";
@@ -16,15 +17,11 @@ export default function Project() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useI18n();
-  const [song, setSong] = useState<Song | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const { song, notFound } = useSong(id);
   const [at, setAt] = useState(0);
   const [blank, setBlank] = useState(false);
   const [light, setLight] = useState(false);
 
-  useEffect(() => {
-    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
-  }, [id]);
 
   const order = useMemo(() => params.get("order")?.split(",").map(s => s.trim()).filter(Boolean), [params]);
   const deck = useMemo(() => (song ? slidesFor(song, order) : null), [song, order]);
@@ -82,7 +79,7 @@ export default function Project() {
           <button type="button" onClick={() => setBlank(b => !b)} data-testid="projector-blank" aria-pressed={blank}>{t("Blank")} <kbd>B</kbd></button>
           <button type="button" onClick={() => setLight(l => !l)} data-testid="projector-contrast">{t("Contrast")} <kbd>H</kbd></button>
           <button type="button" onClick={toggleFullscreen} data-testid="projector-fullscreen">{t("Fullscreen")} <kbd>F</kbd></button>
-          <Link to={`${songPath(song)}`} data-testid="projector-back">{t("← Back to song")} <kbd>Esc</kbd></Link>
+          <Link to={songPath(song)} data-testid="projector-back">{t("← Back to song")} <kbd>Esc</kbd></Link>
         </div>
         <p className="projector-credit" data-testid="projector-credit">{credit.join(" · ")}</p>
       </footer>

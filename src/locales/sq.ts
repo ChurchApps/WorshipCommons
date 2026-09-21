@@ -873,7 +873,7 @@ const sq: Record<string, string> = {
   "You can also write to our designated copyright agent:": "Mund t’i shkruani edhe agjentit tonë të caktuar për të drejtat e autorit:",
   "Phone:": "Telefon:",
   "Email:": "E-mail:",
-  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "Regjistrimi i agjentit të caktuar është DMCA-1080721, nën LIVE CHURCH SOLUTIONS INC.",
+  "The designated-agent registration is DMCA-1080721, under LIVE CHURCH SOLUTIONS INC.": "Regjistrimi i agjentit të caktuar është DMCA-1080721, nën LIVE CHURCH SOLUTIONS INC."
 
 };
 

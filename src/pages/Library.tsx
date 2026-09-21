@@ -5,6 +5,7 @@ import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
+import EmptyState from "../components/EmptyState";
 
 export default function Library() {
   const { t } = useI18n();
@@ -34,16 +35,11 @@ export default function Library() {
       </div>
 
       {!songs && <p>{t("Loading…")}</p>}
-      {songs?.length === 0 && (
-        <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="library-empty">
-          <p style={{ marginBottom: 16 }}>{t("Nothing here yet.")}</p>
-          <Link to="/songs" className="btn btn-primary">{t("Explore the songs")}</Link>
-        </div>
-      )}
+      {songs?.length === 0 && <EmptyState testId="library-empty" message={t("Nothing here yet.")} to="/songs" action={t("Explore the songs")} />}
       {songs?.map(s => (
         <div className="card" key={s.id} style={{ padding: 24, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }} data-testid="library-song">
           <div>
-            <h3 style={{ marginBottom: 4 }}><Link to={`${songPath(s)}`}>{s.title}</Link></h3>
+            <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
             <p className="hint">{s.writer} · {s.year} · {t("Key")} {s.songKey}</p>
           </div>
           <button className="btn btn-ghost" data-testid="library-remove" onClick={() => remove(s.id)}>{t("Remove")}</button>

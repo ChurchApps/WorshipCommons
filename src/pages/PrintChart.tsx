@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { idOf, loadSong, Song, songPath } from "../songs";
+import { idOf, songPath } from "../songs";
 import { parseChordPro, transposeChord, chartShapes } from "../chordpro";
+import { useSong } from "../useSong";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { attributionFor, LAYER_LABEL, layerLines } from "../licenses";
@@ -13,14 +14,10 @@ export default function PrintChart() {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
-  const [song, setSong] = useState<Song | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const { song, notFound } = useSong(id);
   const [size, setSize] = useState(16);
   const [cols, setCols] = useState(1);
   const [chords, setChords] = useState(params.get("chords") !== "0");
-  useEffect(() => {
-    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
-  }, [id]);
   const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
   usePageMeta(song ? t("{title} — chord chart | WorshipCommons", { title: song.title }) : "WorshipCommons");
 
@@ -51,7 +48,7 @@ export default function PrintChart() {
         </span>
         <label><input type="checkbox" checked={cols === 2} onChange={e => setCols(e.target.checked ? 2 : 1)} /> {t("2 columns")}</label>
         <label><input type="checkbox" data-testid="print-chords" checked={chords} onChange={e => setChords(e.target.checked)} /> {t("Show chords")}</label>
-        <Link to={`${songPath(song)}`}>{t("← Back to song")}</Link>
+        <Link to={songPath(song)}>{t("← Back to song")}</Link>
       </div>
       <h1 style={{ marginBottom: 4 }}>{song.title}</h1>
       <p style={{ marginBottom: 24 }}>{song.writer} · {t("Key of {key}", { key: keyLabel })}{capo ? ` · ${t("Capo {n} — {root} shapes", { n: capo, root: shapeLabel })}` : ""} · {song.bpm} BPM · {song.timeSignature}</p>

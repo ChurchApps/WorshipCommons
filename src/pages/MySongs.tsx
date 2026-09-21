@@ -5,6 +5,7 @@ import { wcGet, wcPost } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { NEW_PACKAGE_TYPES } from "../components/SongForm";
+import EmptyState from "../components/EmptyState";
 
 interface Submission {
   id: string;
@@ -91,12 +92,7 @@ export default function MySongs() {
       </div>
 
       {!subs && <p>{t("Loading…")}</p>}
-      {subs?.length === 0 && (
-        <div className="card" style={{ padding: 32, textAlign: "center" }} data-testid="no-submissions">
-          <p style={{ marginBottom: 16 }}>{t("Nothing here yet.")}</p>
-          <Link to="/upload" className="btn btn-primary">{t("Share your first song")}</Link>
-        </div>
-      )}
+      {subs?.length === 0 && <EmptyState testId="no-submissions" message={t("Nothing here yet.")} to="/upload" action={t("Share your first song")} />}
       {subs?.map(s => {
         const type = typeOf(s);
         const newPackage = NEW_PACKAGE_TYPES.includes(type);

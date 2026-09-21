@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { idOf, loadSong, Song, songPath } from "../songs";
+import { idOf, songPath } from "../songs";
 import { parseChordPro } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { draftAbc } from "../abcDraft";
@@ -8,6 +8,7 @@ import AbcEditor from "../components/AbcEditor";
 import { wcDelete, wcGet, wcPost } from "../api";
 import { useAuth } from "../auth";
 import { useI18n } from "../i18n";
+import { useSong } from "../useSong";
 import { usePageMeta } from "../seo";
 
 // community transcription: draft ABC from the song's MIDI, clean it up by hand,
@@ -17,8 +18,7 @@ export default function Transcribe() {
   const id = idOf(useParams().id);
   const { user } = useAuth();
   const location = useLocation();
-  const [song, setSong] = useState<Song | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const { song, notFound } = useSong(id);
   const [abc, setAbc] = useState("");
   const [busy, setBusy] = useState(false);
   const [midiState, setMidiState] = useState<"idle" | "loading" | "playing">("idle");
@@ -28,9 +28,6 @@ export default function Transcribe() {
   const playerRef = useRef<TunePlayer | null>(null);
   const synthRef = useRef<{ stop: () => void } | null>(null);
 
-  useEffect(() => {
-    if (id) loadSong(id).then(s => { s ? setSong(s) : setNotFound(true); });
-  }, [id]);
 
   const stopAll = () => {
     playerRef.current?.stop();
@@ -129,7 +126,7 @@ export default function Transcribe() {
         <div className="page-head">
           <h1>{t("Thank you!")}</h1>
           <p className="lede">{t("Your transcription was submitted for review. Once approved, it becomes the engraved score for this song.")}</p>
-          <p><Link to={`${songPath(song)}`}>{t("← Back to song")}</Link></p>
+          <p><Link to={songPath(song)}>{t("← Back to song")}</Link></p>
         </div>
       </main>
     );
