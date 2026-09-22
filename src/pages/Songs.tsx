@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Confidence, coverOf, hasDemoRecording, loadSongs, recordingUrlOf, Song, songRecency, stemsZipUrlOf, THEMES, themeList, songPath } from "../songs";
+import { Confidence, coverOf, hasDemoRecording, hasStemsPack, loadSongs, recordingUrlOf, Song, songRecency, THEMES, themeList, songPath } from "../songs";
 import { isModernWorship } from "../era";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { coverSvg } from "../cover.mjs";
@@ -25,7 +25,7 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
   { id: "accomp", label: "Has accompaniment", test: s => !!s.hasAccompaniment },
   { id: "chart", label: "Has chart", test: s => !!s.hasChords },
   { id: "score", label: "Has score", test: s => !!s.hasScore },
-  { id: "mt", label: "Has stems", test: s => !!stemsZipUrlOf(s) }
+  { id: "mt", label: "Has stems", test: s => hasStemsPack(s) }
 ];
 
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
@@ -409,7 +409,7 @@ export const Songs: React.FC = () => {
                         : <Link to={songPath(s)} className="t-cover" tabIndex={-1} aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 96, 96) }} />}
                       <div className="t-main">
                         <Link to={songPath(s)}>{s.title}</Link>
-                        <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{stemsZipUrlOf(s) ? <> • <b className="mt-flag">stems</b></> : null}</span>
+                        <span>{s.writer} • {s.year}{s.scripture ? ` • ${s.scripture}` : ""}{hasStemsPack(s) ? <> • <b className="mt-flag">stems</b></> : null}</span>
                         <span className="t-stats" data-testid="song-stats">{t("{n} downloads", { n: (s.downloadCount || 0).toLocaleString() })}{(s.saveCount || 0) > 0 ? ` · ${t("{n} saves", { n: (s.saveCount as number).toLocaleString() })}` : ""}</span>
                         {/* why this row leads — hymnal prior and completeness, not star ratings */}
                         {reasons.length > 0 && <span className="t-reason" data-testid="rank-reason">{reasons.join(" · ")}</span>}
