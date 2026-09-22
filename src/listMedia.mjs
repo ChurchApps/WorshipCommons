@@ -17,14 +17,14 @@ export function contentRootFromApi(apiBase) {
   return api.replace("://api.", "://content.");
 }
 
-const baseOf = (song, root) => (song?.packageDir ? `${root}/${song.packageDir}` : "");
+const baseOf = (song, root) => (song?.packageDir ? `${root}/commons/${song.packageDir}` : "");
 
 /** Fill art, thumb, melody, demo, and portrait on list rows. Detail rows already have URLs. */
 export function attachListMedia(songs, contentRoot) {
   const byId = new Map(songs.map(song => [song.id, song]));
   for (const song of songs) {
     if (!song.writerPortraitUrl && song.portrait) {
-      song.writerPortraitUrl = song.portrait.startsWith("http") ? song.portrait : `${contentRoot}/${song.portrait}`;
+      song.writerPortraitUrl = song.portrait.startsWith("http") ? song.portrait : `${contentRoot}/commons/${song.portrait}`;
     }
     const own = baseOf(song, contentRoot);
     const parent = song.parentSongId ? byId.get(song.parentSongId) : undefined;
