@@ -71,6 +71,14 @@ const SONGS = [
 
 const jsonLdOf = (html) => JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
 
+test("Google tag stays in the shell and in prerendered pages", () => {
+  const tag = "https://www.googletagmanager.com/gtag/js?id=G-3QX5XDY16J";
+  assert.match(shell.slice(0, shell.indexOf("</head>")), new RegExp(tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(shell, /gtag\('config', 'G-3QX5XDY16J'\)/);
+  assert.match(songPage(shell, SONGS[0], SONGS, SITE), /G-3QX5XDY16J/);
+  assert.match(page(shell, { title: "Song library", description: "All songs", canonical: `${SITE}/songs/`, body: "<main></main>", site: SITE }), /G-3QX5XDY16J/);
+});
+
 test("PD song body is US-centric and never says Free for churches", () => {
   const pd = songBody(SONGS[0]);
   assert.match(pd, /Public domain in the United States \(best-effort\)/);
