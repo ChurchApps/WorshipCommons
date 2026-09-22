@@ -28,7 +28,13 @@ import { LeadWorship } from "./pages/LeadWorship";
 import { Project } from "./pages/Project";
 import { Setlists } from "./pages/Setlists";
 import { SetlistPage } from "./pages/SetlistPage";
+import { useCrawlPolicy } from "./seo";
 import "./styles/style.css";
+
+const CrawlPolicy: React.FC = () => {
+  useCrawlPolicy();
+  return null;
+};
 
 const NotFound: React.FC = () => {
   const { t } = useI18n();
@@ -40,6 +46,7 @@ createRoot(document.getElementById("root")).render(
     <I18nProvider>
       <AuthProvider>
         <BrowserRouter>
+          <CrawlPolicy />
           <Routes>
             <Route path="/songs/:id/print" element={<PrintChart />} />
             <Route path="/songs/:id/sheet" element={<SheetMusic />} />

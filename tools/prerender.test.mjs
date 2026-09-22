@@ -6,8 +6,9 @@ import assert from "node:assert/strict";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { songPage, songBody, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages } from "./prerender.mjs";
+import { songPage, songBody, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages, homePage, writerPage, writeWriterPages, writeGatedPages, langIso } from "./prerender.mjs";
 import { idOf, songPath, writerPath } from "../src/slug.mjs";
+import { indexablePath, canonicalPath } from "../src/crawl.mjs";
 import * as os from "os";
 
 // nothing here may touch a live API
@@ -113,12 +114,13 @@ test("JSON-LD carries the translation graph and licensing", () => {
   assert.equal(original.keywords, "Grace, Refuge");
   assert.equal(original.license, "https://creativecommons.org/publicdomain/mark/1.0/");
   assert.equal(original.translationOfWork, undefined);
+  assert.equal(original.isAccessibleForFree, true);
   assert.deepEqual(original.workTranslation, [
     {
       "@type": "MusicComposition",
       name: "Roca de la Eternidad",
       url: `${SITE}/songs/roca-de-la-eternidad-RocaEtern01/`,
-      inLanguage: "Spanish"
+      inLanguage: "es"
     }
   ]);
 
@@ -127,12 +129,15 @@ test("JSON-LD carries the translation graph and licensing", () => {
     "@type": "MusicComposition",
     name: "Rock of Ages",
     url: `${SITE}/songs/rock-of-ages-RockOfAges1/`,
-    inLanguage: "English"
+    inLanguage: "en"
   });
   assert.equal(translation.workTranslation, undefined);
 
   // writer-shared songs point at the WorshipCommons license instead
-  assert.equal(jsonLdOf(songPage(shell, SONGS[2], SONGS, SITE)).license, `${SITE}/license`);
+  assert.equal(jsonLdOf(songPage(shell, SONGS[2], SONGS, SITE)).license, `${SITE}/license/`);
+  const blocks = [...songPage(shell, SONGS[0], SONGS, SITE).matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(m => JSON.parse(m[1]));
+  assert.equal(blocks[1]["@type"], "BreadcrumbList");
+  assert.equal(blocks[1].itemListElement[2].item, `${SITE}/songs/rock-of-ages-RockOfAges1/`);
 });
 
 test("share card meta uses the site base and the song image", () => {
@@ -144,6 +149,7 @@ test("share card meta uses the site base and the song image", () => {
   assert.match(html, /<meta name="twitter:image" content="https:\/\/example\.test\/og\/SteadyLigh1\.png">/);
   assert.match(html, /<meta name="twitter:title" content="Steady Light — free chords/);
   assert.match(html, /<meta name="twitter:description" content="Free chord chart/);
+  assert.match(html, /<meta property="og:type" content="music.song">/);
 
   // the hardcoded production og:image in index.html is rebased, never left behind
   const listing = page(shell, { title: "Song library", description: "All songs", canonical: `${SITE}/songs/`, body: "<main></main>", site: SITE });
@@ -161,8 +167,8 @@ test("sitemap lists every page with lastmod", () => {
   assert.match(xml, /<loc>https:\/\/example\.test\/license\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/upload\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/call-for-songs\/<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady-toplady0001<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance-adavance001<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady-toplady0001\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance-adavance001\/<\/loc>/);
   assert.equal(xml.match(/<loc>/g).length, 9 + SONGS.length + 2);
 });
 
@@ -222,6 +228,73 @@ test("llms.txt and robots.txt invite the AI crawlers", () => {
     assert.ok(robots.includes(`User-agent: ${agent}\nAllow: /`), `robots.txt is missing ${agent}`);
   }
   assert.match(robots, /Sitemap: https:\/\/example\.test\/sitemap\.xml/);
+});
+
+test("a second song in the same language does not emit a second hreflang", () => {
+  const alt = { ...SONGS[0], id: "RockOfAges2", title: "Rock of Ages (alt)", parentSongId: "RockOfAges1" };
+  const html = songPage(shell, SONGS[0], [...SONGS, alt], SITE);
+  const en = [...html.matchAll(/hreflang="en" href="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(en, [`${SITE}/songs/rock-of-ages-RockOfAges1/`]);
+  assert.equal(langIso("Swedish"), "sv");
+  assert.equal(langIso("Chinese"), "zh");
+  assert.equal(langIso("Klingon"), "");
+});
+
+test("homepage prerender keeps the current title and social description", () => {
+  const html = homePage(shell, SITE);
+  assert.match(html, /<title>WorshipCommons — Worship music, set free<\/title>/);
+  assert.match(html, /No subscriptions, no licenses, no strings\./);
+  assert.match(html, /og:description" content="Free worship songs for your church: chord charts, lyrics, any key\./);
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/">/);
+  assert.match(html, /<h1>Great music\. For every church\.<\/h1>/);
+  assert.match(html, /Freely given\. Freely shared\./);
+  assert.match(html, /<form action="\/songs\/" method="get"/);
+  assert.match(html, /"@type":"WebSite"/);
+  assert.match(html, /search_term_string/);
+  assert.match(html, /A service of ChurchApps/);
+  assert.doesNotMatch(html, /worshipcommons\.org/);
+  assert.equal(html.match(/rel="canonical"/g).length, 1);
+});
+
+test("writer pages are crawlable and account pages are noindex", () => {
+  const html = writerPage(shell, { id: "toplady0001", name: "Augustus Toplady", songs: [SONGS[0]] }, SITE);
+  assert.match(html, /<title>Augustus Toplady — WorshipCommons<\/title>/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/writers\/augustus-toplady-toplady0001\/">/);
+  assert.match(html, /<h1>Augustus Toplady<\/h1>/);
+  assert.match(html, /Songs in the commons by this writer\./);
+  assert.match(html, /href="\/songs\/rock-of-ages-RockOfAges1\/"/);
+  assert.match(html, /"@type":"ProfilePage"/);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-writers-"));
+  try {
+    writeWriterPages(dir, shell, SONGS, SITE);
+    assert.ok(fs.existsSync(path.join(dir, "writers", "augustus-toplady-toplady0001", "index.html")));
+    writeGatedPages(dir, shell, SITE);
+    const login = fs.readFileSync(path.join(dir, "login", "index.html"), "utf8");
+    assert.match(login, /<meta name="robots" content="noindex, follow">/);
+    assert.match(login, /<h1>Welcome back<\/h1>/);
+    assert.match(login, /<link rel="canonical" href="https:\/\/example\.test\/login\/">/);
+    const saved = fs.readFileSync(path.join(dir, "library", "index.html"), "utf8");
+    assert.match(saved, /Songs you’ve saved/);
+    assert.match(saved, /noindex, follow/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("crawl policy indexes songs and writers and hides account and print views", () => {
+  assert.equal(indexablePath("/"), true);
+  assert.equal(indexablePath("/songs/rock-of-ages-RockOfAges1"), true);
+  assert.equal(indexablePath("/writers/augustus-toplady-toplady0001/"), true);
+  assert.equal(indexablePath("/mission"), true);
+  assert.equal(indexablePath("/login"), false);
+  assert.equal(indexablePath("/library"), false);
+  assert.equal(indexablePath("/setlists/shared"), false);
+  assert.equal(indexablePath("/songs/rock-of-ages-RockOfAges1/print"), false);
+  assert.equal(indexablePath("/preview/submission/abc"), false);
+  assert.equal(indexablePath("/this-page-does-not-exist"), false);
+  assert.equal(canonicalPath("/songs/rock-of-ages-RockOfAges1"), "/songs/rock-of-ages-RockOfAges1/");
+  assert.equal(canonicalPath("/"), "/");
 });
 
 test("slugged paths round-trip through idOf", () => {
