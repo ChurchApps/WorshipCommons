@@ -98,12 +98,8 @@ export const songFromPayload = (payload: any): SongFormValues => {
     scope: d.masterLicense ? "both" : "composition",
     masterLicense: UPLOADABLE.some(l => l.id === d.masterLicense) ? d.masterLicense : "WC",
     proAnswer: d.proAnswer || "",
-    certifyAdult: !!d.certifyAdult,
-    certifyWrote: !!d.certifyWrote,
-    certifyCowriters: !!d.certifyCowriters,
-    certifyClear: !!d.certifyClear,
-    certifyForever: !!d.certifyForever,
-    certifyHuman: !!d.certifyHuman,
+    // songs attested before 1.2 carry only the single `certified` flag — it stands in for every split box
+    ...Object.fromEntries(GRANT_KEYS.map(k => [k, k in d ? !!d[k] : !!d.certified])) as Pick<SongFormValues, GrantKey>,
     recordingOwned: false
   };
 };

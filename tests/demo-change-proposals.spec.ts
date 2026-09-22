@@ -23,9 +23,10 @@ test.describe.serial("change proposals", () => {
   let title = "";
 
   test.beforeAll(async ({ request }) => {
-    // edit.spec takes the first free song; this spec takes the last so neither leaves a pending proposal in the other's way
+    // edit.spec takes the first free song; this spec takes the last so neither leaves a pending proposal in the other's way.
+    // A file proposal re-sends the live license, and the API only takes the uploadable ones — skip the permission-licensed songs.
     const songs = await (await request.get(`${WC_API}/songs`)).json();
-    const song = [...songs].reverse().find((s: { title: string; language: string }) => !RESERVED.includes(s.title) && s.language === "English");
+    const song = [...songs].reverse().find((s: { title: string; language: string; license: string }) => !RESERVED.includes(s.title) && s.language === "English" && ["WC", "PD", "CC-BY"].includes(s.license));
     if (!song) throw new Error("No free English song in the seeded catalog");
     songId = song.id;
     title = song.title;

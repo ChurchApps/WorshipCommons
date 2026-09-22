@@ -10,11 +10,12 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.describe("sheet music", () => {
-  test("song page links to the engraved score and ABC download", async ({ page }) => {
+  test("song page's Sheet music tab engraves the melody and links to the full score", async ({ page }) => {
     await page.goto(`/songs/${AMAZING_GRACE}`);
-    await expect(page.getByTestId("sheet-music-link")).toBeVisible();
-    await page.locator("details.dl-more summary").click();
-    await expect(page.locator(`a[href$="tune.abc"]`)).toBeVisible();
+    await page.getByTestId("tab-sheet").click();
+    await expect(page.getByTestId("melody-card").locator("svg")).toBeVisible();
+    await page.getByRole("link", { name: "Full score with all parts" }).click();
+    await expect(page).toHaveURL(/\/sheet\?key=/);
   });
 
   test("renders the full score with lyrics and transposes", async ({ page }) => {

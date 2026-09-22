@@ -226,7 +226,9 @@ test.describe.serial("approved song is complete — sheet, stems, WC license", (
     expect(audio.ok()).toBeTruthy();
     expect((await audio.body()).length).toBeGreaterThan(1000);
 
-    const sheet = page.locator("a[download]", { hasText: "Sheet music (PDF)" });
+    // the uploaded PDF lives on the Sheet music tab, embedded with a download link
+    await page.getByTestId("tab-sheet").click();
+    const sheet = page.getByTestId("sheet-pdf-card").locator("a[download]");
     await expect(sheet).toBeVisible();
     expect((await request.get(await sheet.getAttribute("href") as string)).ok()).toBeTruthy();
 

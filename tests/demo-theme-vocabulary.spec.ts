@@ -36,9 +36,10 @@ test.describe("theme vocabulary", () => {
     expect(labels).toContain("Christmas");
     expect(labels).toContain("Kids");
     expect(labels).toContain("Invitation");
-    expect(labels).toContain("Lament");
     expect(labels).toContain("Return");
     expect(labels).not.toContain("Guidance");
+    // Lament is in the vocabulary but no catalog song carries it yet — the facet only lists themes with songs
+    expect(THEMES).toContain("Lament");
     // nothing outside the vocabulary survived normalization
     for (const label of labels) expect(THEMES).toContain(label);
     // and what is shown follows the vocabulary's own order
