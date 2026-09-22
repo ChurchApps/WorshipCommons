@@ -220,6 +220,7 @@ fieldset { border: 0; }
 
 .empty-state { padding: 32px; text-align: center; }
 .empty-state p { margin-bottom: 16px; }
+.text-retry { margin-left: 8px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
 
 .terms-card { margin-bottom: 20px; }
 .terms-card h2 { font-size: 1.25rem; margin-bottom: 10px; }

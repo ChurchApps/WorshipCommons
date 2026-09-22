@@ -14,13 +14,14 @@ export const PrintChart: React.FC = () => {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
-  const { song, notFound } = useSong(id);
+  const { song, notFound, loadError, retry } = useSong(id);
   const [size, setSize] = useState(16);
   const [cols, setCols] = useState(1);
   const [chords, setChords] = useState(params.get("chords") !== "0");
   const stanzas = useMemo(() => song?.chordPro ? parseChordPro(song.chordPro) : [], [song]);
   usePageMeta(song ? t("{title} — chord chart | WorshipCommons", { title: song.title }) : "WorshipCommons");
 
+  if (loadError) return <main style={{ padding: 40 }} data-testid="song-load-error">{t("This song didn't load.")} <button type="button" className="text-retry" onClick={retry}>{t("Try again")}</button></main>;
   if (notFound) return <main style={{ padding: 40 }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></main>;
   if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 

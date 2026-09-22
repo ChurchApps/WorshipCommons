@@ -169,10 +169,13 @@ const pt: Record<string, string> = {
 
   // song page
   "{title} — free chords and lyrics | WorshipCommons": "{title} — cifra e letra grátis | WorshipCommons",
-  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.": "Cifra, letra e melodia gratuitas de {title} ({writer}, {year}). Transponha para qualquer tom, imprima, projete, cante — sem licença.",
+  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, and sing it in worship.": "Cifra, letra e melodia gratuitas de {title} ({writer}, {year}). Transponha para qualquer tom, imprima, projete e cante no culto.",
   "Song not found.": "Canção não encontrada.",
   "← All songs": "← Todas as canções",
   "Loading…": "Carregando…",
+  "The song library didn't load.": "A biblioteca de cânticos não carregou.",
+  "This song didn't load.": "Esta canção não carregou.",
+  "Try again": "Tentar de novo",
   "Free for worship": "Gratuita para a adoração",
   "Words and music by": "Letra e música de",
   "Song structure": "Estrutura da canção",

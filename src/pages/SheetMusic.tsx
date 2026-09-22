@@ -12,7 +12,7 @@ export const SheetMusic: React.FC = () => {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
-  const { song, notFound } = useSong(id);
+  const { song, notFound, loadError, retry } = useSong(id);
   const [abc, setAbc] = useState("");
   const [abcFailed, setAbcFailed] = useState(false);
   const [selRoot, setSelRoot] = useState("");
@@ -51,6 +51,7 @@ export const SheetMusic: React.FC = () => {
 
   usePageMeta(song ? t("{title} — sheet music | WorshipCommons", { title: song.title }) : "WorshipCommons");
 
+  if (loadError) return <main style={{ padding: 40 }} data-testid="song-load-error">{t("This song didn't load.")} <button type="button" className="text-retry" onClick={retry}>{t("Try again")}</button></main>;
   if (notFound) return <main style={{ padding: 40 }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></main>;
   if (!song) return <main style={{ padding: 40 }}>{t("Loading…")}</main>;
 

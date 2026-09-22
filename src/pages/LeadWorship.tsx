@@ -76,7 +76,7 @@ export const LeadWorship: React.FC = () => {
   const navigate = useNavigate();
   const { t: tr } = useI18n();
 
-  const { song, notFound } = useSong(id);
+  const { song, notFound, loadError, retry } = useSong(id);
   const [stanzas, setStanzas] = useState<TimedStanza[] | null>(null);
   const [duration, setDuration] = useState(0);
   const [tuneRoot, setTuneRoot] = useState("");
@@ -317,6 +317,7 @@ export const LeadWorship: React.FC = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  if (loadError) return <main className="wrap"><p style={{ padding: "60px 0" }} data-testid="song-load-error">{tr("This song didn't load.")} <button type="button" className="text-retry" onClick={retry}>{tr("Try again")}</button></p></main>;
   if (notFound) return <main className="wrap"><p style={{ padding: "60px 0" }}>{tr("Song not found.")} <Link to="/songs">{tr("Songs")}</Link></p></main>;
   if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>{tr("Loading…")}</p></main>;
 

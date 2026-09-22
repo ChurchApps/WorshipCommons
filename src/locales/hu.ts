@@ -169,10 +169,13 @@ const hu: Record<string, string> = {
 
   // song page
   "{title} — free chords and lyrics | WorshipCommons": "{title} — ingyenes akkordok és szöveg | WorshipCommons",
-  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.": "Ingyenes akkordlap, szöveg és dallam ehhez: {title} ({writer}, {year}). Transzponáld bármely hangnembe, nyomtasd, vetítsd, énekeld — licenc nélkül.",
+  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, and sing it in worship.": "Ingyenes akkordlap, szöveg és dallam ehhez: {title} ({writer}, {year}). Transzponáld bármely hangnembe, nyomtasd, vetítsd, és énekeld az istentiszteleten.",
   "Song not found.": "Az ének nem található.",
   "← All songs": "← Minden ének",
   "Loading…": "Betöltés…",
+  "The song library didn't load.": "Az énekgyűjtemény nem töltődött be.",
+  "This song didn't load.": "Ez az ének nem töltődött be.",
+  "Try again": "Újra",
   "Free for worship": "Ingyenes a dicsőítéshez",
   "Words and music by": "Szöveg és zene:",
   "Song structure": "Az ének felépítése",

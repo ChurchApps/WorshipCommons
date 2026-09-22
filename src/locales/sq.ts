@@ -169,10 +169,13 @@ const sq: Record<string, string> = {
 
   // song page
   "{title} — free chords and lyrics | WorshipCommons": "{title} — akorde dhe tekst falas | WorshipCommons",
-  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.": "Akorde, tekst dhe melodi falas për {title} ({writer}, {year}). Transpozojeni në çdo tonalitet, printojeni, projektojeni, këndojeni — pa licencë.",
+  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, and sing it in worship.": "Akorde, tekst dhe melodi falas për {title} ({writer}, {year}). Transpozojeni në çdo tonalitet, printojeni, projektojeni dhe këndojeni në adhurim.",
   "Song not found.": "Kënga nuk u gjet.",
   "← All songs": "← Të gjitha këngët",
   "Loading…": "Duke u ngarkuar…",
+  "The song library didn't load.": "Biblioteka e këngëve nuk u ngarkua.",
+  "This song didn't load.": "Kjo këngë nuk u ngarkua.",
+  "Try again": "Provo përsëri",
   "Free for worship": "Falas për adhurim",
   "Words and music by": "Tekst dhe muzikë nga",
   "Song structure": "Struktura e këngës",

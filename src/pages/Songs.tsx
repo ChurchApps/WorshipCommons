@@ -66,6 +66,8 @@ export const Songs: React.FC = () => {
   usePageMeta(t("Song library — WorshipCommons"), t("Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key."));
   const [params] = useSearchParams();
   const [songs, setSongs] = useState<Song[]>([]);
+  const [catalogStatus, setCatalogStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [catalogAttempt, setCatalogAttempt] = useState(0);
   const [state, setState] = useState<Filters>(() => ({
     q: (params.get("q") || "").trim().toLowerCase(),
     themes: new Set(params.get("theme") ? [params.get("theme")] : []),
@@ -102,7 +104,15 @@ export const Songs: React.FC = () => {
     wantRef.current = null;
   };
 
-  useEffect(() => { loadSongs().then(setSongs); }, []);
+  useEffect(() => {
+    let live = true;
+    loadSongs().then(rows => {
+      if (!live) return;
+      setSongs(rows);
+      setCatalogStatus("ready");
+    }).catch(() => { if (live) setCatalogStatus("error"); });
+    return () => { live = false; };
+  }, [catalogAttempt]);
   // facet counts run matches() once per song per facet value — build the search text once, not tens of thousands of times
   const haystacks = useMemo(() => new Map(songs.map(s => [s, [s.title, s.writer, s.scripture, s.themes, s.firstLine, s.tune].join(" ").toLowerCase()])), [songs]);
   useEffect(() => () => stopAll(), []);
@@ -362,9 +372,13 @@ export const Songs: React.FC = () => {
           <div className="results-head">
             {/* numbers only — no user content in the interpolated values */}
             <span className="count" id="count" dangerouslySetInnerHTML={{
-              __html: list.length
-                ? t("Showing <b>{from}–{to}</b> of <b>{total}</b> songs", { from: (start + 1).toLocaleString(), to: (start + slice.length).toLocaleString(), total: list.length.toLocaleString() })
-                : t("No songs found")
+              __html: catalogStatus === "loading"
+                ? t("Loading…")
+                : catalogStatus === "error"
+                  ? t("The song library didn't load.")
+                  : list.length
+                    ? t("Showing <b>{from}–{to}</b> of <b>{total}</b> songs", { from: (start + 1).toLocaleString(), to: (start + slice.length).toLocaleString(), total: list.length.toLocaleString() })
+                    : t("No songs found")
             }} />
             <span id="active-chips">
               {chips.map(c => (
@@ -406,6 +420,12 @@ export const Songs: React.FC = () => {
                     </div>);
                 })}
               </div>
+            </div>
+          )}
+          {catalogStatus === "error" && (
+            <div className="empty" data-testid="catalog-error">
+              <h3>{t("The song library didn't load.")}</h3>
+              <p><button type="button" className="text-retry" data-testid="catalog-retry" onClick={() => setCatalogAttempt(n => n + 1)}>{t("Try again")}</button></p>
             </div>
           )}
           {list.length === 0 && songs.length > 0 && (

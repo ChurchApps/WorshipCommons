@@ -169,10 +169,13 @@ const ru: Record<string, string> = {
 
   // song page
   "{title} — free chords and lyrics | WorshipCommons": "{title} — бесплатные аккорды и текст | WorshipCommons",
-  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.": "Бесплатные аккорды, текст и мелодия песни «{title}» ({writer}, {year}). Транспонируйте в любую тональность, печатайте, выводите на экран, пойте — без лицензии.",
+  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, and sing it in worship.": "Бесплатные аккорды, текст и мелодия песни «{title}» ({writer}, {year}). Транспонируйте в любую тональность, печатайте, выводите на экран и пойте на богослужении.",
   "Song not found.": "Песня не найдена.",
   "← All songs": "← Все песни",
   "Loading…": "Загрузка…",
+  "The song library didn't load.": "Библиотека песен не загрузилась.",
+  "This song didn't load.": "Эта песня не загрузилась.",
+  "Try again": "Повторить",
   "Free for worship": "Бесплатно для поклонения",
   "Words and music by": "Слова и музыка:",
   "Song structure": "Структура песни",

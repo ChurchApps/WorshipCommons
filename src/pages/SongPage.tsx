@@ -109,14 +109,21 @@ export const SongPage: React.FC = () => {
   // one fetch: detail + history + family + similar
   const [data, setData] = useState<SongPageData | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     setData(null);
     setNotFound(false);
+    setLoadError(false);
     if (!id) return;
     let stale = false;
-    loadSongPage(id).then(d => { if (stale) return; if (d) setData(d); else setNotFound(true); });
+    loadSongPage(id).then(d => {
+      if (stale) return;
+      if (d) setData(d);
+      else setNotFound(true);
+    }).catch(() => { if (!stale) setLoadError(true); });
     return () => { stale = true; };
-  }, [id, user]);
+  }, [id, user, attempt]);
   const song = data?.song ?? null;
   const [supportLinks, setSupportLinks] = useState<WriterLink[]>([]);
   useEffect(() => {
@@ -219,9 +226,12 @@ export const SongPage: React.FC = () => {
 
   usePageMeta(
     song ? t("{title} — free chords and lyrics | WorshipCommons", { title: song.title }) : "WorshipCommons",
-    song ? t("Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.", { title: song.title, writer: song.writer, year: song.year }) : undefined
+    song ? t("Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, and sing it in worship.", { title: song.title, writer: song.writer, year: song.year }) : undefined
   );
 
+  if (loadError) {
+    return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }} data-testid="song-load-error">{t("This song didn't load.")} <button type="button" className="text-retry" data-testid="song-retry" onClick={() => setAttempt(n => n + 1)}>{t("Try again")}</button></p></main>;
+  }
   if (notFound) {
     return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
   }

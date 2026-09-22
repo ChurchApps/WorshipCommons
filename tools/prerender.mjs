@@ -163,7 +163,7 @@ export function songPage(shell, song, songs, site = DEFAULT_SITE) {
   };
   return page(shell, {
     title: `${song.title} — free chords and lyrics | WorshipCommons`,
-    description: `Free chord chart, lyrics, and melody for ${song.title} (${song.writer}, ${song.year}). Transpose to any key, print it, project it, sing it — no license needed.`,
+    description: `Free chord chart, lyrics, and melody for ${song.title} (${song.writer}, ${song.year}). Transpose to any key, print it, project it, and sing it in worship.`,
     canonical: url,
     ogImage: `${site}/og/${song.id}.png`,
     ogImageAlt: `${song.title} — ${song.writer}`,
@@ -396,11 +396,11 @@ export function feedXml(songs, site, limit = 50) {
     (entries ? entries + `\n` : "") + `</feed>\n`;
 }
 
-// Same sentences as index.html. Social cards keep the existing og:description;
+// Same sentences as index.html. Social cards keep a shorter og:description;
 // the visible homepage copy is only mirrored into the crawler body below.
 const HOME_TITLE = "WorshipCommons — Worship music, set free";
-const HOME_DESCRIPTION = "An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio. No subscriptions, no licenses, no strings.";
-const HOME_SOCIAL = "Free worship songs for your church: chord charts, lyrics, any key. Public domain hymns and writer-shared songs, no licenses needed.";
+const HOME_DESCRIPTION = "An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio.";
+const HOME_SOCIAL = "Free worship songs for your church: chord charts, lyrics, any key. Public domain hymns and writer-shared songs.";
 
 export function homeBody() {
   return `<main style="max-width:700px;margin:0 auto;padding:40px 24px">
@@ -560,7 +560,7 @@ async function run() {
     `</ul></main>`;
   fs.writeFileSync(path.join(BUILD, "songs", "index.html"), page(shell, {
     title: "Song library — WorshipCommons",
-    description: "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key, no licenses needed.",
+    description: "Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key.",
     canonical: `${SITE}/songs/`,
     body: listBody,
     site: SITE
