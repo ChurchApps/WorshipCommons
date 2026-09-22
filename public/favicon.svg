@@ -1,13 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="64" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6C2BD9"/>
-      <stop offset="1" stop-color="#FF6B4A"/>
-    </linearGradient>
-  </defs>
-  <path d="M50.4 20A22 22 0 1 0 50.4 44" stroke="#17121F" stroke-width="12" stroke-linecap="round" fill="none"/>
-  <path d="M14.6 25.7A18.5 18.5 0 0 1 28.8 13.8" stroke="rgba(255,255,255,0.4)" stroke-width="1.6" fill="none"/>
-  <path d="M8.9 21.2A25.5 25.5 0 0 1 25.4 7.4" stroke="rgba(255,255,255,0.4)" stroke-width="1.6" fill="none"/>
-  <path d="M17 32q3-9 6 0q3 22 6 0q3-13 6 0q3 22 6 0q3-9 6 0" stroke="url(#g)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-  <circle cx="50.4" cy="44" r="5" fill="#D9F154"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="883 297.5 400 400">
+  <rect x="883" y="297.5" width="400" height="400" rx="76" fill="#08080c"/>
+  <g fill="none" stroke="#B49AFF" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="34" d="M1226 407 C1191 369 1147 347 1096 348 C1013 349 949 410 940 491 C931 575 997 648 1081 648 C1138 648 1188 625 1226 587"/>
+    <path stroke-width="28" d="M998 531 C987 461 1040 401 1110 408"/>
+  </g>
 </svg>

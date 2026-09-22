@@ -49,8 +49,8 @@ h2 { font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 700; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 
 /* ===== logo ===== */
-.logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.05rem; letter-spacing: -0.03em; text-decoration: none; color: var(--text); }
-.logo-mark { width: 54px; height: 24px; flex: none; }
+.logo { display: inline-flex; align-items: center; gap: 10px; flex: none; font-weight: 600; font-size: 1.05rem; letter-spacing: -0.03em; white-space: nowrap; text-decoration: none; color: var(--text); }
+.logo-mark { width: calc(24px * 1000 / 390); height: 24px; flex: none; }
 
 /* ===== header ===== */
 .site-header { position: sticky; top: 0; z-index: 100; background: rgba(8, 8, 12, 0.86); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
@@ -162,6 +162,11 @@ fieldset { border: 0; }
 .rise-3 { animation-delay: 0.24s; }
 
 /* ===== responsive ===== */
+@media (max-width: 360px) {
+  .nav { gap: 10px; }
+  .logo { gap: 8px; }
+}
+
 @media (max-width: 920px) {
   .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); flex: none; flex-direction: column; align-items: flex-start; padding: 24px; gap: 18px; border-bottom: 1px solid var(--line); margin: 0; }
   .nav-menu.open { display: flex; }
