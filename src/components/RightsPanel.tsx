@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Song } from "../songs";
 import { attributionFor, isCustomLicense, LAYER_LABEL, layerLines, licenseHref, licenseOf, licenseUrl, licenseVersion, USE_LABEL } from "../licenses";
-import { needsCcliReport, rightsMatrixFor, USES } from "../rights";
+import { isUnknown, needsCcliReport, rightsMatrixFor, USES } from "../rights";
 import { useI18n } from "../i18n";
 
 const InfoIcon: React.FC = () => (
@@ -94,7 +94,13 @@ export const RightsPanel: React.FC<Props> = (props) => {
       <table className="rights-matrix" data-testid="rights-matrix">
         <caption>{t("This version, use by use")}</caption>
         <tbody>
-          {USES.map(u => (
+          {USES.map(u => isUnknown(matrix[u]) ? (
+            // unknown is not "no": neither table knows this license, so point at the license itself
+            <tr key={u} data-testid={`rights-${u}`} data-allowed="unknown">
+              <th scope="row">{t(USE_LABEL[u])}</th>
+              <td className="cond" colSpan={2}><a href={licenseUrl(props.song)} target="_blank" rel="license noopener">{t("See license")}</a></td>
+            </tr>
+          ) : (
             <tr key={u} data-testid={`rights-${u}`} data-allowed={matrix[u].allowed ? "true" : "false"}>
               <th scope="row">{t(USE_LABEL[u])}</th>
               <td className={matrix[u].allowed ? "ok" : "no"}>{matrix[u].allowed ? t("You may") : t("You may not")}</td>

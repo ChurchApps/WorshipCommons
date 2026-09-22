@@ -4,6 +4,9 @@ import registry from "./licenses.json" with { type: "json" };
 const REGISTERED = new Map(registry.licenses.map(l => [l.id, l]));
 
 export const USES: Use[] = ["project", "print", "stream", "arrange", "record"];
+/** Condition the server and this file both emit when a license id is not in their table. Not a denial: the answer is unknown. */
+export const UNKNOWN = "License not recognised";
+export const isUnknown = (r: UseRule) => r.conditions.includes(UNKNOWN);
 
 const all = (allowed: boolean, ...conditions: string[]): RightsMatrix =>
   Object.fromEntries(USES.map(u => [u, { allowed, conditions: [...conditions] } as UseRule])) as RightsMatrix;
@@ -41,7 +44,7 @@ export function matrixForLicense(id: string): RightsMatrix {
     }
     return m;
   }
-  return all(false, "License not recognised");
+  return all(false, UNKNOWN);
 }
 
 const dedupe = (xs: string[]) => [...new Set(xs)];
@@ -58,7 +61,12 @@ const layerLicenses = (song: Song): string[] => {
   return rows.length ? rows.map(r => r.license) : [song.license];
 };
 
-export const rightsMatrixFor = (song: Song): RightsMatrix => song.rightsMatrix || composeMatrix(layerLicenses(song));
+/** The API matrix wins unless it did not recognise a license: the site registry knows custom grants the server does not. */
+export const rightsMatrixFor = (song: Song): RightsMatrix => {
+  const api = song.rightsMatrix;
+  if (api && !USES.some(u => isUnknown(api[u]))) return api;
+  return composeMatrix(layerLicenses(song));
+};
 
 const FREE = /^(PD|CC0|WC|CC-BY)/i;
 /** True when a US church must report project/print use to CCLI. Featured grants and custom church grants that set ccliReport false are not reported. */
