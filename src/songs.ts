@@ -1,4 +1,5 @@
 import { folderSlug } from "./slug.mjs";
+import { attachListMedia, contentRootFromApi } from "./listMedia.mjs";
 export { idOf, songPath, writerPath } from "./slug.mjs";
 import { CORE_API, wcGet } from "./api";
 import themeVocabulary from "./themes.json";
@@ -97,6 +98,15 @@ export interface Song {
   chartPdfUrl?: string;
   attributionUrl?: string;
   thumbUrl?: string;
+  // list rows: fixed media paths, rebuilt in attachListMedia
+  packageDir?: string;
+  hasCover?: boolean;
+  hasMidi?: boolean;
+  hasDemo?: boolean;
+  hasStems?: boolean;
+  coverOnParent?: boolean;
+  midiOnParent?: boolean;
+  portrait?: string;
 }
 
 let cache: Song[] | null = null;
@@ -276,6 +286,11 @@ export function stemsZipUrlOf(song: Pick<Song, "stemsZipUrl" | "fileUrls">): str
   return Object.values(song.fileUrls || {}).find(u => /\/output\/audio\/[^/?#]+\.zip(\?|#|$)/i.test(u));
 }
 
+/** The library badge. The download link stays on the song page, which has the real zip URL. */
+export function hasStemsPack(song: Pick<Song, "hasStems" | "stemsZipUrl" | "fileUrls">): boolean {
+  return !!song.hasStems || !!stemsZipUrlOf(song);
+}
+
 export function songFromApi(raw: any): Song {
   const urls = raw.fileUrls || {};
   for (const [field, key] of URL_FIELDS) if (urls[key]) raw[field] = urls[key];
@@ -298,6 +313,7 @@ export function clearSongCache() {
 export async function loadSongs(): Promise<Song[]> {
   if (cache && Date.now() - cacheAt < LIST_TTL_MS) return cache;
   const songs = (await wcGet("/songs") as any[]).map(songFromApi);
+  attachListMedia(songs, contentRootFromApi(CORE_API));
   cache = songs;
   cacheAt = Date.now();
   return songs;
