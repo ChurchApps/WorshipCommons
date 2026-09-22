@@ -243,7 +243,9 @@ test("a second song in the same language does not emit a second hreflang", () =>
 test("homepage prerender keeps the current title and social description", () => {
   const html = homePage(shell, SITE);
   assert.match(html, /<title>WorshipCommons — Worship music, set free<\/title>/);
-  assert.match(html, /No subscriptions, no licenses, no strings\./);
+  assert.match(html, /public domain hymns and writer-shared songs with chord charts/);
+  assert.doesNotMatch(html, /no licenses, no strings/i);
+  assert.doesNotMatch(html, /no licenses needed/i);
   assert.match(html, /og:description" content="Free worship songs for your church: chord charts, lyrics, any key\./);
   assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/">/);
   assert.match(html, /<h1>Great music\. For every church\.<\/h1>/);
@@ -254,6 +256,15 @@ test("homepage prerender keeps the current title and social description", () => 
   assert.match(html, /A service of ChurchApps/);
   assert.doesNotMatch(html, /worshipcommons\.org/);
   assert.equal(html.match(/rel="canonical"/g).length, 1);
+});
+
+test("song share cards do not say no license is needed", () => {
+  const html = songPage(shell, SONGS[0], SONGS, SITE);
+  const desc = html.match(/<meta name="description" content="([^"]*)"/)[1];
+  const og = html.match(/<meta property="og:description" content="([^"]*)"/)[1];
+  assert.equal(og, desc);
+  assert.match(desc, /sing it in worship/);
+  assert.doesNotMatch(desc, /no license needed/i);
 });
 
 test("writer pages are crawlable and account pages are noindex", () => {

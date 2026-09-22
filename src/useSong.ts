@@ -1,15 +1,23 @@
 import { useEffect, useState } from "react";
 import { loadSong, Song } from "./songs";
 
-/** The song behind a /songs/:id route, plus the 404 the page renders when there isn't one. */
+/** The song behind a /songs/:id route. A 404 is notFound; a failed request is loadError. */
 export function useSong(id: string | undefined) {
   const [song, setSong] = useState<Song | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (!id) return;
     let stale = false;
-    loadSong(id).then(s => { if (stale) return; if (s) setSong(s); else setNotFound(true); });
+    setNotFound(false);
+    setLoadError(false);
+    loadSong(id).then(s => {
+      if (stale) return;
+      if (s) setSong(s);
+      else setNotFound(true);
+    }).catch(() => { if (!stale) setLoadError(true); });
     return () => { stale = true; };
-  }, [id]);
-  return { song, notFound };
+  }, [id, attempt]);
+  return { song, notFound, loadError, retry: () => setAttempt(n => n + 1) };
 }

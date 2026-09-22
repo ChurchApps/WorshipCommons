@@ -37,13 +37,23 @@ export const Home: React.FC = () => {
   const location = useLocation();
   usePageMeta(t("WorshipCommons — Great music. For every church."), t("Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church."));
   const [songs, setSongs] = useState<Song[]>([]);
+  const [catalogStatus, setCatalogStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [catalogAttempt, setCatalogAttempt] = useState(0);
   const [saved, setSaved] = useState<string[]>([]);
   const [playing, setPlaying] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const tuneRef = useRef<TunePlayer | null>(null);
   const [q, setQ] = useState("");
 
-  useEffect(() => { loadSongs().then(setSongs); }, []);
+  useEffect(() => {
+    let live = true;
+    loadSongs().then(rows => {
+      if (!live) return;
+      setSongs(rows);
+      setCatalogStatus("ready");
+    }).catch(() => { if (live) setCatalogStatus("error"); });
+    return () => { live = false; };
+  }, [catalogAttempt]);
   useEffect(() => { if (user) libraryIds().then(setSaved); else setSaved([]); }, [user]);
   const stopAll = () => { audioRef.current?.pause(); tuneRef.current?.stop(); tuneRef.current = null; setPlaying(null); };
   useEffect(() => () => { audioRef.current?.pause(); tuneRef.current?.stop(); }, []);
@@ -98,8 +108,16 @@ export const Home: React.FC = () => {
               <Link to="/mission" className="btn btn-ghost btn-lg">{t("Our Mission")}</Link>
             </div>
             <p className="hero-proof rise rise-3">
-              <span><strong>{t("{count} songs", { count: songs.length.toLocaleString() })}</strong> {t("free for your church to use")}</span>
-              <span><strong data-testid="home-langs">{t("{count} languages", { count: langCount })}</strong></span>
+              {catalogStatus === "error" ? (
+                <span data-testid="catalog-error">{t("The song library didn't load.")} <button type="button" className="text-retry" data-testid="catalog-retry" onClick={() => setCatalogAttempt(n => n + 1)}>{t("Try again")}</button></span>
+              ) : catalogStatus === "loading" ? (
+                <span>{t("Loading…")}</span>
+              ) : (
+                <>
+                  <span><strong>{t("{count} songs", { count: songs.length.toLocaleString() })}</strong> {t("free for your church to use")}</span>
+                  <span><strong data-testid="home-langs">{t("{count} languages", { count: langCount })}</strong></span>
+                </>
+              )}
             </p>
           </div>
           <div className="hero-photo rise rise-3">

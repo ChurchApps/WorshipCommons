@@ -24,7 +24,9 @@ function useSongs(items: SetlistItem[] | undefined): SongMap {
   useEffect(() => {
     if (!ids) return;
     let live = true;
-    Promise.all(ids.split(",").map(async id => [id, await loadSong(id)] as const)).then(rows => { if (live) setSongs(new Map(rows)); });
+    Promise.all(ids.split(",").map(async id => {
+      try { return [id, await loadSong(id)] as const; } catch { return [id, null] as const; }
+    })).then(rows => { if (live) setSongs(new Map(rows)); });
     return () => { live = false; };
   }, [ids]);
   return songs;

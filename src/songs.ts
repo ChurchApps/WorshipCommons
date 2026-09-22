@@ -100,7 +100,14 @@ export interface Song {
 }
 
 let cache: Song[] | null = null;
+let cacheAt = 0;
 const songCache = new Map<string, Song | null>();
+// Hold a good catalog response. Tab focus must not download it again.
+const LIST_TTL_MS = 60 * 60 * 1000;
+
+export function isMissingSong(err: unknown): boolean {
+  return err instanceof Error && /\(404\)/.test(err.message);
+}
 
 // the API ships one fileUrls map (media key → absolute URL); fan it back out to the
 // legacy per-file fields so the rest of the site keeps its vocabulary
@@ -284,25 +291,29 @@ export function songFromApi(raw: any): Song {
 // list payload is summaries only — no chordPro/scriptureText; use loadSong for the full record
 export function clearSongCache() {
   cache = null;
+  cacheAt = 0;
   songCache.clear();
 }
 
-if (typeof window !== "undefined") window.addEventListener("focus", clearSongCache);
-
 export async function loadSongs(): Promise<Song[]> {
-  if (!cache) cache = (await wcGet("/songs") as any[]).map(songFromApi);
-  return cache;
+  if (cache && Date.now() - cacheAt < LIST_TTL_MS) return cache;
+  const songs = (await wcGet("/songs") as any[]).map(songFromApi);
+  cache = songs;
+  cacheAt = Date.now();
+  return songs;
 }
 
 export async function loadSong(id: string): Promise<Song | null> {
-  if (!songCache.has(id)) {
-    try {
-      songCache.set(id, songFromApi(await wcGet(`/songs/${id}`)));
-    } catch {
-      songCache.set(id, null);
-    }
+  if (songCache.has(id)) return songCache.get(id) ?? null;
+  try {
+    const song = songFromApi(await wcGet(`/songs/${id}`));
+    songCache.set(id, song);
+    return song;
+  } catch (err) {
+    if (!isMissingSong(err)) throw err;
+    songCache.set(id, null);
+    return null;
   }
-  return songCache.get(id) ?? null;
 }
 
 export interface HistoryEntry { submissionId: string; submittedByName?: string; approvedAt?: string; note?: string; filesChanged?: { name: string; action: string }[] }
@@ -326,8 +337,9 @@ export async function loadSongPage(id: string): Promise<SongPageData | null> {
       family: (raw.family || []).map(songFromApi),
       similar: (raw.similar || []).map(songFromApi)
     };
-  } catch {
-    return null;
+  } catch (err) {
+    if (isMissingSong(err)) return null;
+    throw err;
   }
 }
 

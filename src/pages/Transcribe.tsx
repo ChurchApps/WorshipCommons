@@ -18,7 +18,7 @@ export const Transcribe: React.FC = () => {
   const id = idOf(useParams().id);
   const { user } = useAuth();
   const location = useLocation();
-  const { song, notFound } = useSong(id);
+  const { song, notFound, loadError, retry } = useSong(id);
   const [abc, setAbc] = useState("");
   const [busy, setBusy] = useState(false);
   const [midiState, setMidiState] = useState<"idle" | "loading" | "playing">("idle");
@@ -43,6 +43,7 @@ export const Transcribe: React.FC = () => {
   usePageMeta(song ? t("Transcribe {title} | WorshipCommons", { title: song.title }) : "WorshipCommons");
 
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
+  if (loadError) return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }} data-testid="song-load-error">{t("This song didn't load.")} <button type="button" className="text-retry" onClick={retry}>{t("Try again")}</button></p></main>;
   if (notFound) return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
   if (!song) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
 

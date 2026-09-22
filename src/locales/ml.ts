@@ -169,10 +169,13 @@ const ml: Record<string, string> = {
 
   // song page
   "{title} — free chords and lyrics | WorshipCommons": "{title} — സൗജന്യ കോർഡുകളും വരികളും | WorshipCommons",
-  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, sing it — no license needed.": "{title} ({writer}, {year}) എന്ന പാട്ടിന്റെ സൗജന്യ കോർഡ് ചാർട്ട്, വരികൾ, ഈണം. ഏതു കീയിലേക്കും മാറ്റുക, പ്രിന്റ് ചെയ്യുക, പ്രൊജക്ട് ചെയ്യുക, പാടുക — ലൈസൻസ് വേണ്ട.",
+  "Free chord chart, lyrics, and melody for {title} ({writer}, {year}). Transpose to any key, print it, project it, and sing it in worship.": "{title} ({writer}, {year}) എന്ന പാട്ടിന്റെ സൗജന്യ കോർഡ് ചാർട്ട്, വരികൾ, ഈണം. ഏതു കീയിലേക്കും മാറ്റുക, പ്രിന്റ് ചെയ്യുക, പ്രൊജക്ട് ചെയ്യുക, ആരാധനയിൽ പാടുക.",
   "Song not found.": "പാട്ട് കണ്ടെത്തിയില്ല.",
   "← All songs": "← എല്ലാ പാട്ടുകളും",
   "Loading…": "ലോഡ് ചെയ്യുന്നു…",
+  "The song library didn't load.": "പാട്ടുശേഖരം ലോഡ് ആയില്ല.",
+  "This song didn't load.": "ഈ പാട്ട് ലോഡ് ആയില്ല.",
+  "Try again": "വീണ്ടും ശ്രമിക്കുക",
   "Free for worship": "ആരാധനയ്ക്ക് സൗജന്യം",
   "Words and music by": "വരികളും സംഗീതവും",
   "Song structure": "പാട്ടിന്റെ ഘടന",

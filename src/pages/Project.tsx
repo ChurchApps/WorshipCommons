@@ -17,7 +17,7 @@ export const Project: React.FC = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useI18n();
-  const { song, notFound } = useSong(id);
+  const { song, notFound, loadError, retry } = useSong(id);
   const [at, setAt] = useState(0);
   const [blank, setBlank] = useState(false);
   const [light, setLight] = useState(false);
@@ -49,6 +49,7 @@ export const Project: React.FC = () => {
 
   usePageMeta(song ? t("{title} — project | WorshipCommons", { title: song.title }) : "WorshipCommons");
 
+  if (loadError) return <main className="projector" data-testid="projector"><p className="projector-msg" data-testid="song-load-error">{t("This song didn't load.")} <button type="button" className="text-retry" onClick={retry}>{t("Try again")}</button></p></main>;
   if (notFound) return <main className="projector" data-testid="projector"><p className="projector-msg">{t("Song not found.")} <Link to="/songs">{t("Songs")}</Link></p></main>;
   if (!song || !deck) return <main className="projector" data-testid="projector"><p className="projector-msg">{t("Loading…")}</p></main>;
 
