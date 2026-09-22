@@ -1,6 +1,7 @@
-// Post-build prerender: stamps out static, crawlable HTML for every song page
-// plus the public SPA routes (/songs, /mission, /license, /terms, /upload, /new,
-// /call-for-songs, /report), sitemap.xml, robots.txt, llms.txt, and feed.xml.
+// Post-build prerender: stamps out static, crawlable HTML for the homepage,
+// every song page, every writer page, the public SPA routes (/songs, /mission,
+// /license, /terms, /upload, /new, /call-for-songs, /report), noindex shells
+// for account routes, sitemap.xml, robots.txt, llms.txt, and feed.xml.
 // Each route is written as build/<route>/index.html so S3 website hosting
 // serves both /route/ (200) and /route (302 → /route/). React replaces the
 // static content on load (createRoot, not hydrate), so markup only needs to
@@ -20,9 +21,31 @@ import { songPath, writerPath } from "../src/slug.mjs";
 const BUILD = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "build");
 const DEFAULT_SITE = "https://worshipcommons.org";
 
-// song language name → ISO code, mirroring LANGS in src/i18n.tsx
-const LANG_ISO = { English: "en", Spanish: "es", German: "de", French: "fr", Portuguese: "pt", Russian: "ru", Hungarian: "hu", Albanian: "sq", Malayalam: "ml" };
-export const langIso = (name) => LANG_ISO[name] || String(name || "en").slice(0, 2).toLowerCase();
+// song language name → BCP 47. The UI LANGS map covers the nine catalog
+// languages; the rest are one-off hymns. Unknown names return "" so hreflang
+// is omitted instead of guessing (Swedish is not "sw").
+const LANG_ISO = {
+  English: "en",
+  Spanish: "es",
+  German: "de",
+  French: "fr",
+  Portuguese: "pt",
+  Russian: "ru",
+  Hungarian: "hu",
+  Albanian: "sq",
+  Malayalam: "ml",
+  Dutch: "nl",
+  Italian: "it",
+  Zulu: "zu",
+  Swedish: "sv",
+  Latin: "la",
+  Afrikaans: "af",
+  Romanian: "ro",
+  Chinese: "zh",
+  Slovak: "sk",
+  Maltese: "mt"
+};
+export const langIso = (name) => LANG_ISO[name] || "";
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -42,22 +65,27 @@ const lastmod = (song) => {
   return Number.isNaN(t) ? "" : new Date(t).toISOString().slice(0, 10);
 };
 
-export function page(shell, { title, description, canonical, ogImage, ogImageAlt, jsonLd, body, alternates = [], site = DEFAULT_SITE }) {
+export function page(shell, { title, description, canonical, ogImage, ogImageAlt, ogType, ogDescription, jsonLd, body, alternates = [], robots, site = DEFAULT_SITE }) {
+  const social = ogDescription || description;
   let html = shell
     .split(`${DEFAULT_SITE}/og/`).join(`${site}/og/`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(">)/, `$1${esc(description)}$2`)
     .replace(/(<meta property="og:title" content=")[^"]*(">)/, `$1${esc(title)}$2`)
-    .replace(/(<meta property="og:description" content=")[^"]*(">)/, `$1${esc(description)}$2`);
+    .replace(/(<meta property="og:description" content=")[^"]*(">)/, `$1${esc(social)}$2`);
+  if (ogType) html = html.replace(/(<meta property="og:type" content=")[^"]*(">)/, `$1${esc(ogType)}$2`);
   if (ogImage) html = html.replace(/(<meta property="og:image" content=")[^"]*(">)/, `$1${ogImage}$2`);
+  html = html.replace(/<link rel="canonical" href="[^"]*">\n?/g, "").replace(/<meta property="og:url" content="[^"]*">\n?/g, "");
   let head = `<link rel="canonical" href="${canonical}">\n<meta property="og:url" content="${canonical}">\n`;
   for (const alt of alternates) head += `<link rel="alternate" hreflang="${esc(alt.hreflang)}" href="${alt.href}">\n`;
   if (ogImage) {
     head += `<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n`;
     head += `<meta property="og:image:alt" content="${esc(ogImageAlt || title)}">\n<meta name="twitter:image" content="${ogImage}">\n`;
   }
-  head += `<meta name="twitter:title" content="${esc(title)}">\n<meta name="twitter:description" content="${esc(description)}">\n`;
-  if (jsonLd) head += `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n`;
+  head += `<meta name="twitter:title" content="${esc(title)}">\n<meta name="twitter:description" content="${esc(social)}">\n`;
+  if (robots) head += `<meta name="robots" content="${esc(robots)}">\n`;
+  const blocks = !jsonLd ? [] : Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+  for (const block of blocks) head += `<script type="application/ld+json">${JSON.stringify(block).replace(/</g, "\\u003c")}</script>\n`;
   return html
     .replace("</head>", head + "</head>")
     .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
@@ -89,8 +117,16 @@ export function songAlternates(song, songs, site = DEFAULT_SITE) {
   const family = songs.filter(s => (s.parentSongId || s.id) === familyId);
   if (family.length < 2) return [];
   const root = family.find(s => s.id === familyId) || family[0];
+  // one URL per language; a second English arrangement must not emit a second en
+  const byLang = new Map();
+  for (const member of family) {
+    const code = langIso(member.language);
+    if (!code) continue;
+    if (!byLang.has(code) || member.id === root.id) byLang.set(code, member);
+  }
+  if (byLang.size < 2) return [];
   return [
-    ...family.map(s => ({ hreflang: langIso(s.language), href: songUrl(site, s) })),
+    ...[...byLang.entries()].map(([hreflang, member]) => ({ hreflang, href: songUrl(site, member) })),
     { hreflang: "x-default", href: songUrl(site, root) }
   ];
 }
@@ -99,7 +135,7 @@ export function songPage(shell, song, songs, site = DEFAULT_SITE) {
   const url = songUrl(site, song);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
   const translations = songs.filter(s => s.parentSongId === song.id);
-  const work = (s) => ({ "@type": "MusicComposition", name: s.title, url: songUrl(site, s), inLanguage: s.language });
+  const work = (s) => ({ "@type": "MusicComposition", name: s.title, url: songUrl(site, s), inLanguage: langIso(s.language) || s.language });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "MusicComposition",
@@ -107,21 +143,32 @@ export function songPage(shell, song, songs, site = DEFAULT_SITE) {
     url,
     composer: { "@type": "Person", name: song.writer },
     copyrightYear: song.year,
-    inLanguage: song.language,
+    inLanguage: langIso(song.language) || song.language,
     musicalKey: song.songKey,
     keywords: song.themes,
-    license: song.license === "PD" ? "https://creativecommons.org/publicdomain/mark/1.0/" : `${site}/license`,
+    isAccessibleForFree: true,
+    license: song.license === "PD" ? "https://creativecommons.org/publicdomain/mark/1.0/" : `${site}/license/`,
     lyrics: { "@type": "CreativeWork", text: stripChords(song.chordPro) }
   };
   if (parent) jsonLd.translationOfWork = work(parent);
   if (translations.length) jsonLd.workTranslation = translations.map(work);
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "WorshipCommons", item: `${site}/` },
+      { "@type": "ListItem", position: 2, name: "Song library", item: `${site}/songs/` },
+      { "@type": "ListItem", position: 3, name: song.title, item: url }
+    ]
+  };
   return page(shell, {
     title: `${song.title} — free chords and lyrics | WorshipCommons`,
     description: `Free chord chart, lyrics, and melody for ${song.title} (${song.writer}, ${song.year}). Transpose to any key, print it, project it, sing it — no license needed.`,
     canonical: url,
     ogImage: `${site}/og/${song.id}.png`,
     ogImageAlt: `${song.title} — ${song.writer}`,
-    jsonLd,
+    ogType: "music.song",
+    jsonLd: [jsonLd, breadcrumb],
     body: songBody(song),
     alternates: songAlternates(song, songs, site),
     site
@@ -141,7 +188,7 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
     { loc: `${site}/upload/` },
     { loc: `${site}/report/` },
     ...songs.map(s => ({ loc: songUrl(site, s), lastmod: lastmod(s) })),
-    ...writers.map(([id, name]) => ({ loc: `${site}${writerPath(id, name)}` }))
+    ...writers.map(([id, name]) => ({ loc: `${site}${writerPath(id, name)}/` }))
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     entries.map(e => `  <url><loc>${esc(e.loc)}</loc>${e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : ""}</url>`).join("\n") +
@@ -349,6 +396,142 @@ export function feedXml(songs, site, limit = 50) {
     (entries ? entries + `\n` : "") + `</feed>\n`;
 }
 
+// Same sentences as index.html. Social cards keep the existing og:description;
+// the visible homepage copy is only mirrored into the crawler body below.
+const HOME_TITLE = "WorshipCommons — Worship music, set free";
+const HOME_DESCRIPTION = "An open library of worship music your church can sing free — public domain hymns and writer-shared songs with chord charts, lyrics, transposition, and audio. No subscriptions, no licenses, no strings.";
+const HOME_SOCIAL = "Free worship songs for your church: chord charts, lyrics, any key. Public domain hymns and writer-shared songs, no licenses needed.";
+
+export function homeBody() {
+  return `<main style="max-width:700px;margin:0 auto;padding:40px 24px">
+<p>Freely given. Freely shared.</p>
+<h1>Great music. For every church.</h1>
+<p>Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church.</p>
+<p><a href="/songs/">Find your next song →</a> · <a href="/mission/">Our Mission</a></p>
+<form action="/songs/" method="get" role="search"><input type="search" name="q" aria-label="Search songs"> <button type="submit">Search</button></form>
+<p><a href="/songs/">All Songs</a> · <a href="/songs/?start=1">Start here</a> · <a href="/songs/?license=PD">Timeless Hymns</a> · <a href="/songs/?era=modern">Modern Worship</a> · <a href="/songs/?guitar=1">Acoustic</a> · <a href="/songs/?sort=new">New Releases</a> · <a href="/songs/?theme=Kids">Kids &amp; VBS</a></p>
+<h2>Find your next Sunday set.</h2>
+<h2>Everything you need to lead the song.</h2>
+<ul><li>Chord charts in your key</li><li>Sheet music &amp; lyrics</li><li>Tracks for rehearsal &amp; worship</li></ul>
+<p>A growing library of freely shared worship music. Writers keep every commercial right.</p>
+<p><a href="/mission/">Meet WorshipCommons →</a> · <a href="/call-for-songs/">Release a song →</a> · <a href="/songs/">Explore the library →</a></p>
+<p><a href="https://churchapps.org/">A service of ChurchApps</a></p>
+</main>`;
+}
+
+export function homePage(shell, site = DEFAULT_SITE) {
+  const canonical = `${site}/`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${site}/#website`,
+        url: canonical,
+        name: "WorshipCommons",
+        description: HOME_DESCRIPTION,
+        publisher: { "@id": `${site}/#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: { "@type": "EntryPoint", urlTemplate: `${site}/songs/?q={search_term_string}` },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": `${site}/#organization`,
+        name: "WorshipCommons",
+        url: canonical,
+        parentOrganization: { "@type": "Organization", name: "ChurchApps", url: "https://churchapps.org/" }
+      }
+    ]
+  };
+  return page(shell, {
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    ogDescription: HOME_SOCIAL,
+    canonical,
+    ogImage: `${site}/og/site.png`,
+    ogImageAlt: HOME_TITLE,
+    jsonLd,
+    body: homeBody(),
+    site
+  });
+}
+
+export function writerGroups(songs) {
+  const groups = new Map();
+  for (const song of songs) {
+    const id = song.authorId || song.writerId;
+    if (!id || !song.writer) continue;
+    let group = groups.get(id);
+    if (!group) {
+      group = { id, name: song.writer, songs: [] };
+      groups.set(id, group);
+    }
+    group.songs.push(song);
+  }
+  for (const group of groups.values()) group.songs.sort((a, b) => String(a.title).localeCompare(String(b.title)));
+  return [...groups.values()];
+}
+
+export function writerPage(shell, writer, site = DEFAULT_SITE) {
+  const url = `${site}${writerPath(writer.id, writer.name)}/`;
+  const description = "Songs in the commons by this writer.";
+  const items = writer.songs.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a></li>`).join("");
+  const body = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><p>Writer</p><h1>${esc(writer.name)}</h1><p>${description}</p><ul>${items}</ul></main>`;
+  return page(shell, {
+    title: `${writer.name} — WorshipCommons`,
+    description,
+    canonical: url,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      url,
+      name: writer.name,
+      mainEntity: { "@type": "Person", name: writer.name, url }
+    },
+    body,
+    site
+  });
+}
+
+export function writeWriterPages(root, shell, songs, site = DEFAULT_SITE) {
+  for (const writer of writerGroups(songs)) {
+    const dir = path.join(root, writerPath(writer.id, writer.name).replace(/^\//, ""));
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), writerPage(shell, writer, site));
+  }
+}
+
+// Account routes. noindex, and a real document so CloudFront does not answer
+// them with the homepage. Wording is the page's own heading and lede.
+export function gatedPages(site = DEFAULT_SITE) {
+  const rows = [
+    ["login", "Sign in — WorshipCommons", "Sign in to share a song or track submissions.", "<h1>Welcome back</h1><p>Sign in to share a song or track submissions.</p>"],
+    ["library", "Saved songs — WorshipCommons", "Saved to your account — on every device you sign in from.", "<h1>Songs you’ve saved</h1><p>Saved to your account — on every device you sign in from.</p>"],
+    ["my-songs", "My songs — WorshipCommons", "Every song you’ve submitted and where it stands.", "<h1>What you’ve shared</h1><p>Every song you’ve submitted and where it stands.</p>"],
+    ["profile", "Writer profile — WorshipCommons", "This is what churches see when they follow your name from one of your songs.", "<h1>Your writer page</h1><p>This is what churches see when they follow your name from one of your songs.</p>"],
+    ["setlists", "Service plans — WorshipCommons", "Order the songs, pick a key and the verses for each, and share one link with the band — no account needed to open it.", "<h1>Your service plans</h1><p>Order the songs, pick a key and the verses for each, and share one link with the band — no account needed to open it.</p>"]
+  ];
+  return rows.map(([slug, title, description, inner]) => ({
+    slug,
+    title,
+    description,
+    canonical: `${site}/${slug}/`,
+    robots: "noindex, follow",
+    body: wrap(inner)
+  }));
+}
+
+export function writeGatedPages(root, shell, site = DEFAULT_SITE) {
+  for (const p of gatedPages(site)) writeRoute(root, p.slug, page(shell, { ...p, site }));
+}
+
+export function writeHomePage(root, shell, site = DEFAULT_SITE) {
+  fs.writeFileSync(path.join(root, "index.html"), homePage(shell, site));
+}
+
 async function run() {
   const API = (process.argv[2] || "http://localhost:8084").replace(/\/$/, "") + "/commons";
   const SITE = (process.argv[3] || DEFAULT_SITE).replace(/\/$/, "");
@@ -384,13 +567,17 @@ async function run() {
   }));
 
   writeStaticPages(BUILD, shell, songs, SITE);
+  writeWriterPages(BUILD, shell, songs, SITE);
+  writeGatedPages(BUILD, shell, SITE);
+  // last: index.html is both the homepage and the SPA fallback shell the other pages were stamped from
+  writeHomePage(BUILD, shell, SITE);
 
   fs.writeFileSync(path.join(BUILD, "sitemap.xml"), sitemapXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "robots.txt"), robotsTxt(SITE));
   fs.writeFileSync(path.join(BUILD, "feed.xml"), feedXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "llms.txt"), llmsTxt(songs, SITE, true));
 
-  console.log(`Prerendered ${songs.length} song pages + /songs, /mission, /license, /terms, /upload, /new, /call-for-songs, /report, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
+  console.log(`Prerendered homepage, ${songs.length} song pages, ${writerGroups(songs).length} writer pages, account shells, /songs, /mission, /license, /terms, /upload, /new, /call-for-songs, /report, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   run().catch(err => { console.error("Prerender failed:", err.message || err); process.exit(1); });
