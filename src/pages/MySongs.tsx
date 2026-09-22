@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { wcGet, wcPost } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { NEW_PACKAGE_TYPES } from "../components/SongForm";
-import EmptyState from "../components/EmptyState";
+import { EmptyState } from "../components/EmptyState";
 
 interface Submission {
   id: string;
@@ -56,7 +56,7 @@ const REVIEW_REASONS: Record<string, string> = {
 // rows from before payload.type was explicit fall back to what the API infers: a new package or a correction
 const typeOf = (s: Submission) => s.type || s.payload?.type || (s.isNewAsset === false ? "correction" : "new");
 
-export default function MySongs() {
+export const MySongs: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("My songs — WorshipCommons"));
   const { user } = useAuth();
@@ -76,7 +76,7 @@ export default function MySongs() {
 
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
 
-  const withdraw = async (id: string) => {
+  const handleWithdraw = async (id: string) => {
     await wcPost(`/submissions/${id}/withdraw`, {}, true);
     setConfirming("");
     load();
@@ -144,7 +144,7 @@ export default function MySongs() {
               confirming === s.id ? (
                 <div style={{ marginTop: 12 }}>
                   <p className="hint" style={{ marginBottom: 10 }}>{t("Your files stay. This goes back to a draft.")}</p>
-                  <button className="btn btn-primary" style={{ marginRight: 8 }} data-testid="withdraw-confirm" onClick={() => withdraw(s.id)}>{t("Withdraw")}</button>
+                  <button className="btn btn-primary" style={{ marginRight: 8 }} data-testid="withdraw-confirm" onClick={() => handleWithdraw(s.id)}>{t("Withdraw")}</button>
                   <button className="btn btn-ghost" data-testid="withdraw-cancel" onClick={() => setConfirming("")}>{t("Cancel")}</button>
                 </div>
               ) : (
@@ -162,4 +162,4 @@ export default function MySongs() {
       })}
     </main>
   );
-}
+};

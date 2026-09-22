@@ -18,24 +18,54 @@ const shell = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.u
 
 const SONGS = [
   {
-    id: "RockOfAges1", title: "Rock of Ages", writer: "Augustus Toplady", year: 1763,
-    themes: "Grace, Refuge", songKey: "G", bpm: 76, timeSignature: "4/4", language: "English",
-    scripture: "Isaiah 26:4", license: "PD", authorId: "toplady0001",
-    chordPro: "Verse 1\n[G]Rock of ages, cleft for [D]me", publishedAt: "2024-03-01T12:00:00.000Z"
+    id: "RockOfAges1",
+    title: "Rock of Ages",
+    writer: "Augustus Toplady",
+    year: 1763,
+    themes: "Grace, Refuge",
+    songKey: "G",
+    bpm: 76,
+    timeSignature: "4/4",
+    language: "English",
+    scripture: "Isaiah 26:4",
+    license: "PD",
+    authorId: "toplady0001",
+    chordPro: "Verse 1\n[G]Rock of ages, cleft for [D]me",
+    publishedAt: "2024-03-01T12:00:00.000Z"
   },
   {
-    id: "RocaEtern01", title: "Roca de la Eternidad", writer: "T. M. Westrup", year: 1900,
-    themes: "Gracia", songKey: "G", bpm: 76, timeSignature: "4/4", language: "Spanish",
-    scripture: "Isaías 26:4", license: "PD", parentSongId: "RockOfAges1",
-    relationLabel: "Spanish translation", chordPro: "Estrofa 1\n[G]Roca de la eternidad",
+    id: "RocaEtern01",
+    title: "Roca de la Eternidad",
+    writer: "T. M. Westrup",
+    year: 1900,
+    themes: "Gracia",
+    songKey: "G",
+    bpm: 76,
+    timeSignature: "4/4",
+    language: "Spanish",
+    scripture: "Isaías 26:4",
+    license: "PD",
+    parentSongId: "RockOfAges1",
+    relationLabel: "Spanish translation",
+    chordPro: "Estrofa 1\n[G]Roca de la eternidad",
     createdAt: "2024-04-02T09:30:00.000Z"
   },
   {
-    id: "SteadyLigh1", title: "Steady Light", writer: "Ada Vance", year: 2024,
-    themes: "Hope", songKey: "D", bpm: 82, timeSignature: "3/4", language: "English",
-    scripture: "", license: "WC", authorId: "adavance001",
+    id: "SteadyLigh1",
+    title: "Steady Light",
+    writer: "Ada Vance",
+    year: 2024,
+    themes: "Hope",
+    songKey: "D",
+    bpm: 82,
+    timeSignature: "3/4",
+    language: "English",
+    scripture: "",
+    license: "WC",
+    authorId: "adavance001",
     fileUrls: { art: "https://cdn.example.test/steady-light/art.webp" },
-    chordPro: "Chorus\n[D]Steady light", publishedAt: "2025-01-15T00:00:00.000Z"
+    chordPro: "Chorus\n[D]Steady light",
+    publishedAt: "2025-01-15T00:00:00.000Z"
   }
 ];
 
@@ -75,15 +105,21 @@ test("JSON-LD carries the translation graph and licensing", () => {
   assert.equal(original.keywords, "Grace, Refuge");
   assert.equal(original.license, "https://creativecommons.org/publicdomain/mark/1.0/");
   assert.equal(original.translationOfWork, undefined);
-  assert.deepEqual(original.workTranslation, [{
-    "@type": "MusicComposition", name: "Roca de la Eternidad",
-    url: `${SITE}/songs/roca-de-la-eternidad-RocaEtern01/`, inLanguage: "Spanish"
-  }]);
+  assert.deepEqual(original.workTranslation, [
+    {
+      "@type": "MusicComposition",
+      name: "Roca de la Eternidad",
+      url: `${SITE}/songs/roca-de-la-eternidad-RocaEtern01/`,
+      inLanguage: "Spanish"
+    }
+  ]);
 
   const translation = jsonLdOf(songPage(shell, SONGS[1], SONGS, SITE));
   assert.deepEqual(translation.translationOfWork, {
-    "@type": "MusicComposition", name: "Rock of Ages",
-    url: `${SITE}/songs/rock-of-ages-RockOfAges1/`, inLanguage: "English"
+    "@type": "MusicComposition",
+    name: "Rock of Ages",
+    url: `${SITE}/songs/rock-of-ages-RockOfAges1/`,
+    inLanguage: "English"
   });
   assert.equal(translation.workTranslation, undefined);
 

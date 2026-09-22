@@ -209,9 +209,7 @@ async function main() {
   await page.getByRole("heading", { name: TITLE }).waitFor();
   await shot(page, "song-page", "Public song page: chart, metadata, demo audio");
 
-  fs.writeFileSync(path.join(ROOT, ".notes", "walkthrough-index.json"), JSON.stringify({
-    title: TITLE, email: EMAIL, writer: WRITER, shots: INDEX
-  }, null, 2));
+  fs.writeFileSync(path.join(ROOT, ".notes", "walkthrough-index.json"), JSON.stringify({ title: TITLE, email: EMAIL, writer: WRITER, shots: INDEX }, null, 2));
 
   await browser.close();
   console.log("DONE", TITLE);

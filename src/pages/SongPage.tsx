@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { idOf, writerPath, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
 import { abcKeyRoot, abcTitle, abcVoices, melodyOnly, soloVoice, stripLyrics, titlesMatch } from "../abc";
-import ChordDiagram from "../components/ChordDiagram";
+import { ChordDiagram } from "../components/ChordDiagram";
 import { wcGet, wcPost, COMMONS_API } from "../api";
 import { parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 import { libraryIds, setInLibrary } from "../library";
@@ -14,43 +14,47 @@ import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { needsCcliReport } from "../rights";
 import { coverSvg } from "../cover.mjs";
-import SongHero, { clock } from "../components/SongHero";
-import AboutPanel from "../components/AboutPanel";
-import ScriptureConnection from "../components/ScriptureConnection";
-import ProjectPanel from "../components/ProjectPanel";
+import { SongHero, clock } from "../components/SongHero";
+import { AboutPanel } from "../components/AboutPanel";
+import { ScriptureConnection } from "../components/ScriptureConnection";
+import { ProjectPanel } from "../components/ProjectPanel";
 import "../styles/song.css";
 
-const FileIcon = () => (
+const FileIcon: React.FC = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></svg>
 );
-const NoteIcon = () => (
+const NoteIcon: React.FC = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
 );
 
-const ExternalIcon = () => (
+const ExternalIcon: React.FC = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
 );
-const Chevron = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>;
-const PlayIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>;
-const StopIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>;
+const Chevron: React.FC = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>;
+const PlayIcon: React.FC = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>;
+const StopIcon: React.FC = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>;
 
 // decorative bars for the player strip
 const WAVE = "M0 24h4v8H0zm8-6h3v20H8zm7 2h3v16h-3zm7-8h3v32h-3zm7 4h3v24h-3zm7 6h3v12h-3zm7-10h3v28h-3zm7 2h3v24h-3zm7-6h3v36h-3zm7 10h3v16h-3zm7-4h3v24h-3zm7 2h3v20h-3zm7-8h3v32h-3zm7 6h3v20h-3zm7-2h3v24h-3zm7 8h3v12h-3zm7-12h3v32h-3zm7 4h3v24h-3zm7-6h3v32h-3zm7 10h3v16h-3zm7-4h3v24h-3zm7 2h3v20h-3zm7-8h3v32h-3zm7 6h3v20h-3zm7-2h3v24h-3zm7 8h3v12h-3zm7-10h3v28h-3zm7 2h3v24h-3zm7-6h3v36h-3zm7 10h3v16h-3zm7-4h3v24h-3zm7 2h3v20h-3zm7-8h3v32h-3zm7 6h3v20h-3zm7-2h3v24h-3zm7 4h3v16h-3zm7-8h3v32h-3zm7 10h3v12h-3zm7-6h3v24h-3zm7 2h3v20h-3zm7-4h3v28h-3zm7 8h3v12h-3zm7-10h3v28h-3zm7 4h3v20h-3zm7-2h3v24h-3zm7 6h3v16h-3zm7-8h3v32h-3zm7 4h3v24h-3z";
 
 type Tab = "chords" | "sheet" | "about";
 
-const Thumb = ({ s }: { s: Song }) => {
-  const cover = coverOf(s, "thumb");
+interface ThumbProps {
+  s: Song;
+}
+
+const Thumb: React.FC<ThumbProps> = (props) => {
+  const cover = coverOf(props.s, "thumb");
   return (
     <span className="rel-thumb" aria-hidden="true">
       {cover
         ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
-        : <span dangerouslySetInnerHTML={{ __html: coverSvg(s, 72, 72) }} />}
+        : <span dangerouslySetInnerHTML={{ __html: coverSvg(props.s, 72, 72) }} />}
     </span>
   );
 };
 
-export default function SongPage() {
+export const SongPage: React.FC = () => {
   const { t } = useI18n();
   const { id: rawId = "" } = useParams();
   const id = idOf(rawId);
@@ -110,7 +114,7 @@ export default function SongPage() {
     setNotFound(false);
     if (!id) return;
     let stale = false;
-    loadSongPage(id).then(d => { if (stale) return; d ? setData(d) : setNotFound(true); });
+    loadSongPage(id).then(d => { if (stale) return; if (d) setData(d); else setNotFound(true); });
     return () => { stale = true; };
   }, [id, user]);
   const song = data?.song ?? null;
@@ -228,12 +232,12 @@ export default function SongPage() {
   const { keyLabel, shift, dispShift, useFlats } = chartShapes(song, selectedKey, capo);
   const selRoot = splitKey(keyLabel).root;
   // ± stepper walks the same 12 roots the key select offers
-  const bumpKey = (n: number) => setSelectedKey(rootAt(selRoot, n) + keySuffix);
+  const handleBumpKey = (n: number) => setSelectedKey(rootAt(selRoot, n) + keySuffix);
   const signedShift = shift > 6 ? shift - 12 : shift;
   // metronome follows the tempo slider; rate is 100 when there is no tune to slow down
   const practiceBpm = Math.round((song.bpm || 100) * rate / 100);
   const beatsPerBar = Number(song.timeSignature?.split("/")[0]) || 4;
-  const toggleMetronome = () => {
+  const handleToggleMetronome = () => {
     if (metro) stopMetronome();
     else startMetronome(practiceBpm, beatsPerBar);
     setMetro(!metro);
@@ -251,7 +255,7 @@ export default function SongPage() {
   const ccliFree = !needsCcliReport(song);
   const recordingUrl = recordingUrlOf(song);
   const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : (recordingUrl || song.hasAccompaniment) ? t("Play") : t("Preview (synthesized)");
-  const playPreview = async () => {
+  const handlePlayPreview = async () => {
     if (playState === "playing") { stopPlayback(); return; }
     setPlayState("loading");
     try {
@@ -284,20 +288,20 @@ export default function SongPage() {
     }
   };
 
-  const copyLyrics = async () => {
+  const handleCopyLyrics = async () => {
     const text = stanzas.map(st => [st.label, ...st.lines.map(l => l.map(seg => seg.text).join("").trimEnd())].join("\n")).join("\n\n");
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const toggleLib = async () => {
+  const handleToggleLibrary = async () => {
     if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
     await setInLibrary(song.id, !inLib);
     setInLib(!inLib);
   };
 
-  const recordDownload = () => {
+  const handleRecordDownload = () => {
     wcPost(`/assets/${song.id}/download`, {}).then(resp => { if (resp?.downloadCount != null) setCount(resp.downloadCount); }).catch(() => {});
   };
 
@@ -323,7 +327,7 @@ export default function SongPage() {
         <span className="crumb-here">{song.title}</span>
       </p>
 
-      <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={toggleLib} supportLinks={supportLinks} />
+      <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={handleToggleLibrary} supportLinks={supportLinks} />
 
       {(recordingUrl || midiUrl) && (
         <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={recordingUrl ? t("Demo recording") : t("Piano preview")}>
@@ -338,7 +342,7 @@ export default function SongPage() {
             disabled={playState === "loading"}
             title={playLabel}
             aria-label={playLabel}
-            onClick={playPreview}
+            onClick={handlePlayPreview}
           >
             {playState === "playing" ? <StopIcon /> : <PlayIcon />}
           </button>
@@ -372,9 +376,9 @@ export default function SongPage() {
                   </label>
                   <div className="ctl"><span id="transpose-label">{t("Transpose")}</span>
                     <div className="stepper" role="group" aria-labelledby="transpose-label" data-testid="transpose-stepper">
-                      <button type="button" onClick={() => bumpKey(-1)} aria-label="−1">−</button>
+                      <button type="button" onClick={() => handleBumpKey(-1)} aria-label="−1">−</button>
                       <span>{signedShift > 0 ? `+${signedShift}` : signedShift}</span>
-                      <button type="button" onClick={() => bumpKey(1)} aria-label="+1">+</button>
+                      <button type="button" onClick={() => handleBumpKey(1)} aria-label="+1">+</button>
                     </div>
                   </div>
                   <div className="ctl">{t("Display")}
@@ -432,10 +436,10 @@ export default function SongPage() {
             <div className="panel-foot">
               <span className="chart-links" data-testid="chart-links">
                 <Link to={printHref}>{t("Print / PDF")}</Link>
-                {song.chartPdfUrl && <a href={song.chartPdfUrl} download onClick={recordDownload}>{t("Chart PDF")}</a>}
+                {song.chartPdfUrl && <a href={song.chartPdfUrl} download onClick={handleRecordDownload}>{t("Chart PDF")}</a>}
                 <a href={`${COMMONS_API}/songs/${song.id}/chordpro`}>ChordPro</a>
                 <a href={`${COMMONS_API}/songs/${song.id}/lyrics`}>{t("Lyrics (TXT)")}</a>
-                <button type="button" className="link-btn" data-testid="copy-lyrics" onClick={copyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
+                <button type="button" className="link-btn" data-testid="copy-lyrics" onClick={handleCopyLyrics}>{copied ? t("Copied ✓") : t("Copy lyrics")}</button>
               </span>
               <span data-testid="ccli-footnote">{ccliFree ? <>{song.ccli ? t("CCLI {n} — reporting is optional.", { n: song.ccli }) : t("Free to sing, print, project and stream. No reporting required.")} {t("Keep CCLI for other songs you sing.")}</> : t("Report this song to CCLI when you use it.")}</span>
             </div>
@@ -455,7 +459,7 @@ export default function SongPage() {
                   <h3>{t("Sheet music")}</h3>
                   {/* the browser's own PDF viewer; toolbar hidden so it reads as a page, not an app */}
                   <iframe className="pdf-embed" src={`${song.sheetPdfUrl}#toolbar=0&view=FitH`} title={t("{title} — sheet music", { title: song.title })} loading="lazy" data-testid="sheet-pdf-embed" />
-                  <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={recordDownload}>{t("Download PDF")}</a></p>
+                  <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={handleRecordDownload}>{t("Download PDF")}</a></p>
                 </div>
               )}
               {!song.abcUrl && song.midiUrl && (
@@ -498,7 +502,7 @@ export default function SongPage() {
               </>
             )}
             <div className="toggle">
-              <button type="button" className="toggle-switch" data-testid="metronome-toggle" aria-pressed={metro} onClick={toggleMetronome}>
+              <button type="button" className="toggle-switch" data-testid="metronome-toggle" aria-pressed={metro} onClick={handleToggleMetronome}>
                 <i aria-hidden="true"></i>{metro ? t("■ Stop metronome") : t("▶ Metronome")}
               </button>
               <span className="tempo-val" data-testid="metronome-bpm">{practiceBpm} BPM</span>
@@ -539,12 +543,12 @@ export default function SongPage() {
             <ul className="dl">
               <li><FileIcon /><Link to={printHref}>{t("Chord chart (print)")}</Link> <span className="fmt">PDF · {keyLabel}{capo ? ` · ${t("capo {n}", { n: capo })}` : ""}</span></li>
               {song.compositionZipUrl && (
-                <li><FileIcon /><span><a href={song.compositionZipUrl} download onClick={recordDownload}>{t("Composition pack")}</a><small style={{ display: "block", color: "var(--muted)", fontSize: "0.8125rem" }}>{t("Chord chart, lead sheet, sheet music, MIDI, ChordPro, license")}</small></span> <span className="fmt">ZIP</span></li>
+                <li><FileIcon /><span><a href={song.compositionZipUrl} download onClick={handleRecordDownload}>{t("Composition pack")}</a><small style={{ display: "block", color: "var(--muted)", fontSize: "0.8125rem" }}>{t("Chord chart, lead sheet, sheet music, MIDI, ChordPro, license")}</small></span> <span className="fmt">ZIP</span></li>
               )}
               {song.audioZipUrl && (
-                <li><NoteIcon /><span><a href={song.audioZipUrl} download onClick={recordDownload}>{t("Audio pack")}</a><small style={{ display: "block", color: "var(--muted)", fontSize: "0.8125rem" }}>{t("Master recording, full mix, instrumental, extras, license")}</small></span> <span className="fmt">ZIP</span></li>
+                <li><NoteIcon /><span><a href={song.audioZipUrl} download onClick={handleRecordDownload}>{t("Audio pack")}</a><small style={{ display: "block", color: "var(--muted)", fontSize: "0.8125rem" }}>{t("Master recording, full mix, instrumental, extras, license")}</small></span> <span className="fmt">ZIP</span></li>
               )}
-              {song.stemsZipUrl && <li><NoteIcon /><a href={song.stemsZipUrl} className="mt-zip" download onClick={recordDownload}>{t("Multitracks (ZIP)")}</a> <span className="fmt">ZIP · {song.songKey}</span></li>}
+              {song.stemsZipUrl && <li><NoteIcon /><a href={song.stemsZipUrl} className="mt-zip" download onClick={handleRecordDownload}>{t("Multitracks (ZIP)")}</a> <span className="fmt">ZIP · {song.songKey}</span></li>}
             </ul>
             <p className="rel-hint dl-count">
               {t("Downloads")}: <span data-testid="download-count">{(count ?? song.downloadCount).toLocaleString()}</span>
@@ -599,4 +603,4 @@ export default function SongPage() {
       </section>
     </main>
   );
-}
+};

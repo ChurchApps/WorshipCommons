@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useI18n } from "../i18n";
 
 export interface WriterLink { label?: string; url: string }
@@ -11,13 +11,18 @@ export const linkLabel = (link: WriterLink) => {
   try { return new URL(link.url).hostname.replace(/^www\./, ""); } catch { return link.url; }
 };
 
-const Chevron = () => (
+const Chevron: React.FC = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
 );
 
-export default function SupportWriter({ links, writer }: { links: WriterLink[]; writer?: string }) {
+interface Props {
+  links: WriterLink[];
+  writer?: string;
+}
+
+export const SupportWriter: React.FC<Props> = (props) => {
   const { t } = useI18n();
-  const items = links.filter(l => l.url);
+  const items = props.links.filter(l => l.url);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
 
@@ -47,7 +52,7 @@ export default function SupportWriter({ links, writer }: { links: WriterLink[]; 
         <Chevron />
       </button>
       {open && (
-        <div className="support-menu" role="menu" aria-label={writer ? t("Ways to support {writer}", { writer }) : t("Support the writer")} data-testid="support-menu">
+        <div className="support-menu" role="menu" aria-label={props.writer ? t("Ways to support {writer}", { writer: props.writer }) : t("Support the writer")} data-testid="support-menu">
           {items.map(l => (
             <a key={l.url} role="menuitem" data-testid="support-option" href={l.url} target="_blank" rel="noopener noreferrer nofollow" onClick={() => setOpen(false)}>
               {linkLabel(l)}
@@ -57,4 +62,4 @@ export default function SupportWriter({ links, writer }: { links: WriterLink[]; 
       )}
     </div>
   );
-}
+};

@@ -1,10 +1,11 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/license.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { Check, Star } from "../components/DeedIcons";
 
-export default function CallForSongs() {
+export const CallForSongs: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(
     t("Call for songs — WorshipCommons"),
@@ -96,4 +97,4 @@ export default function CallForSongs() {
       </section>
     </main>
   );
-}
+};

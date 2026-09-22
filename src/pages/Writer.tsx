@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { idOf, loadSongs, Song, songFromApi, songPath, themeList, writerPath } from "../songs";
 import { wcGet } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
-import SupportWriter, { linkLabel, parseWriterLinks, type WriterLink } from "../components/SupportWriter";
-import EmptyState from "../components/EmptyState";
+import { SupportWriter, linkLabel, parseWriterLinks, type WriterLink } from "../components/SupportWriter";
+import { EmptyState } from "../components/EmptyState";
 
 interface Profile {
   name: string;
@@ -22,7 +22,7 @@ const matchesWriter = (song: Song, q: string) => {
   return writer.split(/[,&;]| and /i).map(p => p.trim()).includes(q);
 };
 
-export default function Writer() {
+export const Writer: React.FC = () => {
   const { t } = useI18n();
   const { name = "" } = useParams();
   const query = idOf(decodeURIComponent(name).trim());
@@ -114,4 +114,4 @@ export default function Writer() {
       </ul>
     </main>
   );
-}
+};

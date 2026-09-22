@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "../i18n";
 import type { Song } from "../songs";
 import { addToSetlist, createSetlist, removeFromSetlist, useSetlists } from "../setlists";
 import "../styles/setlist.css";
 
+interface Props {
+  song: Song;
+}
+
 /** The song-page picker: drop the song, in the key on screen, into any setlist in this browser. Works signed-out. */
-export default function AddToSetlist({ song }: { song: Song }) {
+export const AddToSetlist: React.FC<Props> = (props) => {
   const { t } = useI18n();
   const lists = useSetlists();
   const [params] = useSearchParams();
@@ -14,8 +18,8 @@ export default function AddToSetlist({ song }: { song: Song }) {
   const [name, setName] = useState("");
   const box = useRef<HTMLDivElement>(null);
   // the key the page is showing wins; else the package's recommended key; else the chart's own
-  const key = params.get("key") || song.recommendedKey || song.songKey;
-  const inLists = lists.filter(l => l.items.some(i => i.songId === song.id));
+  const key = params.get("key") || props.song.recommendedKey || props.song.songKey;
+  const inLists = lists.filter(l => l.items.some(i => i.songId === props.song.id));
 
   useEffect(() => {
     if (!open) return;
@@ -26,10 +30,10 @@ export default function AddToSetlist({ song }: { song: Song }) {
     return () => { document.removeEventListener("mousedown", away); document.removeEventListener("keydown", esc); };
   }, [open]);
 
-  const toggle = (id: string, has: boolean) => (has ? removeFromSetlist(id, song.id) : addToSetlist(id, { songId: song.id, key, capo: 0 }));
-  const create = () => {
+  const handleToggle = (id: string, has: boolean) => (has ? removeFromSetlist(id, props.song.id) : addToSetlist(id, { songId: props.song.id, key, capo: 0 }));
+  const handleCreate = () => {
     if (!name.trim()) return;
-    createSetlist(name, [{ songId: song.id, key, capo: 0 }]);
+    createSetlist(name, [{ songId: props.song.id, key, capo: 0 }]);
     setName("");
   };
 
@@ -37,24 +41,24 @@ export default function AddToSetlist({ song }: { song: Song }) {
 
   return (
     <div className="setlist-picker" ref={box}>
-      <button type="button" className={"btn " + (inLists.length ? "btn-ghost" : "btn-primary")} data-testid="add-to-setlist" data-song={song.id} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(!open)}>{label}</button>
+      <button type="button" className={"btn " + (inLists.length ? "btn-ghost" : "btn-primary")} data-testid="add-to-setlist" data-song={props.song.id} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(!open)}>{label}</button>
       {open && (
         <div className="setlist-popover" role="dialog" aria-label={t("Add to service plan")} data-testid="setlist-popover">
           <p className="setlist-popover-head">{t("Add to service plan")} <span className="hint">{t("Key of {key}", { key })}</span></p>
           {lists.length === 0 && <p className="hint">{t("No service plans yet — name your first one below.")}</p>}
           <ul className="setlist-options">
             {lists.map(l => {
-              const has = l.items.some(i => i.songId === song.id);
+              const has = l.items.some(i => i.songId === props.song.id);
               return (
                 <li key={l.id}>
-                  <button type="button" className={"setlist-option" + (has ? " on" : "")} data-testid="setlist-option" data-id={l.id} aria-pressed={has} onClick={() => toggle(l.id, has)}>
+                  <button type="button" className={"setlist-option" + (has ? " on" : "")} data-testid="setlist-option" data-id={l.id} aria-pressed={has} onClick={() => handleToggle(l.id, has)}>
                     <span>{has ? "✓ " : ""}{l.name}</span><span className="hint">{t("{n} songs", { n: l.items.length })}</span>
                   </button>
                 </li>
               );
             })}
           </ul>
-          <form className="setlist-new" onSubmit={e => { e.preventDefault(); create(); }}>
+          <form className="setlist-new" onSubmit={e => { e.preventDefault(); handleCreate(); }}>
             <input type="text" value={name} placeholder={t("New service plan…")} aria-label={t("New service plan name")} data-testid="setlist-new-name" onChange={e => setName(e.target.value)} />
             <button type="submit" className="btn btn-primary" data-testid="setlist-new-create" disabled={!name.trim()}>{t("Create")}</button>
           </form>
@@ -63,4 +67,4 @@ export default function AddToSetlist({ song }: { song: Song }) {
       )}
     </div>
   );
-}
+};

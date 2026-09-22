@@ -5,7 +5,13 @@ import { creditLines, exportFreeShow, exportOnSongPaste, exportOpenLP, exportOpe
 
 const chordPro = "Verse 1\n[G]Amazing [C]grace how [G]sweet\nThat saved a [D]wretch\n\nChorus\nPraise [D]Him\n\nVerse 2\nT'was [G]grace";
 const song = {
-  id: "ag1", title: "Amazing Grace", writer: "John Newton", year: 1779, songKey: "G", license: "PD", chordPro,
+  id: "ag1",
+  title: "Amazing Grace",
+  writer: "John Newton",
+  year: 1779,
+  songKey: "G",
+  license: "PD",
+  chordPro,
   attribution: "Amazing Grace\nJohn Newton, 1779\nPublic domain. Free for every use, including commercial.",
   rights: { text: { license: "PD" }, tune: { license: "CC-BY", holder: "A. Tune" }, arrangement: null },
   form: { status: "approved", sections: [], defaultOrder: ["Verse 1", "Chorus", "Verse 2", "Chorus"] }
@@ -112,7 +118,7 @@ test("PPTX: every part referenced from [Content_Types].xml and the rels exists; 
   const relsOf = (relPath, base) => [...entries.get(relPath)().matchAll(/Target="([^"]+)"/g)].map(m => {
     const segs = [...base, ...m[1].split("/")];
     const out = [];
-    for (const s of segs) s === ".." ? out.pop() : out.push(s);
+    for (const s of segs) { if (s === "..") out.pop(); else out.push(s); }
     return out.join("/");
   });
   for (const t of relsOf("_rels/.rels", [])) assert.ok(entries.has(t), `root rel ${t}`);

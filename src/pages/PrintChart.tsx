@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { idOf, songPath } from "../songs";
 import { parseChordPro, transposeChord, chartShapes } from "../chordpro";
@@ -10,7 +10,7 @@ import { attributionFor, LAYER_LABEL, layerLines } from "../licenses";
 // the fourth size is for the music stand and the back pew: ≥ 22px body text
 const SIZES: [number, string, string][] = [[14, "Small", "print-size-14"], [16, "Medium", "print-size-16"], [19, "Large", "print-size-19"], [22, "Large print", "print-large"]];
 
-export default function PrintChart() {
+export const PrintChart: React.FC = () => {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
@@ -81,4 +81,4 @@ export default function PrintChart() {
       </div>
     </main>
   );
-}
+};

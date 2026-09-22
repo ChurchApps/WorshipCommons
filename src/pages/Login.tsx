@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { corePost } from "../api";
@@ -18,7 +18,7 @@ const HEADS: Record<Mode, { eyebrow: string; title: string; lede: string }> = {
 
 const nextIsUpload = (next: string | null) => /^\/upload(\/|\?|$)/.test(next || "");
 
-export default function Login() {
+export const Login: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("Sign in — WorshipCommons"));
   const { login } = useAuth();
@@ -49,7 +49,7 @@ export default function Login() {
     }
   };
 
-  const submit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === "signin") run(() => finish(form.email, form.password), t("That email and password didn’t match — try again."));
     else if (mode === "register") {
@@ -94,7 +94,7 @@ export default function Login() {
         <h1>{t(head.title)}</h1>
         <p className="lede">{t(head.lede)}</p>
       </div>
-      <form className="card" style={{ padding: 32 }} onSubmit={submit}>
+      <form className="card" style={{ padding: 32 }} onSubmit={handleSubmit}>
         {mode === "register" && (
           <div className="field-row field" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
@@ -170,4 +170,4 @@ export default function Login() {
       )}
     </main>
   );
-}
+};

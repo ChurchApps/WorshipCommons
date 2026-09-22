@@ -1,28 +1,34 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+interface Props {
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+}
 
 // controlled ABC textarea with live abcjs engraving + parser warnings
-export default function AbcEditor({ value, onChange, rows = 12 }:
-  { value: string; onChange: (v: string) => void; rows?: number }) {
+export const AbcEditor: React.FC<Props> = (props) => {
+  const rows = props.rows ?? 12;
   const [warnings, setWarnings] = useState<string[]>([]);
   const paperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!paperRef.current) return;
-    if (value.trim() === "") { paperRef.current.innerHTML = ""; setWarnings([]); return; }
+    if (props.value.trim() === "") { paperRef.current.innerHTML = ""; setWarnings([]); return; }
     let stale = false;
     import("abcjs").then(m => {
       if (stale || !paperRef.current) return;
-      const [tune] = m.default.renderAbc(paperRef.current, value, { responsive: "resize" });
+      const [tune] = m.default.renderAbc(paperRef.current, props.value, { responsive: "resize" });
       setWarnings((tune as any)?.warnings || []);
     });
     return () => { stale = true; };
-  }, [value]);
+  }, [props.value]);
 
   return (
     <>
       <textarea
-        value={value}
-        onChange={e => onChange(e.target.value)}
+        value={props.value}
+        onChange={e => props.onChange(e.target.value)}
         rows={rows}
         placeholder={"X: 1\nT: Title\nM: 4/4\nL: 1/4\nK: D\nD E F G | A4 |\nw: words go here"}
         spellCheck={false}
@@ -37,4 +43,4 @@ export default function AbcEditor({ value, onChange, rows = 12 }:
       <div ref={paperRef} data-testid="abc-paper" />
     </>
   );
-}
+};

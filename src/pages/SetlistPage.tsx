@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, Song, songPath } from "../songs";
 import {
@@ -11,7 +11,7 @@ import { makeZip, textEntry } from "../zip";
 import { downloadFile, exportFreeShow, exportOpenLyrics, exportPptx, exportProPresenter, slug, type ExportFile, type ExportItem } from "../exports";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import EmptyState from "../components/EmptyState";
+import { EmptyState } from "../components/EmptyState";
 import "../styles/setlist.css";
 
 type Mode = "edit" | "shared" | "stage" | "print";
@@ -30,9 +30,16 @@ function useSongs(items: SetlistItem[] | undefined): SongMap {
   return songs;
 }
 
+interface ChartProps {
+  song: Song;
+  item: SetlistItem;
+  chords?: boolean;
+}
+
 /** One chart, chords over the words, in the key and capo the setlist chose. */
-function Chart({ song, item, chords = true }: { song: Song; item: SetlistItem; chords?: boolean }) {
-  const sections = useMemo(() => transposedSections(song, item.key, item.capo, item.order), [song, item.key, item.capo, item.order]);
+const Chart: React.FC<ChartProps> = (props) => {
+  const chords = props.chords ?? true;
+  const sections = useMemo(() => transposedSections(props.song, props.item.key, props.item.capo, props.item.order), [props.song, props.item.key, props.item.capo, props.item.order]);
   return (
     <div className="chart">
       {sections.map((st, si) => (
@@ -52,7 +59,7 @@ function Chart({ song, item, chords = true }: { song: Song; item: SetlistItem; c
       ))}
     </div>
   );
-}
+};
 
 function move<T>(arr: T[], from: number, to: number): T[] {
   if (to < 0 || to >= arr.length || from === to) return arr;
@@ -62,65 +69,75 @@ function move<T>(arr: T[], from: number, to: number): T[] {
   return next;
 }
 
-function ItemRow({ item, index, count, song, readOnly, onChange, onMove, onRemove, onDrop }: {
-  item: SetlistItem; index: number; count: number; song: Song | null | undefined; readOnly: boolean;
-  onChange: (patch: Partial<SetlistItem>) => void; onMove: (to: number) => void; onRemove: () => void; onDrop: (from: number) => void;
-}) {
+interface ItemRowProps {
+  item: SetlistItem;
+  index: number;
+  count: number;
+  song: Song | null | undefined;
+  readOnly: boolean;
+  onChange: (patch: Partial<SetlistItem>) => void;
+  onMove: (to: number) => void;
+  onRemove: () => void;
+  onDrop: (from: number) => void;
+}
+
+const ItemRow: React.FC<ItemRowProps> = (props) => {
   const { t } = useI18n();
+  const song = props.song;
   if (song === null) {
     return (
-      <div className="card setlist-item setlist-item-gone" data-testid="setlist-item" data-song={item.songId}>
+      <div className="card setlist-item setlist-item-gone" data-testid="setlist-item" data-song={props.item.songId}>
         <p>{t("This song is no longer in the commons.")}</p>
-        {!readOnly && <button type="button" className="chip" data-testid="item-remove" onClick={onRemove}>{t("Remove")}</button>}
+        {!props.readOnly && <button type="button" className="chip" data-testid="item-remove" onClick={props.onRemove}>{t("Remove")}</button>}
       </div>
     );
   }
-  if (!song) return <div className="card setlist-item" data-testid="setlist-item" data-song={item.songId}><p className="hint">{t("Loading…")}</p></div>;
+  if (!song) return <div className="card setlist-item" data-testid="setlist-item" data-song={props.item.songId}><p className="hint">{t("Loading…")}</p></div>;
 
   const keys = keyChoices(song);
-  const picks = item.order ?? defaultOrder(song);
+  const picks = props.item.order ?? defaultOrder(song);
   const labels = sectionLabels(song);
-  const { keyLabel, shapeLabel } = chartShapes(song, item.key, item.capo);
-  const setPicks = (order: string[]) => onChange({ order });
+  const { keyLabel, shapeLabel } = chartShapes(song, props.item.key, props.item.capo);
+  const setPicks = (order: string[]) => props.onChange({ order });
 
   return (
-    <div className="card setlist-item" data-testid="setlist-item" data-song={song.id} draggable={!readOnly}
-      onDragStart={e => { e.dataTransfer.setData("text/plain", String(index)); e.dataTransfer.effectAllowed = "move"; }}
-      onDragOver={e => { if (!readOnly) e.preventDefault(); }}
-      onDrop={e => { e.preventDefault(); const from = Number(e.dataTransfer.getData("text/plain")); if (!Number.isNaN(from)) onDrop(from); }}>
+    <div className="card setlist-item" data-testid="setlist-item" data-song={song.id} draggable={!props.readOnly}
+      onDragStart={e => { e.dataTransfer.setData("text/plain", String(props.index)); e.dataTransfer.effectAllowed = "move"; }}
+      onDragOver={e => { if (!props.readOnly) e.preventDefault(); }}
+      onDrop={e => { e.preventDefault(); const from = Number(e.dataTransfer.getData("text/plain")); if (!Number.isNaN(from)) props.onDrop(from); }}>
       <div className="setlist-item-head">
-        <span className="setlist-index" aria-hidden="true">{index + 1}</span>
+        <span className="setlist-index" aria-hidden="true">{props.index + 1}</span>
         <div className="setlist-item-title">
           <h3><Link to={`${songPath(song)}?key=${encodeURIComponent(keyLabel)}`} data-testid="item-title">{song.title}</Link></h3>
           <p className="hint">{song.writer}{song.year ? ` · ${song.year}` : ""}{isShareAlike(song) ? ` · ${t("CC BY-SA")}` : ""}</p>
         </div>
-        {!readOnly && (
+        {!props.readOnly && (
           <div className="setlist-item-move">
-            <button type="button" className="chip" aria-label={t("Move up")} data-testid="move-up" disabled={index === 0} onClick={() => onMove(index - 1)}>↑</button>
-            <button type="button" className="chip" aria-label={t("Move down")} data-testid="move-down" disabled={index === count - 1} onClick={() => onMove(index + 1)}>↓</button>
-            <button type="button" className="chip" data-testid="item-remove" onClick={onRemove}>{t("Remove")}</button>
+            <button type="button" className="chip" aria-label={t("Move up")} data-testid="move-up" disabled={props.index === 0} onClick={() => props.onMove(props.index - 1)}>↑</button>
+            <button type="button" className="chip" aria-label={t("Move down")} data-testid="move-down" disabled={props.index === props.count - 1} onClick={() => props.onMove(props.index + 1)}>↓</button>
+            <button type="button" className="chip" data-testid="item-remove" onClick={props.onRemove}>{t("Remove")}</button>
           </div>
         )}
       </div>
 
-      {readOnly
+      {props.readOnly
         ? (
           <p className="setlist-item-summary" data-testid="item-summary">
-            {t("Key of {key}", { key: keyLabel })}{item.capo ? ` · ${t("Capo {n} — {root} shapes", { n: item.capo, root: shapeLabel })}` : ""} · {picks.join(" → ")}{item.arrangement ? ` · ${item.arrangement}` : ""}
+            {t("Key of {key}", { key: keyLabel })}{props.item.capo ? ` · ${t("Capo {n} — {root} shapes", { n: props.item.capo, root: shapeLabel })}` : ""} · {picks.join(" → ")}{props.item.arrangement ? ` · ${props.item.arrangement}` : ""}
           </p>
         )
         : (
           <div className="setlist-item-controls">
             <label>{t("Key")}
-              <select value={item.key || song.songKey} data-testid="item-key" onChange={e => onChange({ key: e.target.value })}>
+              <select value={props.item.key || song.songKey} data-testid="item-key" onChange={e => props.onChange({ key: e.target.value })}>
                 <optgroup label={t("Published")}>{keys.published.map(k => <option key={k} value={k}>{k}</option>)}</optgroup>
                 <optgroup label={t("Preview (any key)")}>{keys.preview.map(k => <option key={k} value={k}>{k}</option>)}</optgroup>
               </select>
             </label>
             <label>{t("Capo")}
-              <select value={item.capo} data-testid="item-capo" onChange={e => onChange({ capo: Number(e.target.value) })}>
+              <select value={props.item.capo} data-testid="item-capo" onChange={e => props.onChange({ capo: Number(e.target.value) })}>
                 <option value={0}>{t("None")}</option>
-                {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: chartShapes(song, item.key, n).shapeLabel })}</option>)}
+                {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={n}>{t("{n} — {root} shapes", { n, root: chartShapes(song, props.item.key, n).shapeLabel })}</option>)}
               </select>
             </label>
             <div className="setlist-picks">
@@ -140,138 +157,150 @@ function ItemRow({ item, index, count, song, readOnly, onChange, onMove, onRemov
                   <option value="">{t("+ Add section")}</option>
                   {labels.map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
-                {item.order && <button type="button" className="chip" data-testid="pick-reset" onClick={() => onChange({ order: undefined })}>{t("Reset to default")}</button>}
+                {props.item.order && <button type="button" className="chip" data-testid="pick-reset" onClick={() => props.onChange({ order: undefined })}>{t("Reset to default")}</button>}
               </div>
             </div>
             <label className="setlist-arrangement">{t("Arrangement")}
-              <input type="text" value={item.arrangement || ""} placeholder={t("Chorus ×2 at the end, last verse a cappella…")} data-testid="item-note" onChange={e => onChange({ arrangement: e.target.value })} />
+              <input type="text" value={props.item.arrangement || ""} placeholder={t("Chorus ×2 at the end, last verse a cappella…")} data-testid="item-note" onChange={e => props.onChange({ arrangement: e.target.value })} />
             </label>
           </div>
         )}
     </div>
   );
+};
+
+interface EditorProps {
+  setlist: Setlist;
+  songs: SongMap;
+  readOnly: boolean;
 }
 
-function Editor({ setlist, songs, readOnly }: { setlist: Setlist; songs: SongMap; readOnly: boolean }) {
+const Editor: React.FC<EditorProps> = (props) => {
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const [copied, setCopied] = useState<"" | "link" | "chordpro">("");
-  const [name, setName] = useState(setlist.name);
+  const [name, setName] = useState(props.setlist.name);
   const [packing, setPacking] = useState(false);
-  useEffect(() => setName(setlist.name), [setlist.name]);
-  usePageMeta(t("{name} — service plan | WorshipCommons", { name: setlist.name }));
+  useEffect(() => setName(props.setlist.name), [props.setlist.name]);
+  usePageMeta(t("{name} — service plan | WorshipCommons", { name: props.setlist.name }));
 
-  const loaded = setlist.items.map(i => songs.get(i.songId)).filter((s): s is Song => !!s);
-  const allLoaded = setlist.items.every(i => songs.has(i.songId));
-  const duration = durationSeconds(setlist.items, loaded);
+  const loaded = props.setlist.items.map(i => props.songs.get(i.songId)).filter((s): s is Song => !!s);
+  const allLoaded = props.setlist.items.every(i => props.songs.has(i.songId));
+  const duration = durationSeconds(props.setlist.items, loaded);
   const saSongs = loaded.filter(isShareAlike);
-  const patch = (change: (s: Setlist) => Setlist) => { if (!readOnly) updateSetlist(setlist.id, change); };
+  const patch = (change: (s: Setlist) => Setlist) => { if (!props.readOnly) updateSetlist(props.setlist.id, change); };
   const setItems = (items: SetlistItem[]) => patch(s => ({ ...s, items }));
   const flash = (what: "link" | "chordpro") => { setCopied(what); setTimeout(() => setCopied(""), 2500); };
 
-  const link = shareUrl(setlist);
-  const share = async () => {
+  const link = shareUrl(props.setlist);
+  const handleShare = async () => {
     try { await navigator.clipboard.writeText(link); } catch { /* the field below stays selectable */ }
     flash("link");
   };
-  const copyChordPro = async () => {
-    const text = setlist.items.map(i => { const s = songs.get(i.songId); return s ? chordProFor(s, i.key, i.capo, i.order) : ""; }).filter(Boolean).join("\n");
+  const handleCopyChordPro = async () => {
+    const text = props.setlist.items.map(i => { const s = props.songs.get(i.songId); return s ? chordProFor(s, i.key, i.capo, i.order) : ""; }).filter(Boolean).join("\n");
     try { await navigator.clipboard.writeText(text); } catch { /* blocked clipboard: nothing else to do */ }
     flash("chordpro");
   };
-  const pack = () => {
+  const handlePack = () => {
     if (packing) return;
     setPacking(true);
     try {
       // CC BY-SA rule: a share-alike song makes the compiled pack share-alike, so it stays out unless the set says so
-      const rows = setlist.items.map(i => ({ item: i, song: songs.get(i.songId) })).filter((r): r is { item: SetlistItem; song: Song } => !!r.song && (setlist.shareAlike || !isShareAlike(r.song)));
+      const rows = props.setlist.items.map(i => ({ item: i, song: props.songs.get(i.songId) })).filter((r): r is { item: SetlistItem; song: Song } => !!r.song && (props.setlist.shareAlike || !isShareAlike(r.song)));
       const files = rows.flatMap((r, i) => packFilesFor(r.song, r.item, `${String(i + 1).padStart(2, "0")}-${slug(r.song.title)}`).map(f => textEntry(f.name, f.text)));
       const order = rows.map((r, i) => `${i + 1}. ${r.song.title} — ${chartShapes(r.song, r.item.key, r.item.capo).keyLabel}${r.item.capo ? ` (capo ${r.item.capo})` : ""}${r.item.arrangement ? ` — ${r.item.arrangement}` : ""}`);
-      files.push(textEntry("setlist.txt", `${setlist.name}\n\n${order.join("\n")}\n`));
-      const notice = setlist.shareAlike && rows.some(r => isShareAlike(r.song)) ? "\n\nThis pack includes CC BY-SA songs. Share the pack, or anything you make from it, under the same license.\n" : "\n";
-      files.push(textEntry("LICENSE.txt", `${setlist.name}\n\n${rows.map(r => licenseLineFor(r.song)).join("\n\n")}${notice}`));
-      downloadFile({ name: `${slug(setlist.name)}-house-church.zip`, type: "application/zip", body: makeZip(files) });
+      files.push(textEntry("setlist.txt", `${props.setlist.name}\n\n${order.join("\n")}\n`));
+      const notice = props.setlist.shareAlike && rows.some(r => isShareAlike(r.song)) ? "\n\nThis pack includes CC BY-SA songs. Share the pack, or anything you make from it, under the same license.\n" : "\n";
+      files.push(textEntry("LICENSE.txt", `${props.setlist.name}\n\n${rows.map(r => licenseLineFor(r.song)).join("\n\n")}${notice}`));
+      downloadFile({ name: `${slug(props.setlist.name)}-house-church.zip`, type: "application/zip", body: makeZip(files) });
     } finally {
       setPacking(false);
     }
   };
   /** The whole set for projection software: every loaded song in set order, in the key and sections the set chose. */
-  const project = (write: (items: ExportItem[]) => ExportFile) => {
-    const file = write(setlist.items.flatMap(i => { const song = songs.get(i.songId); return song ? [{ song, key: i.key, order: i.order }] : []; }));
-    downloadFile({ ...file, name: `${slug(setlist.name)}-${file.name}` });
+  const handleProject = (write: (items: ExportItem[]) => ExportFile) => {
+    const file = write(props.setlist.items.flatMap(i => { const song = props.songs.get(i.songId); return song ? [{ song, key: i.key, order: i.order }] : []; }));
+    downloadFile({ ...file, name: `${slug(props.setlist.name)}-${file.name}` });
   };
-  const saveCopy = () => {
-    const copy = createSetlist(setlist.name, setlist.items, { shareAlike: setlist.shareAlike });
+  const handleSaveCopy = () => {
+    const copy = createSetlist(props.setlist.name, props.setlist.items, { shareAlike: props.setlist.shareAlike });
     navigate(`/setlists/${copy.id}`);
   };
-  const sub = (path: string) => (readOnly ? { pathname: `/setlists/shared/${path}`, hash: location.hash } : `/setlists/${setlist.id}/${path}`);
+  const sub = (path: string) => (props.readOnly ? { pathname: `/setlists/shared/${path}`, hash: location.hash } : `/setlists/${props.setlist.id}/${path}`);
 
   return (
     <main className="wrap-narrow setlist-page">
       <p className="crumb" style={{ paddingTop: 32 }}><Link to="/setlists">{t("← Service plans")}</Link></p>
       <div className="setlist-head">
-        {readOnly
-          ? <><span className="eyebrow">{t("Shared service plan")}</span><h1 data-testid="setlist-title">{setlist.name}</h1></>
-          : <input className="setlist-title" type="text" value={name} aria-label={t("Service plan name")} data-testid="setlist-title" onChange={e => setName(e.target.value)} onBlur={() => { if (name.trim() && name.trim() !== setlist.name) patch(s => ({ ...s, name: name.trim() })); else setName(setlist.name); }} />}
+        {props.readOnly
+          ? <><span className="eyebrow">{t("Shared service plan")}</span><h1 data-testid="setlist-title">{props.setlist.name}</h1></>
+          : <input className="setlist-title" type="text" value={name} aria-label={t("Service plan name")} data-testid="setlist-title" onChange={e => setName(e.target.value)} onBlur={() => { if (name.trim() && name.trim() !== props.setlist.name) patch(s => ({ ...s, name: name.trim() })); else setName(props.setlist.name); }} />}
         <p className="hint" data-testid="setlist-meta">
-          {t("{n} songs", { n: setlist.items.length })} · <span data-testid="setlist-duration">{duration.approx ? "≈ " : ""}{t("{n} min", { n: formatMinutes(duration.seconds) })}</span>
+          {t("{n} songs", { n: props.setlist.items.length })} · <span data-testid="setlist-duration">{duration.approx ? "≈ " : ""}{t("{n} min", { n: formatMinutes(duration.seconds) })}</span>
         </p>
       </div>
 
       <div className="setlist-actions" data-testid="setlist-actions">
-        {readOnly && <button type="button" className="btn btn-primary" data-testid="save-copy" onClick={saveCopy}>{t("Save a copy")}</button>}
-        <button type="button" className="btn btn-ghost" data-testid="share-link" onClick={share}>{copied === "link" ? t("Link copied ✓") : t("Share link")}</button>
-        <button type="button" className="btn btn-ghost" data-testid="house-pack" disabled={!allLoaded || loaded.length === 0 || packing} onClick={pack}>{t("House-church pack")}</button>
-        <button type="button" className="btn btn-ghost" data-testid="copy-chordpro" disabled={!allLoaded || loaded.length === 0} onClick={copyChordPro}>{copied === "chordpro" ? t("Copied ✓") : t("Copy for OnSong / Planning Center")}</button>
+        {props.readOnly && <button type="button" className="btn btn-primary" data-testid="save-copy" onClick={handleSaveCopy}>{t("Save a copy")}</button>}
+        <button type="button" className="btn btn-ghost" data-testid="share-link" onClick={handleShare}>{copied === "link" ? t("Link copied ✓") : t("Share link")}</button>
+        <button type="button" className="btn btn-ghost" data-testid="house-pack" disabled={!allLoaded || loaded.length === 0 || packing} onClick={handlePack}>{t("House-church pack")}</button>
+        <button type="button" className="btn btn-ghost" data-testid="copy-chordpro" disabled={!allLoaded || loaded.length === 0} onClick={handleCopyChordPro}>{copied === "chordpro" ? t("Copied ✓") : t("Copy for OnSong / Planning Center")}</button>
         <Link className="btn btn-ghost" to={sub("print")} data-testid="print-booklet">{t("Print booklet")}</Link>
         <Link className="btn btn-primary" to={sub("stage")} data-testid="stage-mode">{t("Stage mode")}</Link>
       </div>
       {copied === "link" && <input className="setlist-share-url" type="text" readOnly value={link} data-testid="share-url" onFocus={e => e.target.select()} />}
       <p className="hint">{t("The pack holds every song's chart in your key, lyrics, slides, and attribution, plus one LICENSE.txt.")}</p>
       <div className="setlist-actions" data-testid="setlist-exports">
-        <button type="button" className="btn btn-ghost" data-testid="set-export-freeshow" title={t("Download for FreeShow")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportFreeShow)}>FreeShow</button>
-        <button type="button" className="btn btn-ghost" data-testid="set-export-openlyrics" title={t("Download OpenLyrics (OpenLP)")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportOpenLyrics)}>OpenLP</button>
-        <button type="button" className="btn btn-ghost" data-testid="set-export-propresenter" title={t("Download for ProPresenter")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportProPresenter)}>ProPresenter</button>
-        <button type="button" className="btn btn-ghost" data-testid="set-export-pptx" title={t("Download PPTX")} disabled={!allLoaded || loaded.length === 0} onClick={() => project(exportPptx)}>PowerPoint</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-freeshow" title={t("Download for FreeShow")} disabled={!allLoaded || loaded.length === 0} onClick={() => handleProject(exportFreeShow)}>FreeShow</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-openlyrics" title={t("Download OpenLyrics (OpenLP)")} disabled={!allLoaded || loaded.length === 0} onClick={() => handleProject(exportOpenLyrics)}>OpenLP</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-propresenter" title={t("Download for ProPresenter")} disabled={!allLoaded || loaded.length === 0} onClick={() => handleProject(exportProPresenter)}>ProPresenter</button>
+        <button type="button" className="btn btn-ghost" data-testid="set-export-pptx" title={t("Download PPTX")} disabled={!allLoaded || loaded.length === 0} onClick={() => handleProject(exportPptx)}>PowerPoint</button>
       </div>
 
       {saSongs.length > 0 && (
         <div className="setlist-notice" data-testid="sa-notice">
           <p>
-            {setlist.shareAlike
+            {props.setlist.shareAlike
               ? t("This pack is share-alike: it carries {titles} under CC BY-SA, so anything you make from the pack keeps that license.", { titles: saSongs.map(s => s.title).join(", ") })
               : t("{titles} is CC BY-SA, so it stays out of the house-church pack unless the pack is marked share-alike. The chart, stage mode, and booklet still include it.", { titles: saSongs.map(s => s.title).join(", ") })}
           </p>
-          <label><input type="checkbox" checked={!!setlist.shareAlike} disabled={readOnly} data-testid="share-alike" onChange={e => patch(s => ({ ...s, shareAlike: e.target.checked }))} /> {t("Share-alike pack (include CC BY-SA songs)")}</label>
+          <label><input type="checkbox" checked={!!props.setlist.shareAlike} disabled={props.readOnly} data-testid="share-alike" onChange={e => patch(s => ({ ...s, shareAlike: e.target.checked }))} /> {t("Share-alike pack (include CC BY-SA songs)")}</label>
         </div>
       )}
 
-      {setlist.items.length === 0 && (
+      {props.setlist.items.length === 0 && (
         <EmptyState testId="setlist-empty" message={t("No songs yet. Open a song and press “+ Add to service plan”.")} to="/songs" action={t("Explore the songs")} />
       )}
       <div className="setlist-items">
-        {setlist.items.map((item, i) => (
-          <ItemRow key={`${item.songId}-${i}`} item={item} index={i} count={setlist.items.length} song={songs.get(item.songId)} readOnly={readOnly}
-            onChange={p => setItems(setlist.items.map((it, j) => (j === i ? { ...it, ...p } : it)))}
-            onMove={to => setItems(move(setlist.items, i, to))}
-            onRemove={() => setItems(setlist.items.filter((_, j) => j !== i))}
-            onDrop={from => setItems(move(setlist.items, from, i))} />
+        {props.setlist.items.map((item, i) => (
+          <ItemRow key={`${item.songId}-${i}`} item={item} index={i} count={props.setlist.items.length} song={props.songs.get(item.songId)} readOnly={props.readOnly}
+            onChange={p => setItems(props.setlist.items.map((it, j) => (j === i ? { ...it, ...p } : it)))}
+            onMove={to => setItems(move(props.setlist.items, i, to))}
+            onRemove={() => setItems(props.setlist.items.filter((_, j) => j !== i))}
+            onDrop={from => setItems(move(props.setlist.items, from, i))} />
         ))}
       </div>
-      {!readOnly && setlist.items.length > 0 && <p className="hint"><Link to="/songs">{t("+ Add more songs")}</Link> · {t("Open a song and press “+ Add to service plan” — it joins the set in the key on screen.")}</p>}
+      {!props.readOnly && props.setlist.items.length > 0 && <p className="hint"><Link to="/songs">{t("+ Add more songs")}</Link> · {t("Open a song and press “+ Add to service plan” — it joins the set in the key on screen.")}</p>}
     </main>
   );
+};
+
+interface StageProps {
+  setlist: Setlist;
+  songs: SongMap;
+  exitTo: string | { pathname: string; hash: string };
 }
 
 /** Fullscreen chart view for a tablet on a music stand: one song per screen, arrows to move, screen kept awake. */
-function Stage({ setlist, songs, exitTo }: { setlist: Setlist; songs: SongMap; exitTo: string | { pathname: string; hash: string } }) {
+const Stage: React.FC<StageProps> = (props) => {
   const { t } = useI18n();
   const [i, setI] = useState(0);
   const [size, setSize] = useState(1.5);
   const [awake, setAwake] = useState(false);
-  const n = setlist.items.length;
-  usePageMeta(t("{name} — stage | WorshipCommons", { name: setlist.name }));
+  const n = props.setlist.items.length;
+  usePageMeta(t("{name} — stage | WorshipCommons", { name: props.setlist.name }));
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -299,14 +328,14 @@ function Stage({ setlist, songs, exitTo }: { setlist: Setlist; songs: SongMap; e
 
   useEffect(() => { window.scrollTo(0, 0); }, [i]);
 
-  const item = setlist.items[i];
-  const song = item ? songs.get(item.songId) : undefined;
-  const next = setlist.items[i + 1] ? songs.get(setlist.items[i + 1].songId) : undefined;
+  const item = props.setlist.items[i];
+  const song = item ? props.songs.get(item.songId) : undefined;
+  const next = props.setlist.items[i + 1] ? props.songs.get(props.setlist.items[i + 1].songId) : undefined;
 
   return (
     <main className="stage" data-testid="stage" style={{ fontSize: `${size}rem` }}>
       <header className="stage-bar no-print">
-        <Link to={exitTo} className="stage-exit" data-testid="stage-exit">✕ {t("Exit")}</Link>
+        <Link to={props.exitTo} className="stage-exit" data-testid="stage-exit">✕ {t("Exit")}</Link>
         <span className="stage-count" data-testid="stage-count">{i + 1} / {n}</span>
         <button type="button" aria-label={t("Previous song")} data-testid="stage-prev" disabled={i === 0} onClick={() => setI(i - 1)}>←</button>
         <button type="button" aria-label={t("Next song")} data-testid="stage-next" disabled={i >= n - 1} onClick={() => setI(i + 1)}>→</button>
@@ -332,28 +361,34 @@ function Stage({ setlist, songs, exitTo }: { setlist: Setlist; songs: SongMap; e
       {next && <footer className="stage-next" data-testid="stage-up-next">{t("Next: {title}", { title: next.title })} →</footer>}
     </main>
   );
+};
+
+interface BookletProps {
+  setlist: Setlist;
+  songs: SongMap;
+  backTo: string | { pathname: string; hash: string };
 }
 
 /** Every chart in order, one per page, license line under each — the Sunday booklet. */
-function Booklet({ setlist, songs, backTo }: { setlist: Setlist; songs: SongMap; backTo: string | { pathname: string; hash: string } }) {
+const Booklet: React.FC<BookletProps> = (props) => {
   const { t } = useI18n();
   const [large, setLarge] = useState(false);
   const [chords, setChords] = useState(true);
-  usePageMeta(t("{name} — booklet | WorshipCommons", { name: setlist.name }));
+  usePageMeta(t("{name} — booklet | WorshipCommons", { name: props.setlist.name }));
   return (
     <main className={"booklet" + (large ? " booklet-large" : "")} data-testid="booklet">
       <div className="no-print booklet-bar">
         <button type="button" onClick={() => window.print()}>{t("Print")}</button>
         <label><input type="checkbox" checked={large} data-testid="booklet-large" onChange={e => setLarge(e.target.checked)} /> {t("Large text")}</label>
         <label><input type="checkbox" checked={chords} data-testid="booklet-chords" onChange={e => setChords(e.target.checked)} /> {t("Show chords")}</label>
-        <Link to={backTo}>{t("← Back to service plan")}</Link>
+        <Link to={props.backTo}>{t("← Back to service plan")}</Link>
       </div>
       <section className="booklet-cover">
-        <h1>{setlist.name}</h1>
-        <ol>{setlist.items.map((it, i) => <li key={i}>{songs.get(it.songId)?.title || "…"} — {songs.get(it.songId) ? chartShapes(songs.get(it.songId)!, it.key, it.capo).keyLabel : it.key}</li>)}</ol>
+        <h1>{props.setlist.name}</h1>
+        <ol>{props.setlist.items.map((it, i) => <li key={i}>{props.songs.get(it.songId)?.title || "…"} — {props.songs.get(it.songId) ? chartShapes(props.songs.get(it.songId)!, it.key, it.capo).keyLabel : it.key}</li>)}</ol>
       </section>
-      {setlist.items.map((item, i) => {
-        const song = songs.get(item.songId);
+      {props.setlist.items.map((item, i) => {
+        const song = props.songs.get(item.songId);
         if (!song) return <section className="booklet-song" key={i} data-testid="booklet-song"><p>{song === null ? t("This song is no longer in the commons.") : t("Loading…")}</p></section>;
         const { keyLabel, shapeLabel } = chartShapes(song, item.key, item.capo);
         return (
@@ -368,14 +403,18 @@ function Booklet({ setlist, songs, backTo }: { setlist: Setlist; songs: SongMap;
       })}
     </main>
   );
+};
+
+interface Props {
+  mode: Mode;
 }
 
-export default function SetlistPage({ mode }: { mode: Mode }) {
+export const SetlistPage: React.FC<Props> = (props) => {
   const { t } = useI18n();
   const { id } = useParams();
   const location = useLocation();
   const lists = useSetlists();
-  const shared = mode === "shared" || id === "shared";
+  const shared = props.mode === "shared" || id === "shared";
   const setlist = useMemo(() => (shared ? decodeShare(location.hash) : lists.find(s => s.id === id) || null), [shared, location.hash, lists, id]);
   const songs = useSongs(setlist?.items);
 
@@ -387,7 +426,7 @@ export default function SetlistPage({ mode }: { mode: Mode }) {
     );
   }
   const back = shared ? { pathname: "/setlists/shared", hash: location.hash } : `/setlists/${setlist.id}`;
-  if (mode === "stage") return <Stage setlist={setlist} songs={songs} exitTo={back} />;
-  if (mode === "print") return <Booklet setlist={setlist} songs={songs} backTo={back} />;
+  if (props.mode === "stage") return <Stage setlist={setlist} songs={songs} exitTo={back} />;
+  if (props.mode === "print") return <Booklet setlist={setlist} songs={songs} backTo={back} />;
   return <Editor setlist={setlist} songs={songs} readOnly={shared} />;
-}
+};

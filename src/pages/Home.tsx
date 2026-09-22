@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { coverOf, kindOf, loadSongs, recordingUrlOf, Song, songPath } from "../songs";
 import { coverSvg } from "../cover.mjs";
@@ -10,10 +10,15 @@ import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 import { topBlock } from "../catalog";
 
-const PlayIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>;
-const StopIcon = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg>;
-const SaveIcon = ({ on }: { on: boolean }) => <svg width="14" height="14" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4z" /></svg>;
-const SearchIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>;
+const PlayIcon: React.FC = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>;
+const StopIcon: React.FC = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg>;
+
+interface SaveIconProps {
+  on: boolean;
+}
+
+const SaveIcon: React.FC<SaveIconProps> = (props) => <svg width="14" height="14" viewBox="0 0 24 24" fill={props.on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4z" /></svg>;
+const SearchIcon: React.FC = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>;
 
 // the chips deep-link into the library: theme, license, readiness, and recency are all real /songs filters
 const CHIPS: [string, string][] = [
@@ -25,7 +30,7 @@ const CHIPS: [string, string][] = [
   ["New Releases", "/songs?sort=new"]
 ];
 
-export default function Home() {
+export const Home: React.FC = () => {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -50,7 +55,7 @@ export default function Home() {
   const langCount = new Set(songs.map(s => s.language).filter(Boolean)).size;
 
   // demo recording if there is one, otherwise the melody file through the piano soundfont
-  const togglePlay = async (s: Song) => {
+  const handleTogglePlay = async (s: Song) => {
     const was = playing === s.id;
     stopAll();
     const rec = recordingUrlOf(s);
@@ -71,14 +76,14 @@ export default function Home() {
     } catch { setPlaying(null); }
   };
 
-  const toggleSave = async (s: Song) => {
+  const handleToggleSave = async (s: Song) => {
     if (!user) { navigate(`/login?next=${encodeURIComponent(location.pathname)}`); return; }
     const on = saved.includes(s.id);
     await setInLibrary(s.id, !on);
     setSaved(on ? saved.filter(id => id !== s.id) : [...saved, s.id]);
   };
 
-  const search = (e: FormEvent) => { e.preventDefault(); navigate(q.trim() ? `/songs?q=${encodeURIComponent(q.trim())}` : "/songs"); };
+  const handleSearch = (e: FormEvent) => { e.preventDefault(); navigate(q.trim() ? `/songs?q=${encodeURIComponent(q.trim())}` : "/songs"); };
 
   return (
     <main>
@@ -104,7 +109,7 @@ export default function Home() {
       </section>
 
       <div className="wrap">
-        <form className="search-row" onSubmit={search} role="search">
+        <form className="search-row" onSubmit={handleSearch} role="search">
           <label className="field">
             <SearchIcon />
             <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={t("Search songs, lyrics, scripture, or themes…")} aria-label={t("Search songs")} />
@@ -139,11 +144,11 @@ export default function Home() {
                     {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
                   </Link>
                   {(recordingUrlOf(s) || s.midiUrl) && (
-                    <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => togglePlay(s)}>
+                    <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => handleTogglePlay(s)}>
                       {playing === s.id ? <StopIcon /> : <PlayIcon />}
                     </button>
                   )}
-                  <button className={"save" + (isSaved ? " on" : "")} type="button" aria-pressed={isSaved} aria-label={t(isSaved ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => toggleSave(s)}>
+                  <button className={"save" + (isSaved ? " on" : "")} type="button" aria-pressed={isSaved} aria-label={t(isSaved ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => handleToggleSave(s)}>
                     <SaveIcon on={isSaved} />
                   </button>
                 </div>
@@ -198,4 +203,4 @@ export default function Home() {
       </div>
     </main>
   );
-}
+};

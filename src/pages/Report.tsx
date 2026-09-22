@@ -1,11 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { wcPost } from "../api";
 import "../styles/report.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 
-export default function Report() {
+export const Report: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("Report a song — WorshipCommons"));
   const [params] = useSearchParams();
@@ -16,7 +16,7 @@ export default function Report() {
 
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
-  const submit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
@@ -59,7 +59,7 @@ export default function Report() {
           <Link to="/songs" className="btn btn-ghost">{t("Back to the library")}</Link>
         </div>
       ) : (
-        <form className="report-form" onSubmit={submit}>
+        <form className="report-form" onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="song">{t("Which song?")}</label>
             <input type="text" id="song" placeholder={t("Title or the song page's address")} required value={form.songText} onChange={e => set("songText", e.target.value)} />
@@ -120,4 +120,4 @@ export default function Report() {
       )}
     </main>
   );
-}
+};

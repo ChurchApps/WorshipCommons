@@ -1,3 +1,4 @@
+import React from "react";
 import { noteIndex } from "../chordpro";
 
 // chord tables in plain notation strings — "name:value" pairs split on whitespace
@@ -55,14 +56,18 @@ export const pianoKeys = (chord: string): number[] => {
 
 const BLACK = new Set([1, 3, 6, 8, 10]);
 
-export function Guitar({ chord }: { chord: string }) {
-  const frets = guitarShape(chord);
+interface GuitarProps {
+  chord: string;
+}
+
+export const Guitar: React.FC<GuitarProps> = (props) => {
+  const frets = guitarShape(props.chord);
   if (!frets) return null;
   const fretted = frets.filter(f => f > 0);
   const base = Math.max(...fretted, 0) > 4 ? Math.min(...fretted) : 1;
   const W = 60, H = 72, x0 = 10, y0 = 14, sx = (W - 20) / 5, sy = (H - y0 - 6) / 4;
   return (
-    <svg className="cd-guitar" width={W + 14} height={H} viewBox={`-14 0 ${W + 14} ${H}`} aria-label={chord}>
+    <svg className="cd-guitar" width={W + 14} height={H} viewBox={`-14 0 ${W + 14} ${H}`} aria-label={props.chord}>
       {base > 1 && <text x={-12} y={y0 + sy * 0.7} fontSize="9" fill="currentColor">{base}</text>}
       {base === 1 && <rect x={x0 - 1} y={y0 - 3} width={sx * 5 + 2} height={3} fill="currentColor" />}
       {[0, 1, 2, 3, 4].map(i => <line key={"f" + i} x1={x0} x2={x0 + sx * 5} y1={y0 + sy * i} y2={y0 + sy * i} stroke="currentColor" strokeWidth="1" />)}
@@ -76,30 +81,39 @@ export function Guitar({ chord }: { chord: string }) {
       ))}
     </svg>
   );
+};
+
+interface PianoProps {
+  chord: string;
 }
 
-export function Piano({ chord }: { chord: string }) {
-  const on = new Set(pianoKeys(chord));
+export const Piano: React.FC<PianoProps> = (props) => {
+  const on = new Set(pianoKeys(props.chord));
   if (!on.size) return null;
   const whites: number[] = [];
   for (let n = 0; n < 24; n++) if (!BLACK.has(n % 12)) whites.push(n);
   const w = 11, h = 40;
   const whiteX = (n: number) => whites.indexOf(n) * w;
   return (
-    <svg className="cd-piano" width={whites.length * w + 1} height={h + 1} aria-label={chord}>
+    <svg className="cd-piano" width={whites.length * w + 1} height={h + 1} aria-label={props.chord}>
       {whites.map(n => <rect key={n} className={"pk" + (on.has(n) ? " on" : "")} x={whiteX(n) + 0.5} y={0.5} width={w} height={h} fill={on.has(n) ? "var(--primary)" : "#fff"} stroke="currentColor" strokeWidth="1" />)}
       {Array.from({ length: 24 }, (_, n) => n).filter(n => BLACK.has(n % 12)).map(n => (
         <rect key={n} className={"pk black" + (on.has(n) ? " on" : "")} x={whiteX(n - 1) + w * 0.65} y={0.5} width={w * 0.7} height={h * 0.62} fill={on.has(n) ? "var(--primary)" : "#222"} stroke="currentColor" strokeWidth="1" />
       ))}
     </svg>
   );
+};
+
+interface Props {
+  guitar: string;
+  piano: string;
 }
 
-export default function ChordDiagram({ guitar, piano }: { guitar: string; piano: string }) {
+export const ChordDiagram: React.FC<Props> = (props) => {
   return (
     <span className="chord-pop" data-testid="chord-pop" role="tooltip">
-      <span className="cd-col"><b>{guitar}</b><Guitar chord={guitar} /><small>guitar</small></span>
-      <span className="cd-col"><b>{piano}</b><Piano chord={piano} /><small>piano</small></span>
+      <span className="cd-col"><b>{props.guitar}</b><Guitar chord={props.guitar} /><small>guitar</small></span>
+      <span className="cd-col"><b>{props.piano}</b><Piano chord={props.piano} /><small>piano</small></span>
     </span>
   );
-}
+};

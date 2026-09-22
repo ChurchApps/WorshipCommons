@@ -1,9 +1,13 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { parseChordPro } from "../chordpro";
 import "../styles/song.css";
 
-export default function ChordProPreview({ chordPro }: { chordPro: string }) {
-  const stanzas = useMemo(() => parseChordPro(chordPro), [chordPro]);
+interface Props {
+  chordPro: string;
+}
+
+export const ChordProPreview: React.FC<Props> = (props) => {
+  const stanzas = useMemo(() => parseChordPro(props.chordPro), [props.chordPro]);
   if (stanzas.length === 0) return null;
   return (
     <div className="cp-preview" data-testid="chordpro-preview" aria-live="polite">
@@ -24,4 +28,4 @@ export default function ChordProPreview({ chordPro }: { chordPro: string }) {
       ))}
     </div>
   );
-}
+};

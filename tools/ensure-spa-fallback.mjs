@@ -52,7 +52,9 @@ function run(id) {
   const cfgPath = path.join(tmp, "config.json");
   fs.writeFileSync(cfgPath, JSON.stringify(cfg));
   try {
-    aws(["cloudfront", "update-distribution", "--id", id, "--if-match", data.ETag, "--distribution-config", pathToFileURL(cfgPath).href], { stdio: "inherit" });
+    aws([
+      "cloudfront", "update-distribution", "--id", id, "--if-match", data.ETag, "--distribution-config", pathToFileURL(cfgPath).href
+    ], { stdio: "inherit" });
     console.log(`CloudFront ${id}: set SPA 403/404 → /index.html 200`);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
@@ -60,6 +62,5 @@ function run(id) {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  try { run(process.argv[2]); }
-  catch (err) { console.error("ensure-spa-fallback failed:", err.message || err); process.exit(1); }
+  try { run(process.argv[2]); } catch (err) { console.error("ensure-spa-fallback failed:", err.message || err); process.exit(1); }
 }

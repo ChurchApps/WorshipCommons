@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Confidence, coverOf, hasDemoRecording, loadSongs, recordingUrlOf, Song, songRecency, stemsZipUrlOf, THEMES, themeList, songPath } from "../songs";
 import { isModernWorship } from "../era";
@@ -31,25 +31,37 @@ const READY: { id: keyof ReadyFilters; label: string; test: (s: Song) => boolean
 interface ReadyFilters { guitar: boolean; accomp: boolean; chart: boolean; score: boolean; mt: boolean; }
 interface Filters extends ReadyFilters { q: string; themes: Set<string>; conf: Set<string>; key: string; meter: string; tempo: string; lang: string; lic: string; era: string; audio: boolean; startHere: boolean; }
 
-const XIcon = () => (
+const XIcon: React.FC = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
 );
 
-const Chevron = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-);
+interface ChevronProps {
+  size?: number;
+}
 
-function FacetGroup({ title, children }: { title: string; children: ReactNode }) {
+const Chevron: React.FC<ChevronProps> = (props) => {
+  const size = props.size ?? 14;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+  );
+};
+
+interface FacetGroupProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const FacetGroup: React.FC<FacetGroupProps> = (props) => {
   const [open, setOpen] = useState(true);
   return (
     <div className="facet-group">
-      <h3><button className="facet-head" aria-expanded={open} onClick={() => setOpen(!open)}>{title}<Chevron /></button></h3>
-      {open && children}
+      <h3><button className="facet-head" aria-expanded={open} onClick={() => setOpen(!open)}>{props.title}<Chevron /></button></h3>
+      {open && props.children}
     </div>
   );
-}
+};
 
-export default function Songs() {
+export const Songs: React.FC = () => {
   const { t, lang } = useI18n();
   usePageMeta(t("Song library — WorshipCommons"), t("Search free worship songs by theme, scripture, key, tempo, or language. Chord charts and lyrics in any key."));
   const [params] = useSearchParams();
@@ -116,13 +128,13 @@ export default function Songs() {
     update({ lang: SONG_LANG[lang] });
   }, [lang]);
 
-  const toggleTheme = (t: string, on: boolean) => {
+  const handleToggleTheme = (t: string, on: boolean) => {
     const themes = new Set(state.themes);
     if (on) themes.add(t); else themes.delete(t);
     update({ themes });
   };
 
-  const toggleConf = (c: string, on: boolean) => {
+  const handleToggleConf = (c: string, on: boolean) => {
     const conf = new Set(state.conf);
     if (on) conf.add(c); else conf.delete(c);
     update({ conf });
@@ -190,7 +202,7 @@ export default function Songs() {
   const slice = list.slice(start, start + PAGE_SIZE);
 
   // demo recording if there is one, otherwise the midi tune
-  const togglePlay = async (s: Song) => {
+  const handleTogglePlay = async (s: Song) => {
     const wasPlaying = playingId === s.id;
     stopAll();
     setPlayingId(null);
@@ -217,8 +229,8 @@ export default function Songs() {
   };
 
   const chips: { label: string; undo: () => void }[] = [];
-  state.themes.forEach(th => chips.push({ label: th, undo: () => toggleTheme(th, false) }));
-  state.conf.forEach(c => chips.push({ label: t(CONFIDENCE_LABEL[c as Confidence] || c), undo: () => toggleConf(c, false) }));
+  state.themes.forEach(th => chips.push({ label: th, undo: () => handleToggleTheme(th, false) }));
+  state.conf.forEach(c => chips.push({ label: t(CONFIDENCE_LABEL[c as Confidence] || c), undo: () => handleToggleConf(c, false) }));
   if (state.key) chips.push({ label: t("Key of {key}", { key: state.key }), undo: () => update({ key: "" }) });
   if (state.meter) chips.push({ label: t("Meter {meter}", { meter: state.meter }), undo: () => update({ meter: "" }) });
   if (state.tempo) chips.push({ label: t(TEMPOS[state.tempo][1]), undo: () => update({ tempo: "" }) });
@@ -229,7 +241,7 @@ export default function Songs() {
   if (state.startHere) chips.push({ label: t("Start here"), undo: () => update({ startHere: false }) });
   READY.forEach(r => { if (state[r.id]) chips.push({ label: t(r.label), undo: () => update({ [r.id]: false } as Partial<Filters>) }); });
 
-  const clearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false, startHere: false });
+  const handleClearAll = () => update({ q: "", themes: new Set(), conf: new Set(), key: "", meter: "", tempo: "", lang: "", lic: "", era: "", audio: false, guitar: false, accomp: false, chart: false, score: false, mt: false, startHere: false });
 
   const pagerNums = useMemo(() => {
     const nums = [...new Set([1, 2, curPage - 1, curPage, curPage + 1, pages - 1, pages].filter(n => n >= 1 && n <= pages))].sort((a, b) => a - b);
@@ -273,7 +285,7 @@ export default function Songs() {
           <FacetGroup title={t("Theme")}>
             <ul className="facet-list" data-testid="theme-facet">
               {(allThemes ? facets.themes : [...new Set([...facets.themes.slice(0, 5), ...state.themes])]).map(th => (
-                <li key={th}><label><input type="checkbox" checked={state.themes.has(th)} onChange={e => toggleTheme(th, e.target.checked)} /> {th} <span className="cnt">{count("themes", s => themeList(s).includes(th)).toLocaleString()}</span></label></li>
+                <li key={th}><label><input type="checkbox" checked={state.themes.has(th)} onChange={e => handleToggleTheme(th, e.target.checked)} /> {th} <span className="cnt">{count("themes", s => themeList(s).includes(th)).toLocaleString()}</span></label></li>
               ))}
             </ul>
             {facets.themes.length > 5 && (
@@ -287,7 +299,7 @@ export default function Songs() {
               {/* what a church gets before it presses play — the same six values the badge wears */}
               <ul className="facet-list" data-testid="confidence-facet">
                 {facets.confs.map(c => (
-                  <li key={c}><label><input type="checkbox" value={c} checked={state.conf.has(c)} onChange={e => toggleConf(c, e.target.checked)} /> {t(CONFIDENCE_LABEL[c])} <span className="cnt">{count("conf", s => s.confidence === c).toLocaleString()}</span></label></li>
+                  <li key={c}><label><input type="checkbox" value={c} checked={state.conf.has(c)} onChange={e => handleToggleConf(c, e.target.checked)} /> {t(CONFIDENCE_LABEL[c])} <span className="cnt">{count("conf", s => s.confidence === c).toLocaleString()}</span></label></li>
                 ))}
               </ul>
             </FacetGroup>
@@ -359,7 +371,7 @@ export default function Songs() {
                 <button key={c.label} className="active-chip" onClick={c.undo}>{c.label} <XIcon /></button>
               ))}
             </span>
-            {chips.length > 0 && <button className="clear-all" onClick={clearAll}>{t("Clear all filters")}</button>}
+            {chips.length > 0 && <button className="clear-all" onClick={handleClearAll}>{t("Clear all filters")}</button>}
           </div>
 
           {list.length > 0 && (
@@ -373,7 +385,7 @@ export default function Songs() {
                   const reasons = rankReason(s).map(r => t(r));
                   return (
                     <div className="t-row" key={s.id} data-license={s.license}>
-                      <button className={"play-btn" + (playableUrl(s) ? "" : " mute")} aria-label={playableUrl(s) ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => togglePlay(s)}>
+                      <button className={"play-btn" + (playableUrl(s) ? "" : " mute")} aria-label={playableUrl(s) ? t(playingId === s.id ? "Pause {title}" : "Play {title}", { title: s.title }) : t("No demo yet")} onClick={() => handleTogglePlay(s)}>
                         {playingId === s.id
                           ? <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
                           : <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>}
@@ -418,4 +430,4 @@ export default function Songs() {
       </div>
     </main>
   );
-}
+};

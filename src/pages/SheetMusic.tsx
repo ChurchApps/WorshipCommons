@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { idOf, songPath } from "../songs";
 import { splitKey, KEY_CHOICES, semitonesBetween } from "../chordpro";
@@ -8,7 +8,7 @@ import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { attributionFor } from "../licenses";
 
-export default function SheetMusic() {
+export const SheetMusic: React.FC = () => {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
@@ -100,4 +100,4 @@ export default function SheetMusic() {
       )}
     </main>
   );
-}
+};

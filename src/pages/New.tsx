@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { loadSongs, Song, songRecency, songPath } from "../songs";
 import { usePageMeta } from "../seo";
@@ -24,7 +24,7 @@ function byMonth(songs: Song[], lang: string): Month[] {
   return months;
 }
 
-export default function New() {
+export const New: React.FC = () => {
   const { t, lang } = useI18n();
   usePageMeta(t("New songs — WorshipCommons"), t("Every song added to the commons, newest first."));
   const [songs, setSongs] = useState<Song[] | null>(null);
@@ -65,4 +65,4 @@ export default function New() {
       {songs && songs.length >= LIMIT && <p style={{ margin: "24px 0 48px" }}><Link to="/songs">{t("Browse all songs")}</Link></p>}
     </main>
   );
-}
+};

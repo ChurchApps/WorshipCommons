@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { loadSongs, Song, songPath } from "../songs";
 import { libraryIds, setInLibrary } from "../library";
 import { useAuth } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import EmptyState from "../components/EmptyState";
+import { EmptyState } from "../components/EmptyState";
 
-export default function Library() {
+export const Library: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("Saved songs — WorshipCommons"));
   const { user } = useAuth();
@@ -19,7 +19,7 @@ export default function Library() {
     Promise.all([libraryIds(), loadSongs()]).then(([ids, all]) => setSongs(ids.map(id => all.find(s => s.id === id)).filter(Boolean) as Song[]));
   }, [user]);
 
-  const remove = (id: string) => {
+  const handleRemove = (id: string) => {
     setInLibrary(id, false);
     setSongs(s => s!.filter(x => x.id !== id));
   };
@@ -42,9 +42,9 @@ export default function Library() {
             <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
             <p className="hint">{s.writer} · {s.year} · {t("Key")} {s.songKey}</p>
           </div>
-          <button className="btn btn-ghost" data-testid="library-remove" onClick={() => remove(s.id)}>{t("Remove")}</button>
+          <button className="btn btn-ghost" data-testid="library-remove" onClick={() => handleRemove(s.id)}>{t("Remove")}</button>
         </div>
       ))}
     </main>
   );
-}
+};

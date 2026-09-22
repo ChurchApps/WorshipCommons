@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { idOf } from "../songs";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
-import SongForm, { conventionalName, FILE_LABEL, grantComplete, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import { SongForm, conventionalName, FILE_LABEL, grantComplete, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -32,7 +32,7 @@ function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFi
   return { ...payloadFrom(form, hasRecording(files), base), type };
 }
 
-export default function EditSong() {
+export const EditSong: React.FC = () => {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
@@ -74,7 +74,7 @@ export default function EditSong() {
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   if (notFound) return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Song not found.")} <Link to="/songs">{t("← All songs")}</Link></p></main>;
 
-  const submit = async (form: SongFormValues, files: SongFiles, note: string) => {
+  const handleSubmit = async (form: SongFormValues, files: SongFiles, note: string) => {
     if (busyRef.current) return;
     setError("");
     busyRef.current = true;
@@ -176,8 +176,8 @@ export default function EditSong() {
         progress={progress}
         submitLabel={COPY[type].submit}
         submitHint={COPY[type].hint}
-        onSubmit={submit}
+        onSubmit={handleSubmit}
       />
     </main>
   );
-}
+};

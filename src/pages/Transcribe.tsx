@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { idOf, songPath } from "../songs";
 import { parseChordPro } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { draftAbc } from "../abcDraft";
-import AbcEditor from "../components/AbcEditor";
+import { AbcEditor } from "../components/AbcEditor";
 import { wcDelete, wcGet, wcPost } from "../api";
 import { useAuth } from "../auth";
 import { useI18n } from "../i18n";
@@ -13,7 +13,7 @@ import { usePageMeta } from "../seo";
 
 // community transcription: draft ABC from the song's MIDI, clean it up by hand,
 // submit for review. Approved scores are promoted to the git master by an admin.
-export default function Transcribe() {
+export const Transcribe: React.FC = () => {
   const { t } = useI18n();
   const id = idOf(useParams().id);
   const { user } = useAuth();
@@ -57,7 +57,7 @@ export default function Transcribe() {
     );
   }
 
-  const draft = async () => {
+  const handleDraft = async () => {
     if (!song.midiUrl) return;
     if (abc.trim() && !window.confirm(t("Replace your current text with a fresh draft from the MIDI?"))) return;
     setBusy(true);
@@ -70,7 +70,7 @@ export default function Transcribe() {
     setBusy(false);
   };
 
-  const playMidi = async () => {
+  const handlePlayMidi = async () => {
     if (midiState === "playing") { stopAll(); return; }
     stopAll();
     setMidiState("loading");
@@ -85,7 +85,7 @@ export default function Transcribe() {
     }
   };
 
-  const playAbc = async () => {
+  const handlePlayAbc = async () => {
     if (abcPlaying) { stopAll(); return; }
     stopAll();
     try {
@@ -102,7 +102,7 @@ export default function Transcribe() {
     }
   };
 
-  const submit = async () => {
+  const handleSubmit = async () => {
     setError("");
     let subId = "";
     try {
@@ -145,15 +145,15 @@ export default function Transcribe() {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
             {song.midiUrl && (
               <>
-                <button className="btn btn-primary" data-testid="abc-draft" disabled={busy} onClick={draft}>
+                <button className="btn btn-primary" data-testid="abc-draft" disabled={busy} onClick={handleDraft}>
                   {busy ? t("Loading…") : t("Draft from MIDI")}
                 </button>
-                <button className="btn btn-ghost" data-testid="play-midi" disabled={midiState === "loading"} onClick={playMidi}>
+                <button className="btn btn-ghost" data-testid="play-midi" disabled={midiState === "loading"} onClick={handlePlayMidi}>
                   {midiState === "loading" ? t("Loading…") : midiState === "playing" ? t("■ Stop") : t("▶ Play original MIDI")}
                 </button>
               </>
             )}
-            <button className="btn btn-ghost" data-testid="play-abc" disabled={!abc.trim()} onClick={playAbc}>
+            <button className="btn btn-ghost" data-testid="play-abc" disabled={!abc.trim()} onClick={handlePlayAbc}>
               {abcPlaying ? t("■ Stop") : t("▶ Play my ABC")}
             </button>
           </div>
@@ -168,11 +168,11 @@ export default function Transcribe() {
           )}
           {error && <p style={{ color: "var(--secondary)", marginTop: 12 }} data-testid="abc-error">{error}</p>}
           <div style={{ marginTop: 16 }}>
-            <button className="btn btn-primary" data-testid="abc-submit" disabled={!abc.trim()} onClick={submit}>{t("Submit for review")}</button>
+            <button className="btn btn-primary" data-testid="abc-submit" disabled={!abc.trim()} onClick={handleSubmit}>{t("Submit for review")}</button>
             <p className="hint" style={{ marginTop: 10 }}>{t("A reviewer checks every submission before it joins the library. The MIDI draft is rough — fix rhythms and add lyrics before submitting.")}</p>
           </div>
         </div>
       </section>
     </main>
   );
-}
+};

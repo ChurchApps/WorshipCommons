@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { uploadFile, wcGet, wcPost, wcPut } from "../api";
-import SongForm, { blankSong, conventionalName, FILE_LABEL, hasRecording, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import { SongForm, blankSong, conventionalName, FILE_LABEL, hasRecording, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
 
-export default function Upload() {
+export const Upload: React.FC = () => {
   const { t, lang } = useI18n();
   usePageMeta(t("Share your song — WorshipCommons"));
   const { user } = useAuth();
@@ -62,7 +62,7 @@ export default function Upload() {
     return creatingRef.current;
   };
 
-  const onFormChange = (form: SongFormValues) => {
+  const handleFormChange = (form: SongFormValues) => {
     if (busyRef.current || form.title.trim().length < 2) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
@@ -73,7 +73,7 @@ export default function Upload() {
     }, 1000);
   };
 
-  const submit = async (form: SongFormValues, files: SongFiles) => {
+  const handleSubmit = async (form: SongFormValues, files: SongFiles) => {
     if (busyRef.current) return;
     setError("");
     if (hasRecording(files) && !form.recordingOwned) {
@@ -146,10 +146,10 @@ export default function Upload() {
           progress={progress}
           submitLabel="Add it to the commons"
           submitHint="Reviewed by a human before it appears — usually within a few days."
-          onChange={onFormChange}
-          onSubmit={submit}
+          onChange={handleFormChange}
+          onSubmit={handleSubmit}
         />
       )}
     </main>
   );
-}
+};

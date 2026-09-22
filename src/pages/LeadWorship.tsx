@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { idOf, leadFiles, instrumentalUrlOf, recordingUrlOf, songPath } from "../songs";
 import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
@@ -70,7 +70,7 @@ const wordAt = (line: TimedWord[], t: number) => {
   return i;
 };
 
-export default function LeadWorship() {
+export const LeadWorship: React.FC = () => {
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -235,7 +235,7 @@ export default function LeadWorship() {
     setCounting(false);
   };
 
-  const toggle = () => {
+  const handleToggle = () => {
     const p = playerRef.current;
     if (!p || !song || !seg) return;
     if (counting) { cancelCountIn(); return; }
@@ -297,7 +297,7 @@ export default function LeadWorship() {
       return;
     }
     const actions: Record<string, () => void> = {
-      " ": toggle,
+      " ": handleToggle,
       ArrowRight: nextLine,
       ArrowLeft: prevLine,
       ArrowDown: nextStanza,
@@ -349,7 +349,7 @@ export default function LeadWorship() {
 
       <header className="lead-bar">
         <Link className="lead-close" data-testid="lead-close" to={songPath(song)} aria-label={tr("← Back to song")}>✕</Link>
-        <button className="btn btn-primary lead-play" data-testid="lead-play" disabled={!ready || !run.length} onClick={toggle}>
+        <button className="btn btn-primary lead-play" data-testid="lead-play" disabled={!ready || !run.length} onClick={handleToggle}>
           {!ready ? tr("Loading…") : counting ? tr("Counting in…") : playing ? tr("❚❚ Pause") : tr("▶ Play")}
         </button>
         <span className="lead-ctl lead-audio-label" data-testid="lead-audio-label">{fromRecording ? (instrumentalUrlOf(song) ? tr("Instrumental") : tr("Demo recording")) : song.hasAccompaniment ? tr("Accompaniment") : tr("Preview (synthesized)")}</span>
@@ -447,4 +447,4 @@ export default function LeadWorship() {
       </footer>
     </div>
   );
-}
+};

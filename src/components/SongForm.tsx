@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import ChordProPreview from "./ChordProPreview";
+import { ChordProPreview } from "./ChordProPreview";
 import { wcGet } from "../api";
 import { parseChordPro, lintChordPro } from "../chordpro";
 import { licenseById, UPLOADABLE } from "../licenses";
@@ -174,29 +174,41 @@ const NOTE_HEADING: Record<ProposalType, string> = {
   removal: "Why should this song come down?"
 };
 
-function LicenseRecap({ churches, keep }: { churches: string[]; keep: string[] }) {
+interface LicenseRecapProps {
+  churches: string[];
+  keep: string[];
+}
+
+const LicenseRecap: React.FC<LicenseRecapProps> = (props) => {
   const { t } = useI18n();
   return (
     <div className="license-recap">
       <div>
         <b>{t("Churches get:")}</b>
-        <ul>{churches.map(item => <li key={item}>{item}</li>)}</ul>
+        <ul>{props.churches.map(item => <li key={item}>{item}</li>)}</ul>
       </div>
       <div>
         <b>{t("You keep:")}</b>
-        <ul>{keep.map(item => <li key={item}>{item}</li>)}</ul>
+        <ul>{props.keep.map(item => <li key={item}>{item}</li>)}</ul>
       </div>
     </div>
   );
+};
+
+interface LicenseRadiosProps {
+  name: string;
+  value: string;
+  onChange: (id: string) => void;
+  testId: string;
 }
 
 /** The three uploadable licenses as radios; the same set serves the composition and the master, under different names. */
-function LicenseRadios({ name, value, onChange, testId }: { name: string; value: string; onChange: (id: string) => void; testId: string }) {
+const LicenseRadios: React.FC<LicenseRadiosProps> = (props) => {
   const { t } = useI18n();
   return (
-    <div className="step-body" data-testid={testId}>
+    <div className="step-body" data-testid={props.testId}>
       <label className="choice">
-        <input type="radio" name={name} value="WC" checked={value === "WC"} onChange={() => onChange("WC")} />
+        <input type="radio" name={props.name} value="WC" checked={props.value === "WC"} onChange={() => props.onChange("WC")} />
         <span>
           <strong>{t("Free for worship")}</strong> <span className="free-badge">{t("Recommended")}</span>
           <LicenseRecap
@@ -207,7 +219,7 @@ function LicenseRadios({ name, value, onChange, testId }: { name: string; value:
         </span>
       </label>
       <label className="choice">
-        <input type="radio" name={name} value="CC-BY" checked={value === "CC-BY"} onChange={() => onChange("CC-BY")} />
+        <input type="radio" name={props.name} value="CC-BY" checked={props.value === "CC-BY"} onChange={() => props.onChange("CC-BY")} />
         <span>
           <strong>{t("CC BY 4.0")}</strong> <span className="cc-badge">{t("Credit required")}</span>
           <LicenseRecap
@@ -218,7 +230,7 @@ function LicenseRadios({ name, value, onChange, testId }: { name: string; value:
         </span>
       </label>
       <label className="choice">
-        <input type="radio" name={name} value="PD" checked={value === "PD"} onChange={() => onChange("PD")} />
+        <input type="radio" name={props.name} value="PD" checked={props.value === "PD"} onChange={() => props.onChange("PD")} />
         <span>
           <strong>{t("Public domain")}</strong> <span className="pd-badge">{t("Everything, everyone")}</span>
           <LicenseRecap
@@ -229,42 +241,56 @@ function LicenseRadios({ name, value, onChange, testId }: { name: string; value:
       </label>
     </div>
   );
+};
+
+interface RecordingOwnedProps {
+  checked: boolean;
+  onChange: (v: boolean) => void;
 }
 
-function RecordingOwned({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+const RecordingOwned: React.FC<RecordingOwnedProps> = (props) => {
   const { t } = useI18n();
   return (
     <div className="certify" style={{ margin: "16px 0 0" }}>
-      <input type="checkbox" id="recording-owned" data-testid="recording-owned" required checked={checked} onChange={e => onChange(e.target.checked)} />
+      <input type="checkbox" id="recording-owned" data-testid="recording-owned" required checked={props.checked} onChange={e => props.onChange(e.target.checked)} />
       <label htmlFor="recording-owned" style={{ fontWeight: 400, fontSize: "0.9375rem", margin: 0, cursor: "pointer" }}>
         {t("This recording is mine (or I have the owner’s permission to share it).")}
       </label>
     </div>
   );
+};
+
+interface DropzoneProps {
+  label: string;
+  hint: string;
+  accept: string;
+  testId: string;
+  preview?: string;
+  onFile: (f: File) => void;
 }
 
-function Dropzone({ label, hint, accept, testId, preview, onFile }: { label: string; hint: string; accept: string; testId: string; preview?: string; onFile: (f: File) => void }) {
+const Dropzone: React.FC<DropzoneProps> = (props) => {
   const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
   const [attached, setAttached] = useState<File | null>(null);
 
   const pick = (file: File) => {
     setAttached(file);
-    onFile(file);
+    props.onFile(file);
   };
 
   return (
-    <div className="dropzone" tabIndex={0} role="button" aria-label={t("Upload {label}", { label: t(label) })} onClick={() => inputRef.current?.click()} onKeyDown={e => { if (e.key === "Enter") inputRef.current?.click(); }}>
-      <input ref={inputRef} type="file" accept={accept} data-testid={testId} style={{ display: "none" }} onChange={e => { if (e.target.files?.[0]) pick(e.target.files[0]); }} />
-      {preview && <img className="dz-art" src={preview} alt="" />}
+    <div className="dropzone" tabIndex={0} role="button" aria-label={t("Upload {label}", { label: t(props.label) })} onClick={() => inputRef.current?.click()} onKeyDown={e => { if (e.key === "Enter") inputRef.current?.click(); }}>
+      <input ref={inputRef} type="file" accept={props.accept} data-testid={props.testId} style={{ display: "none" }} onChange={e => { if (e.target.files?.[0]) pick(e.target.files[0]); }} />
+      {props.preview && <img className="dz-art" src={props.preview} alt="" />}
       {attached
         ? <><b>{t("Attached ✓")}</b>{attached.name} · {(attached.size / 1024).toFixed(0)} KB</>
-        : <><b>{t(label)}</b>{t(hint)}</>}
+        : <><b>{t(props.label)}</b>{t(props.hint)}</>}
     </div>
   );
-}
+};
 
-export default function SongForm({ initial, initialNote, proposalType, error, submitLabel, submitHint, busy, busyLabel, progress, onChange, onSubmit }: {
+interface Props {
   initial: SongFormValues;
   /** the note a reopened draft already carries */
   initialNote?: string;
@@ -278,11 +304,13 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
   progress?: string;
   onChange?: (form: SongFormValues) => void;
   onSubmit: (form: SongFormValues, files: SongFiles, note: string) => void;
-}) {
+}
+
+export const SongForm: React.FC<Props> = (props) => {
   const { t } = useI18n();
-  const [form, setForm] = useState<SongFormValues>(initial);
+  const [form, setForm] = useState<SongFormValues>(props.initial);
   const [files, setFiles] = useState<SongFiles>({});
-  const [note, setNote] = useState(initialNote || "");
+  const [note, setNote] = useState(props.initialNote || "");
   const [missing, setMissing] = useState<string[]>([]);
   const [similar, setSimilar] = useState<SimilarSong[]>([]);
   const [catalog, setCatalog] = useState<Song[]>([]);
@@ -290,22 +318,22 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
   const [artPreview, setArtPreview] = useState("");
   const lock = useRef(false);
   // an edit is already aimed at one song — only a brand new submission can duplicate the library
-  const isNewSong = !proposalType;
+  const isNewSong = !props.proposalType;
   // which steps a proposal type shows: a correction is the whole form, files add nothing but files, a removal is only the note
-  const showSong = !proposalType || proposalType === "correction";
-  const showFiles = proposalType !== "removal" && proposalType !== "recording";
+  const showSong = !props.proposalType || props.proposalType === "correction";
+  const showFiles = props.proposalType !== "removal" && props.proposalType !== "recording";
   const showLicense = showSong;
   // the master recording block: on a new song once "both" is chosen, and the whole of a recording proposal
-  const showMaster = isNewSong ? form.scope === "both" : proposalType === "recording";
-  const showWord = proposalType !== "removal";
+  const showMaster = isNewSong ? form.scope === "both" : props.proposalType === "recording";
+  const showWord = props.proposalType !== "removal";
   // encoding the cover art is async — submit waits on it so a fast click can't drop the file
   const artJob = useRef<Promise<SongFiles> | null>(null);
 
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
-  useEffect(() => { onChange?.(form); }, [form]);
+  useEffect(() => { props.onChange?.(form); }, [form]);
   useEffect(() => () => { if (artPreview) URL.revokeObjectURL(artPreview); }, [artPreview]);
-  useEffect(() => { if (!busy) lock.current = false; }, [busy]);
+  useEffect(() => { if (!props.busy) lock.current = false; }, [props.busy]);
   // the parent picker searches the published catalog — only fetched once a relation is claimed
   useEffect(() => { if (isNewSong && form.submissionType !== "new" && !catalog.length) loadSongs().then(setCatalog).catch(() => { }); }, [isNewSong, form.submissionType]);
 
@@ -327,7 +355,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
   const knownKeys = new Set([...MAJOR_KEYS, ...MINOR_KEYS]);
   const lint = useMemo(() => lintChordPro(form.chordPro, form.songKey), [form.chordPro, form.songKey]);
   const noteLength = note.trim().length;
-  const noteShort = !!proposalType && noteLength < MIN_NOTE_LENGTH;
+  const noteShort = !!props.proposalType && noteLength < MIN_NOTE_LENGTH;
 
   const parentSong = catalog.find(s => s.id === form.parentSongId) || null;
   const query = parentQuery.trim().toLowerCase();
@@ -359,8 +387,8 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
     if (showWord && !grantComplete(form)) gaps.push(t("Your word — every box in this step"));
     if (showMaster && !files.master) gaps.push(t("Master recording"));
     if (hasRecording(files) && !form.recordingOwned) gaps.push(t("This recording is mine (or I have the owner’s permission to share it)."));
-    if (proposalType && noteShort) gaps.push(proposalType === "removal" ? t("A note of at least {n} characters is required: say why the song should come down", { n: MIN_NOTE_LENGTH }) : t("A note of at least {n} characters is required: say what changed and why", { n: MIN_NOTE_LENGTH }));
-    if (proposalType === "additionalFile" && !Object.values(files).some(Boolean)) gaps.push(t("Add at least one file."));
+    if (props.proposalType && noteShort) gaps.push(props.proposalType === "removal" ? t("A note of at least {n} characters is required: say why the song should come down", { n: MIN_NOTE_LENGTH }) : t("A note of at least {n} characters is required: say what changed and why", { n: MIN_NOTE_LENGTH }));
+    if (props.proposalType === "additionalFile" && !Object.values(files).some(Boolean)) gaps.push(t("Add at least one file."));
     if (isNewSong && form.submissionType !== "new" && !form.parentSongId) gaps.push(t("The original song"));
     if (isNewSong && form.submissionType === "translation" && !form.translator.trim()) gaps.push(t("Translator is required for a translation"));
     if (isNewSong && form.submissionType === "arrangement" && !form.arranger.trim()) gaps.push(t("Arranger is required for an arrangement"));
@@ -368,21 +396,23 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
     return gaps;
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (props.busy || lock.current) return;
+    const gaps = validate();
+    setMissing(gaps);
+    if (gaps.length) return;
+    lock.current = true;
+    const go = (extra: SongFiles) => props.onSubmit(form, { ...files, ...extra }, note);
+    if (artJob.current) artJob.current.then(go, () => go({}));
+    else go({});
+  };
+
   let stepNumber = 0;
   const step = () => ++stepNumber;
 
   return (
-    <form noValidate onSubmit={e => {
-      e.preventDefault();
-      if (busy || lock.current) return;
-      const gaps = validate();
-      setMissing(gaps);
-      if (gaps.length) return;
-      lock.current = true;
-      const go = (extra: SongFiles) => onSubmit(form, { ...files, ...extra }, note);
-      if (artJob.current) artJob.current.then(go, () => go({}));
-      else go({});
-    }}>
+    <form noValidate onSubmit={handleSubmit}>
       {showSong && (
         <section className="step">
           <h2><span className="n">{step()}</span>{t("The song")}</h2>
@@ -517,18 +547,18 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
       {showFiles && (
         <section className="step">
           <h2><span className="n">{step()}</span>{t("Files")}</h2>
-          <p className="hint">{proposalType === "additionalFile"
+          <p className="hint">{props.proposalType === "additionalFile"
             ? t("Add what the song is missing — a score, a recording, stems, art, or the lyrics as a text file. Nothing else about the song changes.")
             : t("Optional — but a demo recording is the single best thing you can give a worship leader deciding at 10pm on a Thursday.")}</p>
           <div className="step-body dz-row">
-            {proposalType === "additionalFile" && (
+            {props.proposalType === "additionalFile" && (
               <>
                 <Dropzone label="Score" hint="MusicXML, MuseScore or LilyPond · .musicxml .xml .mxl .mscz .ly" accept=".musicxml,.xml,.mxl,.mscz,.ly" testId="file-score" onFile={f => setFiles(x => ({ ...x, score: f }))} />
                 <Dropzone label="Score scan" hint="A PDF or image of the printed score · .pdf .png .jpg .tif" accept=".pdf,.png,.jpg,.jpeg,.tif" testId="file-score-image" onFile={f => setFiles(x => ({ ...x, scoreImage: f }))} />
               </>
             )}
             <Dropzone label="Demo recording" hint="Drop an MP3 or WAV, or click to choose · a phone recording is fine" accept="audio/*,.mp3,.wav" testId="file-demo" onFile={f => setFiles(x => ({ ...x, demoAudio: f }))} />
-            {proposalType !== "additionalFile" && (
+            {props.proposalType !== "additionalFile" && (
               <Dropzone label="Sheet music" hint="Lead sheet or vocal score · PDF or MusicXML" accept=".pdf,.xml,.musicxml" testId="file-sheet" onFile={f => setFiles(x => ({ ...x, sheetPdf: f }))} />
             )}
             <Dropzone label="MIDI melody" hint="A .mid file of the tune · churches play it in the browser" accept=".mid,.midi,audio/midi" testId="file-midi" onFile={f => setFiles(x => ({ ...x, midi: f }))} />
@@ -541,7 +571,7 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
                 setArtPreview(URL.createObjectURL((art.thumb || art.art) as File));
               });
             }} />
-            {proposalType === "additionalFile" && (
+            {props.proposalType === "additionalFile" && (
               <Dropzone label="Lyrics or ChordPro file" hint="Plain text or ChordPro · .cho .crd .txt" accept=".cho,.crd,.txt,.chordpro,text/plain" testId="file-lyrics" onFile={f => setFiles(x => ({ ...x, lyrics: f }))} />
             )}
           </div>
@@ -617,19 +647,19 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
         </section>
       )}
 
-      {proposalType && (
+      {props.proposalType && (
         <section className="step">
-          <h2><span className="n">{step()}</span>{t(NOTE_HEADING[proposalType])}</h2>
+          <h2><span className="n">{step()}</span>{t(NOTE_HEADING[props.proposalType])}</h2>
           <div className="step-body">
-            {proposalType === "removal" && (
+            {props.proposalType === "removal" && (
               <div className="removal-warning" data-testid="removal-warning">
                 <b>{t("This asks a reviewer to take the song down.")}</b>
                 <p>{t("Nothing changes until a reviewer agrees. If we take it down because you asked, churches that already have a copy keep the grant they received. If we take it down because it was never yours to share, there was no grant to keep. Say who you are and why it should come down — a rights problem, a mistake, or your own wish as the writer.")}</p>
               </div>
             )}
             <div className="field">
-              <label htmlFor="edit-note">{proposalType === "removal" ? t("Why should this song come down?") : t("Your note to the reviewer")}</label>
-              <textarea id="edit-note" data-testid="edit-note" rows={proposalType === "correction" ? 3 : 4} required value={note} onChange={e => setNote(e.target.value)} />
+              <label htmlFor="edit-note">{props.proposalType === "removal" ? t("Why should this song come down?") : t("Your note to the reviewer")}</label>
+              <textarea id="edit-note" data-testid="edit-note" rows={props.proposalType === "correction" ? 3 : 4} required value={note} onChange={e => setNote(e.target.value)} />
               <p className={"hint note-count" + (noteShort ? " short" : "")} data-testid="note-count">
                 {noteShort ? t("{n} of {min} characters — a few more words, please", { n: noteLength, min: MIN_NOTE_LENGTH }) : t("{n} characters", { n: noteLength })}
               </p>
@@ -638,18 +668,18 @@ export default function SongForm({ initial, initialNote, proposalType, error, su
         </section>
       )}
 
-      {(missing.length > 0 || error) && (
+      {(missing.length > 0 || props.error) && (
         <div className="hint upload-missing" style={{ color: "var(--secondary)", fontWeight: 600 }} data-testid="upload-error">
           {missing.length > 0 && (
             <ul>{missing.map(item => <li key={item}>{item}</li>)}</ul>
           )}
-          {error && <p style={{ margin: missing.length ? "8px 0 0" : 0 }}>{error}</p>}
+          {props.error && <p style={{ margin: missing.length ? "8px 0 0" : 0 }}>{props.error}</p>}
         </div>
       )}
       <div className="submit-row">
-        <button type="submit" className="btn btn-primary" disabled={!!busy || noteShort} data-testid="submit-song">{busy ? t(busyLabel || "Please wait…") : t(submitLabel)}</button>
-        <p className="hint" data-testid={progress ? "upload-progress" : undefined}>{progress || t(submitHint)}</p>
+        <button type="submit" className="btn btn-primary" disabled={!!props.busy || noteShort} data-testid="submit-song">{props.busy ? t(props.busyLabel || "Please wait…") : t(props.submitLabel)}</button>
+        <p className="hint" data-testid={props.progress ? "upload-progress" : undefined}>{props.progress || t(props.submitHint)}</p>
       </div>
     </form>
   );
-}
+};

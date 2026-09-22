@@ -19,7 +19,11 @@ const stored = (): WcUser | null => {
   } catch { return null; }
 };
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export const AuthProvider: React.FC<Props> = (props) => {
   const [user, setUser] = useState<WcUser | null>(stored);
 
   const login = async (email: string, password: string) => {
@@ -39,8 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
-}
+  return <AuthContext.Provider value={{ user, login, logout }}>{props.children}</AuthContext.Provider>;
+};
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);

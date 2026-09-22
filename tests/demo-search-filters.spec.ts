@@ -144,7 +144,7 @@ test.describe("home", () => {
   test("the first block is Sunday-ready, or says honestly what it shows instead", async ({ page }) => {
     const english = songs.filter(s => s.language === "English");
     const heading = english.some(s => s.sundayReady) ? "Sunday-ready"
-        : english.some(s => START_HERE.has(s.id)) ? "Start here"
+      : english.some(s => START_HERE.has(s.id)) ? "Start here"
         : english.some(s => s.hasScore) ? "Scored hymns, ready to sing" : "Most downloaded in the commons";
     await page.goto("/");
     await expect(page.getByTestId("home-top-heading")).toHaveText(heading);
@@ -152,7 +152,7 @@ test.describe("home", () => {
 
     // the block is ranked within the UI language; the first card is the top-ranked eligible English title
     const pool = heading === "Sunday-ready" ? english.filter(s => s.sundayReady)
-        : heading === "Start here" ? english.filter(s => START_HERE.has(s.id))
+      : heading === "Start here" ? english.filter(s => START_HERE.has(s.id))
         : heading.startsWith("Scored") ? english.filter(s => s.hasScore) : english;
     // mirrors recordingUrlOf in src/songs.ts: the home page puts real recordings ahead of MIDI-only titles
     const recorded = (s: SeedSong) => /\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(s.demoAudioUrl || s.masterUrl || s.fileUrls?.demoAudio || s.fileUrls?.master || s.fileUrls?.song || "");

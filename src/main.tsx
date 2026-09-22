@@ -3,37 +3,37 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { AuthProvider } from "./auth";
 import { I18nProvider, useI18n } from "./i18n";
-import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import Songs from "./pages/Songs";
-import New from "./pages/New";
-import SongPage from "./pages/SongPage";
-import PrintChart from "./pages/PrintChart";
-import SheetMusic from "./pages/SheetMusic";
-import Upload from "./pages/Upload";
-import License from "./pages/License";
-import Mission from "./pages/Mission";
-import Report from "./pages/Report";
-import Library from "./pages/Library";
-import Login from "./pages/Login";
-import MySongs from "./pages/MySongs";
-import Profile from "./pages/Profile";
-import Transcribe from "./pages/Transcribe";
-import EditSong from "./pages/EditSong";
-import PreviewSubmission from "./pages/PreviewSubmission";
-import Terms from "./pages/Terms";
-import Writer from "./pages/Writer";
-import CallForSongs from "./pages/CallForSongs";
-import LeadWorship from "./pages/LeadWorship";
-import Project from "./pages/Project";
-import Setlists from "./pages/Setlists";
-import SetlistPage from "./pages/SetlistPage";
+import { Layout } from "./components/Layout";
+import { Home } from "./pages/Home";
+import { Songs } from "./pages/Songs";
+import { New } from "./pages/New";
+import { SongPage } from "./pages/SongPage";
+import { PrintChart } from "./pages/PrintChart";
+import { SheetMusic } from "./pages/SheetMusic";
+import { Upload } from "./pages/Upload";
+import { License } from "./pages/License";
+import { Mission } from "./pages/Mission";
+import { Report } from "./pages/Report";
+import { Library } from "./pages/Library";
+import { Login } from "./pages/Login";
+import { MySongs } from "./pages/MySongs";
+import { Profile } from "./pages/Profile";
+import { Transcribe } from "./pages/Transcribe";
+import { EditSong } from "./pages/EditSong";
+import { PreviewSubmission } from "./pages/PreviewSubmission";
+import { Terms } from "./pages/Terms";
+import { Writer } from "./pages/Writer";
+import { CallForSongs } from "./pages/CallForSongs";
+import { LeadWorship } from "./pages/LeadWorship";
+import { Project } from "./pages/Project";
+import { Setlists } from "./pages/Setlists";
+import { SetlistPage } from "./pages/SetlistPage";
 import "./styles/style.css";
 
-function NotFound() {
+const NotFound: React.FC = () => {
   const { t } = useI18n();
   return <main className="wrap"><p className="crumb" style={{ padding: "60px 0" }}>{t("Page not found.")} <Link to="/">{t("← Home")}</Link></p></main>;
-}
+};
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

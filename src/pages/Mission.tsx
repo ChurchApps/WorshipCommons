@@ -1,9 +1,10 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/mission.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 
-export default function Mission() {
+export const Mission: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(
     t("Our mission — WorshipCommons"),
@@ -60,4 +61,4 @@ export default function Mission() {
       </section>
     </main>
   );
-}
+};

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "../styles/license.css";
 import { usePageMeta } from "../seo";
@@ -8,7 +8,7 @@ import { FEATURED_LICENSES } from "../licenses";
 
 
 // Binding text — English in every locale. If the deed and this text disagree, this text controls.
-function LegalCode() {
+const LegalCode: React.FC = () => {
   return (
     <div className="legal-body" lang="en">
       <h4>WorshipCommons License, Version 1.0 — Legal Code</h4>
@@ -47,9 +47,9 @@ function LegalCode() {
       <p>Only someone who owns the Song can apply this license. Applying it is a public grant and, once copies are out in the world, is as irrevocable as an upload.</p>
     </div>
   );
-}
+};
 
-export default function License() {
+export const License: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("The WorshipCommons License — WorshipCommons"));
   const { hash } = useLocation();
@@ -224,4 +224,4 @@ export default function License() {
       </section>
     </main>
   );
-}
+};

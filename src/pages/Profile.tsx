@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
 import { writerPath } from "../songs";
@@ -6,7 +6,7 @@ import { wcGet, wcPut } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import type { WriterLink } from "../components/SupportWriter";
-import EmptyState from "../components/EmptyState";
+import { EmptyState } from "../components/EmptyState";
 
 const BIO_MAX = 2000;
 const LINKS_MAX = 5;
@@ -21,32 +21,34 @@ interface Profile {
 
 const blank = { label: "", url: "" };
 
-function LinkRows({ items, onChange, testId, addLabel }: {
+interface LinkRowsProps {
   items: WriterLink[];
   onChange: (next: WriterLink[]) => void;
   testId: string;
   addLabel: string;
-}) {
+}
+
+const LinkRows: React.FC<LinkRowsProps> = (props) => {
   const { t } = useI18n();
   const setField = (i: number, field: keyof WriterLink, value: string) =>
-    onChange(items.map((l, n) => n === i ? { ...l, [field]: value } : l));
+    props.onChange(props.items.map((l, n) => n === i ? { ...l, [field]: value } : l));
   return (
     <>
-      {items.map((l, i) => (
+      {props.items.map((l, i) => (
         <div className="field-row field" key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr auto", gap: 12, alignItems: "start" }}>
-          <input type="text" aria-label={t("Link label")} data-testid={`${testId}-label`} placeholder={t("Label")} maxLength={60} value={l.label || ""} onChange={e => setField(i, "label", e.target.value)} />
-          <input type="url" aria-label={t("Link address")} data-testid={`${testId}-url`} placeholder="https://" value={l.url} onChange={e => setField(i, "url", e.target.value)} />
-          <button type="button" className="btn btn-ghost" data-testid={`${testId}-remove`} onClick={() => onChange(items.length > 1 ? items.filter((_, n) => n !== i) : [{ ...blank }])}>{t("Remove")}</button>
+          <input type="text" aria-label={t("Link label")} data-testid={`${props.testId}-label`} placeholder={t("Label")} maxLength={60} value={l.label || ""} onChange={e => setField(i, "label", e.target.value)} />
+          <input type="url" aria-label={t("Link address")} data-testid={`${props.testId}-url`} placeholder="https://" value={l.url} onChange={e => setField(i, "url", e.target.value)} />
+          <button type="button" className="btn btn-ghost" data-testid={`${props.testId}-remove`} onClick={() => props.onChange(props.items.length > 1 ? props.items.filter((_, n) => n !== i) : [{ ...blank }])}>{t("Remove")}</button>
         </div>
       ))}
-      {items.length < LINKS_MAX && (
-        <button type="button" className="btn btn-ghost" data-testid={`${testId}-add`} onClick={() => onChange([...items, { ...blank }])}>{addLabel}</button>
+      {props.items.length < LINKS_MAX && (
+        <button type="button" className="btn btn-ghost" data-testid={`${props.testId}-add`} onClick={() => props.onChange([...props.items, { ...blank }])}>{props.addLabel}</button>
       )}
     </>
   );
-}
+};
 
-export default function Profile() {
+export const Profile: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("Writer profile — WorshipCommons"));
   const { user } = useAuth();
@@ -71,7 +73,7 @@ export default function Profile() {
 
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
 
-  const save = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setStatus("");
@@ -109,7 +111,7 @@ export default function Profile() {
 
       {profile?.id && (
         <>
-          <form className="card" style={{ padding: 32 }} onSubmit={save}>
+          <form className="card" style={{ padding: 32 }} onSubmit={handleSave}>
             <div className="field">
               <label htmlFor="bio">{t("About you")}</label>
               <textarea id="bio" data-testid="profile-bio" rows={6} maxLength={BIO_MAX} placeholder={t("A few sentences about who you are and the songs you write.")} value={bio} onChange={e => setBio(e.target.value)} />
@@ -136,4 +138,4 @@ export default function Profile() {
       )}
     </main>
   );
-}
+};

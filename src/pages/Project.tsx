@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { idOf, songPath } from "../songs";
 import { slidesFor } from "../slides";
@@ -12,7 +12,7 @@ import "../styles/project.css";
  * Lyrics-only projector for a room with its own musicians: one section per screen, manual advance.
  * Reads the same slide model as every export (slidesFor), so the screen and the FreeShow / OpenLP / PPTX files agree.
  */
-export default function Project() {
+export const Project: React.FC = () => {
   const id = idOf(useParams().id);
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ export default function Project() {
       </footer>
     </main>
   );
-}
+};
 
 function toggleFullscreen() {
   if (document.fullscreenElement) document.exitFullscreen?.();

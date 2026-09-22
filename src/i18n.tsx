@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 // One UI language per language the catalog actually has songs in.
 // `song` is the English word song rows store in their `language` column.
@@ -37,7 +37,11 @@ const I18n = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (s: stri
   t: s => s
 });
 
-export function I18nProvider({ children }: { children: ReactNode }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export const I18nProvider: React.FC<Props> = (props) => {
   const [lang, setLangState] = useState<Lang>(detect);
   const [dict, setDict] = useState<Record<string, string>>({});
 
@@ -57,7 +61,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return vars ? out.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? "")) : out;
   };
 
-  return <I18n.Provider value={{ lang, setLang, t }}>{children}</I18n.Provider>;
-}
+  return <I18n.Provider value={{ lang, setLang, t }}>{props.children}</I18n.Provider>;
+};
 
 export const useI18n = () => useContext(I18n);

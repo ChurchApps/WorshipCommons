@@ -95,8 +95,7 @@ async function checkDemoServerAdmin() {
     refuse([`Demo login failed: ${err instanceof Error ? err.message : String(err)}`]);
   }
   const hasAdmin = (login.userChurches ?? []).some((uc) =>
-    (uc.apis ?? []).some((api) => (api.permissions ?? []).some((p) => p.contentType === "Server" && p.action === "Admin"))
-  );
+    (uc.apis ?? []).some((api) => (api.permissions ?? []).some((p) => p.contentType === "Server" && p.action === "Admin")));
   if (!hasAdmin) {
     refuse([
       "demo@b1.church has no Server/Admin claim, so every admin spec would fail.",

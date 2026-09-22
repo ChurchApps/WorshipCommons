@@ -1,16 +1,23 @@
-import { ReactNode, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 
-const Card = ({ title, id, testId, children }: { title: string; id?: string; testId?: string; children: ReactNode }) => (
-  <section className="card terms-card" id={id} data-testid={testId}>
-    <h2>{title}</h2>
-    {children}
+interface CardProps {
+  title: string;
+  id?: string;
+  testId?: string;
+  children: React.ReactNode;
+}
+
+const Card: React.FC<CardProps> = (props) => (
+  <section className="card terms-card" id={props.id} data-testid={props.testId}>
+    <h2>{props.title}</h2>
+    {props.children}
   </section>
 );
 
-export default function Terms() {
+export const Terms: React.FC = () => {
   const { t } = useI18n();
   usePageMeta(t("Terms — WorshipCommons"));
   const { hash } = useLocation();
@@ -65,4 +72,4 @@ export default function Terms() {
       </Card>
     </main>
   );
-}
+};

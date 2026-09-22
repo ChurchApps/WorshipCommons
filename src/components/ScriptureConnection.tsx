@@ -1,28 +1,33 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { loadWebPassage, type Passage } from "../bible";
 import { useI18n } from "../i18n";
 
-export default function ScriptureConnection({ reference, songId }: { reference?: string; songId: string }) {
+interface Props {
+  reference?: string;
+  songId: string;
+}
+
+export const ScriptureConnection: React.FC<Props> = (props) => {
   const { t } = useI18n();
-  const [passage, setPassage] = useState<Passage | null | undefined>(reference ? undefined : null);
+  const [passage, setPassage] = useState<Passage | null | undefined>(props.reference ? undefined : null);
 
   useEffect(() => {
-    if (!reference) { setPassage(null); return; }
+    if (!props.reference) { setPassage(null); return; }
     let dead = false;
     setPassage(undefined);
-    loadWebPassage(reference).then(p => { if (!dead) setPassage(p); });
+    loadWebPassage(props.reference).then(p => { if (!dead) setPassage(p); });
     return () => { dead = true; };
-  }, [reference]);
+  }, [props.reference]);
 
   return (
     <div className="col scripture">
       <h4>📖 {t("Scripture connection")}</h4>
-      {!reference
-        ? <p className="empty">{t("No scripture reference yet.")} <Link to={`/songs/${songId}/edit`}>{t("Propose one →")}</Link></p>
+      {!props.reference
+        ? <p className="empty">{t("No scripture reference yet.")} <Link to={`/songs/${props.songId}/edit`}>{t("Propose one →")}</Link></p>
         : (
           <>
-            <b>{reference}</b>
+            <b>{props.reference}</b>
             {passage === undefined && <p className="empty">{t("Loading…")}</p>}
             {passage && (
               <>
@@ -35,4 +40,4 @@ export default function ScriptureConnection({ reference, songId }: { reference?:
         )}
     </div>
   );
-}
+};

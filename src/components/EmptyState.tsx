@@ -1,10 +1,18 @@
+import React from "react";
 import { Link } from "react-router-dom";
 
-export default function EmptyState({ testId, message, to, action }: { testId: string; message: string; to: string; action: string }) {
+interface Props {
+  testId: string;
+  message: string;
+  to: string;
+  action: string;
+}
+
+export const EmptyState: React.FC<Props> = (props) => {
   return (
-    <div className="card empty-state" data-testid={testId}>
-      <p>{message}</p>
-      <Link to={to} className="btn btn-primary">{action}</Link>
+    <div className="card empty-state" data-testid={props.testId}>
+      <p>{props.message}</p>
+      <Link to={props.to} className="btn btn-primary">{props.action}</Link>
     </div>
   );
-}
+};

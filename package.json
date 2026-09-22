@@ -18,8 +18,8 @@
     "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint --fix src/ tests/",
-    "lint:check": "eslint src/ tests/",
+    "lint": "eslint --fix src/ tests/ tools/",
+    "lint:check": "eslint src/ tests/ tools/",
     "test": "playwright test",
     "demo": "node tests/setup/demo.mjs",
     "test:prerender": "node --test tools/prerender.test.mjs tools/ensure-spa-fallback.test.mjs",
@@ -38,19 +38,25 @@
     "test:exports": "node --test tools/exports.test.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.57.2",
     "@types/node": "^22.15.5",
-    "@typescript-eslint/eslint-plugin": "^8.55.0",
-    "@typescript-eslint/parser": "^8.55.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.39.2",
-    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.0",
     "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^16.0.0",
+    "lint-staged": "^16.4.0",
     "sharp": "^0.35.3",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.55.0",
     "vite": "^6.0.11"
+  },
+  "lint-staged": {
+    "{src,tests,tools}/**/*.{ts,tsx,js,mjs}": [
+      "eslint --fix"
+    ]
   },
   "packageManager": "yarn@4.15.0",
   "dependenciesMeta": {

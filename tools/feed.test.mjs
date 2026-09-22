@@ -37,7 +37,11 @@ test("entries carry absolute song links, authors, and escaped titles", () => {
 
 test("the window is capped and an empty catalog still emits a valid feed", () => {
   const many = Array.from({ length: 60 }, (_, i) => ({
-    id: `s${String(i).padStart(10, "0")}`, title: `Song ${i}`, writer: "W", license: "WC", songKey: "C",
+    id: `s${String(i).padStart(10, "0")}`,
+    title: `Song ${i}`,
+    writer: "W",
+    license: "WC",
+    songKey: "C",
     publishedAt: new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString()
   }));
   assert.equal(entryIds(feedXml(many, SITE)).length, 50);

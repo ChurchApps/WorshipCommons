@@ -1,18 +1,18 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth";
 import { useI18n, LANGS, Lang } from "../i18n";
 
-export function LogoMark() {
+export const LogoMark: React.FC = () => {
   return (
     <svg className="logo-mark" viewBox="0 0 86 32" fill="none" aria-hidden="true">
       <path d="M3 18c5-12 9 12 14 0s9-16 14 0 8 12 13 0" stroke="#b9a3ff" strokeWidth="3.4" strokeLinecap="round" />
       <path d="M62 7c-9 0-14 6-14 13s5 13 14 13c5 0 9-2 12-6" stroke="#b9a3ff" strokeWidth="3.4" strokeLinecap="round" />
     </svg>
   );
-}
+};
 
-function LangToggle() {
+const LangToggle: React.FC = () => {
   const { lang, setLang } = useI18n();
   // ponytail: the native select stays — it just sits invisible over the globe + code face
   return (
@@ -25,9 +25,9 @@ function LangToggle() {
       </select>
     </span>
   );
-}
+};
 
-export default function Layout() {
+export const Layout: React.FC = () => {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const { t } = useI18n();
@@ -96,4 +96,4 @@ export default function Layout() {
       </footer>
     </>
   );
-}
+};

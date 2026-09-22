@@ -8,7 +8,7 @@ export function useSong(id: string | undefined) {
   useEffect(() => {
     if (!id) return;
     let stale = false;
-    loadSong(id).then(s => { if (!stale) s ? setSong(s) : setNotFound(true); });
+    loadSong(id).then(s => { if (stale) return; if (s) setSong(s); else setNotFound(true); });
     return () => { stale = true; };
   }, [id]);
   return { song, notFound };
