@@ -102,8 +102,8 @@ export interface Song {
 let cache: Song[] | null = null;
 let cacheAt = 0;
 const songCache = new Map<string, Song | null>();
-// The list is a few megabytes of file URLs. Hold a good response; do not drop it on tab focus.
-const LIST_TTL_MS = 5 * 60 * 1000;
+// Hold a good catalog response. Tab focus must not download it again.
+const LIST_TTL_MS = 60 * 60 * 1000;
 
 export function isMissingSong(err: unknown): boolean {
   return err instanceof Error && /\(404\)/.test(err.message);
