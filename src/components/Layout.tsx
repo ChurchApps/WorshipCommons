@@ -5,9 +5,12 @@ import { useI18n, LANGS, Lang } from "../i18n";
 
 export const LogoMark: React.FC = () => {
   return (
-    <svg className="logo-mark" viewBox="0 0 86 32" fill="none" aria-hidden="true">
-      <path d="M3 18c5-12 9 12 14 0s9-16 14 0 8 12 13 0" stroke="#b9a3ff" strokeWidth="3.4" strokeLinecap="round" />
-      <path d="M62 7c-9 0-14 6-14 13s5 13 14 13c5 0 9-2 12-6" stroke="#b9a3ff" strokeWidth="3.4" strokeLinecap="round" />
+    <svg className="logo-mark" viewBox="300 300 1000 390" fill="none" aria-hidden="true">
+      <g stroke="#B49AFF" strokeLinecap="round" strokeLinejoin="round">
+        <path strokeWidth="34" d="M343 514 H378 C422 514 437 420 482 420 C532 420 559 601 609 601 C659 601 687 420 739 420 C789 420 817 601 867 601 C911 601 932 533 940 491" />
+        <path strokeWidth="34" d="M1226 407 C1191 369 1147 347 1096 348 C1013 349 949 410 940 491 C931 575 997 648 1081 648 C1138 648 1188 625 1226 587" />
+        <path strokeWidth="28" d="M998 531 C987 461 1040 401 1110 408" />
+      </g>
     </svg>
   );
 };
