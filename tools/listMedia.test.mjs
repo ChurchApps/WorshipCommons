@@ -29,12 +29,12 @@ test("list media is built from the package directory and the parent", () => {
   const detail = { id: "kept", artUrl: "https://cdn.example/already.webp", hasCover: true, packageDir: "songs/en/kept-kept00000001" };
   attachListMedia([parent, child, detail], "https://content.churchapps.org");
 
-  assert.equal(parent.artUrl, "https://content.churchapps.org/songs/en/jesus-lover-of-my-soul-song0000001/sources/cover.webp");
-  assert.equal(parent.thumbUrl, "https://content.churchapps.org/songs/en/jesus-lover-of-my-soul-song0000001/output/composition/cover-thumb.webp");
+  assert.equal(parent.artUrl, "https://content.churchapps.org/commons/songs/en/jesus-lover-of-my-soul-song0000001/sources/cover.webp");
+  assert.equal(parent.thumbUrl, "https://content.churchapps.org/commons/songs/en/jesus-lover-of-my-soul-song0000001/output/composition/cover-thumb.webp");
   assert.equal(child.artUrl, parent.artUrl);
   assert.equal(child.thumbUrl, parent.thumbUrl);
-  assert.equal(child.midiUrl, "https://content.churchapps.org/songs/es/cariñoso-salvador-child0000001/sources/tune.mid");
-  assert.equal(child.demoAudioUrl, "https://content.churchapps.org/songs/es/cariñoso-salvador-child0000001/sources/master/song.mp3");
-  assert.equal(child.writerPortraitUrl, "https://content.churchapps.org/writers/john-newton/portrait.jpg");
+  assert.equal(child.midiUrl, "https://content.churchapps.org/commons/songs/es/cariñoso-salvador-child0000001/sources/tune.mid");
+  assert.equal(child.demoAudioUrl, "https://content.churchapps.org/commons/songs/es/cariñoso-salvador-child0000001/sources/master/song.mp3");
+  assert.equal(child.writerPortraitUrl, "https://content.churchapps.org/commons/writers/john-newton/portrait.jpg");
   assert.equal(detail.artUrl, "https://cdn.example/already.webp");
 });
