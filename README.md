@@ -41,7 +41,6 @@ What a church may do depends on the song. Public-domain hymns are free for every
 | --- | --- |
 | [WorshipCommons](https://github.com/ChurchApps/WorshipCommons) | This website |
 | [WorshipCommonsContent](https://github.com/ChurchApps/WorshipCommonsContent) | The songs, charts, and licenses |
-| [WorshipCommonsApi](https://github.com/ChurchApps/WorshipCommonsApi) | Jobs that keep the catalog in sync |
 | [Api](https://github.com/ChurchApps/Api) | Accounts, and the commons API this site calls |
 
 ## Get Involved
