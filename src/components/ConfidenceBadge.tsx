@@ -3,7 +3,7 @@ import type { Confidence } from "../songs";
 export const CONFIDENCE_LABEL: Record<Confidence, string> = {
   "sunday-ready": "Sunday-ready",
   "score": "Score",
-  "generated-from-midi": "Generated from MIDI",
+  "generated-from-midi": "Unchecked score",
   "chart-only": "Chart only",
   "lyrics-only": "Lyrics only"
 };
@@ -11,7 +11,7 @@ export const CONFIDENCE_LABEL: Record<Confidence, string> = {
 export const CONFIDENCE_HELP: Record<Confidence, string> = {
   "sunday-ready": "Score, listened-to audio, chart, slides, and rights that agree",
   "score": "Melody score from a written source or Open Hymnal ABC",
-  "generated-from-midi": "Score derived from a MIDI file; check it before you print",
+  "generated-from-midi": "Machine-made from a MIDI file or recording; check it before you print",
   "chart-only": "Lyrics with chords; no melody score yet",
   "lyrics-only": "Words only; no chords or score yet"
 };
