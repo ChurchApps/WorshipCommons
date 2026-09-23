@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Song } from "../songs";
-import { attributionFor, isCustomLicense, LAYER_LABEL, layerLines, licenseHref, licenseOf, licenseUrl, licenseVersion, USE_LABEL } from "../licenses";
+import { attributionFor, copyrightOf, isCustomLicense, LAYER_LABEL, layerLines, licenseHref, licenseOf, licenseUrl, licenseVersion, USE_LABEL } from "../licenses";
 import { isUnknown, needsCcliReport, rightsMatrixFor, USES } from "../rights";
 import { useI18n } from "../i18n";
 
@@ -22,6 +22,7 @@ export const RightsPanel: React.FC<Props> = (props) => {
   const matrix = rightsMatrixFor(props.song);
   const layers = layerLines(props.song);
   const attribution = attributionFor(props.song);
+  const copyright = copyrightOf(props.song).join(" · ");
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(attribution);
@@ -37,12 +38,12 @@ export const RightsPanel: React.FC<Props> = (props) => {
         <div>
           <p data-testid="license-grant" data-license={lic.id}>
             {lic.id === "WC"
-              ? <>© {props.song.year} {props.song.writer} · {t("WorshipCommons License v{version}", { version: licenseVersion(props.song) })}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
+              ? <>{copyright} · {t("WorshipCommons License v{version}", { version: licenseVersion(props.song) })}. {t("Shared through WorshipCommons — free for worship everywhere, always. Commercial use stays with the writer.")} <Link to="/license">{t("How that works")}</Link></>
               : lic.id === "PD"
                 ? <>{t("Public domain in the United States (best-effort). Free for every use, including commercial — no license needed. Other countries may differ.")} <Link to={licenseHref("PD")}>{t("How that works")}</Link></>
                 : isCustomLicense(lic)
-                  ? <>© {props.song.year} {props.song.writer} · {lic.label}. {t("The writer’s own grant for church use — CCLI reporting is optional.")} <a href={licenseUrl(props.song)} target="_blank" rel="license noopener">{t("Full license")}</a></>
-                  : <>© {props.song.year} {props.song.writer} · <a href={licenseUrl(props.song)} target="_blank" rel="license noopener">{t("Creative Commons")} {lic.label} {licenseVersion(props.song)}</a>. {lic.nonCommercial ? t("Free for worship with credit — not for anything sold or monetized.") : lic.derivativesAllowed ? t("Free for every use, including commercial, as long as you credit the writer.") : t("Free to sing, print, project, and record as written, with credit — no arrangements, translations, or transposed charts may be shared.")} <Link to={licenseHref(lic.id)}>{t("How that works")}</Link></>}
+                  ? <>{copyright} · {lic.label}. {t("The writer’s own grant for church use — CCLI reporting is optional.")} <a href={licenseUrl(props.song)} target="_blank" rel="license noopener">{t("Full license")}</a></>
+                  : <>{copyright} · <a href={licenseUrl(props.song)} target="_blank" rel="license noopener">{t("Creative Commons")} {lic.label} {licenseVersion(props.song)}</a>. {lic.nonCommercial ? t("Free for worship with credit — not for anything sold or monetized.") : lic.derivativesAllowed ? t("Free for every use, including commercial, as long as you credit the writer.") : t("Free to sing, print, project, and record as written, with credit — no arrangements, translations, or transposed charts may be shared.")} <Link to={licenseHref(lic.id)}>{t("How that works")}</Link></>}
           </p>
           {lic.nonCommercial && (
             <p className="rel-hint" data-testid="nc-commercial-hint">{t("A stream with ads or a donation prompt may count as commercial under this non-commercial license.")}</p>

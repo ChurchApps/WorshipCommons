@@ -79,14 +79,28 @@ export const licenseVersion = (song: Pick<Song, "license" | "licenseVersion">) =
 /** The exact license the writer applied, else the registry deed — a CC BY 3.0 song must never read as 4.0. */
 export const licenseUrl = (song: Pick<Song, "license" | "licenseUrl">) => song.licenseUrl || licenseOf(song).deedUrl;
 
-/** One-line notice for LICENSE.txt and the print footer: placeholders {year} {writer} {version} {licenseUrl}. */
-export function licenseNotice(song: Pick<Song, "license" | "licenseVersion" | "licenseUrl" | "year" | "writer">): string {
-  const vars: Record<string, string> = { year: String(song.year ?? ""), writer: song.writer, version: licenseVersion(song), licenseUrl: licenseUrl(song) };
-  return licenseOf(song).notice.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+type NoticeSong = Pick<Song, "attribution" | "license" | "licenseVersion" | "licenseUrl" | "year" | "writer">;
+
+/** The package's attribution.txt minus its title line: copyright as the writer states it, any credit or source, then the terms. */
+export const attributionLines = (song: Pick<Song, "attribution">): string[] =>
+  (song.attribution || "").split(/\r?\n/).map(l => l.trim()).filter(Boolean).slice(1);
+
+/** The copyright notice as the writer publishes it ("Copyright © 1997 by …", plus a translation's own line), else © year writer. */
+export function copyrightOf(song: NoticeSong): string[] {
+  const lines = attributionLines(song).slice(0, -1).filter(l => /©|copyright|translation/i.test(l));
+  if (lines.length) return lines;
+  return song.license === "PD" ? [] : [`© ${song.year ? `${song.year} ` : ""}${song.writer}`];
+}
+
+/** One-line notice for a printed booklet or setlist: copyright, then the license terms ({version} {licenseUrl}). */
+export function licenseNotice(song: NoticeSong): string {
+  const vars: Record<string, string> = { version: licenseVersion(song), licenseUrl: licenseUrl(song) };
+  const terms = licenseOf(song).notice.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+  return [...copyrightOf(song), terms].join(". ");
 }
 
 /** The credit a church pastes into a bulletin or slide: the package's attribution.txt when served, else the notice line. */
-export const attributionFor = (song: Pick<Song, "attribution" | "license" | "licenseVersion" | "licenseUrl" | "year" | "writer">) =>
+export const attributionFor = (song: NoticeSong) =>
   (song.attribution || "").trim() || licenseNotice(song);
 
 /** Church-facing name of each use in the rights matrix (English source text; run through t()). */

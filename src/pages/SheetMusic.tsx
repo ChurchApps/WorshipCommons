@@ -94,7 +94,7 @@ export const SheetMusic: React.FC = () => {
           {source === "midi"
             ? t("Engraved in your browser from a score generated from the MIDI file.")
             : source === "abc"
-              ? t("Engraved in your browser from the Open Hymnal Project ABC.")
+              ? t("Engraved in your browser from the song's ABC score.")
               : t("Engraved in your browser from the package score.")}
           {" "}{attributionFor(song)}
         </p>

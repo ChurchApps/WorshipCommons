@@ -98,6 +98,7 @@ a.tag:hover { border-color: var(--purple); color: var(--text); }
 .cd-col small { font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .cp-preview .line { margin-bottom: 7px; }
 
+.lyrics-copyright { white-space: pre-line; color: var(--dim); font-size: 0.8125rem; line-height: 1.5; margin: 22px 0 0; }
 .panel-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; color: var(--dim); font-size: 0.8125rem; margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line); }
 .panel-foot .link-btn, .chart-links .link-btn { border: 0; background: none; padding: 0; font: inherit; color: var(--purple-2); cursor: pointer; text-decoration: underline; }
 .chart-links { display: flex; flex-wrap: wrap; gap: 4px 10px; }

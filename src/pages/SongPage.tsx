@@ -18,7 +18,7 @@ import { SongHero, clock } from "../components/SongHero";
 import { AboutPanel } from "../components/AboutPanel";
 import { ScriptureConnection } from "../components/ScriptureConnection";
 import { ProjectPanel } from "../components/ProjectPanel";
-import { acceptsProposals } from "../licenses";
+import { acceptsProposals, attributionLines, licenseNotice } from "../licenses";
 import "../styles/song.css";
 
 const FileIcon: React.FC = () => (
@@ -443,6 +443,8 @@ export const SongPage: React.FC = () => {
                 </section>
               ))}
             </div>
+            {/* the copyright as the writer states it, where people look for it: under the last verse */}
+            <p className="lyrics-copyright" data-testid="lyrics-copyright">{(attributionLines(song).length ? attributionLines(song) : [licenseNotice(song)]).join("\n")}</p>
 
             <div className="panel-foot">
               <span className="chart-links" data-testid="chart-links">

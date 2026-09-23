@@ -51,7 +51,7 @@
         "Change what the song means"
       ],
       "must": [],
-      "notice": "© {year} {writer} · WorshipCommons License v{version} — free for worship everywhere, always. https://worshipcommons.org/license",
+      "notice": "WorshipCommons License v{version}: free for worship everywhere, always. https://worshipcommons.org/license",
       "badge": "wc"
     },
     {
@@ -82,7 +82,7 @@
         "Name the license (CC BY, with its version)",
         "Keep a link to the license on every copy you make — slides, charts, streams, zips"
       ],
-      "notice": "© {year} {writer}. Licensed under CC BY {version}: {licenseUrl}",
+      "notice": "Licensed under CC BY {version}: {licenseUrl}",
       "badge": "cc-by"
     },
     {
@@ -115,7 +115,7 @@
         "Keep a link to the license on every copy you make — slides, charts, streams, zips",
         "Share your derivatives (translations, arrangements you distribute) under CC BY-SA too"
       ],
-      "notice": "© {year} {writer}. Licensed under CC BY-SA {version}: {licenseUrl}",
+      "notice": "Licensed under CC BY-SA {version}: {licenseUrl}",
       "badge": "cc-by-sa"
     },
     {
@@ -146,7 +146,7 @@
         "Name the license (CC BY-NC, with its version)",
         "Keep a link to the license on every copy you make — slides, charts, streams, zips"
       ],
-      "notice": "© {year} {writer}. Licensed under CC BY-NC {version} (non-commercial): {licenseUrl}",
+      "notice": "Licensed under CC BY-NC {version} (non-commercial): {licenseUrl}",
       "badge": "cc-by-nc"
     },
     {
@@ -179,7 +179,7 @@
         "Keep a link to the license on every copy you make — slides, charts, streams, zips",
         "Share your derivatives (translations, arrangements you distribute) under CC BY-NC-SA too"
       ],
-      "notice": "© {year} {writer}. Licensed under CC BY-NC-SA {version} (non-commercial): {licenseUrl}",
+      "notice": "Licensed under CC BY-NC-SA {version} (non-commercial): {licenseUrl}",
       "badge": "cc-by-nc-sa"
     },
     {
@@ -216,7 +216,7 @@
         "Keep the original credits and copyright notice on every copy",
         "Credit Larry Holder / Larry Holder Music"
       ],
-      "notice": "© {year} {writer} · Custom — Larry Holder Music. Non-profit church use; keep the original credits. Full terms: {licenseUrl}",
+      "notice": "Shared by Larry Holder Music for non-profit church use. Keep the original credits. Full terms: {licenseUrl}",
       "badge": "larry-holder"
     }
   ]
