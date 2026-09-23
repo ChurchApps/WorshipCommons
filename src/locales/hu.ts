@@ -1,7 +1,8 @@
 const hu: Record<string, string> = {
   // nav & footer
   "Songs": "Énekek",
-  "The License": "A licenc",
+  "Licenses": "Licencek",
+  "This page describes the grant a songwriter makes when sharing a new song here. It applies only to songs that show the WC badge. Most songs in the library are public-domain hymns, which need no license at all. Every song page shows its own license under Rights.": "Ez az oldal azt az engedélyt írja le, amelyet egy dalszerző ad, amikor itt megoszt egy új dalt. Csak azokra a dalokra vonatkozik, amelyeken a WC jelvény látható. A könyvtár legtöbb dala közkincs himnusz, amelyhez semmilyen licenc nem kell. Minden daloldal a Jogok alatt mutatja a saját licencét.",
   "Report": "Bejelentés",
   "My songs": "Énekeim",
   "Saved songs": "Mentett énekek",

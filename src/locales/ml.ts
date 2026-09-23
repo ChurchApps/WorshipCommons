@@ -1,7 +1,8 @@
 const ml: Record<string, string> = {
   // nav & footer
   "Songs": "പാട്ടുകൾ",
-  "The License": "ലൈസൻസ്",
+  "Licenses": "ലൈസൻസുകൾ",
+  "This page describes the grant a songwriter makes when sharing a new song here. It applies only to songs that show the WC badge. Most songs in the library are public-domain hymns, which need no license at all. Every song page shows its own license under Rights.": "ഒരു ഗാനരചയിതാവ് ഇവിടെ പുതിയ ഗാനം പങ്കിടുമ്പോൾ നൽകുന്ന അനുമതിയാണ് ഈ പേജ് വിവരിക്കുന്നത്. WC ബാഡ്ജ് കാണിക്കുന്ന ഗാനങ്ങൾക്ക് മാത്രമേ ഇത് ബാധകമാകൂ. ലൈബ്രറിയിലെ മിക്ക ഗാനങ്ങളും പൊതുസ്വത്തായ കീർത്തനങ്ങളാണ്, അവയ്ക്ക് ലൈസൻസ് ആവശ്യമില്ല. ഓരോ ഗാനപേജും അതിന്റെ സ്വന്തം ലൈസൻസ് അവകാശങ്ങൾ എന്നതിന് കീഴിൽ കാണിക്കുന്നു.",
   "Report": "റിപ്പോർട്ട്",
   "My songs": "എന്റെ പാട്ടുകൾ",
   "Saved songs": "സേവ് ചെയ്ത പാട്ടുകൾ",

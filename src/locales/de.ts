@@ -1,7 +1,8 @@
 const de: Record<string, string> = {
   // nav & footer
   "Songs": "Lieder",
-  "The License": "Die Lizenz",
+  "Licenses": "Lizenzen",
+  "This page describes the grant a songwriter makes when sharing a new song here. It applies only to songs that show the WC badge. Most songs in the library are public-domain hymns, which need no license at all. Every song page shows its own license under Rights.": "Diese Seite beschreibt die Freigabe, die ein Songwriter erteilt, wenn er hier ein neues Lied teilt. Sie gilt nur für Lieder mit dem WC-Abzeichen. Die meisten Lieder in der Bibliothek sind gemeinfreie Choräle, die gar keine Lizenz brauchen. Jede Liedseite zeigt ihre eigene Lizenz unter Rechte.",
   "Report": "Melden",
   "My songs": "Meine Lieder",
   "Saved songs": "Gespeicherte Lieder",

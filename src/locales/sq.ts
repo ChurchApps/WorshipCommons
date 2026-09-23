@@ -1,7 +1,8 @@
 const sq: Record<string, string> = {
   // nav & footer
   "Songs": "Këngë",
-  "The License": "Licenca",
+  "Licenses": "Licencat",
+  "This page describes the grant a songwriter makes when sharing a new song here. It applies only to songs that show the WC badge. Most songs in the library are public-domain hymns, which need no license at all. Every song page shows its own license under Rights.": "Kjo faqe përshkruan lejen që jep një autor kur ndan këtu një këngë të re. Ajo vlen vetëm për këngët që shfaqin shenjën WC. Shumica e këngëve në bibliotekë janë himne të domenit publik, që nuk kanë nevojë fare për licencë. Çdo faqe kënge tregon licencën e vet te Të drejtat.",
   "Report": "Raporto",
   "My songs": "Këngët e mia",
   "Saved songs": "Këngë të ruajtura",

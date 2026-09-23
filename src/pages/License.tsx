@@ -74,6 +74,11 @@ export const License: React.FC = () => {
         <p className="lede">{t("Most music licensing is a subscription, a spreadsheet, and a lawyer. This is a page you can read out loud to your worship team.")}</p>
       </div>
 
+      {/* ponytail: the library is ~all public domain; this card keeps readers from assuming every song carries the WC grant */}
+      <div className="card official" data-testid="license-scope">
+        <p className="note">{t("This page describes the grant a songwriter makes when sharing a new song here. It applies only to songs that show the WC badge. Most songs in the library are public-domain hymns, which need no license at all. Every song page shows its own license under Rights.")} <a href="#other-licenses">{t("Other licenses in this library")}</a></p>
+      </div>
+
       <div className="dark-panel big-quote">
         <h2 dangerouslySetInnerHTML={rich("“If it <span class=\"gold\">happens in worship</span>, it’s <span class=\"violet\">free, forever</span>.”")} />
         <p>{t("Albums, films, and ticketed concerts stay with the writer.")}</p>

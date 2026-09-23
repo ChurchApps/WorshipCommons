@@ -1,7 +1,8 @@
 const ru: Record<string, string> = {
   // nav & footer
   "Songs": "Песни",
-  "The License": "Лицензия",
+  "Licenses": "Лицензии",
+  "This page describes the grant a songwriter makes when sharing a new song here. It applies only to songs that show the WC badge. Most songs in the library are public-domain hymns, which need no license at all. Every song page shows its own license under Rights.": "Эта страница описывает разрешение, которое автор даёт, когда делится здесь новой песней. Оно относится только к песням со значком WC. Большинство песен в библиотеке — гимны в общественном достоянии, которым лицензия вообще не нужна. На странице каждой песни её лицензия указана в разделе «Права».",
   "Report": "Сообщить",
   "My songs": "Мои песни",
   "Saved songs": "Сохранённые песни",

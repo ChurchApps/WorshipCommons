@@ -87,7 +87,7 @@ export const Layout: React.FC = () => {
             <Link to="/new">{t("New songs")}</Link>
             <Link to="/call-for-songs">{t("Call for songs")}</Link>
             <Link to="/report">{t("Report a song")}</Link>
-            <Link to="/license">{t("The License")}</Link>
+            <Link to="/license">{t("Licenses")}</Link>
             <Link to="/license#faq">{t("Questions")}</Link>
             <Link to="/terms#copyright" data-testid="foot-dmca">{t("Copyright / DMCA")}</Link>
             <a href="https://churchapps.org/privacy">{t("Privacy")}</a>
