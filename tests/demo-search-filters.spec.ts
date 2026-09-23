@@ -14,7 +14,7 @@ const confOf = (s: { confidence?: string }) => s.confidence === "proofread-score
 const LABEL: Record<string, string> = {
   "sunday-ready": "Sunday-ready",
   "score": "Score",
-  "generated-from-midi": "Generated from MIDI",
+  "generated-from-midi": "Unchecked score",
   "chart-only": "Chart only",
   "lyrics-only": "Lyrics only"
 };

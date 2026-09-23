@@ -473,7 +473,7 @@ export const SongPage: React.FC = () => {
                 </div>
               )}
               {!song.abcUrl && song.midiUrl && (
-                <p className="rel-hint"><Link to={`${songPath(song)}/transcribe`} data-testid="transcribe-link">{t("No sheet music yet — help transcribe it")}</Link></p>
+                <p className="rel-hint"><Link to={`${songPath(song)}/transcribe`} data-testid="transcribe-link">{song.sheetPdfUrl ? t("Help turn this sheet into an editable score") : t("No sheet music yet — help transcribe it")}</Link></p>
               )}
             </div>
           )}
