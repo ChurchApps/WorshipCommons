@@ -87,7 +87,7 @@ export const attributionLines = (song: Pick<Song, "attribution">): string[] =>
 
 /** The copyright notice as the writer publishes it ("Copyright © 1997 by …", plus a translation's own line), else © year writer. */
 export function copyrightOf(song: NoticeSong): string[] {
-  const lines = attributionLines(song).slice(0, -1).filter(l => /©|copyright|translation/i.test(l));
+  const lines = attributionLines(song).filter(l => /©|copyright|translation/i.test(l));
   if (lines.length) return lines;
   return song.license === "PD" ? [] : [`© ${song.year ? `${song.year} ` : ""}${song.writer}`];
 }
@@ -96,7 +96,7 @@ export function copyrightOf(song: NoticeSong): string[] {
 export function licenseNotice(song: NoticeSong): string {
   const vars: Record<string, string> = { version: licenseVersion(song), licenseUrl: licenseUrl(song) };
   const terms = licenseOf(song).notice.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
-  return [...copyrightOf(song), terms].join(". ");
+  return [...copyrightOf(song), terms].filter(Boolean).join(". ");
 }
 
 /** The credit a church pastes into a bulletin or slide: the package's attribution.txt when served, else the notice line. */
