@@ -225,7 +225,7 @@ export function contentPrefix(song: Song): string {
 /** songs/<lang>/<section>/<slug>-<id> as the content bucket lays it out. */
 export function packageDir(song: Song): string | undefined {
   const fromUrl = Object.values(song.fileUrls || {}).concat(song.midiUrl || "", song.abcUrl || "").find(u => /\/songs\//.test(String(u)));
-  const hit = String(fromUrl || "").match(/\/(songs\/.+?)\/(?:sources|masters|derivatives)\//);
+  const hit = String(fromUrl || "").match(/\/(songs\/.+?)\/(?:sources|masters|derivatives|output)\//);
   if (hit) return hit[1];
   const lang = LANG_CODE[song.language] || String(song.language || "en").slice(0, 2).toLowerCase();
   if (!song.id) return;
@@ -242,10 +242,12 @@ export function packageFile(song: Song, rel: string): string | undefined {
  * after the package-layout cutover; the files still live at the package/work paths.
  */
 export function leadFiles(song: Song): { midi: string[]; timing?: string } {
+  // listed URLs first: a translation's score lives in its parent's package, so guessing its own 403s
   const midi = [
-    packageFile(song, "output/composition/score.mid"),
+    [fileUrl(song, "score")].find(u => /\.mid(\?|#|$)/i.test(u || "")),
     song.midiUrl,
     fileUrl(song, "midi"),
+    packageFile(song, "output/composition/score.mid"),
     packageFile(song, "sources/tune.mid")
   ].filter((u, i, a): u is string => !!u && a.indexOf(u) === i);
   const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "sources/timing.json") || packageFile(song, "derivatives/timing.json");
