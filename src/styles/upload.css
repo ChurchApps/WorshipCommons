@@ -62,3 +62,27 @@
   .removal-warning { border: 1px solid #E4DEF2; border-left: 4px solid var(--secondary); border-radius: 12px; background: var(--surface); padding: 14px 18px; margin-bottom: 18px; font-size: 0.9375rem; }
   .removal-warning b { display: block; margin-bottom: 6px; }
   .removal-warning p { margin: 0; color: var(--text-2); font-size: 0.875rem; }
+
+  /* drop zones: a live drop target, a remove button, and the reason a file was refused */
+  .dropzone { position: relative; }
+  .dropzone.over { border-color: var(--primary); border-style: solid; background: rgba(139,108,255,0.10); }
+  .dropzone.attached { border-style: solid; }
+  .dz-clear { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.08); color: var(--ink); cursor: pointer; font-size: 0.875rem; }
+  .dz-clear:hover { background: rgba(255,255,255,0.16); }
+  .dz-problem { display: block; margin-top: 8px; color: var(--secondary); font-weight: 600; }
+
+  /* the step bar: jump between steps, see that the draft is saved */
+  .step-rail { position: sticky; top: 68px; z-index: 5; display: flex; align-items: center; gap: 6px; overflow-x: auto; margin: 24px 0 0; padding: 10px 0; background: var(--bg); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .step-rail a { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; color: var(--text-2); font-size: 0.875rem; text-decoration: none; }
+  .step-rail a:hover { background: rgba(139,108,255,0.12); color: var(--ink); }
+  .step-rail .n { width: 22px; height: 22px; border-radius: 7px; background: rgba(139,108,255,0.16); color: var(--purple-2); display: grid; place-items: center; font-size: 0.75rem; }
+  .step-rail .save-status { margin-left: auto; padding-left: 12px; white-space: nowrap; color: var(--muted); font-size: 0.8125rem; }
+  .step { scroll-margin-top: 140px; }
+  .step:focus { outline: none; }
+
+  /* the gap list links to each field */
+  .upload-missing a { color: inherit; }
+
+  /* the master reuses the license cards without repeating the recap */
+  .license-compact .license-recap, .license-compact .choice p { display: none; }
+  .chip-more { border-style: dashed; }

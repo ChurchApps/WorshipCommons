@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth";
-import { wcGet, wcPost } from "../api";
+import { wcDelete, wcGet, wcPost } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { NEW_PACKAGE_TYPES } from "../components/SongForm";
@@ -50,8 +50,18 @@ const REVIEW_REASONS: Record<string, string> = {
   ai: "The words or melody appear to be AI-generated. The library only takes songs written by people; AI-assisted recordings of a human-written song are fine.",
   offtopic: "This doesn’t fit the worship-song library.",
   incomplete: "This submission is missing something we need to publish it.",
-  other: "This one didn’t make it into the library."
+  // the status line already says it didn't make it; "other" adds nothing beyond the reviewer's note
+  other: ""
 };
+
+// the tabs group statuses the way a writer thinks about them
+const TABS: { id: string; label: string; has: (status: string) => boolean }[] = [
+  { id: "all", label: "All", has: () => true },
+  { id: "draft", label: "Drafts", has: st => st === "draft" },
+  { id: "pending", label: "In review", has: st => st === "pending" },
+  { id: "approved", label: "Live", has: st => st === "approved" },
+  { id: "closed", label: "Not accepted", has: st => st === "rejected" || st === "withdrawn" }
+];
 
 // rows from before payload.type was explicit fall back to what the API infers: a new package or a correction
 const typeOf = (s: Submission) => s.type || s.payload?.type || (s.isNewAsset === false ? "correction" : "new");
@@ -65,6 +75,7 @@ export const MySongs: React.FC = () => {
   const [downloads, setDownloads] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState("");
   const [confirming, setConfirming] = useState("");
+  const [tab, setTab] = useState("all");
 
   const load = useCallback(async () => {
     const [mine, assets] = await Promise.all([wcGet("/submissions/mine", true), wcGet("/assets/mine", true).catch((): { id: string; downloadCount: number }[] => [])]);
@@ -76,6 +87,12 @@ export const MySongs: React.FC = () => {
 
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
 
+  const handleDelete = async (id: string) => {
+    await wcDelete(`/submissions/${id}`, true);
+    setConfirming("");
+    load();
+  };
+
   const handleWithdraw = async (id: string) => {
     await wcPost(`/submissions/${id}/withdraw`, {}, true);
     setConfirming("");
@@ -86,14 +103,23 @@ export const MySongs: React.FC = () => {
     <main className="wrap-narrow">
       <div className="page-head">
         <span className="eyebrow">{t("My submissions")}</span>
-        <h1>{t("What you’ve shared")}</h1>
-        <p className="lede">{t("Every song you’ve submitted and where it stands.")}</p>
+        <h1>{t("Your submissions")}</h1>
+        <p className="lede">{t("Every song and change you’ve started or sent, and where it stands.")}</p>
         <p className="hint" style={{ marginTop: 12 }}><Link to="/profile" data-testid="writer-profile-link">{t("Writer profile")}</Link></p>
       </div>
 
       {!subs && <p>{t("Loading…")}</p>}
       {subs?.length === 0 && <EmptyState testId="no-submissions" message={t("Nothing here yet.")} to="/upload" action={t("Share your first song")} />}
-      {subs?.map(s => {
+      {subs && subs.length > 0 && (
+        <div className="chip-row" role="tablist" data-testid="my-song-tabs" style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "24px 0 20px" }}>
+          {TABS.map(tb => {
+            const n = subs.filter(s => tb.has(s.status)).length;
+            if (tb.id !== "all" && !n) return null;
+            return <button key={tb.id} type="button" role="tab" aria-selected={tab === tb.id} className={"chip" + (tab === tb.id ? " on" : "")} onClick={() => setTab(tb.id)}>{t(tb.label)} {n}</button>;
+          })}
+        </div>
+      )}
+      {subs?.filter(s => (TABS.find(tb => tb.id === tab) || TABS[0]).has(s.status)).map(s => {
         const type = typeOf(s);
         const newPackage = NEW_PACKAGE_TYPES.includes(type);
         const changesRequested = s.status === "draft" && s.reviewReason === "changes";
@@ -116,7 +142,12 @@ export const MySongs: React.FC = () => {
               <span className={s.status === "approved" && !takenDown ? "free-badge" : "pd-badge"} style={{ marginLeft: 10 }} data-testid="my-song-status">{t(st.label)}</span>
               <span className="hint" style={{ marginLeft: 10, fontWeight: 400, fontSize: "0.8125rem" }} data-testid="my-song-type">{t(TYPE_LABEL[type] || type)}</span>
             </h3>
-            <p className="hint" style={{ marginBottom: 8 }}>{detail.writer}{detail.songKey ? ` · ${t("Key")} ${detail.songKey}` : ""}{s.note ? ` · ${s.note}` : ""}{s.createdAt ? t(" · submitted {date}", { date: new Date(s.createdAt).toLocaleDateString() }) : ""}</p>
+            <p className="hint" style={{ marginBottom: 8 }}>{[
+              detail.writer,
+              detail.songKey && `${t("Key")} ${detail.songKey}`,
+              s.note,
+              s.createdAt && t(s.status === "draft" ? "started {date}" : "submitted {date}", { date: new Date(s.createdAt).toLocaleDateString() })
+            ].filter(Boolean).join(" · ")}</p>
             <p style={{ fontSize: "0.9375rem" }}>{t(st.note)}{liveUrl ? t(" {count} downloads.", { count: count.toLocaleString() }) : ""}</p>
             {s.status === "approved" && !newPackage && !takenDown && (
               <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="credit-note">{t("You are credited on the song page.")}</p>
@@ -138,7 +169,18 @@ export const MySongs: React.FC = () => {
               <p style={{ fontSize: "0.9375rem", marginTop: 8 }} data-testid="review-note">{reason}{reason && s.reviewNote ? " — " : ""}{s.reviewNote}{songSelectUrl ? " " : ""}{songSelectUrl && <a href={songSelectUrl} target="_blank" rel="noreferrer" data-testid="songselect-link">{t("Find it on SongSelect")}</a>}</p>
             )}
             {s.status === "draft" && (
-              <Link to={continueTo} className="btn btn-primary" style={{ marginTop: 12 }} data-testid="continue-draft">{t("Continue")}</Link>
+              confirming === s.id ? (
+                <div style={{ marginTop: 12 }}>
+                  <p className="hint" style={{ marginBottom: 10 }}>{t("The draft and its files are deleted. This can’t be undone.")}</p>
+                  <button className="btn btn-primary" style={{ marginRight: 8 }} data-testid="delete-draft-confirm" onClick={() => handleDelete(s.id)}>{t("Delete draft")}</button>
+                  <button className="btn btn-ghost" onClick={() => setConfirming("")}>{t("Cancel")}</button>
+                </div>
+              ) : (
+                <p style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <Link to={continueTo} className="btn btn-primary" data-testid="continue-draft">{t("Continue")}</Link>
+                  <button type="button" className="btn btn-ghost" data-testid="delete-draft" onClick={() => setConfirming(s.id)}>{t("Delete draft")}</button>
+                </p>
+              )
             )}
             {s.status === "pending" && (
               confirming === s.id ? (

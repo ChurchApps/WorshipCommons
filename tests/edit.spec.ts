@@ -1,3 +1,4 @@
+import { agreeContribution } from "./helpers/attest";
 import { test, expect } from "@playwright/test";
 import { approveSubmission, pendingSubmissionFor, WC_API } from "./helpers/api";
 
@@ -27,6 +28,7 @@ test.describe.serial("propose an edit", () => {
 
     await page.fill("#title", newTitle);
     await page.fill("#edit-note", "Corrected the title.");
+    await agreeContribution(page);
     await page.getByRole("button", { name: "Propose this edit" }).click();
     await expect(page.getByTestId("edit-thanks")).toBeVisible();
   });
@@ -40,6 +42,7 @@ test.describe.serial("propose an edit", () => {
     await page.goto(`/songs/${songId}/edit`);
     await page.fill("#title", "Should Not Land");
     await page.fill("#edit-note", "Competing edit.");
+    await agreeContribution(page);
     await page.getByRole("button", { name: "Propose this edit" }).click();
     await expect(page.getByTestId("upload-error")).toContainText("already under review");
   });

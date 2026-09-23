@@ -18,6 +18,8 @@ async function fillSongFields(page: import("@playwright/test").Page, title: stri
   await page.fill("#year", "2026");
   await page.selectOption("#key", "G");
   await page.fill("#bpm", "90");
+  // the less common themes sit behind "More themes"
+  if (await page.getByTestId("more-themes").count()) await page.getByTestId("more-themes").click();
   for (const th of themes) await page.getByTestId("theme-chips").getByRole("button", { name: th, exact: true }).click();
   await page.fill("#scripture", "Psalm 96:1");
   await page.fill("#lyrics", LYRICS);

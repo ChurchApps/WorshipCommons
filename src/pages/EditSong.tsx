@@ -4,7 +4,7 @@ import { useAuth } from "../auth";
 import { idOf } from "../songs";
 import { acceptsProposals } from "../licenses";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
-import { SongForm, conventionalName, FILE_LABEL, grantComplete, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import { SongForm, conventionalName, FILE_LABEL, GRANT_KEYS, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -25,12 +25,25 @@ const COPY: Record<ProposalType, { submit: string; hint: string; thanks: string 
 
 const asType = (v: string | null): ProposalType | null => (PROPOSAL_TYPES as string[]).includes(v || "") ? v as ProposalType : null;
 
-/** The payload each proposal type sends: a removal names the song and nothing more, files ride on the live payload untouched, a correction is the form. */
+/**
+ * The payload each proposal type sends: a removal names the song and nothing more, files ride on the live payload untouched, a correction is the form.
+ * The song's own grant (license, attestation, the writer's certify boxes) stays exactly as the writer made it; the proposer adds only their contribution statement.
+ */
 function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFiles, base: any) {
   if (type === "removal") return { type, name: base.name, language: base.language, license: base.license, detail: { writer: base.detail?.writer, songKey: base.detail?.songKey } };
-  if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, certified: grantComplete(form), recordingOwned: files.demoAudio ? form.recordingOwned : base.detail?.recordingOwned } };
-  if (type === "recording") return { ...base, type, detail: { ...base.detail, certified: grantComplete(form), recordingOwned: form.recordingOwned, masterLicense: form.masterLicense } };
-  return { ...payloadFrom(form, hasRecording(files), base), type };
+  const contribution = { contributionAgreed: form.contributionAgreed, contributionAt: new Date().toISOString() };
+  if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, ...contribution, recordingOwned: files.demoAudio ? form.recordingOwned : base.detail?.recordingOwned } };
+  if (type === "recording") return { ...base, type, detail: { ...base.detail, ...contribution, recordingOwned: form.recordingOwned, masterLicense: form.masterLicense } };
+  const edited = payloadFrom({ ...form, license: base.license }, hasRecording(files), base);
+  const writerGrant = Object.fromEntries(GRANT_KEYS.map(k => [k, base.detail?.[k]]));
+  return {
+    ...edited,
+    type,
+    licenseVersion: base.licenseVersion,
+    attestationVersion: base.attestationVersion,
+    attestedAt: base.attestedAt,
+    detail: { ...edited.detail, ...writerGrant, certified: base.detail?.certified, ...contribution }
+  };
 }
 
 export const EditSong: React.FC = () => {
@@ -94,8 +107,9 @@ export const EditSong: React.FC = () => {
       }
       for (const [role, file] of Object.entries(files)) {
         if (!file) continue;
-        setProgress(t("Uploading {name}…", { name: t(FILE_LABEL[role] || role) }));
-        await uploadFile(subId, file, conventionalName(role, file));
+        const name = t(FILE_LABEL[role] || role);
+        setProgress(t("Uploading {name}…", { name }));
+        await uploadFile(subId, file, conventionalName(role, file), pct => setProgress(t("Uploading {name}… {pct}%", { name, pct: Math.round(pct) })));
       }
       setProgress("");
       await wcPost(`/submissions/${subId}/submit`, {}, true);

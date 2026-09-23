@@ -143,6 +143,11 @@ export function lintChordPro(text: string, key?: string): LintIssue[] {
       issues.push({ level: "warn", line: n, message: "Key directive {declared} disagrees with the song key {key}.", vars: { declared: declared[1].trim(), key } });
     }
 
+    // looks like a chord but has no A–G root ([H], [Hm7]): the transposer and the chart can't read it
+    for (const m of line.matchAll(/\[([^\]]+)\]/g)) {
+      if (/^[H-Zh-z][#b]?(m|maj|min|dim|aug|sus|add)?\d*$/.test(m[1].trim()) && !/^x$/i.test(m[1].trim())) issues.push({ level: "warn", line: n, message: "[{chord}] isn’t a chord we can read — use A–G (German H is B).", vars: { chord: m[1].trim() } });
+    }
+
     if (!scale) return;
     for (const m of line.matchAll(/\[([^\]]+)\]/g)) {
       const chord = m[1].trim();

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { checkGrant } from "./helpers/attest";
+import { agreeContribution } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
 import { adminJwt, mySubmissionFor, pendingSubmissionFor, rejectSubmission, submissionDetail, WC_API } from "./helpers/api";
@@ -45,6 +45,7 @@ test.describe.serial("change proposals", () => {
 
     await page.fill("#edit-note", "Corrected the scripture reference.");
     await expect(submit).toBeEnabled();
+    await agreeContribution(page);
     await submit.click();
     await expect(page.getByTestId("edit-thanks")).toBeVisible();
 
@@ -75,6 +76,7 @@ test.describe.serial("change proposals", () => {
 
     // resubmitting the same draft sends it back to review instead of opening a second one
     await page.fill("#edit-note", "Corrected the scripture reference, spelling kept.");
+    await agreeContribution(page);
     await page.getByRole("button", { name: "Propose this edit" }).click();
     await expect(page.getByTestId("edit-thanks")).toBeVisible();
     const again = await pendingSubmissionFor(request, songId);
@@ -94,7 +96,7 @@ test.describe.serial("change proposals", () => {
     await page.getByTestId("file-lyrics").setInputFiles(path.join(__dirname, "fixtures", "tiny.cho"));
     await expect(page.locator(".dropzone", { hasText: "Attached ✓" })).toContainText("tiny.cho");
     await page.fill("#edit-note", "Plain ChordPro of the lyrics for projection.");
-    await checkGrant(page);
+    await agreeContribution(page);
     await page.getByRole("button", { name: "Propose these files" }).click();
     await expect(page.getByTestId("edit-thanks")).toBeVisible();
 

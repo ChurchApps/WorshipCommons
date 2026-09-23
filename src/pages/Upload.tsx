@@ -18,6 +18,7 @@ export const Upload: React.FC = () => {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
   const [initial, setInitial] = useState<SongFormValues | null>(draftParam ? null : blankSong(SONG_LANG[lang]));
   // the reviewer's note when a draft came back with "changes requested"
   const [reviewNote, setReviewNote] = useState("");
@@ -56,6 +57,8 @@ export const Upload: React.FC = () => {
     creatingRef.current = wcPost("/submissions", { assetType: "song", payload: payloadFrom(form, hasDemo) }, true)
       .then(d => {
         draftIdRef.current = d.submissionId;
+        // a reload reopens this draft instead of starting another; replaceState so the router doesn't reload it now
+        window.history.replaceState(window.history.state, "", `${location.pathname}?draft=${encodeURIComponent(d.submissionId)}`);
         return d.submissionId as string;
       })
       .finally(() => { creatingRef.current = null; });
@@ -67,9 +70,11 @@ export const Upload: React.FC = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       const hadId = !!draftIdRef.current;
+      const saved = () => setSaveStatus(t("Draft saved {time}", { time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) }));
       ensureDraft(form, false).then(id => {
-        if (hadId) return wcPut(`/submissions/${id}`, { payload: payloadFrom(form, false) }, true).catch(() => {});
-      }).catch(() => {});
+        if (!hadId) return saved();
+        return wcPut(`/submissions/${id}`, { payload: payloadFrom(form, false) }, true).then(saved);
+      }).catch(() => setSaveStatus(t("Not saved — check your connection")));
     }, 1000);
   };
 
@@ -89,8 +94,9 @@ export const Upload: React.FC = () => {
       await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, hasRecording(files)) }, true);
       for (const [role, file] of Object.entries(files)) {
         if (!file) continue;
-        setProgress(t("Uploading {name}…", { name: t(FILE_LABEL[role] || role) }));
-        await uploadFile(id, file, conventionalName(role, file));
+        const name = t(FILE_LABEL[role] || role);
+        setProgress(t("Uploading {name}…", { name }));
+        await uploadFile(id, file, conventionalName(role, file), pct => setProgress(t("Uploading {name}… {pct}%", { name, pct: Math.round(pct) })));
       }
       setProgress("");
       await wcPost(`/submissions/${id}/submit`, {}, true);
@@ -144,6 +150,7 @@ export const Upload: React.FC = () => {
           busy={busy}
           busyLabel="Uploading…"
           progress={progress}
+          saveStatus={saveStatus}
           submitLabel="Add it to the commons"
           submitHint="Reviewed by a human before it appears — usually within a few days."
           onChange={handleFormChange}

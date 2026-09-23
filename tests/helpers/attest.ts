@@ -13,3 +13,8 @@ export const GRANT_TESTIDS = [
 export async function checkGrant(page: Page) {
   for (const id of GRANT_TESTIDS) await page.getByTestId(id).check();
 }
+
+/** A proposal to someone else's song: the proposer vouches for their change, not for authorship. */
+export async function agreeContribution(page: Page) {
+  await page.getByTestId("contributionAgreed").check();
+}
