@@ -789,6 +789,8 @@ const ru: Record<string, string> = {
   "This version, use by use": "Эта версия, по каждому виду использования",
   "Translation": "Перевод",
   "Tune": "Мелодия",
+  "License": "Лицензия",
+  "{layers} license": "Лицензия: {layers}",
   "Watch a performance": "Посмотреть исполнение",
   "Writer": "Автор",
   // submission proposal types

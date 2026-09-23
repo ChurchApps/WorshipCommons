@@ -789,6 +789,8 @@ const hu: Record<string, string> = {
   "This version, use by use": "Ez a változat, használatonként",
   "Translation": "Fordítás",
   "Tune": "Dallam",
+  "License": "Licenc",
+  "{layers} license": "{layers} licenc",
   "Watch a performance": "Előadás megtekintése",
   "Writer": "Szerző",
   // submission proposal types

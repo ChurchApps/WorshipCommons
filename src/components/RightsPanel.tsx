@@ -121,12 +121,17 @@ export const RightsPanel: React.FC<Props> = (props) => {
 
       {layers.length > 0 && (
         <ul className="rights-layers" data-testid="rights-layers">
-          {layers.map(l => (
-            <li key={l.layer} data-layer={l.layer}>
-              <b>{t(LAYER_LABEL[l.layer])}</b> <span className="lic">{l.license}</span>
-              {l.basis && <span className="basis">{l.basis}</span>}
-            </li>
-          ))}
+          {/* one row per license: "License  <link>", or "Text · Tune license  <link>" when layers differ; provenance notes stay in the print footer */}
+          {[...new Set(layers.map(l => l.license))].map((id, _, ids) => {
+            const group = layers.filter(l => l.license === id);
+            const { label, href } = group[0];
+            return (
+              <li key={id} data-license={id} data-layers={group.map(l => l.layer).join(" ")}>
+                <b>{ids.length === 1 ? t("License") : t("{layers} license", { layers: group.map(l => t(LAYER_LABEL[l.layer])).join(" · ") })}</b>
+                {!href ? label : href.startsWith("/") ? <Link to={href}>{label}</Link> : <a href={href} target="_blank" rel="license noopener">{label}</a>}
+              </li>
+            );
+          })}
         </ul>
       )}
 

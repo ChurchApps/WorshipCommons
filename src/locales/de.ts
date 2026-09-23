@@ -789,6 +789,8 @@ const de: Record<string, string> = {
   "This version, use by use": "Diese Fassung, Nutzung für Nutzung",
   "Translation": "Übersetzung",
   "Tune": "Melodie",
+  "License": "Lizenz",
+  "{layers} license": "Lizenz für {layers}",
   "Watch a performance": "Eine Aufführung ansehen",
   "Writer": "Autor",
   // submission proposal types

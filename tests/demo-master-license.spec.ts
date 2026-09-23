@@ -74,8 +74,8 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     await expect(page.getByTestId("add-master")).toHaveCount(0);
     await page.getByTestId("tab-about").click();
     const layers = page.getByTestId("rights-layers");
-    await expect(layers.locator('[data-layer="recording"] .lic')).toHaveText("PD");
-    await expect(layers.locator('[data-layer="text"] .lic')).toHaveText("CC-BY");
+    await expect(layers.locator('[data-layers~="recording"]')).toHaveAttribute("data-license", "PD");
+    await expect(layers.locator('[data-layers~="text"]')).toHaveAttribute("data-license", "CC-BY");
   });
 
   test("an existing composition gains a master from the song page, under its own license", async ({ page, request }) => {

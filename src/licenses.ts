@@ -93,13 +93,17 @@ export const USE_LABEL: Record<Use, string> = { project: "Project", print: "Prin
 const LAYERS: RightsLayer[] = ["text", "translation", "tune", "arrangement", "recording", "artwork"];
 export const LAYER_LABEL: Record<RightsLayer, string> = { text: "Text", translation: "Translation", tune: "Tune", arrangement: "Arrangement", recording: "Recording", artwork: "Artwork" };
 
-/** One human line per present rights layer, for the print footer and the About panel. */
-export const layerLines = (song: Pick<Song, "rights">): { layer: RightsLayer; license: string; basis: string }[] =>
+/** One human line per present rights layer, for the print footer and the About panel.
+ *  label/href resolve the license id ("larry-holder" → "Custom — Larry Holder Music"); a bare id that is not in
+ *  the registry prints as-is rather than falling back to WC. Basis parts that just repeat the license id are dropped,
+ *  so a license slug never reads as the author. */
+export const layerLines = (song: Pick<Song, "rights">): { layer: RightsLayer; license: string; label: string; href: string | null; basis: string }[] =>
   LAYERS.flatMap(layer => {
     const row = song.rights?.[layer];
     if (!row) return [];
-    const basis = [row.basis, row.holder, row.source, row.note].filter(Boolean).join(" · ");
-    return [{ layer, license: row.license, basis }];
+    const known = BY_ID[row.license] || ccFallback(row.license);
+    const basis = [row.basis, row.holder, row.source, row.note].filter(p => p && p !== row.license).join(" · ");
+    return [{ layer, license: row.license, label: known?.label ?? row.license, href: known ? licenseHref(row.license) : null, basis }];
   });
 
 /** Where the site explains this license: WC brand page, featured cards on it, custom grants on the writer's own page. */

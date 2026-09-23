@@ -4,6 +4,7 @@ import { HistoryEntry, Song, themeList, songPath } from "../songs";
 import { useI18n } from "../i18n";
 import { CONFIDENCE_LABEL } from "./ConfidenceBadge";
 import { RightsPanel } from "./RightsPanel";
+import { licenseById } from "../licenses";
 
 const ArrowRight: React.FC = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -106,7 +107,8 @@ export const AboutPanel: React.FC<Props> = (props) => {
 
       <RightsPanel song={props.song} />
 
-      <p className="rel-hint">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>
+      {/* only invite derivatives the composed rights actually allow (every layer must allow sharing one; custom and ND grants do not) */}
+      {[props.song.license, ...Object.values(props.song.rights || {}).map(r => r?.license)].filter(Boolean).every(id => licenseById(id).derivativesAllowed) && <p className="rel-hint" data-testid="add-derivative">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>}
     </div>
   );
 };

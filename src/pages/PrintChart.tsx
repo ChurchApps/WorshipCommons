@@ -76,7 +76,7 @@ export const PrintChart: React.FC = () => {
         {song.ccli && <p style={{ marginTop: 6 }}>{t("CCLI {n} — reporting is optional.", { n: song.ccli })}</p>}
         {layers.length > 0 && (
           <p style={{ marginTop: 6 }}>
-            {layers.map(l => `${t(LAYER_LABEL[l.layer])}: ${l.license}${l.basis ? ` (${l.basis})` : ""}`).join(" · ")}
+            {layers.map(l => `${t(LAYER_LABEL[l.layer])}: ${l.label}${l.basis ? ` (${l.basis})` : ""}`).join(" · ")}
           </p>
         )}
       </div>

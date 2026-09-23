@@ -789,6 +789,8 @@ const fr: Record<string, string> = {
   "This version, use by use": "Cette version, usage par usage",
   "Translation": "Traduction",
   "Tune": "Mélodie",
+  "License": "Licence",
+  "{layers} license": "Licence : {layers}",
   "Watch a performance": "Voir une interprétation",
   "Writer": "Auteur",
   // submission proposal types

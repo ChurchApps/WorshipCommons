@@ -789,6 +789,8 @@ const ml: Record<string, string> = {
   "This version, use by use": "ഈ പതിപ്പ്, ഓരോ ഉപയോഗത്തിനും",
   "Translation": "വിവർത്തനം",
   "Tune": "ഈണം",
+  "License": "ലൈസൻസ്",
+  "{layers} license": "{layers} ലൈസൻസ്",
   "Watch a performance": "ഒരു അവതരണം കാണുക",
   "Writer": "രചയിതാവ്",
   // submission proposal types
