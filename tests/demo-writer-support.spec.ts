@@ -25,7 +25,7 @@ test.describe.serial("writer support links", () => {
     await page.getByTestId("view-writer-page").click();
     const support = page.getByTestId("support-writer");
     await expect(support).toBeVisible();
-    await expect(support).toHaveText("Support the writer");
+    await expect(support).toHaveText("Songwriter’s pages");
     await support.click();
     const menu = page.getByTestId("support-menu");
     await expect(menu).toBeVisible();

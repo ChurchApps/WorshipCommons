@@ -40,7 +40,7 @@ export const SupportWriter: React.FC<Props> = (props) => {
   if (items.length === 1) {
     return (
       <a className="btn btn-ghost btn-block" data-testid="support-writer" href={items[0].url} target="_blank" rel="noopener noreferrer nofollow">
-        {t("Support the writer")}
+        {t("Songwriter’s page")}
       </a>
     );
   }
@@ -48,11 +48,11 @@ export const SupportWriter: React.FC<Props> = (props) => {
   return (
     <div className="support-picker" ref={box}>
       <button type="button" className="btn btn-ghost btn-block" data-testid="support-writer" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(v => !v)}>
-        {t("Support the writer")}
+        {t("Songwriter’s pages")}
         <Chevron />
       </button>
       {open && (
-        <div className="support-menu" role="menu" aria-label={props.writer ? t("Ways to support {writer}", { writer: props.writer }) : t("Support the writer")} data-testid="support-menu">
+        <div className="support-menu" role="menu" aria-label={props.writer ? t("Ways to support {writer}", { writer: props.writer }) : t("Songwriter’s pages")} data-testid="support-menu">
           {items.map(l => (
             <a key={l.url} role="menuitem" data-testid="support-option" href={l.url} target="_blank" rel="noopener noreferrer nofollow" onClick={() => setOpen(false)}>
               {linkLabel(l)}
