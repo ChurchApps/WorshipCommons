@@ -791,6 +791,8 @@ const pt: Record<string, string> = {
   "Tune": "Melodia",
   "License": "Licença",
   "{layers} license": "Licença de {layers}",
+  "The writer makes all changes to this song.": "O autor faz todas as alterações nesta canção.",
+  "Spotted a problem? Let us know.": "Viu um problema? Avise-nos.",
   "Watch a performance": "Assistir a uma apresentação",
   "Writer": "Autor",
   // submission proposal types

@@ -18,6 +18,7 @@ import { SongHero, clock } from "../components/SongHero";
 import { AboutPanel } from "../components/AboutPanel";
 import { ScriptureConnection } from "../components/ScriptureConnection";
 import { ProjectPanel } from "../components/ProjectPanel";
+import { acceptsProposals } from "../licenses";
 import "../styles/song.css";
 
 const FileIcon: React.FC = () => (
@@ -575,9 +576,9 @@ export const SongPage: React.FC = () => {
           <section className="panel">
             <h3>{t("Improve it")}</h3>
             <p className="side-links">
-              <Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
+              {acceptsProposals(song) && <><Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
               {!song.masterUrl && <><span aria-hidden="true">·</span><Link to={`${songPath(song)}/edit?type=recording`} data-testid="add-master">{t("Add a master recording")}</Link></>}
-              <span aria-hidden="true">·</span>
+              <span aria-hidden="true">·</span></>}
               <Link to={`/report?song=${encodeURIComponent(`${song.title} — ${songPath(song)}`)}`}>{t("Report this song")}</Link>
             </p>
           </section>
@@ -599,7 +600,7 @@ export const SongPage: React.FC = () => {
           )}
           {relatives.length === 0 && data.similar.length === 0 && <p className="empty">{t("Nothing related yet.")}</p>}
         </div>
-        <ScriptureConnection reference={song.scripture} songId={song.id} />
+        <ScriptureConnection reference={song.scripture} songId={song.id} canPropose={acceptsProposals(song)} />
         <div className="col tr">
           <h4>🌐 {t("Translations")} <Link className="more" to="/upload">{t("Add one →")}</Link></h4>
           {translations.length > 0

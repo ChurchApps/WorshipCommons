@@ -2,9 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { HistoryEntry, Song, themeList, songPath } from "../songs";
 import { useI18n } from "../i18n";
-import { CONFIDENCE_LABEL } from "./ConfidenceBadge";
 import { RightsPanel } from "./RightsPanel";
-import { licenseById } from "../licenses";
+import { acceptsProposals, licenseById } from "../licenses";
 
 const ArrowRight: React.FC = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -68,7 +67,6 @@ export const AboutPanel: React.FC<Props> = (props) => {
         )}
         {props.song.meter && <p className="about-line"><b>{t("Meter")}</b> <Link to={`/songs?meter=${encodeURIComponent(props.song.meter)}`}>{props.song.meter}</Link>{props.song.tune ? ` · ${props.song.tune}` : ""}</p>}
         {(props.song.hymnalCount ?? 0) > 0 && <p className="about-line" data-testid="hymnal-count">{t("In {n} hymnals", { n: props.song.hymnalCount as number })}</p>}
-        {props.song.confidence && <p className="about-line" data-testid="how-complete">{t("How complete: {label}", { label: t(CONFIDENCE_LABEL[props.song.confidence]) })}</p>}
       </section>
 
       {tuneSwap.length > 0 && (
@@ -101,7 +99,7 @@ export const AboutPanel: React.FC<Props> = (props) => {
               ))}
             </ul>
           )}
-          <p className="rel-hint">{t("Anyone signed in can propose an edit; a reviewer decides.")}</p>
+          {acceptsProposals(props.song) && <p className="rel-hint">{t("Anyone signed in can propose an edit; a reviewer decides.")}</p>}
         </section>
       )}
 

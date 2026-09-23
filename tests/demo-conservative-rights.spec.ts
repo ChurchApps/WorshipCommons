@@ -11,7 +11,6 @@ test.describe("conservative public-domain and keep-CCLI copy", () => {
     await expect(grant).toContainText(/United States|best-effort/);
     await expect(grant).toContainText("including commercial");
     await expect(grant).not.toContainText("Free for churches");
-    await expect(page.getByTestId("how-complete")).toContainText("How complete:");
     await expect(page.getByTestId("nc-commercial-hint")).toHaveCount(0);
   });
 

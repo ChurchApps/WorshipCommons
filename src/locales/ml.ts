@@ -791,6 +791,8 @@ const ml: Record<string, string> = {
   "Tune": "ഈണം",
   "License": "ലൈസൻസ്",
   "{layers} license": "{layers} ലൈസൻസ്",
+  "The writer makes all changes to this song.": "ഈ പാട്ടിലെ എല്ലാ മാറ്റങ്ങളും രചയിതാവാണ് വരുത്തുന്നത്.",
+  "Spotted a problem? Let us know.": "ഒരു പ്രശ്നം കണ്ടോ? ഞങ്ങളെ അറിയിക്കൂ.",
   "Watch a performance": "ഒരു അവതരണം കാണുക",
   "Writer": "രചയിതാവ്",
   // submission proposal types

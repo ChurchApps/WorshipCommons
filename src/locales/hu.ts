@@ -791,6 +791,8 @@ const hu: Record<string, string> = {
   "Tune": "Dallam",
   "License": "Licenc",
   "{layers} license": "{layers} licenc",
+  "The writer makes all changes to this song.": "Az ének minden módosítását a szerző végzi.",
+  "Spotted a problem? Let us know.": "Hibát találtál? Jelezd nekünk.",
   "Watch a performance": "Előadás megtekintése",
   "Writer": "Szerző",
   // submission proposal types

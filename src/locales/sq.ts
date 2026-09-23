@@ -791,6 +791,8 @@ const sq: Record<string, string> = {
   "Tune": "Melodia",
   "License": "Licenca",
   "{layers} license": "Licenca për {layers}",
+  "The writer makes all changes to this song.": "Të gjitha ndryshimet në këtë këngë i bën autori.",
+  "Spotted a problem? Let us know.": "Vure re një problem? Na njofto.",
   "Watch a performance": "Shiko një interpretim",
   "Writer": "Autori",
   // submission proposal types

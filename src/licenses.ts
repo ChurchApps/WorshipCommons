@@ -20,6 +20,8 @@ export interface License {
   listed?: boolean;
   custom?: boolean;
   ccliReport?: boolean;
+  /** false: only the writer (and reviewers) change the song — no "Propose an edit" for the public. Absent = allowed. */
+  communityEdits?: boolean;
   may: string[];
   mayNot: string[];
   must: string[];
@@ -112,3 +114,6 @@ export const licenseHref = (id: string) => {
   if (isCustomLicense(l)) return l.legalUrl || l.deedUrl;
   return id === "WC" ? "/license" : `/license#${l.badge}`;
 };
+
+/** Does this song's license let the public propose edits? Some writer grants keep changes with the writer. */
+export const acceptsProposals = (song: Pick<Song, "license">) => licenseOf(song).communityEdits !== false;

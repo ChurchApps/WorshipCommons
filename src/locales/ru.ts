@@ -791,6 +791,8 @@ const ru: Record<string, string> = {
   "Tune": "Мелодия",
   "License": "Лицензия",
   "{layers} license": "Лицензия: {layers}",
+  "The writer makes all changes to this song.": "Все изменения в эту песню вносит автор.",
+  "Spotted a problem? Let us know.": "Заметили ошибку? Сообщите нам.",
   "Watch a performance": "Посмотреть исполнение",
   "Writer": "Автор",
   // submission proposal types

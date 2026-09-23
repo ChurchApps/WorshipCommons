@@ -6,6 +6,8 @@ import { useI18n } from "../i18n";
 interface Props {
   reference?: string;
   songId: string;
+  /** false when the license keeps edits with the writer */
+  canPropose?: boolean;
 }
 
 export const ScriptureConnection: React.FC<Props> = (props) => {
@@ -24,7 +26,7 @@ export const ScriptureConnection: React.FC<Props> = (props) => {
     <div className="col scripture">
       <h4>📖 {t("Scripture connection")}</h4>
       {!props.reference
-        ? <p className="empty">{t("No scripture reference yet.")} <Link to={`/songs/${props.songId}/edit`}>{t("Propose one →")}</Link></p>
+        ? <p className="empty">{t("No scripture reference yet.")} {props.canPropose !== false && <Link to={`/songs/${props.songId}/edit`}>{t("Propose one →")}</Link>}</p>
         : (
           <>
             <b>{props.reference}</b>
