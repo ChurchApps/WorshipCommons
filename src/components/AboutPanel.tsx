@@ -4,6 +4,7 @@ import { HistoryEntry, Song, themeList, songPath } from "../songs";
 import { useI18n } from "../i18n";
 import { RightsPanel } from "./RightsPanel";
 import { acceptsProposals, licenseById } from "../licenses";
+import SourcesPanel from "./SourcesPanel";
 
 const ArrowRight: React.FC = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -102,6 +103,8 @@ export const AboutPanel: React.FC<Props> = (props) => {
           {acceptsProposals(props.song) && <p className="rel-hint">{t("Anyone signed in can propose an edit; a reviewer decides.")}</p>}
         </section>
       )}
+
+      <SourcesPanel song={props.song} />
 
       <RightsPanel song={props.song} />
 

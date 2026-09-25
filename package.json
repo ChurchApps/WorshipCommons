@@ -24,6 +24,7 @@
     "demo": "node tests/setup/demo.mjs",
     "test:slug": "node --test tools/slug.test.mjs",
     "test:feed": "node --test tools/feed.test.mjs",
+    "test:pipeline": "node --test tools/pipeline.test.mjs",
     "predeploy-staging": "VITE_CORE_API=https://api.staging.churchapps.org yarn build",
     "exec-deploy-staging": "aws s3 sync build/ s3://staging-worshipcommons-app --delete",
     "postdeploy-staging": "node tools/ensure-spa-fallback.mjs E3T6JKTGXHBUG6 && aws cloudfront create-invalidation --distribution-id E3T6JKTGXHBUG6 --paths \"/*\"",
