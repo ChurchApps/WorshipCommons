@@ -16,11 +16,13 @@ export const splitKey = (key: string) => {
   return { root: m ? m[1] : "C", suffix: m ? m[2] : "" };
 };
 
+// every note name in a chord symbol: the root, a slash bass ("C/E"), and each chord of a pair charted in one
+// bracket ("Am7 - C2"); letters inside a quality ("sus", "add", "b5") never follow one of these boundaries
+const NOTE_NAMES = /(^|[\s/|(,\-–])([A-G][#b]?)/g;
+
 export const transposeChord = (chord: string, shift: number, useFlats: boolean) => {
-  const m = chord.match(/^([A-G][#b]?)(.*)$/);
-  if (!m) return chord;
   const scale = useFlats ? FLAT : SHARP;
-  return scale[(noteIndex(m[1]) + shift + 12) % 12] + m[2];
+  return chord.replace(NOTE_NAMES, (_, before: string, note: string) => before + scale[(noteIndex(note) + shift + 12) % 12]);
 };
 
 /** The root `shift` semitones from `root`, spelled the way a chart in that key would write it. */
@@ -127,11 +129,15 @@ const DEGREES = [
   "1", "b2", "2", "b3", "3", "4", "b5", "5", "b6", "6", "b7", "7"
 ];
 const nashRoot = (note: string, keyRoot: string) => DEGREES[(noteIndex(note) - noteIndex(keyRoot) + 12) % 12];
-export const toNashville = (chord: string, keyRoot: string) => {
+const nashvilleOne = (chord: string, keyRoot: string) => {
   const m = chord.match(/^([A-G][#b]?)([^/]*)(?:\/([A-G][#b]?))?$/);
   if (!m) return chord;
   return nashRoot(m[1], keyRoot) + m[2] + (m[3] ? "/" + nashRoot(m[3], keyRoot) : "");
 };
+
+// each chord of a pair charted in one bracket ("Am7 - C2") gets its number
+export const toNashville = (chord: string, keyRoot: string) =>
+  chord.split(/(\s*[-–|]\s*|\s+)/).map((part, i) => (i % 2 ? part : nashvilleOne(part, keyRoot))).join("");
 
 export interface LintIssue { level: "error" | "warn"; line: number; message: string; vars?: Record<string, string>; }
 
