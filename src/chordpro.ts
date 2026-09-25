@@ -55,26 +55,34 @@ const lineSegments = (line: string): Segment[] => {
   return segments;
 };
 
-/** "(Chorus x2)" and "Chorus x2" name the same section: one pair of surrounding parentheses dropped, trimmed. */
+// "Verse 1:" and "CHORUS: (2x)" name the same sections as "Verse 1" and "CHORUS (2x)"
+const tidyLabel = (label: string) => label.replace(/:(?=\s|$)/g, "").replace(/\s+/g, " ").trim();
+
+/** "(Chorus x2)", "Chorus x2" and "Chorus x2:" name the same section: one pair of surrounding parentheses and a trailing colon dropped. */
 export const unparen = (label: string) => {
   const t = (label || "").trim();
   const m = t.match(/^\((.*)\)$/);
-  return m ? m[1].trim() : t;
+  return tidyLabel(m ? m[1] : t);
 };
 
 const HEADING = "(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)";
-const BARE_LABEL = new RegExp(String.raw`^${HEADING}\b(?:[\s\d.:/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
+// "Chorus3" counts too: the heading word may run straight into its number
+const BARE_LABEL = new RegExp(String.raw`^${HEADING}(?:\b|(?=\d))(?:[\s\d.:/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
 const CHORDS = /\[[^\]]*\]/g;
+const COMMENT_DIRECTIVE = /^\s*\{\s*(?:c|ci|comment|comment_italic)\s*:\s*(.+?)\s*\}\s*$/i;
 
 /**
  * The section label a chart line spells, or null when it's a sung line. A label is a known heading
- * ("Verse 1", "Pre-Chorus", "Chorus Two") or, as writers often mark them, any chord-free line wrapped
- * in parentheses — "(Chorus x2)" reads as "Chorus x2".
+ * ("Verse 1", "Pre-Chorus", "Chorus3", "Verse 1:"), a ChordPro comment ("{c: Intro}"), or, as writers
+ * often mark them, any chord-free line wrapped in parentheses — "(Chorus x2)" reads as "Chorus x2".
+ * The API's DuplicateHelper.sectionLabel and the content repo's lib.mjs sectionLabelOf apply the same rule.
  */
 export function sectionLabel(line: string): string | null {
+  const comment = line.match(COMMENT_DIRECTIVE);
+  if (comment) return tidyLabel(comment[1]) || null;
   const bare = line.replace(CHORDS, "").trim();
   if (/^\(.+\)$/.test(bare) && !line.includes("[")) return unparen(bare);
-  return BARE_LABEL.test(bare) ? bare : null;
+  return BARE_LABEL.test(bare) ? tidyLabel(bare) : null;
 }
 
 // harvested lyrics-only files often put a blank line between every line, so each line
@@ -104,7 +112,7 @@ export function parseChordPro(chordPro: string): Stanza[] {
   if (blocks.every(b => b.length === 1)) return foldLoneLabels(blocks.map(b => b[0].trim()));
   const stanzas: Stanza[] = [];
   for (const block of blocks) {
-    const label = isDirective(block[0]) ? block[0].trim() : sectionLabel(block[0]);
+    const label = sectionLabel(block[0]) ?? (isDirective(block[0]) ? block[0].trim() : null);
     const lines = (label === null ? block : block.slice(1)).map(lineSegments);
     const prev = stanzas[stanzas.length - 1];
     if (label === null && prev && prev.label && !prev.lines.some(sung)) prev.lines.push(...lines);
