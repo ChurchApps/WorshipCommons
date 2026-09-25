@@ -5,6 +5,7 @@ import { composeMatrix, matrixForLicense, needsCcliReport, rightsMatrixFor } fro
 import { isModernWorship } from "../src/era.ts";
 import { sectionsFor, slidesFor } from "../src/slides.ts";
 import { chartShapes, parseChordPro, rootAt, sectionLabel, semitonesBetween, unparen } from "../src/chordpro.ts";
+import { passageQueries } from "../src/bible.ts";
 
 test("PD permits everything with no conditions", () => {
   const m = matrixForLicense("PD");
@@ -152,4 +153,11 @@ test("modern worship is an era, not a license: CC, PD, and WC after 1970 all cou
   assert.equal(isModernWorship({ year: 2024, license: "WC" }), true);
   assert.equal(isModernWorship({ year: 1997, license: "larry-holder" }), true);
   assert.equal(isModernWorship({ year: 1779, license: "PD" }), false);
+});
+
+test("scripture references: any dash is a hyphen, a list splits at each new book, a verse list stays whole", () => {
+  assert.deepEqual(passageQueries("Romans 8:15–16"), ["Romans 8:15-16"]);
+  assert.deepEqual(passageQueries("Psalm 91:4, Isaiah 43:2"), ["Psalm 91:4", "Isaiah 43:2"]);
+  assert.deepEqual(passageQueries("John 3:16,18; 1 John 4:8"), ["John 3:16,18", "1 John 4:8"]);
+  assert.deepEqual(passageQueries("Hébreux 10,22–23"), ["Hébreux 10,22-23"]);
 });
