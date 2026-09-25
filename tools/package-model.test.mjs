@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { composeMatrix, matrixForLicense, needsCcliReport, rightsMatrixFor } from "../src/rights.ts";
 import { isModernWorship } from "../src/era.ts";
 import { sectionsFor, slidesFor } from "../src/slides.ts";
-import { chartShapes, parseChordPro, rootAt, sectionLabel, semitonesBetween, unparen } from "../src/chordpro.ts";
+import { chartShapes, parseChordPro, rootAt, sectionLabel, semitonesBetween, toNashville, transposeChord, unparen } from "../src/chordpro.ts";
 import { passageQueries } from "../src/bible.ts";
 
 test("PD permits everything with no conditions", () => {
@@ -170,4 +170,15 @@ test("{c:} comments, trailing colons and a number run onto the heading are secti
   assert.equal(unparen("Chorus 1:"), "Chorus 1");
   const st = parseChordPro("{c: Intro}\n[F]  [C]\n\n{c: Chorus}\nI'm gonna [F]praise You\n\nChorus3:\nGod of [Cm]peace");
   assert.deepEqual(st.map(s => s.label), ["Intro", "Chorus", "Chorus3"]);
+});
+
+test("transpose moves every note in a chord symbol: slash bass and a pair in one bracket", () => {
+  assert.equal(transposeChord("C/E", 2, false), "D/F#");
+  assert.equal(transposeChord("G/B", 2, false), "A/C#");
+  assert.equal(transposeChord("Am7 - C2", 2, false), "Bm7 - D2");
+  assert.equal(transposeChord("Cm7b5", 1, true), "Dbm7b5");
+  assert.equal(transposeChord("Gsus", 2, false), "Asus");
+  assert.equal(transposeChord("Bb/D", -2, true), "Ab/C");
+  assert.equal(toNashville("Am7 - C2", "G"), "2m7 - 42");
+  assert.equal(toNashville("C/E", "G"), "4/6");
 });
