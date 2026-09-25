@@ -3,8 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { composeMatrix, matrixForLicense, needsCcliReport, rightsMatrixFor } from "../src/rights.ts";
 import { isModernWorship } from "../src/era.ts";
-import { slidesFor } from "../src/slides.ts";
-import { chartShapes, parseChordPro, rootAt, semitonesBetween } from "../src/chordpro.ts";
+import { sectionsFor, slidesFor } from "../src/slides.ts";
+import { chartShapes, parseChordPro, rootAt, sectionLabel, semitonesBetween, unparen } from "../src/chordpro.ts";
 
 test("PD permits everything with no conditions", () => {
   const m = matrixForLicense("PD");
@@ -80,6 +80,60 @@ test("double-spaced lyrics with no headings become one Lyrics stanza", () => {
   assert.equal(s.length, 1);
   assert.equal(s[0].label, "Lyrics");
   assert.equal(s[0].lines.length, 2);
+});
+
+// "By Our Side" as its writer sent it: parenthesised labels, chord-only intro lines, and a bridge whose lyrics start a new block
+const byOurSide = "(Intro)\n[A / Bm / G / | A / Bm / G]\n\n(Verse 1)\n[A] We won't [Bm] go, if You're not [G] with [A] us\n\n(Chorus x2)\n[G] Your [D]love is [A]constant\n\n(Bridge)\n[G / D / A / Bm | G / D / A]\n\n[G]When the [D]music [A]fades   Still [Bm]by our side\n[G]When we [D]lose our [A]way\n\n(Intro/Instrumental)\n\n(PreChorus)\n[Asus] You've given [Gsus]everything I need";
+const text = line => line.map(g => g.text).join("").trim();
+
+test("sectionLabel reads bare and parenthesised labels, never a sung line", () => {
+  const labels = {
+    "(Verse 1)": "Verse 1",
+    "(Chorus x2)": "Chorus x2",
+    "(Intro/Instrumental)": "Intro/Instrumental",
+    "( Turnaround )": "Turnaround",
+    "Verse 1": "Verse 1",
+    "Chorus": "Chorus",
+    "Pre-Chorus": "Pre-Chorus",
+    "Verse 2:": "Verse 2:",
+    "Chorus Two": "Chorus Two"
+  };
+  for (const [line, label] of Object.entries(labels)) assert.equal(sectionLabel(line), label, line);
+  for (const line of ["[G]When the [D]music [A]fades", "([G]Repeat)", "[A / Bm / G]", "Amazing grace how sweet the sound", "Chorus of angels sing"]) assert.equal(sectionLabel(line), null, line);
+  assert.equal(unparen(" (Chorus x2) "), "Chorus x2");
+  assert.equal(unparen("Verse 1"), "Verse 1");
+});
+
+test("parenthesised labels label their stanzas and a lyric-first block keeps its first line", () => {
+  const s = parseChordPro(byOurSide);
+  assert.deepEqual(s.map(x => x.label), ["Intro", "Verse 1", "Chorus x2", "Bridge", "Intro/Instrumental", "PreChorus"]);
+  assert.equal(text(s[1].lines[0]), "We won't  go, if You're not  with  us");
+  assert.deepEqual(s[3].lines.map(text), ["", "When the music fades   Still by our side", "When we lose our way"]);
+  assert.equal(s[4].lines.length, 0);
+  assert.equal(slidesFor({ title: "T", chordPro: byOurSide }).slides[0].lines.length, 0, "a chord-only intro projects no blank line");
+  // the submit form's "first sung line" skips (Intro) and its chord line
+  assert.equal(s.flatMap(st => st.lines).map(text).find(Boolean), "We won't  go, if You're not  with  us");
+});
+
+test("a label with only chords takes the unlabelled lyric block after it (By Our Side's bridge)", () => {
+  const bridge = "(Bridge)\n[G / D / A / Bm | G / D / A]\n\n[G]When the [D]music [A]fades   Still [Bm]by our side\n[G]When we [D]lose our [A]way   Still [Bm]by our side\n[G] You [D]delight to [A]be   [Bm]By our side   By our [A]side\n[G]When we've [D]lost our [A]song   Still [Bm]by our side\n[G]When our [D]strength is [A]gone   Still [Bm]by our side\n[G] You are [D]always [A]faithful   [Bm]By our [G]side   By our [A]side\n\n(Chorus x2)\n[G] Your [D]love is [A]constant";
+  const s = parseChordPro(bridge);
+  assert.deepEqual(s.map(x => x.label), ["Bridge", "Chorus x2"]);
+  assert.equal(s[0].lines.map(text).filter(Boolean).length, 6);
+  assert.equal(text(s[0].lines[1]), "When the music fades   Still by our side");
+});
+
+test("an unlabelled lyric block after a sung stanza stands on its own", () => {
+  const s = parseChordPro("Verse 1\n[G]Amazing grace\n\n[C]Through many dangers\ntoils and snares");
+  assert.deepEqual(s.map(x => x.label), ["Verse 1", ""]);
+  assert.deepEqual(s[1].lines.map(text), ["Through many dangers", "toils and snares"]);
+});
+
+test("form labels match stanza labels with or without parentheses", () => {
+  const plain = "Verse 1\n[G]Amazing grace\n\nChorus x2\nPraise [D]Him";
+  assert.deepEqual(sectionsFor({ chordPro: plain, form: { sections: [], defaultOrder: ["(Chorus x2)", "(Verse 1)"] } }).map(x => x.label), ["Chorus x2", "Verse 1"]);
+  assert.deepEqual(sectionsFor({ chordPro: byOurSide, form: { sections: [], defaultOrder: ["Verse 1", "Bridge"] } }).map(x => x.label), ["Verse 1", "Bridge"]);
+  assert.deepEqual(sectionsFor({ chordPro: byOurSide }, ["(verse 1)"]).map(x => x.label), ["Verse 1"]);
 });
 
 test("chartShapes, rootAt, and semitonesBetween agree on one key arithmetic", () => {

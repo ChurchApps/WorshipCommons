@@ -55,34 +55,62 @@ const lineSegments = (line: string): Segment[] => {
   return segments;
 };
 
+/** "(Chorus x2)" and "Chorus x2" name the same section: one pair of surrounding parentheses dropped, trimmed. */
+export const unparen = (label: string) => {
+  const t = (label || "").trim();
+  const m = t.match(/^\((.*)\)$/);
+  return m ? m[1].trim() : t;
+};
+
+const HEADING = "(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)";
+const BARE_LABEL = new RegExp(String.raw`^${HEADING}\b(?:[\s\d.:/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
+const CHORDS = /\[[^\]]*\]/g;
+
+/**
+ * The section label a chart line spells, or null when it's a sung line. A label is a known heading
+ * ("Verse 1", "Pre-Chorus", "Chorus Two") or, as writers often mark them, any chord-free line wrapped
+ * in parentheses — "(Chorus x2)" reads as "Chorus x2".
+ */
+export function sectionLabel(line: string): string | null {
+  const bare = line.replace(CHORDS, "").trim();
+  if (/^\(.+\)$/.test(bare) && !line.includes("[")) return unparen(bare);
+  return BARE_LABEL.test(bare) ? bare : null;
+}
+
 // harvested lyrics-only files often put a blank line between every line, so each line
 // parses as a label with no body. Fold those into real sections so Jump to / slides / print
-// don't get one entry per lyric line.
-const SECTION_HEADING = /^(verse\s*\d*|chorus\s*\d*|bridge\s*\d*|refrain|pre[- ]?chorus|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental)$/i;
+// don't get one entry per lyric line. Here a parenthesised line is a stage direction
+// ("(Mary sings verse 1)") unless it names a known heading.
 const isDirective = (line: string) => /^\s*[>{]/.test(line);
 
-function foldLoneLabels(stanzas: Stanza[]): Stanza[] {
+function foldLoneLabels(lines: string[]): Stanza[] {
   const out: Stanza[] = [];
-  for (const { label } of stanzas) {
-    if (isDirective(label)) continue;
-    if (SECTION_HEADING.test(label)) { out.push({ label, lines: [] }); continue; }
+  for (const line of lines) {
+    if (isDirective(line)) continue;
+    if (BARE_LABEL.test(unparen(line))) { out.push({ label: unparen(line), lines: [] }); continue; }
     if (!out.length) out.push({ label: "Lyrics", lines: [] });
-    out[out.length - 1].lines.push(lineSegments(label));
+    out[out.length - 1].lines.push(lineSegments(line));
   }
   return out;
 }
 
-// chordPro: stanzas separated by blank lines, first line = label, chords inline as [D]
+const sung = (line: Segment[]) => line.some(s => s.text.trim());
+
+// chordPro: stanzas separated by blank lines, first line = label when it reads as one (see sectionLabel),
+// chords inline as [D]. A block that opens on a sung line has no label — never eat a lyric as one —
+// and carries on a stanza that so far holds only its label and chords ("(Bridge)" + a chord line).
 export function parseChordPro(chordPro: string): Stanza[] {
+  const blocks = (chordPro || "").split(/\r?\n\s*\r?\n/).map(b => b.split(/\r?\n/).filter(l => l.trim() !== "")).filter(b => b.length);
+  if (blocks.every(b => b.length === 1)) return foldLoneLabels(blocks.map(b => b[0].trim()));
   const stanzas: Stanza[] = [];
-  for (const block of (chordPro || "").split(/\r?\n\s*\r?\n/)) {
-    const lines = block.split(/\r?\n/).filter(l => l.trim() !== "");
-    if (lines.length === 0) continue;
-    const stanza: Stanza = { label: lines[0].trim(), lines: [] };
-    for (const line of lines.slice(1)) stanza.lines.push(lineSegments(line));
-    stanzas.push(stanza);
+  for (const block of blocks) {
+    const label = isDirective(block[0]) ? block[0].trim() : sectionLabel(block[0]);
+    const lines = (label === null ? block : block.slice(1)).map(lineSegments);
+    const prev = stanzas[stanzas.length - 1];
+    if (label === null && prev && prev.label && !prev.lines.some(sung)) prev.lines.push(...lines);
+    else stanzas.push({ label: label ?? "", lines });
   }
-  return stanzas.some(s => s.lines.length) ? stanzas : foldLoneLabels(stanzas);
+  return stanzas;
 }
 
 // Nashville numbers: chord root → scale degree of the original key (flats for non-diatonic roots); invariant under transpose and capo.
@@ -100,7 +128,6 @@ export const toNashville = (chord: string, keyRoot: string) => {
 export interface LintIssue { level: "error" | "warn"; line: number; message: string; vars?: Record<string, string>; }
 
 const SECTION_DIRECTIVE = /^\s*\{\s*(verse|chorus|bridge|sov|soc|sob|start_of_\w+)\b/i;
-const SECTION_LABEL = /^\s*(verse|chorus|bridge|refrain|pre[- ]?chorus|intro|outro|tag|interlude|ending|coda)\b/i;
 const KEY_DIRECTIVE = /^\s*\{\s*k(?:ey)?\s*:\s*([^}]*)\}/i;
 const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
 const MINOR_STEPS = [0, 2, 3, 5, 7, 8, 10];
@@ -136,7 +163,7 @@ export function lintChordPro(text: string, key?: string): LintIssue[] {
     }
     if (broken || open) issues.push({ level: "error", line: n, message: "Unmatched bracket — every [ needs a closing ]." });
 
-    if (SECTION_DIRECTIVE.test(line) || SECTION_LABEL.test(line)) hasSection = true;
+    if (SECTION_DIRECTIVE.test(line) || sectionLabel(line) !== null) hasSection = true;
 
     const declared = line.match(KEY_DIRECTIVE);
     if (declared && key && declared[1].trim() && !sameKey(declared[1].trim(), key)) {
