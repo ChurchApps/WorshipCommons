@@ -19,6 +19,9 @@ export function sectionsFor(song: Pick<Song, "chordPro" | "form">, order?: strin
  * The one slide model every projector and export reads, so the web projector and the FreeShow / OpenLP
  * files never disagree: the picked sections, chords stripped, one slide per stanza.
  */
+// "4x", "x2", "(2x)", "Repeat": a direction for the band, not words for the room
+const REPEAT_MARK = /^\(?\s*(?:x\s*\d+|\d+\s*x|repeat\b.*)\s*\)?$/i;
+
 export function slidesFor(song: Pick<Song, "title" | "chordPro" | "form">, order?: string[]): Deck {
-  return { title: song.title, slides: sectionsFor(song, order).map(st => ({ label: st.label, lines: st.lines.map(plain).filter(Boolean) })) };
+  return { title: song.title, slides: sectionsFor(song, order).map(st => ({ label: st.label, lines: st.lines.map(plain).filter(l => l && !REPEAT_MARK.test(l.trim())) })) };
 }
