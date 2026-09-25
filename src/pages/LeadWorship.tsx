@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { idOf, leadFiles, instrumentalUrlOf, recordingUrlOf, songPath } from "../songs";
-import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey } from "../chordpro";
+import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey, unparen } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
 import { loadRecording } from "../recordingPlayer";
@@ -46,8 +46,8 @@ function buildRun(labels: string[], stanzas: TimedStanza[], duration: number): S
   const out: Segment[] = [];
   let cursor = 0;
   for (const label of labels) {
-    let i = stanzas.findIndex((s, k) => k >= cursor && s.label === label);
-    if (i < 0) i = stanzas.findIndex(s => s.label === label);
+    let i = stanzas.findIndex((s, k) => k >= cursor && unparen(s.label) === unparen(label));
+    if (i < 0) i = stanzas.findIndex(s => unparen(s.label) === unparen(label));
     if (i < 0) continue;
     cursor = i + 1;
     // stanza 0 owns the intro; every later stanza starts on its first sung word
@@ -112,7 +112,8 @@ export const LeadWorship: React.FC = () => {
     const abc = song.abcUrl || files.midi[0]?.replace(/tune\.mid$/, "tune.abc");
     if (files.timing) {
       fetch(files.timing).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
-        if (!dead) { setStanzas(j.stanzas || []); setDuration(j.duration || 0); }
+        // older timing files still write "(Verse 1)"
+        if (!dead) { setStanzas((j.stanzas || []).map((s: TimedStanza) => ({ ...s, label: unparen(s.label) }))); setDuration(j.duration || 0); }
       }).catch(() => { if (!dead) setStanzas([]); });
     } else setStanzas([]);
     if (abc) fetch(abc).then(r => r.ok ? r.text() : "").then(a => { if (!dead && a) setTuneRoot(abcKeyRoot(a)); }).catch(() => {});
@@ -148,7 +149,7 @@ export const LeadWorship: React.FC = () => {
   // the run starts as the form's default order; without a form map the timing file's stanzas are the order
   useEffect(() => {
     if (!song || !stanzas?.length) return;
-    const labels = song.form?.defaultOrder?.length ? song.form.defaultOrder : stanzas.map(s => s.label);
+    const labels = song.form?.defaultOrder?.length ? song.form.defaultOrder.map(unparen) : stanzas.map(s => s.label);
     setPicks(labels.map(label => ({ label, on: true })));
   }, [song?.id, stanzas]);
 

@@ -182,8 +182,8 @@ const fileSize = (bytes: number) => bytes >= MB ? `${(bytes / MB).toFixed(1)} MB
 
 const parseThemes = (raw: string) => raw.split(",").map(s => s.trim()).filter(Boolean);
 
-// first sung line — the stanza label and the [chords] are not part of it
-const firstLyricLine = (chordPro: string) => (parseChordPro(chordPro)[0]?.lines[0] || []).map(s => s.text).join("").trim();
+// first sung line — stanza labels, (Intro) chord lines, and the [chords] are not part of it
+const firstLyricLine = (chordPro: string) => parseChordPro(chordPro).flatMap(st => st.lines).map(l => l.map(s => s.text).join("").trim()).find(Boolean) || "";
 
 const NOTE_HEADING: Record<ProposalType, string> = {
   correction: "What changed, and why?",

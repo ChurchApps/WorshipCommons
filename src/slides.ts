@@ -1,4 +1,4 @@
-import { parseChordPro, type Stanza } from "./chordpro.ts";
+import { parseChordPro, unparen, type Stanza } from "./chordpro.ts";
 import type { Song } from "./songs";
 
 export interface Slide { label: string; lines: string[]; }
@@ -9,9 +9,9 @@ const plain = (segs: { text: string }[]) => segs.map(s => s.text).join("").repla
 /** Stanzas in singing order: the `order` picked, else the form map's default order, else the chart as written. */
 export function sectionsFor(song: Pick<Song, "chordPro" | "form">, order?: string[]): Stanza[] {
   const stanzas = parseChordPro(song.chordPro || "");
-  const byLabel = new Map(stanzas.map(s => [s.label.toLowerCase(), s]));
+  const byLabel = new Map(stanzas.map(s => [unparen(s.label).toLowerCase(), s]));
   const wanted = order || song.form?.defaultOrder;
-  const picked = wanted?.length ? wanted.map(l => byLabel.get(l.toLowerCase())).filter((s): s is Stanza => !!s) : [];
+  const picked = wanted?.length ? wanted.map(l => byLabel.get(unparen(l).toLowerCase())).filter((s): s is Stanza => !!s) : [];
   return picked.length ? picked : stanzas;
 }
 

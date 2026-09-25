@@ -5,7 +5,7 @@ import {
   chordProFor, createSetlist, decodeShare, defaultOrder, durationSeconds, formatMinutes, isShareAlike, keyChoices,
   licenseLineFor, packFilesFor, sectionLabels, shareUrl, transposedSections, updateSetlist, useSetlists, type Setlist, type SetlistItem
 } from "../setlists";
-import { chartShapes } from "../chordpro";
+import { chartShapes, unparen } from "../chordpro";
 import { licenseNotice } from "../licenses";
 import { makeZip, textEntry } from "../zip";
 import { downloadFile, exportFreeShow, exportOpenLyrics, exportPptx, exportProPresenter, slug, type ExportFile, type ExportItem } from "../exports";
@@ -97,7 +97,7 @@ const ItemRow: React.FC<ItemRowProps> = (props) => {
   if (!song) return <div className="card setlist-item" data-testid="setlist-item" data-song={props.item.songId}><p className="hint">{t("Loading…")}</p></div>;
 
   const keys = keyChoices(song);
-  const picks = props.item.order ?? defaultOrder(song);
+  const picks = (props.item.order ?? defaultOrder(song)).map(unparen);
   const labels = sectionLabels(song);
   const { keyLabel, shapeLabel } = chartShapes(song, props.item.key, props.item.capo);
   const setPicks = (order: string[]) => props.onChange({ order });

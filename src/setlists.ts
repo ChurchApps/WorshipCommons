@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { KEY_CHOICES, chartShapes, noteIndex, parseChordPro, splitKey, transposeChord, type Stanza } from "./chordpro";
+import { KEY_CHOICES, chartShapes, noteIndex, parseChordPro, splitKey, transposeChord, unparen, type Stanza } from "./chordpro";
 import { licenseNotice } from "./licenses";
 import { sectionsFor, slidesFor } from "./slides";
 import { songPath, type Song } from "./songs";
@@ -148,11 +148,11 @@ export const formatMinutes = (seconds: number) => `${Math.max(1, Math.round(seco
 
 /** Section labels a setlist may pick from: the form map's sections, else the stanza labels. */
 export const sectionLabels = (song: Pick<Song, "chordPro" | "form">): string[] => {
-  const fromForm = (song.form?.sections || []).map(s => s.label).filter(Boolean);
-  return fromForm.length ? fromForm : [...new Set(parseChordPro(song.chordPro || "").map(s => s.label))];
+  const fromForm = (song.form?.sections || []).map(s => unparen(s.label)).filter(Boolean);
+  return [...new Set(fromForm.length ? fromForm : parseChordPro(song.chordPro || "").map(s => s.label).filter(Boolean))];
 };
 
-export const defaultOrder = (song: Pick<Song, "chordPro" | "form">): string[] => song.form?.defaultOrder?.length ? song.form.defaultOrder : sectionsFor(song).map(s => s.label);
+export const defaultOrder = (song: Pick<Song, "chordPro" | "form">): string[] => song.form?.defaultOrder?.length ? song.form.defaultOrder.map(unparen) : sectionsFor(song).map(s => s.label);
 
 export function transposedSections(song: Song, key: string, capo: number, order?: string[]): Stanza[] {
   const { dispShift, useFlats } = chartShapes(song, key, capo);
