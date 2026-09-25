@@ -17,7 +17,9 @@ function inputsOf(song: Song): Set<InputId> {
     sheetPdf: song.sheetPdfUrl,
     timing: song.hasTiming || song.lyricsUrl,
     recording: song.masterUrl || recordingUrlOf(song),
-    recordingGrant: song.rights?.recording,
+    // a demo rides on the composition's license, so rights.recording alone is no grant: a master must be on file
+    // (its file, or the stems pack a granted master built — harvested masters are keyed as the demo)
+    recordingGrant: song.rights?.recording && (song.masterUrl || song.stemsZipUrl),
     video: song.videoUrl,
     cover: song.artUrl,
     extras: extraFilesOf(song).length

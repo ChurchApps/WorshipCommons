@@ -8,7 +8,7 @@ export const INPUTS: [InputId, string][] = [
   ["chords", "Chords (ChordPro)"],
   ["timing", "Word timings"],
   ["recordingGrant", "Recording grant"],
-  ["recording", "Master recording"],
+  ["recording", "Recording"],
   ["tuneMid", "Melody MIDI"],
   ["musicxml", "Score (MusicXML)"],
   ["abc", "Score (ABC)"],
