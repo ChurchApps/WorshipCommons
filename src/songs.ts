@@ -1,4 +1,3 @@
-import { folderSlug } from "./slug.mjs";
 import { attachListMedia, contentRootFromApi } from "./listMedia.mjs";
 export { idOf, songPath, writerPath } from "./slug.mjs";
 import { CORE_API, wcGet } from "./api";
@@ -194,63 +193,17 @@ export function kitFile(song: Song, name: string, from: "tune" | "song" = "song"
   return beside(song.fileUrls?.chartPdf || song.chartPdfUrl || song.fileUrls?.chart || song.fileUrls?.slides, name);
 }
 
-const LANG_CODE: Record<string, string> = {
-  English: "en",
-  Spanish: "es",
-  German: "de",
-  French: "fr",
-  Portuguese: "pt",
-  Russian: "ru",
-  Hungarian: "hu",
-  Albanian: "sq",
-  Malayalam: "ml",
-  Latin: "la",
-  Zulu: "zu",
-  Swedish: "sv",
-  Dutch: "nl",
-  Italian: "it",
-  Chinese: "zh",
-  Afrikaans: "af",
-  Maltese: "mt",
-  Romanian: "ro",
-  Slovak: "sk",
-  Finnish: "fi"
-};
-const licenseSection = (id: string) => id === "PD" ? "public-domain" : id === "WC" ? "wc-license" : id.toLowerCase();
-
-export function contentPrefix(song: Song): string {
-  return contentRootOf(song) || `${CORE_API.replace(/\/$/, "")}/content/commons`;
-}
-
-/** songs/<lang>/<section>/<slug>-<id> as the content bucket lays it out. */
-export function packageDir(song: Song): string | undefined {
-  const fromUrl = Object.values(song.fileUrls || {}).concat(song.midiUrl || "", song.abcUrl || "").find(u => /\/songs\//.test(String(u)));
-  const hit = String(fromUrl || "").match(/\/(songs\/.+?)\/(?:sources|masters|derivatives|output)\//);
-  if (hit) return hit[1];
-  const lang = LANG_CODE[song.language] || String(song.language || "en").slice(0, 2).toLowerCase();
-  if (!song.id) return;
-  return `songs/${lang}/${licenseSection(song.license || "PD")}/${folderSlug(song.title)}-${song.id}`;
-}
-
-export function packageFile(song: Song, rel: string): string | undefined {
-  const dir = packageDir(song);
-  return dir ? `${contentPrefix(song)}/${dir}/${rel}` : undefined;
-}
-
 /**
- * MIDI + word-timing for Lead worship. The API's fileUrls map often omits both
- * after the package-layout cutover; the files still live at the package/work paths.
+ * MIDI + word-timing for Lead worship: only what the API lists. Every served file is registered (the seed, approve
+ * and the output sync), so a guessed package path only 403s on a song that has no such file.
  */
 export function leadFiles(song: Song): { midi: string[]; timing?: string } {
-  // listed URLs first: a translation's score lives in its parent's package, so guessing its own 403s
   const midi = [
     [fileUrl(song, "score")].find(u => /\.mid(\?|#|$)/i.test(u || "")),
     song.midiUrl,
-    fileUrl(song, "midi"),
-    packageFile(song, "output/composition/score.mid"),
-    packageFile(song, "sources/tune.mid")
+    fileUrl(song, "midi")
   ].filter((u, i, a): u is string => !!u && a.indexOf(u) === i);
-  const timing = song.lyricsUrl || fileUrl(song, "timing") || packageFile(song, "sources/timing.json") || packageFile(song, "derivatives/timing.json");
+  const timing = song.lyricsUrl || fileUrl(song, "timing");
   return { midi, timing };
 }
 
