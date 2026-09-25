@@ -84,7 +84,8 @@ a.tag:hover { border-color: var(--purple); color: var(--text); }
 .stanza-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin: 18px 0 8px; }
 .line { margin: 0 0 10px; }
 .seg { display: inline-block; vertical-align: bottom; position: relative; }
-.seg .c { display: block; font-size: 0.95rem; font-weight: 700; color: var(--purple-2); letter-spacing: 0.02em; line-height: 1.2; min-height: 1.15rem; white-space: pre; }
+/* the gap after a chord keeps two chords on one syllable apart ("Gsus C", not "GsusC"); a wider lyric hides it */
+.seg .c { display: block; font-size: 0.95rem; font-weight: 700; color: var(--purple-2); letter-spacing: 0.02em; line-height: 1.2; min-height: 1.15rem; white-space: pre; padding-right: 0.4em; }
 .seg .t { font-size: var(--lyric-size, 1.125rem); line-height: 1.5; white-space: pre-wrap; }
 .sheet.t0 { --lyric-size: 1rem; }
 .sheet.t2 { --lyric-size: 1.3125rem; }
