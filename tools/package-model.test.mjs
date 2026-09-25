@@ -96,7 +96,7 @@ test("sectionLabel reads bare and parenthesised labels, never a sung line", () =
     "Verse 1": "Verse 1",
     "Chorus": "Chorus",
     "Pre-Chorus": "Pre-Chorus",
-    "Verse 2:": "Verse 2:",
+    "Verse 2:": "Verse 2",
     "Chorus Two": "Chorus Two"
   };
   for (const [line, label] of Object.entries(labels)) assert.equal(sectionLabel(line), label, line);
@@ -160,4 +160,14 @@ test("scripture references: any dash is a hyphen, a list splits at each new book
   assert.deepEqual(passageQueries("Psalm 91:4, Isaiah 43:2"), ["Psalm 91:4", "Isaiah 43:2"]);
   assert.deepEqual(passageQueries("John 3:16,18; 1 John 4:8"), ["John 3:16,18", "1 John 4:8"]);
   assert.deepEqual(passageQueries("Hébreux 10,22–23"), ["Hébreux 10,22-23"]);
+});
+
+test("{c:} comments, trailing colons and a number run onto the heading are section labels", () => {
+  assert.equal(sectionLabel("{c: Intro}"), "Intro");
+  assert.equal(sectionLabel("Chorus3:"), "Chorus3");
+  assert.equal(sectionLabel("Verse 1:"), "Verse 1");
+  assert.equal(sectionLabel("CHORUS: (2x)"), "CHORUS (2x)");
+  assert.equal(unparen("Chorus 1:"), "Chorus 1");
+  const st = parseChordPro("{c: Intro}\n[F]  [C]\n\n{c: Chorus}\nI'm gonna [F]praise You\n\nChorus3:\nGod of [Cm]peace");
+  assert.deepEqual(st.map(s => s.label), ["Intro", "Chorus", "Chorus3"]);
 });
