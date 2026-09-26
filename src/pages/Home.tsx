@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { coverOf, kindOf, loadSongs, recordingUrlOf, Song, songPath } from "../songs";
+import { coverOf, kindOf, loadSongs, recordingUrlOf, Song, songPath, songRecency } from "../songs";
+import { published } from "./New";
 import { coverSvg } from "../cover.mjs";
 import { loadTune, TunePlayer } from "../midiPlayer";
 import { libraryIds, setInLibrary } from "../library";
@@ -62,6 +63,8 @@ export const Home: React.FC = () => {
   const startHere = block.heading === "Start here";
   // real recordings first (stable sort keeps rank order within each group), so the play button isn't all synth piano
   const set = [...block.songs].sort((a, b) => +!!recordingUrlOf(b) - +!!recordingUrlOf(a)).slice(0, 4);
+  // ponytail: 30-day window so the row disappears instead of going stale during a quiet month
+  const fresh = songs.filter(s => published(s) && Date.now() - songRecency(s) < 30 * 864e5).sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
   const langCount = new Set(songs.map(s => s.language).filter(Boolean)).size;
 
   // demo recording if there is one, otherwise the melody file through the piano soundfont
@@ -94,6 +97,33 @@ export const Home: React.FC = () => {
   };
 
   const handleSearch = (e: FormEvent) => { e.preventDefault(); navigate(q.trim() ? `/songs?q=${encodeURIComponent(q.trim())}` : "/songs"); };
+
+  const albumCard = (s: Song) => {
+    const cover = coverOf(s);
+    const isSaved = saved.includes(s.id);
+    return (
+      <li key={s.id} className="album">
+        <div className="album-art">
+          <Link to={songPath(s)} aria-label={s.title}>
+            {cover
+              ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
+              : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
+            {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
+          </Link>
+          {(recordingUrlOf(s) || s.midiUrl) && (
+            <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => handleTogglePlay(s)}>
+              {playing === s.id ? <StopIcon /> : <PlayIcon />}
+            </button>
+          )}
+          <button className={"save" + (isSaved ? " on" : "")} type="button" aria-pressed={isSaved} aria-label={t(isSaved ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => handleToggleSave(s)}>
+            <SaveIcon on={isSaved} />
+          </button>
+        </div>
+        <h3><Link to={songPath(s)} className="album">{s.title}</Link></h3>
+        <p className="kind">{t(kindOf(s))}</p>
+      </li>
+    );
+  };
 
   return (
     <main>
@@ -149,33 +179,21 @@ export const Home: React.FC = () => {
         </div>
 
         <ul className="albums" data-testid="home-top-list">
-          {set.map(s => {
-            const cover = coverOf(s);
-            const isSaved = saved.includes(s.id);
-            return (
-              <li key={s.id} className="album">
-                <div className="album-art">
-                  <Link to={songPath(s)} aria-label={s.title}>
-                    {cover
-                      ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
-                      : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
-                    {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
-                  </Link>
-                  {(recordingUrlOf(s) || s.midiUrl) && (
-                    <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => handleTogglePlay(s)}>
-                      {playing === s.id ? <StopIcon /> : <PlayIcon />}
-                    </button>
-                  )}
-                  <button className={"save" + (isSaved ? " on" : "")} type="button" aria-pressed={isSaved} aria-label={t(isSaved ? "Remove {title} from saved songs" : "Save {title}", { title: s.title })} onClick={() => handleToggleSave(s)}>
-                    <SaveIcon on={isSaved} />
-                  </button>
-                </div>
-                <h3><Link to={songPath(s)} className="album">{s.title}</Link></h3>
-                <p className="kind">{t(kindOf(s))}</p>
-              </li>
-            );
-          })}
+          {set.map(albumCard)}
         </ul>
+
+        {fresh.length > 0 && (
+          <>
+            <div className="sec-head">
+              <div>
+                <p className="kicker">{t("Recently added")}</p>
+                <h2>{t("Just added to the commons.")}</h2>
+              </div>
+              <Link className="more" to="/new">{t("See what's new →")}</Link>
+            </div>
+            <ul className="albums" data-testid="home-new-list">{fresh.map(albumCard)}</ul>
+          </>
+        )}
 
         <section className="lead-block">
           <div className="lead-block-photo">
