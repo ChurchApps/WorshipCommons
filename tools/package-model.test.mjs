@@ -97,10 +97,12 @@ test("sectionLabel reads bare and parenthesised labels, never a sung line", () =
     "Chorus": "Chorus",
     "Pre-Chorus": "Pre-Chorus",
     "Verse 2:": "Verse 2",
-    "Chorus Two": "Chorus Two"
+    "Chorus Two": "Chorus Two",
+    "PRE": "PRE",
+    "Pre 2:": "Pre 2"
   };
   for (const [line, label] of Object.entries(labels)) assert.equal(sectionLabel(line), label, line);
-  for (const line of ["[G]When the [D]music [A]fades", "([G]Repeat)", "[A / Bm / G]", "Amazing grace how sweet the sound", "Chorus of angels sing"]) assert.equal(sectionLabel(line), null, line);
+  for (const line of ["[G]When the [D]music [A]fades", "([G]Repeat)", "[A / Bm / G]", "Amazing grace how sweet the sound", "Chorus of angels sing", "Precious Lord", "Pre-ordained love"]) assert.equal(sectionLabel(line), null, line);
   assert.equal(unparen(" (Chorus x2) "), "Chorus x2");
   assert.equal(unparen("Verse 1"), "Verse 1");
 });
