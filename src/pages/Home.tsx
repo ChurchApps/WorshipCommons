@@ -64,11 +64,14 @@ export const Home: React.FC = () => {
       .filter(s => published(s) && Date.now() - songRecency(s) < 30 * 864e5)
       .sort((a, b) => songRecency(b) - songRecency(a))
       .filter(s => { const w = (s.writer || "").split(/,|&/)[0].trim().toLowerCase(); return !writers.has(w) && !!writers.add(w); })
-      .slice(0, 4);
-    setFresh(picks);
+      .slice(0, 12);
+    // album art only — portraits and drawn covers don't sell "new"
+    const withArt = (list: Song[]) => list.filter(s => s.artUrl).slice(0, 4);
+    setFresh(withArt(picks));
     // uploads keep their original file names (art.jpg, demoAudio.m4a) — only the detail record lists them
+    // ponytail: 12 detail fetches caps the search; widen if uploads without art crowd the window
     let live = true;
-    Promise.all(picks.map(s => loadSong(s.id).then(d => d || s, () => s))).then(full => { if (live) setFresh(full); });
+    Promise.all(picks.map(s => loadSong(s.id).then(d => d || s, () => s))).then(full => { if (live) setFresh(withArt(full)); });
     return () => { live = false; };
   }, [songs]);
   useEffect(() => { if (user) libraryIds().then(setSaved); else setSaved([]); }, [user]);
