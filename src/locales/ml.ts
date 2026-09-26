@@ -248,6 +248,7 @@ const ml: Record<string, string> = {
   "Original": "യഥാർത്ഥം",
   "Made an arrangement or translation?": "ക്രമീകരണമോ വിവർത്തനമോ ചെയ്തോ?",
   "Add it back.": "അതും പങ്കുവയ്ക്കൂ.",
+  "Translations need the writer’s permission.": "പരിഭാഷകൾക്ക് രചയിതാവിന്റെ അനുമതി വേണം.",
   "Something wrong?": "എന്തെങ്കിലും കുഴപ്പമുണ്ടോ?",
   "Think this song was shared by someone who doesn’t own it?": "ഈ പാട്ട് അതിന്റെ ഉടമയല്ലാത്ത ആരോ പങ്കുവച്ചതാണെന്നു തോന്നുന്നുവോ?",
   "Report this song →": "ഈ പാട്ട് റിപ്പോർട്ട് ചെയ്യുക →",

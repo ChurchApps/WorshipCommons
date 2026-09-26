@@ -248,6 +248,7 @@ const es: Record<string, string> = {
   "Original": "Original",
   "Made an arrangement or translation?": "¿Hiciste un arreglo o una traducción?",
   "Add it back.": "Compártela también.",
+  "Translations need the writer’s permission.": "Las traducciones necesitan el permiso del autor.",
   "Something wrong?": "¿Algo anda mal?",
   "Think this song was shared by someone who doesn’t own it?": "¿Crees que esta canción la compartió alguien que no es su dueño?",
   "Report this song →": "Reportar esta canción →",

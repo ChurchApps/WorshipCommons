@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ChordProPreview } from "./ChordProPreview";
 import { wcGet } from "../api";
 import { parseChordPro, lintChordPro } from "../chordpro";
-import { licenseById, UPLOADABLE } from "../licenses";
+import { allowsDerivatives, licenseById, UPLOADABLE } from "../licenses";
 import { prepareArt } from "../artThumb";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -428,7 +428,8 @@ export const SongForm: React.FC<Props> = (props) => {
   // a translation or arrangement is meant to match its original — only other songs count as duplicates
   const dupes = similar.filter(s => s.id !== form.parentSongId && !(parentSong && s.title === parentSong.title && s.writer === parentSong.writer));
   const query = parentQuery.trim().toLowerCase();
-  const parentChoices = catalog.filter(s => !query || s.title.toLowerCase().includes(query)).slice(0, 50);
+  // only originals whose license lets anyone share a translation or arrangement (not custom or ND grants)
+  const parentChoices = catalog.filter(s => allowsDerivatives(s) && (!query || s.title.toLowerCase().includes(query))).slice(0, 50);
   if (parentSong && !parentChoices.some(s => s.id === parentSong.id)) parentChoices.unshift(parentSong);
 
   const setType = (submissionType: SubmissionType) => setForm(f => ({ ...f, submissionType, parentSongId: submissionType === "new" ? "" : f.parentSongId }));
