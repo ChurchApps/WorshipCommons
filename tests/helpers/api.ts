@@ -83,7 +83,7 @@ export async function mySubmissionFor(request: APIRequestContext, assetName: str
 export async function createPendingSong(request: APIRequestContext, jwt: string, title: string, detail: Record<string, unknown> = {}) {
   const draft = await ok(await request.post(`${WC_API}/submissions`, {
     headers: auth(jwt),
-    data: { assetType: "song", payload: { name: title, language: "English", license: "WC", detail: { writer: "Spec Writer", songKey: "C", chordPro: "Verse 1\n[C]A line for the spec", certified: true, ...detail } } }
+    data: { assetType: "song", payload: { name: title, language: "English", license: "WC", detail: { writer: "Spec Writer", songKey: "C", chordPro: "Verse 1\n[C]A line for the spec", videoUrl: "https://www.youtube.com/watch?v=spec", certified: true, ...detail } } }
   }), "create draft");
   await ok(await request.post(`${WC_API}/submissions/${draft.submissionId}/submit`, { headers: auth(jwt), data: {} }), "submit draft");
   return draft as { submissionId: string; assetId: string };

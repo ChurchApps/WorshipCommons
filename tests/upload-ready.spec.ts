@@ -79,6 +79,31 @@ test.describe("upload required fields", () => {
     await expect(page.getByTestId("upload-error")).toContainText("Your word");
   });
 
+  test("a new song needs a way to learn the melody", async ({ page }) => {
+    await page.goto("/upload");
+    await fillSongFields(page, "No Melody Song");
+    for (const id of ["certifyAdult", "certifyWrote", "certifyCowriters", "certifyClear", "certifyForever", "certifyHuman"]) await page.getByTestId(id).check();
+    await page.getByRole("button", { name: "Add it to the commons" }).click();
+    await expect(page.getByTestId("upload-thanks")).toHaveCount(0);
+    await expect(page.getByTestId("upload-error")).toContainText("A way to learn the melody");
+    await page.getByTestId("video-url").fill("https://www.youtube.com/watch?v=melody");
+    await page.getByRole("button", { name: "Add it to the commons" }).click();
+    await expect(page.getByTestId("upload-thanks")).toBeVisible();
+  });
+
+  test("API refuses a new song with chords and words only", async ({ request }) => {
+    const jwt = await userJwt(request);
+    const headers = { Authorization: `Bearer ${jwt}` };
+    const draft = await (await request.post(`${WC_API}/submissions`, {
+      headers,
+      data: { assetType: "song", payload: { name: "API No Melody", language: "English", license: "WC", detail: { writer: "Spec Writer", songKey: "C", chordPro: "Verse 1\n[C]A line", certified: true } } }
+    })).json();
+    const resp = await request.post(`${WC_API}/submissions/${draft.submissionId}/submit`, { headers, data: {} });
+    expect(resp.status()).toBe(400);
+    expect(JSON.stringify(await resp.json())).toContain("learn the melody");
+    await request.delete(`${WC_API}/submissions/${draft.submissionId}`, { headers });
+  });
+
   test("demo without recording-owned fails; lyrics-only does not need it", async ({ page }) => {
     await page.goto("/upload");
     await fillSongFields(page, "No Recording Owned");
