@@ -1,6 +1,6 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { coverOf, kindOf, loadSongs, recordingUrlOf, Song, songPath, songRecency } from "../songs";
+import { coverOf, kindOf, loadSong, loadSongs, recordingUrlOf, Song, songPath, songRecency } from "../songs";
 import { published } from "./New";
 import { coverSvg } from "../cover.mjs";
 import { loadTune, TunePlayer } from "../midiPlayer";
@@ -55,6 +55,22 @@ export const Home: React.FC = () => {
     }).catch(() => { if (live) setCatalogStatus("error"); });
     return () => { live = false; };
   }, [catalogAttempt]);
+  // newest published in the last 30 days, one per lead writer so one artist's batch doesn't fill the row
+  // ponytail: 30-day window so the row disappears instead of going stale during a quiet month
+  const [fresh, setFresh] = useState<Song[]>([]);
+  useEffect(() => {
+    const writers = new Set<string>();
+    const picks = songs
+      .filter(s => published(s) && Date.now() - songRecency(s) < 30 * 864e5)
+      .sort((a, b) => songRecency(b) - songRecency(a))
+      .filter(s => { const w = (s.writer || "").split(/,|&/)[0].trim().toLowerCase(); return !writers.has(w) && !!writers.add(w); })
+      .slice(0, 4);
+    setFresh(picks);
+    // uploads keep their original file names (art.jpg, demoAudio.m4a) — only the detail record lists them
+    let live = true;
+    Promise.all(picks.map(s => loadSong(s.id).then(d => d || s, () => s))).then(full => { if (live) setFresh(full); });
+    return () => { live = false; };
+  }, [songs]);
   useEffect(() => { if (user) libraryIds().then(setSaved); else setSaved([]); }, [user]);
   const stopAll = () => { audioRef.current?.pause(); tuneRef.current?.stop(); tuneRef.current = null; setPlaying(null); };
   useEffect(() => () => { audioRef.current?.pause(); tuneRef.current?.stop(); }, []);
@@ -63,8 +79,6 @@ export const Home: React.FC = () => {
   const startHere = block.heading === "Start here";
   // real recordings first (stable sort keeps rank order within each group), so the play button isn't all synth piano
   const set = [...block.songs].sort((a, b) => +!!recordingUrlOf(b) - +!!recordingUrlOf(a)).slice(0, 4);
-  // ponytail: 30-day window so the row disappears instead of going stale during a quiet month
-  const fresh = songs.filter(s => published(s) && Date.now() - songRecency(s) < 30 * 864e5).sort((a, b) => songRecency(b) - songRecency(a)).slice(0, 4);
   const langCount = new Set(songs.map(s => s.language).filter(Boolean)).size;
 
   // demo recording if there is one, otherwise the melody file through the piano soundfont
