@@ -248,6 +248,7 @@ const hu: Record<string, string> = {
   "Original": "Eredeti",
   "Made an arrangement or translation?": "Készítettél hangszerelést vagy fordítást?",
   "Add it back.": "Oszd meg te is.",
+  "Translations need the writer’s permission.": "A fordításhoz a szerző engedélye kell.",
   "Something wrong?": "Valami nem stimmel?",
   "Think this song was shared by someone who doesn’t own it?": "Úgy gondolod, hogy ezt az éneket olyan valaki osztotta meg, akié nem is?",
   "Report this song →": "Ének bejelentése →",

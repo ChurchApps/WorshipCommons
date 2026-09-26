@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { HistoryEntry, Song, themeList, songPath } from "../songs";
 import { useI18n } from "../i18n";
 import { RightsPanel } from "./RightsPanel";
-import { acceptsProposals, licenseById } from "../licenses";
+import { acceptsProposals, allowsDerivatives } from "../licenses";
 import SourcesPanel from "./SourcesPanel";
 
 const ArrowRight: React.FC = () => (
@@ -109,7 +109,7 @@ export const AboutPanel: React.FC<Props> = (props) => {
       <RightsPanel song={props.song} />
 
       {/* only invite derivatives the composed rights actually allow (every layer must allow sharing one; custom and ND grants do not) */}
-      {[props.song.license, ...Object.values(props.song.rights || {}).map(r => r?.license)].filter(Boolean).every(id => licenseById(id).derivativesAllowed) && <p className="rel-hint" data-testid="add-derivative">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>}
+      {allowsDerivatives(props.song) && <p className="rel-hint" data-testid="add-derivative">{t("Made an arrangement or translation?")} <Link to="/upload">{t("Add it back.")}</Link></p>}
     </div>
   );
 };

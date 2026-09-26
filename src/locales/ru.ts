@@ -248,6 +248,7 @@ const ru: Record<string, string> = {
   "Original": "Оригинал",
   "Made an arrangement or translation?": "Сделали аранжировку или перевод?",
   "Add it back.": "Поделитесь и вы.",
+  "Translations need the writer’s permission.": "Для переводов нужно разрешение автора.",
   "Something wrong?": "Что-то не так?",
   "Think this song was shared by someone who doesn’t own it?": "Думаете, этой песней поделился тот, кому она не принадлежит?",
   "Report this song →": "Сообщить об этой песне →",

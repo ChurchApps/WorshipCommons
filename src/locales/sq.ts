@@ -248,6 +248,7 @@ const sq: Record<string, string> = {
   "Original": "Origjinali",
   "Made an arrangement or translation?": "Keni bërë një aranzhim ose përkthim?",
   "Add it back.": "Ndajeni edhe ju.",
+  "Translations need the writer’s permission.": "Përkthimet kanë nevojë për lejen e autorit.",
   "Something wrong?": "Diçka nuk shkon?",
   "Think this song was shared by someone who doesn’t own it?": "Mendoni se këtë këngë e ka ndarë dikush që nuk e zotëron?",
   "Report this song →": "Raporto këtë këngë →",

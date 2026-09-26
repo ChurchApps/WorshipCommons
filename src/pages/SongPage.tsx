@@ -18,7 +18,7 @@ import { SongHero, clock } from "../components/SongHero";
 import { AboutPanel } from "../components/AboutPanel";
 import { ScriptureConnection } from "../components/ScriptureConnection";
 import { ProjectPanel } from "../components/ProjectPanel";
-import { acceptsProposals, attributionLines, licenseNotice } from "../licenses";
+import { acceptsProposals, allowsDerivatives, attributionLines, licenseNotice } from "../licenses";
 import "../styles/song.css";
 
 const FileIcon: React.FC = () => (
@@ -475,7 +475,7 @@ export const SongPage: React.FC = () => {
                   <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={handleRecordDownload}>{t("Download PDF")}</a></p>
                 </div>
               )}
-              {!song.abcUrl && song.midiUrl && (
+              {!song.abcUrl && song.midiUrl && acceptsProposals(song) && (
                 <p className="rel-hint"><Link to={`${songPath(song)}/transcribe`} data-testid="transcribe-link">{song.sheetPdfUrl ? t("Help turn this sheet into an editable score") : t("No sheet music yet — help transcribe it")}</Link></p>
               )}
             </div>
@@ -604,7 +604,8 @@ export const SongPage: React.FC = () => {
         </div>
         <ScriptureConnection reference={song.scripture} songId={song.id} canPropose={acceptsProposals(song)} />
         <div className="col tr">
-          <h4>🌐 {t("Translations")} <Link className="more" to="/upload">{t("Add one →")}</Link></h4>
+          <h4>🌐 {t("Translations")} {allowsDerivatives(song) && <Link className="more" to="/upload">{t("Add one →")}</Link>}</h4>
+          {!allowsDerivatives(song) && <p className="rel-hint" data-testid="translations-closed">{t("Translations need the writer’s permission.")}</p>}
           {translations.length > 0
             ? (
               <ul className="rel-list" data-testid="translations">

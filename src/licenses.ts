@@ -131,3 +131,7 @@ export const licenseHref = (id: string) => {
 
 /** Does this song's license let the public propose edits? Some writer grants keep changes with the writer. */
 export const acceptsProposals = (song: Pick<Song, "license">) => licenseOf(song).communityEdits !== false;
+
+/** May anyone share a translation or arrangement of this song? Every rights layer must allow it; custom and ND grants do not. */
+export const allowsDerivatives = (song: Pick<Song, "license" | "rights">) =>
+  [song.license, ...Object.values(song.rights || {}).map(r => r?.license)].filter(Boolean).every(id => licenseById(id).derivativesAllowed);
