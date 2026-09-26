@@ -67,7 +67,8 @@ export const unparen = (label: string) => {
   return tidyLabel(m ? m[1] : t);
 };
 
-const HEADING = "(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)";
+// a bare "PRE" is how many charts shorten the pre-chorus; BARE_LABEL only takes it as the whole line, so "Precious" stays a lyric
+const HEADING = "(?:(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)|pre)";
 // "Chorus3" counts too: the heading word may run straight into its number
 const BARE_LABEL = new RegExp(String.raw`^${HEADING}(?:\b|(?=\d))(?:[\s\d.:/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
 const CHORDS = /\[[^\]]*\]/g;
