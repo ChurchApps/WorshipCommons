@@ -122,7 +122,6 @@ export const Home: React.FC = () => {
             {cover
               ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" loading="lazy" />
               : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(s, 400, 400) }} />}
-            {!(cover?.portrait) && <span className="album-title" aria-hidden="true">{s.title}</span>}
           </Link>
           {(recordingUrlOf(s) || s.midiUrl) && (
             <button className="play" type="button" aria-label={t(playing === s.id ? "Stop {title}" : "Play {title}", { title: s.title })} onClick={() => handleTogglePlay(s)}>

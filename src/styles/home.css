@@ -32,7 +32,6 @@
 .album-art { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: #111; }
 .album-art img, .album-art svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .album-art img.portrait { object-position: top; }
-.album-title { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 18px; font-weight: 800; font-size: 1.35rem; letter-spacing: -0.03em; line-height: 1.1; text-transform: uppercase; color: #fff; text-shadow: 0 8px 24px rgba(0,0,0,0.55); pointer-events: none; }
 .album-art .play, .album-art .save { position: absolute; bottom: 10px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(8,8,12,0.62); color: #fff; display: grid; place-items: center; backdrop-filter: blur(8px); }
 .album-art .play { left: 10px; }
 .album-art .save { right: 10px; }
