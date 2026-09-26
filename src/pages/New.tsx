@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { loadSongs, Song, songRecency, songPath } from "../songs";
+import { coverOf, loadSongs, Song, songRecency, songPath } from "../songs";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
 
 // Only songs carrying a real publish/create date belong on a changelog — songRecency
 // falls back to the copyright year, which would file 1763 hymns under January 1970.
-const published = (s: Song) => !Number.isNaN(Date.parse(s.publishedAt || s.createdAt || ""));
+export const published = (s: Song) => !Number.isNaN(Date.parse(s.publishedAt || s.createdAt || ""));
 
 // a changelog, not a second library — /songs is the browsable, filterable, paged view
 const LIMIT = 100;
@@ -47,7 +47,9 @@ export const New: React.FC = () => {
             <h2 data-testid="new-month" style={{ margin: "32px 0 12px", fontSize: "0.9375rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--muted)" }}>{month.label}</h2>
             <ul style={{ listStyle: "none" }}>
               {month.songs.map(s => (
-                <li key={s.id} className="card" style={{ padding: 20, marginBottom: 12 }} data-testid="new-song">
+                <li key={s.id} className="card" style={{ padding: 20, marginBottom: 12, display: "flex", gap: 16, alignItems: "center" }} data-testid="new-song">
+                  {coverOf(s, "thumb") && <img src={coverOf(s, "thumb")!.src} alt="" loading="lazy" width={64} height={64} style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />}
+                  <div>
                   <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
                   <p className="hint">
                     {s.writer}
@@ -55,6 +57,7 @@ export const New: React.FC = () => {
                     {" · "}{s.language}
                     {" · "}{new Date(songRecency(s)).toLocaleDateString(lang, { year: "numeric", month: "long", day: "numeric" })}
                   </p>
+                  </div>
                 </li>
               ))}
             </ul>
