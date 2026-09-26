@@ -46,6 +46,8 @@ export interface SongFormValues {
   scripture: string;
   ccli: string;
   chordPro: string;
+  /** a YouTube (or any) link to hear the song — one of the ways a new song shows its melody */
+  videoUrl: string;
   license: string;
   scope: Scope;
   masterLicense: string;
@@ -71,10 +73,14 @@ export type SongFiles = { demoAudio?: File; master?: File; sheetPdf?: File; stem
 /** Either audio file is a recording someone must vouch for. */
 export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.master);
 
+/** Mirrors the API's NO_MELODY_MESSAGE: chords and words alone don't teach a church the tune. */
+const hasMelody = (files: SongFiles, videoUrl: string, attached: string[]) =>
+  !!(files.demoAudio || files.master || files.sheetPdf || files.midi || files.stemsZip || videoUrl.trim()) || attached.some(n => /^(demoAudio|master|sheetPdf|stemsZip)\.|^tune\./.test(n));
+
 /** Progress-line names for every upload role, keyed by SongFiles key. */
 export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", master: "master recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
 
-export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", ccli: "", chordPro: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false, contributionAgreed: false });
+export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", ccli: "", chordPro: "", videoUrl: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false, contributionAgreed: false });
 
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
@@ -96,6 +102,7 @@ export const songFromPayload = (payload: any): SongFormValues => {
     scripture: d.scripture || "",
     ccli: d.ccli ? String(d.ccli) : "",
     chordPro: d.chordPro || "",
+    videoUrl: d.videoUrl || "",
     license: UPLOADABLE.some(l => l.id === payload?.license) ? payload.license : "WC",
     scope: d.masterLicense ? "both" : "composition",
     masterLicense: UPLOADABLE.some(l => l.id === d.masterLicense) ? d.masterLicense : "WC",
@@ -138,6 +145,7 @@ export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: any)
     scripture: form.scripture,
     ccli: form.ccli.trim() || undefined,
     chordPro: form.chordPro,
+    videoUrl: form.videoUrl.trim() || undefined,
     proAnswer: form.proAnswer,
     // the master's own grant; a composition-only submission carries whatever the live song already has
     masterLicense: form.scope === "both" ? form.masterLicense : base?.detail?.masterLicense,
@@ -350,6 +358,8 @@ interface Props {
   saveStatus?: string;
   onChange?: (form: SongFormValues) => void;
   onSubmit: (form: SongFormValues, files: SongFiles, note: string) => void;
+  /** file names a reopened draft already uploaded; they stay attached when it is sent again */
+  attached?: string[];
 }
 
 export const SongForm: React.FC<Props> = (props) => {
@@ -461,6 +471,8 @@ export const SongForm: React.FC<Props> = (props) => {
     }
     if (isNewSong && form.submissionType === "translation" && parentSong && parentSong.language === form.language) gap(t("A translation must be in a different language from the original ({language})", { language: t(parentSong.language) }), "lang");
     if (props.proposalType === "additionalFile" && !Object.values(files).some(Boolean)) gap(t("Add at least one file."), "step-files");
+    if (isNewSong && form.submissionType === "new" && !hasMelody(files, form.videoUrl, props.attached || [])) gap(t("A way to learn the melody — a demo recording, sheet music, a MIDI file or a video link"), "step-files");
+    if (form.videoUrl.trim() && !/^https?:\/\/\S+$/i.test(form.videoUrl.trim())) gap(t("Video link must be a web address starting with https://"), "video-url");
     if (showMaster && !files.master) gap(t("Master recording"), "step-master");
     if (hasRecording(files) && !form.recordingOwned) gap(t("This recording is mine (or I have the owner’s permission to share it)."), "recording-owned");
     if (showWord && !grantComplete(form)) gap(t("Your word — every box in this step"), GRANT_KEYS.find(k => !form[k]) || "step-word");
@@ -649,7 +661,10 @@ export const SongForm: React.FC<Props> = (props) => {
           <h2><span className="n">{step()}</span>{t("Files")}</h2>
           <p className="hint">{props.proposalType === "additionalFile"
             ? t("Add what the song is missing — a score, a recording, stems, art, or the lyrics as a text file. Nothing else about the song changes.")
-            : t("Optional — but a demo recording is the single best thing you can give a worship leader deciding at 10pm on a Thursday.")}</p>
+            : form.submissionType === "new"
+              ? t("Add at least one way to learn the melody: a demo recording (a phone recording is fine), sheet music, a MIDI file, or a video link. Chords and words alone don’t teach a church the tune.")
+              : t("Optional — the original song already carries the tune.")}</p>
+          {!!props.attached?.length && <p className="hint" data-testid="already-attached">{t("Already attached:")} {props.attached.join(", ")}</p>}
           <div className="step-body dz-row">
             {props.proposalType === "additionalFile" && (
               <>
@@ -676,6 +691,12 @@ export const SongForm: React.FC<Props> = (props) => {
             )}
           </div>
           <p className="hint" style={{ margin: "10px 0 0" }}>{t("Drop a file on a box or click it. Upload stems once, in the recorded key.")}</p>
+          {props.proposalType !== "additionalFile" && (
+            <div className="field" style={{ marginTop: 16 }}>
+              <label htmlFor="video-url">{t("Video link")}</label>
+              <input type="url" id="video-url" data-testid="video-url" placeholder="https://www.youtube.com/watch?v=…" value={form.videoUrl} onChange={e => set("videoUrl", e.target.value)} />
+            </div>
+          )}
           {files.demoAudio && !showMaster && <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />}
         </section>
       )}

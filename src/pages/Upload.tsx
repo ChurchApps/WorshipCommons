@@ -22,6 +22,7 @@ export const Upload: React.FC = () => {
   const [initial, setInitial] = useState<SongFormValues | null>(draftParam ? null : blankSong(SONG_LANG[lang]));
   // the reviewer's note when a draft came back with "changes requested"
   const [reviewNote, setReviewNote] = useState("");
+  const [attached, setAttached] = useState<string[]>([]);
   const draftIdRef = useRef<string | null>(draftParam || null);
   const creatingRef = useRef<Promise<string> | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -37,6 +38,7 @@ export const Upload: React.FC = () => {
       values.recordingOwned = !!payload?.detail?.recordingOwned;
       draftIdRef.current = sub.id || sub.submissionId || draftParam;
       setReviewNote(sub.reviewReason === "changes" && sub.reviewNote ? sub.reviewNote : "");
+      setAttached((sub.files || []).filter((f: { action?: string }) => f.action !== "remove").map((f: { name: string }) => f.name));
       setInitial(values);
     }).catch(err => {
       if (!live) return;
@@ -141,6 +143,7 @@ export const Upload: React.FC = () => {
         <div className="dup-warning" data-testid="changes-requested">
           <b>{t("A reviewer asked for changes before this can go live:")}</b>
           <p style={{ marginTop: 6 }}>{reviewNote}</p>
+          <p className="hint" style={{ marginTop: 6 }}>{t("Make the changes below, then press “Add it to the commons” to send it again.")}</p>
         </div>
       )}
       {initial && (
@@ -155,6 +158,7 @@ export const Upload: React.FC = () => {
           submitHint="Reviewed by a human before it appears — usually within a few days."
           onChange={handleFormChange}
           onSubmit={handleSubmit}
+          attached={attached}
         />
       )}
     </main>
