@@ -4,6 +4,7 @@ import { coverOf, loadSongs, Song, songRecency, songPath } from "../songs";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
+import { coverSvg } from "../cover.mjs";
 
 // Only songs carrying a real publish/create date belong on a changelog — songRecency
 // falls back to the copyright year, which would file 1763 hymns under January 1970.
@@ -48,7 +49,9 @@ export const New: React.FC = () => {
             <ul style={{ listStyle: "none" }}>
               {month.songs.map(s => (
                 <li key={s.id} className="card" style={{ padding: 20, marginBottom: 12, display: "flex", gap: 16, alignItems: "center" }} data-testid="new-song">
-                  {coverOf(s, "thumb") && <img src={coverOf(s, "thumb")!.src} alt="" loading="lazy" width={64} height={64} style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />}
+                  {coverOf(s, "thumb")
+                    ? <img src={coverOf(s, "thumb")!.src} alt="" loading="lazy" width={64} height={64} style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
+                    : <span aria-hidden="true" style={{ width: 64, height: 64, borderRadius: 8, overflow: "hidden", flexShrink: 0, display: "block" }} dangerouslySetInnerHTML={{ __html: coverSvg(s, 64, 64) }} />}
                   <div>
                   <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
                   <p className="hint">
