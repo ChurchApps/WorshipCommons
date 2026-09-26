@@ -45,7 +45,6 @@ export const SongHero: React.FC<Props> = (props) => {
         {cover
           ? <img className={cover.portrait ? "portrait" : "art"} src={cover.src} alt="" />
           : <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: coverSvg(props.song, 336, 336) }} />}
-        {cover && !cover.portrait && <div className="overlay" aria-hidden="true">{props.song.title}</div>}
       </div>
       <div>
         <p className="kicker">{t(kindOf(props.song))}</p>
