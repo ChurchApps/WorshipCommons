@@ -168,6 +168,7 @@ test("scripture references: any dash is a hyphen, a list splits at each new book
   assert.deepEqual(passageQueries("Luke 24:32    Isaiah 6:6-8"), ["Luke 24:32", "Isaiah 6:6-8"]);
   assert.deepEqual(passageQueries("Romans 8:28 1 John 4:8"), ["Romans 8:28", "1 John 4:8"]);
   assert.deepEqual(passageQueries("John 3:16 and 18"), ["John 3:16 and 18"]);
+  assert.deepEqual(passageQueries("1  Thessalonians 5:16-23"), ["1 Thessalonians 5:16-23"]);
 });
 
 test("{c:} comments, trailing colons and a number run onto the heading are section labels", () => {
