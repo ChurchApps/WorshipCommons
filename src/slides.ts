@@ -19,8 +19,8 @@ export function sectionsFor(song: Pick<Song, "chordPro" | "form">, order?: strin
  * The one slide model every projector and export reads, so the web projector and the FreeShow / OpenLP
  * files never disagree: the picked sections, chords stripped, one slide per stanza.
  */
-// "4x", "x2", "(2x)", "Repeat": a direction for the band, not words for the room
-const REPEAT_MARK = /^\(?\s*(?:x\s*\d+|\d+\s*x|repeat\b.*)\s*\)?$/i;
+// "4x", "x2", "(2x)", "Repeat", "(To the Top)", "D.S. al Coda": a direction for the band, not words for the room
+const REPEAT_MARK = /^\(?\s*(?:x\s*\d+|\d+\s*x|repeat\b.*|(?:to|from) the top|d\.\s?[cs]\.(?:\s*al\b.*)?|da capo\b.*|dal segno\b.*|to coda|fine)\s*\)?$/i;
 // "The Great I Am (2x)": the mark at the end of a sung line goes, the words stay
 const TRAILING_REPEAT = /\s*\((?:x\s*\d+|\d+\s*x)\)\s*$/i;
 

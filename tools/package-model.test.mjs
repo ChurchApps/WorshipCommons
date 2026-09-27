@@ -62,6 +62,8 @@ test("slides follow the form map order, strip chords, and fall back to written o
   assert.deepEqual(slidesFor({ title: "T", chordPro }, ["Chorus"]).slides.map(s => s.label), ["Chorus"]);
   // a repeat mark at the end of a sung line is for the band
   assert.deepEqual(slidesFor({ title: "T", chordPro: "Chorus\n[C]The Great I Am (2x)" }).slides[0].lines, ["The Great I Am"]);
+  // so is a direction to jump: "(To the Top)", "D.S. al Coda"
+  assert.deepEqual(slidesFor({ title: "T", chordPro: "Chorus\n[F]To the coming of our Lord!\n(To the Top)\nD.S. al Coda" }).slides[0].lines, ["To the coming of our Lord!"]);
 });
 
 test("blank-line ChordPro keeps the first line as the stanza label", () => {
