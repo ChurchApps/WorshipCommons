@@ -8,11 +8,12 @@ const cache = new Map<string, Passage | null>();
 /**
  * bible-api.com queries for a reference as writers type it: any dash becomes a hyphen ("Romans 8:15–16"), and a list
  * of passages splits where a comma or semicolon is followed by a book name ("Psalm 91:4, Isaiah 43:2") — bible-api takes
- * one book per query. A verse list within one chapter ("John 3:16,18") stays whole.
+ * one book per query, or where only spaces follow a verse ("Luke 24:32    Isaiah 6:6-8"). A verse list within one chapter
+ * ("John 3:16,18") stays whole.
  */
 export function passageQueries(ref: string): string[] {
   return ref.replace(/[‐-―−]/g, "-")
-    .split(/\s*[,;]\s*(?=(?:\d\s*)?\p{L}{2,})/u)
+    .split(/\s*[,;]\s*(?=(?:\d\s*)?\p{L}{2,})|(?<=:\d+(?:-\d+)?)\s+(?=(?:\d\s*)?(?!and\b)\p{L}{2,}\.?\s+\d)/u)
     .map(s => s.trim())
     .filter(Boolean);
 }
