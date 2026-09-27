@@ -14,7 +14,7 @@ const cache = new Map<string, Passage | null>();
 export function passageQueries(ref: string): string[] {
   return ref.replace(/[‐-―−]/g, "-")
     .split(/\s*[,;]\s*(?=(?:\d\s*)?\p{L}{2,})|(?<=:\d+(?:-\d+)?)\s+(?=(?:\d\s*)?(?!and\b)\p{L}{2,}\.?\s+\d)/u)
-    .map(s => s.trim())
+    .map(s => s.replace(/\s+/g, " ").trim()) // "1  Thessalonians" 404s with the double space
     .filter(Boolean);
 }
 
