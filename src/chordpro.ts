@@ -57,8 +57,8 @@ const lineSegments = (line: string): Segment[] => {
   return segments;
 };
 
-// "Verse 1:" and "CHORUS: (2x)" name the same sections as "Verse 1" and "CHORUS (2x)"
-const tidyLabel = (label: string) => label.replace(/:(?=\s|$)/g, "").replace(/\s+/g, " ").trim();
+// "Verse 1:", "Verse 1," and "CHORUS: (2x)" name the same sections as "Verse 1" and "CHORUS (2x)"
+const tidyLabel = (label: string) => label.replace(/:(?=\s|$)|,\s*$/g, "").replace(/\s+/g, " ").trim();
 
 /** "(Chorus x2)", "Chorus x2" and "Chorus x2:" name the same section: one pair of surrounding parentheses and a trailing colon dropped. */
 export const unparen = (label: string) => {
@@ -70,7 +70,7 @@ export const unparen = (label: string) => {
 // a bare "PRE" is how many charts shorten the pre-chorus; BARE_LABEL only takes it as the whole line, so "Precious" stays a lyric
 const HEADING = "(?:(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)|pre)";
 // "Chorus3" counts too: the heading word may run straight into its number
-const BARE_LABEL = new RegExp(String.raw`^${HEADING}(?:\b|(?=\d))(?:[\s\d.:/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
+const BARE_LABEL = new RegExp(String.raw`^${HEADING}(?:\b|(?=\d))(?:[\s\d.:,/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
 const CHORDS = /\[[^\]]*\]/g;
 const COMMENT_DIRECTIVE = /^\s*\{\s*(?:c|ci|comment|comment_italic)\s*:\s*(.+?)\s*\}\s*$/i;
 

@@ -60,6 +60,8 @@ test("slides follow the form map order, strip chords, and fall back to written o
   assert.deepEqual(deck.slides[0].lines, ["Amazing grace how sweet"]);
   assert.deepEqual(slidesFor({ title: "T", chordPro }).slides.map(s => s.label), ["Verse 1", "Chorus", "Verse 2"]);
   assert.deepEqual(slidesFor({ title: "T", chordPro }, ["Chorus"]).slides.map(s => s.label), ["Chorus"]);
+  // a repeat mark at the end of a sung line is for the band
+  assert.deepEqual(slidesFor({ title: "T", chordPro: "Chorus\n[C]The Great I Am (2x)" }).slides[0].lines, ["The Great I Am"]);
 });
 
 test("blank-line ChordPro keeps the first line as the stanza label", () => {
@@ -99,7 +101,8 @@ test("sectionLabel reads bare and parenthesised labels, never a sung line", () =
     "Verse 2:": "Verse 2",
     "Chorus Two": "Chorus Two",
     "PRE": "PRE",
-    "Pre 2:": "Pre 2"
+    "Pre 2:": "Pre 2",
+    "Verse 1,": "Verse 1"
   };
   for (const [line, label] of Object.entries(labels)) assert.equal(sectionLabel(line), label, line);
   for (const line of ["[G]When the [D]music [A]fades", "([G]Repeat)", "[A / Bm / G]", "Amazing grace how sweet the sound", "Chorus of angels sing", "Precious Lord", "Pre-ordained love"]) assert.equal(sectionLabel(line), null, line);
