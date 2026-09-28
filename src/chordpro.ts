@@ -110,8 +110,10 @@ const sung = (line: Segment[]) => line.some(s => s.text.trim());
 // chordPro: stanzas separated by blank lines, first line = label when it reads as one (see sectionLabel),
 // chords inline as [D]. A block that opens on a sung line has no label — never eat a lyric as one —
 // and carries on a stanza that so far holds only its label and chords ("(Bridge)" + a chord line).
+// A {c: …} comment starts its own stanza even with no blank line before it.
+const STANZA_BREAK = /\r?\n\s*\r?\n|\r?\n(?=\s*\{\s*(?:c|ci|comment|comment_italic)\s*:)/i;
 export function parseChordPro(chordPro: string): Stanza[] {
-  const blocks = (chordPro || "").split(/\r?\n\s*\r?\n/).map(b => b.split(/\r?\n/).filter(l => l.trim() !== "")).filter(b => b.length);
+  const blocks = (chordPro || "").split(STANZA_BREAK).map(b => b.split(/\r?\n/).filter(l => l.trim() !== "")).filter(b => b.length);
   if (blocks.every(b => b.length === 1)) return foldLoneLabels(blocks.map(b => b[0].trim()));
   const stanzas: Stanza[] = [];
   for (const block of blocks) {

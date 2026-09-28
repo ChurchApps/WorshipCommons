@@ -73,6 +73,12 @@ test("blank-line ChordPro keeps the first line as the stanza label", () => {
   assert.equal(s[1].lines.length, 1);
 });
 
+test("a {c: …} comment with no blank line before it starts its own stanza", () => {
+  const s = parseChordPro("{c: Chorus}\nI will [E7]obey.\n{c: Vamp}\n[F#m] [C#7]");
+  assert.deepEqual(s.map(x => x.label), ["Chorus", "Vamp"]);
+  assert.equal(s[0].lines.length, 1);
+});
+
 test("double-spaced lyrics fold onto section headings instead of one stanza per line", () => {
   const s = parseChordPro(">Lyrics\n\nIntroduction\n\n(Mary sings verse 1)\n\nFor the wonder of God's love,\n\nBridge\n\nTo the least of all His servants,");
   assert.deepEqual(s.map(x => x.label), ["Introduction", "Bridge"]);
