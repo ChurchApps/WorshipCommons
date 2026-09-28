@@ -77,6 +77,8 @@ test("a {c: …} comment with no blank line before it starts its own stanza", ()
   const s = parseChordPro("{c: Chorus}\nI will [E7]obey.\n{c: Vamp}\n[F#m] [C#7]");
   assert.deepEqual(s.map(x => x.label), ["Chorus", "Vamp"]);
   assert.equal(s[0].lines.length, 1);
+  const t = parseChordPro("Verse 2\n{c: Coro}\nAlabad\n\nVerse 3\nLine");
+  assert.deepEqual(t.map(x => [x.label, x.lines.length]), [["Verse 2", 1], ["Verse 3", 1]]);
 });
 
 test("double-spaced lyrics fold onto section headings instead of one stanza per line", () => {
