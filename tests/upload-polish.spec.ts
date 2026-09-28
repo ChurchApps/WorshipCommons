@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
+import path from "path";
+import { fileURLToPath } from "url";
 import { WC_API } from "./helpers/api";
 
 const TITLE = "Polish Spec Draft";
+const FIXTURES = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
 
 test.describe.serial("upload form polish", () => {
   test("gaps update as you type and link to their field", async ({ page }) => {
@@ -101,5 +104,45 @@ test.describe.serial("upload form polish", () => {
     await expect(page.locator(".dropzone")).toHaveCount(0);
     await expect(page.getByTestId("certifyWrote")).toHaveCount(0);
     await expect(page.getByTestId("contributionAgreed")).not.toBeChecked();
+  });
+  test("a ChordPro file loads into the lyrics box and shows in the preview", async ({ page }) => {
+    await page.goto("/upload");
+    await expect(page.getByTestId("lyrics-load")).toBeVisible();
+    await page.getByTestId("lyrics-file").setInputFiles(path.join(FIXTURES, "tiny.cho"));
+    await expect(page.locator("#lyrics")).toHaveValue(/Sing a new song/);
+    await expect(page.locator(".cp-preview-box")).toContainText("Sing a new song");
+  });
+
+  test("loading a file over typed lyrics asks first", async ({ page }) => {
+    await page.goto("/upload");
+    await page.fill("#lyrics", "Verse 1\nMy own words");
+    page.once("dialog", d => d.dismiss());
+    await page.getByTestId("lyrics-file").setInputFiles(path.join(FIXTURES, "tiny.cho"));
+    await expect(page.locator("#lyrics")).toHaveValue("Verse 1\nMy own words");
+    page.once("dialog", d => d.accept());
+    await page.getByTestId("lyrics-file").setInputFiles({ name: "again.cho", mimeType: "text/plain", buffer: Buffer.from("\uFEFFChorus\r\n[G]Sing a new song\r\n") });
+    await expect(page.locator("#lyrics")).toHaveValue("Chorus\n[G]Sing a new song\n");
+  });
+
+  test("a file that isn't text is refused and the lyrics stay", async ({ page }) => {
+    await page.goto("/upload");
+    await page.fill("#lyrics", "Verse 1\nKeep me");
+    await page.getByTestId("lyrics-file").setInputFiles(path.join(FIXTURES, "tiny.png"));
+    await expect(page.getByTestId("lyrics-file-problem")).toContainText("isn’t a file this slot takes");
+    await expect(page.locator("#lyrics")).toHaveValue("Verse 1\nKeep me");
+  });
+
+  test("lyrics without chords are enough, and the help shows a worked example", async ({ page }) => {
+    await page.goto("/upload");
+    await expect(page.locator(".field", { has: page.locator("#lyrics") })).toContainText("Chords are optional");
+    const example = page.getByTestId("lyrics-example");
+    await example.getByText("See an example").click();
+    await expect(example.locator("pre")).toContainText("[G]");
+    await expect(example).toContainText("PDF");
+    await page.fill("#lyrics", "Verse 1\nWords with no chords at all");
+    await page.getByTestId("submit-song").click();
+    const gaps = page.getByTestId("upload-error");
+    await expect(gaps).toContainText("Title");
+    await expect(gaps).not.toContainText("Lyrics and chords");
   });
 });

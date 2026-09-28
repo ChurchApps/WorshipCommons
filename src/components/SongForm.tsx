@@ -342,6 +342,34 @@ const Dropzone: React.FC<DropzoneProps> = (props) => {
   );
 };
 
+const LYRICS_ACCEPT = ".cho,.chopro,.chordpro,.crd,.txt";
+const LYRICS_EXAMPLE = "Verse 1\n[G]Holy, holy, [C]holy is the [G]Lord,\nthe [Em]whole earth [C]sings His [D]glory.\n\nChorus\n[C]Glory, [G]glory,\n[C]glory to the [D]King of [G]kings.";
+
+/** reads a ChordPro or text file into the lyrics box here in the browser — only the text travels, the same as pasting it */
+const LyricsFileLoad: React.FC<{ current: string; onText: (text: string) => void }> = (props) => {
+  const { t } = useI18n();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [problem, setProblem] = useState("");
+
+  const load = async (file: File) => {
+    const ext = "." + (file.name.split(".").pop() || "").toLowerCase();
+    if (!LYRICS_ACCEPT.split(",").includes(ext)) { setProblem(t("{name} isn’t a file this slot takes ({types}).", { name: file.name, types: LYRICS_ACCEPT.replace(/,/g, " ") })); return; }
+    if (file.size > MB) { setProblem(t("{name} is {size} — the limit here is {max} MB.", { name: file.name, size: fileSize(file.size), max: 1 })); return; }
+    setProblem("");
+    const text = (await file.text()).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+    if (props.current.trim() && !window.confirm(t("Replace the lyrics already in the box with {name}?", { name: file.name }))) return;
+    props.onText(text);
+  };
+
+  return (
+    <div className="lyrics-load-row">
+      <input ref={inputRef} type="file" accept={LYRICS_ACCEPT} data-testid="lyrics-file" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; e.target.value = ""; if (f) load(f); }} />
+      <button type="button" className="lyrics-load" data-testid="lyrics-load" onClick={() => inputRef.current?.click()}>{t("Load from a ChordPro or text file")}</button>
+      {problem && <span className="dz-problem" role="alert" data-testid="lyrics-file-problem">{problem}</span>}
+    </div>
+  );
+};
+
 interface Props {
   initial: SongFormValues;
   /** the note a reopened draft already carries */
@@ -633,8 +661,14 @@ export const SongForm: React.FC<Props> = (props) => {
             </div>
             <div className="field">
               <label htmlFor="lyrics">{t("Lyrics and chords")}</label>
-              <textarea id="lyrics" rows={9} placeholder={t("ChordPro welcome — [D]Every valley [G]shall be [D]lifted…")} required value={form.chordPro} onChange={e => set("chordPro", e.target.value)} />
-              <p className="hint">{t("Start each section with its name (Verse 1, Chorus…), chords in [brackets]. We generate the chord chart and downloads from this.")}</p>
+              <LyricsFileLoad current={form.chordPro} onText={text => set("chordPro", text)} />
+              <textarea id="lyrics" rows={9} placeholder={t("Verse 1\n[D]Every valley [G]shall be [D]lifted…")} required value={form.chordPro} onChange={e => set("chordPro", e.target.value)} />
+              <p className="hint">{t("Paste the words, one section at a time, each starting with its name (Verse 1, Chorus…). Chords are optional — put them in [brackets] before the syllable and churches can transpose.")}</p>
+              <details className="lyrics-example" data-testid="lyrics-example">
+                <summary>{t("See an example")}</summary>
+                <pre>{LYRICS_EXAMPLE}</pre>
+                <p className="hint">{t("Uploading sheet music as a PDF? We still need the words here — slides and lyric search come from them.")}</p>
+              </details>
             </div>
             {form.chordPro.trim() !== "" && (
               <div className="field">
