@@ -115,7 +115,11 @@ export function decodeShare(hash: string): Setlist | null {
   }
 }
 
-export const shareUrl = (setlist: Setlist) => `${location.origin}/setlists/shared#${encodeShare(setlist)}`;
+// The payload rides in the query on the canonical trailing-slash path: prod 301s /setlists/shared, and iOS link
+// handlers and in-app browsers drop a # fragment across that redirect. Links sent before still use the hash.
+export const shareUrl = (setlist: Setlist) => `${location.origin}/setlists/shared/?s=${encodeShare(setlist)}`;
+
+export const sharePayload = (loc: { search: string; hash: string }) => new URLSearchParams(loc.search).get("s") || loc.hash;
 
 // ---- duration ----
 
