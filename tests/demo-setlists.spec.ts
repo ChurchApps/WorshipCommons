@@ -87,7 +87,7 @@ test.describe("setlists", () => {
     await stubClipboard(page);
     await page.getByTestId("share-link").click();
     const link = await page.getByTestId("share-url").inputValue();
-    expect(link).toMatch(/\/setlists\/shared#[A-Za-z0-9_-]+$/);
+    expect(link).toMatch(/\/setlists\/shared\/\?s=[A-Za-z0-9_-]+$/);
 
     const fresh = await browser.newContext({ storageState: { cookies: [], origins: [] } }); // the config's storageState would sign the viewer in
     const viewer = await fresh.newPage();

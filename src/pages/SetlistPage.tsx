@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { loadSong, Song, songPath } from "../songs";
 import {
   chordProFor, createSetlist, decodeShare, defaultOrder, durationSeconds, formatMinutes, isShareAlike, keyChoices,
-  licenseLineFor, packFilesFor, sectionLabels, shareUrl, transposedSections, updateSetlist, useSetlists, type Setlist, type SetlistItem
+  licenseLineFor, packFilesFor, sectionLabels, sharePayload, shareUrl, transposedSections, updateSetlist, useSetlists, type Setlist, type SetlistItem
 } from "../setlists";
 import { chartShapes, unparen } from "../chordpro";
 import { licenseNotice } from "../licenses";
@@ -230,7 +230,7 @@ const Editor: React.FC<EditorProps> = (props) => {
     const copy = createSetlist(props.setlist.name, props.setlist.items, { shareAlike: props.setlist.shareAlike });
     navigate(`/setlists/${copy.id}`);
   };
-  const sub = (path: string) => (props.readOnly ? { pathname: `/setlists/shared/${path}`, hash: location.hash } : `/setlists/${props.setlist.id}/${path}`);
+  const sub = (path: string) => (props.readOnly ? { pathname: `/setlists/shared/${path}/`, search: location.search, hash: location.hash } : `/setlists/${props.setlist.id}/${path}`);
 
   return (
     <main className="wrap-narrow setlist-page">
@@ -292,7 +292,7 @@ const Editor: React.FC<EditorProps> = (props) => {
 interface StageProps {
   setlist: Setlist;
   songs: SongMap;
-  exitTo: string | { pathname: string; hash: string };
+  exitTo: string | { pathname: string; search: string; hash: string };
 }
 
 /** Fullscreen chart view for a tablet on a music stand: one song per screen, arrows to move, screen kept awake. */
@@ -368,7 +368,7 @@ const Stage: React.FC<StageProps> = (props) => {
 interface BookletProps {
   setlist: Setlist;
   songs: SongMap;
-  backTo: string | { pathname: string; hash: string };
+  backTo: string | { pathname: string; search: string; hash: string };
 }
 
 /** Every chart in order, one per page, license line under each — the Sunday booklet. */
@@ -417,7 +417,7 @@ export const SetlistPage: React.FC<Props> = (props) => {
   const location = useLocation();
   const lists = useSetlists();
   const shared = props.mode === "shared" || id === "shared";
-  const setlist = useMemo(() => (shared ? decodeShare(location.hash) : lists.find(s => s.id === id) || null), [shared, location.hash, lists, id]);
+  const setlist = useMemo(() => (shared ? decodeShare(sharePayload(location)) : lists.find(s => s.id === id) || null), [shared, location, lists, id]);
   const songs = useSongs(setlist?.items);
 
   if (!setlist) {
@@ -427,7 +427,7 @@ export const SetlistPage: React.FC<Props> = (props) => {
       </main>
     );
   }
-  const back = shared ? { pathname: "/setlists/shared", hash: location.hash } : `/setlists/${setlist.id}`;
+  const back = shared ? { pathname: "/setlists/shared/", search: location.search, hash: location.hash } : `/setlists/${setlist.id}`;
   if (props.mode === "stage") return <Stage setlist={setlist} songs={songs} exitTo={back} />;
   if (props.mode === "print") return <Booklet setlist={setlist} songs={songs} backTo={back} />;
   return <Editor setlist={setlist} songs={songs} readOnly={shared} />;
