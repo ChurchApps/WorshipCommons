@@ -43,6 +43,7 @@ export const Layout: React.FC = () => {
           <button className="nav-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}><span></span><span></span><span></span></button>
           <ul className={"nav-menu" + (open ? " open" : "")} onClick={() => setOpen(false)}>
             <li><NavLink to="/songs">{t("Discover")}</NavLink></li>
+            <li><NavLink to="/listen" data-testid="nav-listen">{t("Listen")}</NavLink></li>
             <li><NavLink to="/setlists" data-testid="nav-setlists">{t("Service plans")}</NavLink></li>
             <li><NavLink to="/upload">{t("For Songwriters")}</NavLink></li>
             <li><NavLink to="/mission">{t("Our Mission")}</NavLink></li>
