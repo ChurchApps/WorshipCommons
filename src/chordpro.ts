@@ -110,8 +110,23 @@ const sung = (line: Segment[]) => line.some(s => s.text.trim());
 // chordPro: stanzas separated by blank lines, first line = label when it reads as one (see sectionLabel),
 // chords inline as [D]. A block that opens on a sung line has no label — never eat a lyric as one —
 // and carries on a stanza that so far holds only its label and chords ("(Bridge)" + a chord line).
+// A {c: …} comment starts its own stanza even with no blank line before it; one straight after a label
+// ("Verse 2" + "{c: Coro}" in harvested translations) is dropped, so the stanza keeps the label the form uses.
+function splitAtComments(block: string[]): string[][] {
+  const out: string[][] = [[]];
+  for (const line of block) {
+    const cur = out[out.length - 1];
+    if (cur.length && COMMENT_DIRECTIVE.test(line)) {
+      if (cur.length === 1 && sectionLabel(cur[0])) continue;
+      out.push([]);
+    }
+    out[out.length - 1].push(line);
+  }
+  return out;
+}
+
 export function parseChordPro(chordPro: string): Stanza[] {
-  const blocks = (chordPro || "").split(/\r?\n\s*\r?\n/).map(b => b.split(/\r?\n/).filter(l => l.trim() !== "")).filter(b => b.length);
+  const blocks = (chordPro || "").split(/\r?\n\s*\r?\n/).map(b => b.split(/\r?\n/).filter(l => l.trim() !== "")).filter(b => b.length).flatMap(splitAtComments);
   if (blocks.every(b => b.length === 1)) return foldLoneLabels(blocks.map(b => b[0].trim()));
   const stanzas: Stanza[] = [];
   for (const block of blocks) {
