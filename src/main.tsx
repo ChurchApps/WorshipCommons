@@ -7,6 +7,7 @@ import { Layout } from "./components/Layout";
 import { Home } from "./pages/Home";
 import { Songs } from "./pages/Songs";
 import { New } from "./pages/New";
+import { Listen } from "./pages/Listen";
 import { SongPage } from "./pages/SongPage";
 import { PrintChart } from "./pages/PrintChart";
 import { SheetMusic } from "./pages/SheetMusic";
@@ -59,6 +60,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
               <Route path="/new" element={<New />} />
+              <Route path="/listen" element={<Listen />} />
               <Route path="/songs/:id" element={<SongPage />} />
               <Route path="/songs/:id/transcribe" element={<Transcribe />} />
               <Route path="/songs/:id/edit" element={<EditSong />} />

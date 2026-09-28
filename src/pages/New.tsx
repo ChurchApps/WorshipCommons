@@ -36,7 +36,7 @@ export const New: React.FC = () => {
       <div className="page-head">
         <span className="eyebrow">{t("Recently added")}</span>
         <h1>{t("New songs")}</h1>
-        <p className="lede">{t("Every song added to the commons, newest first.")}</p>
+        <p className="lede">{t("Every song added to the commons, newest first.")} <Link to="/listen">{t("Listen to them shuffled →")}</Link></p>
       </div>
 
       {!songs && <p>{t("Loading…")}</p>}
