@@ -32,7 +32,7 @@ const asType = (v: string | null): ProposalType | null => (PROPOSAL_TYPES as str
 function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFiles, base: any) {
   if (type === "removal") return { type, name: base.name, language: base.language, license: base.license, detail: { writer: base.detail?.writer, songKey: base.detail?.songKey } };
   const contribution = { contributionAgreed: form.contributionAgreed, contributionAt: new Date().toISOString() };
-  if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, ...contribution, recordingOwned: files.demoAudio ? form.recordingOwned : base.detail?.recordingOwned } };
+  if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, ...contribution, recordingOwned: files.demoAudio || files.accompaniment ? form.recordingOwned : base.detail?.recordingOwned } };
   if (type === "recording") return { ...base, type, detail: { ...base.detail, ...contribution, recordingOwned: form.recordingOwned, masterLicense: form.masterLicense } };
   const edited = payloadFrom({ ...form, license: base.license }, hasRecording(files), base);
   const writerGrant = Object.fromEntries(GRANT_KEYS.map(k => [k, base.detail?.[k]]));

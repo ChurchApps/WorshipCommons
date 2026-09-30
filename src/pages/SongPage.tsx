@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { idOf, writerPath, coverOf, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
+import { idOf, writerPath, coverOf, fileUrl, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -265,6 +265,7 @@ export const SongPage: React.FC = () => {
   // provenance footnote: whether CCLI needs a report
   const ccliFree = !needsCcliReport(song);
   const recordingUrl = recordingUrlOf(song);
+  const accompanimentUrl = fileUrl(song, "accompaniment");
   const playLabel = playState === "loading" ? t("Loading…") : playState === "playing" ? t("Stop") : (recordingUrl || song.hasAccompaniment) ? t("Play") : t("Preview (synthesized)");
   const handlePlayPreview = async () => {
     if (playState === "playing") { stopPlayback(); return; }
@@ -530,7 +531,7 @@ export const SongPage: React.FC = () => {
             )}
           </section>
 
-          {(song.masterUrl || song.demoAudioUrl || song.videoUrl) && (
+          {(song.masterUrl || song.demoAudioUrl || accompanimentUrl || song.videoUrl) && (
             <section className="panel" data-testid="recordings-card">
               <h3>{t("Recordings")}</h3>
               {song.masterUrl && (
@@ -543,6 +544,12 @@ export const SongPage: React.FC = () => {
                 <>
                   <p className="listen-kind">{t("Demo recording")} · {t("As shared by {writer}", { writer: song.writer })}</p>
                   <audio controls src={song.demoAudioUrl} style={{ width: "100%" }} data-testid="demo-audio" />
+                </>
+              )}
+              {accompanimentUrl && (
+                <>
+                  <p className="listen-kind">{t("Accompaniment")}</p>
+                  <audio controls src={accompanimentUrl} preload="none" style={{ width: "100%" }} data-testid="accompaniment-audio" />
                 </>
               )}
               {song.videoUrl && (
