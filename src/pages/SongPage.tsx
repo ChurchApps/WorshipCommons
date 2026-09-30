@@ -413,7 +413,8 @@ export const SongPage: React.FC = () => {
             {stanzas.length > 2 && (
               <div className="song-map" aria-label={t("Song structure")}>
                 {t("Jump to")}
-                {stanzas.map((st, i) => (
+                {/* a stanza with no label (lines run on after a chorus) has nothing to jump by */}
+                {stanzas.map((st, i) => st.label && (
                   <button key={i} type="button" title={st.label} onClick={() => document.querySelectorAll(".stanza")[i]?.scrollIntoView({ behavior: "smooth", block: "start" })}>{st.label.replace(/^(Verse|Estrofa|Strophe)\s+(\d+)$/i, "$2")}</button>
                 ))}
               </div>
