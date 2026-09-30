@@ -68,17 +68,17 @@ export type GrantKey = typeof GRANT_KEYS[number];
 export const grantComplete = (f: Pick<SongFormValues, GrantKey>) => GRANT_KEYS.every(k => f[k]);
 const blankGrant = (): Pick<SongFormValues, GrantKey> => ({ certifyAdult: false, certifyWrote: false, certifyCowriters: false, certifyClear: false, certifyForever: false, certifyHuman: false });
 
-export type SongFiles = { demoAudio?: File; master?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File; score?: File; scoreImage?: File; lyrics?: File };
+export type SongFiles = { demoAudio?: File; master?: File; accompaniment?: File; sheetPdf?: File; stemsZip?: File; midi?: File; art?: File; thumb?: File; score?: File; scoreImage?: File; lyrics?: File };
 
 /** Either audio file is a recording someone must vouch for. */
-export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.master);
+export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.master || files.accompaniment);
 
 /** Mirrors the API's NO_MELODY_MESSAGE: chords and words alone don't teach a church the tune. */
 const hasMelody = (files: SongFiles, videoUrl: string, attached: string[]) =>
   !!(files.demoAudio || files.master || files.sheetPdf || files.midi || files.stemsZip || videoUrl.trim()) || attached.some(n => /^(demoAudio|master|sheetPdf|stemsZip)\.|^tune\./.test(n));
 
 /** Progress-line names for every upload role, keyed by SongFiles key. */
-export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", master: "master recording", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
+export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording", master: "master recording", accompaniment: "accompaniment track", sheetPdf: "sheet music", stemsZip: "multitracks", midi: "MIDI melody", art: "cover art", thumb: "cover art", score: "score", scoreImage: "score scan", lyrics: "lyrics file" };
 
 export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", ccli: "", chordPro: "", videoUrl: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false, contributionAgreed: false });
 
@@ -707,6 +707,7 @@ export const SongForm: React.FC<Props> = (props) => {
               </>
             )}
             <Dropzone label="Demo recording" hint="MP3, WAV or M4A · a phone recording is fine" accept=".mp3,.wav,.m4a,.ogg" maxMB={25} testId="file-demo" onFile={f => setFiles(x => ({ ...x, demoAudio: f }))} onClear={() => setFiles(x => ({ ...x, demoAudio: undefined }))} />
+            <Dropzone label="Accompaniment track" hint="The music without the lead vocal, for a church to sing along to · MP3, WAV or M4A" accept=".mp3,.wav,.m4a,.ogg,.flac" maxMB={90} testId="file-accompaniment" onFile={f => setFiles(x => ({ ...x, accompaniment: f }))} onClear={() => setFiles(x => ({ ...x, accompaniment: undefined }))} />
             {props.proposalType !== "additionalFile" && (
               <Dropzone label="Sheet music" hint="Lead sheet or vocal score · PDF or MusicXML" accept=".pdf,.xml,.musicxml" maxMB={25} testId="file-sheet" onFile={f => setFiles(x => ({ ...x, sheetPdf: f }))} onClear={() => setFiles(x => ({ ...x, sheetPdf: undefined }))} />
             )}
@@ -731,7 +732,7 @@ export const SongForm: React.FC<Props> = (props) => {
               <input type="url" id="video-url" data-testid="video-url" placeholder="https://www.youtube.com/watch?v=…" value={form.videoUrl} onChange={e => set("videoUrl", e.target.value)} />
             </div>
           )}
-          {files.demoAudio && !showMaster && <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />}
+          {(files.demoAudio || files.accompaniment) && !showMaster && <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />}
         </section>
       )}
 
@@ -761,9 +762,9 @@ export const SongForm: React.FC<Props> = (props) => {
       {showMaster && (
         <section className="step" id="step-master" tabIndex={-1} data-testid="master-step">
           <h2><span className="n">{step()}</span>{t("Master recording")}</h2>
-          <p className="hint">{t("The finished mix a band can play to. It unlocks stems and a full mix on the song page; the composition grant above stays as it is.")}</p>
+          <p className="hint">{t("The finished song, vocals and all. It unlocks stems and a full mix on the song page; the composition grant above stays as it is. A backing track without the vocal goes under Files as an accompaniment track.")}</p>
           <div className="step-body dz-row">
-            <Dropzone label="Master recording" hint="The finished mix · WAV, MP3, M4A or FLAC" accept=".wav,.mp3,.m4a,.flac,.ogg" maxMB={90} testId="file-master" onFile={f => setFiles(x => ({ ...x, master: f }))} onClear={() => setFiles(x => ({ ...x, master: undefined }))} />
+            <Dropzone label="Master recording" hint="The finished mix, vocals included · WAV, MP3, M4A or FLAC" accept=".wav,.mp3,.m4a,.flac,.ogg" maxMB={90} testId="file-master" onFile={f => setFiles(x => ({ ...x, master: f }))} onClear={() => setFiles(x => ({ ...x, master: undefined }))} />
           </div>
           <h3 style={{ margin: "16px 0 4px" }}>{t("Master recording license")}</h3>
           <p className="hint">{t("The recording can carry a different license from the composition.")}</p>
