@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ChordProPreview } from "./ChordProPreview";
 import { wcGet } from "../api";
 import { parseChordPro, lintChordPro } from "../chordpro";
-import { allowsDerivatives, licenseById, UPLOADABLE } from "../licenses";
+import { allowsDerivatives, isCustomLicense, licenseById, UPLOADABLE, type License } from "../licenses";
 import { prepareArt } from "../artThumb";
 import "../styles/upload.css";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -82,6 +82,9 @@ export const FILE_LABEL: Record<string, string> = { demoAudio: "demo recording",
 
 export const blankSong = (language: string): SongFormValues => ({ submissionType: "new", parentSongId: "", translator: "", arranger: "", title: "", writer: "", year: "", songKey: "D", bpm: "", themes: "", language, scripture: "", ccli: "", chordPro: "", videoUrl: "", license: "WC", scope: "composition", masterLicense: "WC", proAnswer: "", ...blankGrant(), recordingOwned: false, contributionAgreed: false });
 
+/** A license the form can show: the public uploadable set, or a writer grant the API gives only to named users (it re-checks). */
+const offered = (id?: string) => !!id && (UPLOADABLE.some(l => l.id === id) || isCustomLicense(licenseById(id)));
+
 export const songFromPayload = (payload: any): SongFormValues => {
   const d = payload?.detail || {};
   const parentSongId = d.parentSongId || "";
@@ -103,9 +106,9 @@ export const songFromPayload = (payload: any): SongFormValues => {
     ccli: d.ccli ? String(d.ccli) : "",
     chordPro: d.chordPro || "",
     videoUrl: d.videoUrl || "",
-    license: UPLOADABLE.some(l => l.id === payload?.license) ? payload.license : "WC",
+    license: offered(payload?.license) ? payload.license : "WC",
     scope: d.masterLicense ? "both" : "composition",
-    masterLicense: UPLOADABLE.some(l => l.id === d.masterLicense) ? d.masterLicense : "WC",
+    masterLicense: offered(d.masterLicense) ? d.masterLicense : "WC",
     proAnswer: d.proAnswer || "",
     // songs attested before 1.2 carry only the single `certified` flag — it stands in for every split box
     ...Object.fromEntries(GRANT_KEYS.map(k => [k, k in d ? !!d[k] : !!d.certified])) as Pick<SongFormValues, GrantKey>,
@@ -228,6 +231,8 @@ interface LicenseRadiosProps {
   testId: string;
   /** names only — used for the master, once the composition cards above have explained each license */
   compact?: boolean;
+  /** writer grants this user may pick (COMMONS_LICENSE_GRANTS), shown after the public three */
+  extra?: License[];
 }
 
 /** The three uploadable licenses as radios; the same set serves the composition and the master, under different names. */
@@ -267,6 +272,15 @@ const LicenseRadios: React.FC<LicenseRadiosProps> = (props) => {
           />
         </span>
       </label>
+      {props.extra?.map(l => (
+        <label className="choice" key={l.id}>
+          <input type="radio" name={props.name} value={l.id} checked={props.value === l.id} onChange={() => props.onChange(l.id)} />
+          <span>
+            <strong>{l.label}</strong>
+            <p><a href={l.legalUrl || l.deedUrl} target="_blank" rel="license noopener">{t("Read the license.")}</a></p>
+          </span>
+        </label>
+      ))}
     </div>
   );
 };
@@ -404,6 +418,7 @@ export const SongForm: React.FC<Props> = (props) => {
   const [catalog, setCatalog] = useState<Song[]>([]);
   const [parentQuery, setParentQuery] = useState("");
   const [artPreview, setArtPreview] = useState("");
+  const [granted, setGranted] = useState<License[]>([]);
   const lock = useRef(false);
   // an edit is already aimed at one song — only a brand new submission can duplicate the library
   const isNewSong = !props.proposalType;
@@ -424,6 +439,10 @@ export const SongForm: React.FC<Props> = (props) => {
   const set = (field: string, value: string | boolean) => setForm(f => ({ ...f, [field]: value }));
 
   useEffect(() => { props.onChange?.(form); }, [form]);
+  useEffect(() => {
+    if (!showLicense && !showMaster) return;
+    wcGet("/submissions/licenses", true).then((ids: string[]) => setGranted((ids || []).map(id => licenseById(id)).filter((l, i) => l.id === ids[i]))).catch(() => { });
+  }, [showLicense, showMaster]);
   // a file dropped beside a drop zone would make the browser open it and leave the page — swallow those
   useEffect(() => {
     const stop = (e: DragEvent) => { if (!(e.target as HTMLElement)?.closest?.(".dropzone")) e.preventDefault(); };
@@ -755,7 +774,7 @@ export const SongForm: React.FC<Props> = (props) => {
           <h3 style={{ margin: "0 0 4px" }}>{t("Composition license")}</h3>
           <p className="hint">{t("Every option makes the song free for worship forever. They differ in what you keep.")}</p>
           {/* radio values are the registry ids in licenses.json; only uploadable licenses are offered (SA and NC are harvest-only) */}
-          <LicenseRadios name="license" value={form.license} onChange={id => set("license", id)} testId="license-choice" />
+          <LicenseRadios name="license" value={form.license} onChange={id => set("license", id)} testId="license-choice" extra={granted} />
         </section>
       )}
 
@@ -768,7 +787,7 @@ export const SongForm: React.FC<Props> = (props) => {
           </div>
           <h3 style={{ margin: "16px 0 4px" }}>{t("Master recording license")}</h3>
           <p className="hint">{t("The recording can carry a different license from the composition.")}</p>
-          <LicenseRadios name="masterLicense" value={form.masterLicense} onChange={id => set("masterLicense", id)} testId="master-license-choice" compact={isNewSong} />
+          <LicenseRadios name="masterLicense" value={form.masterLicense} onChange={id => set("masterLicense", id)} testId="master-license-choice" compact={isNewSong} extra={granted} />
           <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />
         </section>
       )}
