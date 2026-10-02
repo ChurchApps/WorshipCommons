@@ -9,10 +9,10 @@ const cache = new Map<string, Passage | null>();
  * bible-api.com queries for a reference as writers type it: any dash becomes a hyphen ("Romans 8:15–16"), and a list
  * of passages splits where a comma or semicolon is followed by a book name ("Psalm 91:4, Isaiah 43:2") — bible-api takes
  * one book per query, or where only spaces follow a verse ("Luke 24:32    Isaiah 6:6-8"). A verse list within one chapter
- * ("John 3:16,18") stays whole.
+ * ("John 3:16,18") stays whole. Spaces inside a reference ("Isaiah 40: 1-5, 9") close up, or bible-api finds nothing.
  */
 export function passageQueries(ref: string): string[] {
-  return ref.replace(/[‐-―−]/g, "-")
+  return ref.replace(/[‐-―−]/g, "-").replace(/(\d)\s*([:,-])\s*(?=\d)/g, "$1$2")
     .split(/\s*[,;]\s*(?=(?:\d\s*)?\p{L}{2,})|(?<=:\d+(?:-\d+)?)\s+(?=(?:\d\s*)?(?!and\b)\p{L}{2,}\.?\s+\d)/u)
     .map(s => s.replace(/\s+/g, " ").trim()) // "1  Thessalonians" 404s with the double space
     .filter(Boolean);
