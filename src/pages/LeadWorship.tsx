@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { idOf, leadFiles, instrumentalUrlOf, recordingUrlOf, songPath } from "../songs";
-import { KEY_CHOICES, parseChordPro, semitonesBetween, splitKey, unparen } from "../chordpro";
+import { KEY_CHOICES, foldUnlabelled, parseChordPro, semitonesBetween, splitKey, unparen } from "../chordpro";
 import { abcKeyRoot } from "../abc";
 import { Instrument, loadTune, TunePlayer } from "../midiPlayer";
 import { loadRecording } from "../recordingPlayer";
@@ -113,7 +113,7 @@ export const LeadWorship: React.FC = () => {
     if (files.timing) {
       fetch(files.timing).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
         // older timing files still write "(Verse 1)"
-        if (!dead) { setStanzas((j.stanzas || []).map((s: TimedStanza) => ({ ...s, label: unparen(s.label) }))); setDuration(j.duration || 0); }
+        if (!dead) { setStanzas(foldUnlabelled((j.stanzas || []).map((s: TimedStanza) => ({ ...s, label: unparen(s.label) })))); setDuration(j.duration || 0); }
       }).catch(() => { if (!dead) setStanzas([]); });
     } else setStanzas([]);
     if (abc) fetch(abc).then(r => r.ok ? r.text() : "").then(a => { if (!dead && a) setTuneRoot(abcKeyRoot(a)); }).catch(() => {});

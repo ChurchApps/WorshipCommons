@@ -67,6 +67,21 @@ export const unparen = (label: string) => {
   return tidyLabel(m ? m[1] : t);
 };
 
+/**
+ * Timing stanzas as Lead worship plays them: a verse with a blank line inside it times as "Verse 1" plus unlabelled
+ * blocks, and a run that ends the verse where the next block starts skips the rest of it. Each unlabelled block joins
+ * the labelled stanza before it; blocks before any label, or a song with none, stay as they are.
+ */
+export function foldUnlabelled<T extends { label: string; lines: unknown[] }>(stanzas: T[]): T[] {
+  const out: T[] = [];
+  for (const s of stanzas) {
+    const prev = out[out.length - 1];
+    if (!s.label.trim() && prev?.label.trim()) out[out.length - 1] = { ...prev, lines: [...prev.lines, ...s.lines] };
+    else out.push(s);
+  }
+  return out;
+}
+
 // a bare "PRE" is how many charts shorten the pre-chorus; BARE_LABEL only takes it as the whole line, so "Precious" stays a lyric
 const HEADING = "(?:(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)|pre)";
 // "Chorus3" counts too: the heading word may run straight into its number
