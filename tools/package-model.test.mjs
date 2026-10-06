@@ -4,7 +4,16 @@ import assert from "node:assert/strict";
 import { composeMatrix, matrixForLicense, needsCcliReport, rightsMatrixFor } from "../src/rights.ts";
 import { isModernWorship } from "../src/era.ts";
 import { sectionsFor, slidesFor } from "../src/slides.ts";
-import { chartShapes, parseChordPro, rootAt, sectionLabel, semitonesBetween, toNashville, transposeChord, unparen } from "../src/chordpro.ts";
+import { chartShapes, foldUnlabelled, parseChordPro, rootAt, sectionLabel, semitonesBetween, toNashville, transposeChord, unparen } from "../src/chordpro.ts";
+
+test("Lead worship folds an unlabelled timing block into the labelled stanza before it", () => {
+  const st = (label, ...lines) => ({ label, lines });
+  assert.deepEqual(foldUnlabelled([st("Verse 1", "a", "b"), st("", "c"), st("", "d"), st("Chorus", "e"), st("", "f")]),
+    [st("Verse 1", "a", "b", "c", "d"), st("Chorus", "e", "f")]);
+  // nothing to join before the first label, or in a song with no labels
+  assert.deepEqual(foldUnlabelled([st("", "a"), st("Verse", "b")]), [st("", "a"), st("Verse", "b")]);
+  assert.deepEqual(foldUnlabelled([st("", "a"), st("", "b")]), [st("", "a"), st("", "b")]);
+});
 import { passageQueries } from "../src/bible.ts";
 
 test("PD permits everything with no conditions", () => {
