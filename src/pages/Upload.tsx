@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
-import { uploadFile, wcGet, wcPost, wcPut } from "../api";
-import { SongForm, blankSong, conventionalName, FILE_LABEL, hasRecording, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
+import { SongForm, blankSong, conventionalName, FILE_LABEL, hasRecordingFile, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -27,6 +27,8 @@ export const Upload: React.FC = () => {
   const creatingRef = useRef<Promise<string> | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const busyRef = useRef(false);
+  // files uploaded the moment they were picked, by stored name, so submit doesn't send them twice
+  const uploadsRef = useRef(new Map<string, { file: File; job: Promise<boolean> }>());
 
   useEffect(() => {
     if (!user || !draftParam) return;
@@ -75,15 +77,41 @@ export const Upload: React.FC = () => {
       const saved = () => setSaveStatus(t("Draft saved {time}", { time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) }));
       ensureDraft(form, false).then(id => {
         if (!hadId) return saved();
-        return wcPut(`/submissions/${id}`, { payload: payloadFrom(form, false) }, true).then(saved);
+        // keep the ownership box: a reopened draft's recordings are already on the server
+        return wcPut(`/submissions/${id}`, { payload: payloadFrom(form, true) }, true).then(saved);
       }).catch(() => setSaveStatus(t("Not saved — check your connection")));
     }, 1000);
+  };
+
+  const handleFilePick = (role: string, file: File, form: SongFormValues) => {
+    // no draft without a title yet; submit uploads it then
+    if (form.title.trim().length < 2) return;
+    const name = conventionalName(role, file);
+    const job = ensureDraft(form, false)
+      .then(id => uploadFile(id, file, name))
+      .then(() => { setAttached(a => a.includes(name) ? a : [...a, name]); return true; }, () => false);
+    uploadsRef.current.set(name, { file, job });
+  };
+
+  const handleFileRemove = async (name: string) => {
+    const pending = uploadsRef.current.get(name);
+    uploadsRef.current.delete(name);
+    // let an upload in flight land before it is deleted
+    if (pending) await pending.job;
+    if (!draftIdRef.current) return;
+    try {
+      await wcDelete(`/submissions/${draftIdRef.current}/files/${encodeURIComponent(name)}`, true);
+      setAttached(a => a.filter(n => n !== name));
+    } catch (err) {
+      setError((err as Error).message);
+    }
   };
 
   const handleSubmit = async (form: SongFormValues, files: SongFiles) => {
     if (busyRef.current) return;
     setError("");
-    if (hasRecording(files) && !form.recordingOwned) {
+    const recording = hasRecordingFile(files, attached);
+    if (recording && !form.recordingOwned) {
       setError(t("Please confirm you own this recording (or have the owner's permission to share it)."));
       return;
     }
@@ -92,10 +120,12 @@ export const Upload: React.FC = () => {
     setBusy(true);
     setProgress("");
     try {
-      const id = await ensureDraft(form, hasRecording(files));
-      await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, hasRecording(files)) }, true);
+      const id = await ensureDraft(form, recording);
+      await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, recording) }, true);
       for (const [role, file] of Object.entries(files)) {
         if (!file) continue;
+        const sent = uploadsRef.current.get(conventionalName(role, file));
+        if (sent?.file === file && await sent.job) continue;
         const name = t(FILE_LABEL[role] || role);
         setProgress(t("Uploading {name}…", { name }));
         await uploadFile(id, file, conventionalName(role, file), pct => setProgress(t("Uploading {name}… {pct}%", { name, pct: Math.round(pct) })));
@@ -159,6 +189,8 @@ export const Upload: React.FC = () => {
           onChange={handleFormChange}
           onSubmit={handleSubmit}
           attached={attached}
+          onFilePick={handleFilePick}
+          onFileRemove={handleFileRemove}
         />
       )}
     </main>
