@@ -314,6 +314,8 @@ interface DropzoneProps {
   maxMB: number;
   testId: string;
   preview?: string;
+  /** a file a reopened draft already uploaded to this slot */
+  attachedName?: string;
   onFile: (f: File) => void;
   onClear: () => void;
 }
@@ -341,8 +343,9 @@ const Dropzone: React.FC<DropzoneProps> = (props) => {
     props.onClear();
   };
 
+  const shown = attached ? attached.name : props.attachedName;
   return (
-    <div className={"dropzone" + (over ? " over" : "") + (attached ? " attached" : "")} tabIndex={0} role="button" aria-label={t("Upload {label}", { label: t(props.label) })}
+    <div className={"dropzone" + (over ? " over" : "") + (shown ? " attached" : "")} tabIndex={0} role="button" aria-label={t("Upload {label}", { label: t(props.label) })}
       onClick={() => inputRef.current?.click()}
       onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
       onDragOver={e => { e.preventDefault(); setOver(true); }}
@@ -350,9 +353,9 @@ const Dropzone: React.FC<DropzoneProps> = (props) => {
       onDrop={e => { e.preventDefault(); setOver(false); if (e.dataTransfer.files?.[0]) pick(e.dataTransfer.files[0]); }}>
       <input ref={inputRef} type="file" accept={props.accept} data-testid={props.testId} style={{ display: "none" }} onChange={e => { if (e.target.files?.[0]) pick(e.target.files[0]); }} />
       {props.preview && attached && <img className="dz-art" src={props.preview} alt="" />}
-      {attached
-        ? <><b>{t("Attached ✓")}</b>{attached.name} · {fileSize(attached.size)}
-          <button type="button" className="dz-clear" data-testid={props.testId + "-clear"} aria-label={t("Remove {name}", { name: attached.name })} onClick={clear}>✕</button></>
+      {shown
+        ? <><b>{t("Attached ✓")}</b>{shown}{attached && <> · {fileSize(attached.size)}</>}
+          <button type="button" className="dz-clear" data-testid={props.testId + "-clear"} aria-label={t("Remove {name}", { name: shown })} onClick={clear}>✕</button></>
         : <><b>{t(props.label)}</b>{t(props.hint)} · {t("up to {max} MB", { max: props.maxMB })}</>}
       {problem && <span className="dz-problem" role="alert">{problem}</span>}
     </div>
@@ -405,12 +408,27 @@ interface Props {
   onSubmit: (form: SongFormValues, files: SongFiles, note: string) => void;
   /** file names a reopened draft already uploaded; they stay attached when it is sent again */
   attached?: string[];
+  /** the page uploads a file as soon as it is picked, so a draft keeps it through a reload */
+  onFilePick?: (role: string, file: File, form: SongFormValues) => void;
+  /** drop an uploaded file from the draft */
+  onFileRemove?: (name: string) => void;
 }
 
 export const SongForm: React.FC<Props> = (props) => {
   const { t } = useI18n();
   const [form, setForm] = useState<SongFormValues>(props.initial);
   const [files, setFiles] = useState<SongFiles>({});
+  const attachedFor = (role: string) => (props.attached || []).find(n => FIXED_NAMES[role] ? n === FIXED_NAMES[role] : n.startsWith(role + "."));
+  const pickFile = (role: keyof SongFiles, f: File) => {
+    setFiles(x => ({ ...x, [role]: f }));
+    props.onFilePick?.(role, f, form);
+  };
+  const clearFile = (role: keyof SongFiles) => {
+    const name = files[role] ? conventionalName(role, files[role] as File) : attachedFor(role);
+    setFiles(x => ({ ...x, [role]: undefined }));
+    if (name) props.onFileRemove?.(name);
+  };
+  const slot = (role: keyof SongFiles) => ({ attachedName: props.onFileRemove ? attachedFor(role) : undefined, onFile: (f: File) => pickFile(role, f), onClear: () => clearFile(role) });
   const [note, setNote] = useState(props.initialNote || "");
   // the gap list appears after the first submit attempt, then tracks every edit
   const [tried, setTried] = useState(false);
@@ -523,7 +541,7 @@ export const SongForm: React.FC<Props> = (props) => {
     if (props.proposalType === "additionalFile" && !Object.values(files).some(Boolean)) gap(t("Add at least one file."), "step-files");
     if (isNewSong && form.submissionType === "new" && !hasMelody(files, form.videoUrl, props.attached || [])) gap(t("A way to learn the melody — a demo recording, sheet music, a MIDI file or a video link"), "step-files");
     if (form.videoUrl.trim() && !/^https?:\/\/\S+$/i.test(form.videoUrl.trim())) gap(t("Video link must be a web address starting with https://"), "video-url");
-    if (showMaster && !files.master) gap(t("Master recording"), "step-master");
+    if (showMaster && !files.master && !attachedFor("master")) gap(t("Master recording"), "step-master");
     if (hasRecordingFile(files, props.attached) && !form.recordingOwned) gap(t("This recording is mine (or I have the owner’s permission to share it)."), "recording-owned");
     if (showWord && !grantComplete(form)) gap(t("Your word — every box in this step"), GRANT_KEYS.find(k => !form[k]) || "step-word");
     if (showContribution && !form.contributionAgreed) gap(t("Confirm your change is accurate"), "contributionAgreed");
@@ -724,27 +742,27 @@ export const SongForm: React.FC<Props> = (props) => {
           <div className="step-body dz-row">
             {props.proposalType === "additionalFile" && (
               <>
-                <Dropzone label="Score" hint="MusicXML, MuseScore or LilyPond · .musicxml .xml .mxl .mscz .ly" accept=".musicxml,.xml,.mxl,.mscz,.ly" maxMB={25} testId="file-score" onFile={f => setFiles(x => ({ ...x, score: f }))} onClear={() => setFiles(x => ({ ...x, score: undefined }))} />
-                <Dropzone label="Score scan" hint="A PDF or image of the printed score · .pdf .png .jpg .tif" accept=".pdf,.png,.jpg,.jpeg,.tif" maxMB={25} testId="file-score-image" onFile={f => setFiles(x => ({ ...x, scoreImage: f }))} onClear={() => setFiles(x => ({ ...x, scoreImage: undefined }))} />
+                <Dropzone label="Score" hint="MusicXML, MuseScore or LilyPond · .musicxml .xml .mxl .mscz .ly" accept=".musicxml,.xml,.mxl,.mscz,.ly" maxMB={25} testId="file-score" {...slot("score")} />
+                <Dropzone label="Score scan" hint="A PDF or image of the printed score · .pdf .png .jpg .tif" accept=".pdf,.png,.jpg,.jpeg,.tif" maxMB={25} testId="file-score-image" {...slot("scoreImage")} />
               </>
             )}
-            <Dropzone label="Demo recording" hint="MP3, WAV or M4A · a phone recording is fine" accept=".mp3,.wav,.m4a,.ogg" maxMB={25} testId="file-demo" onFile={f => setFiles(x => ({ ...x, demoAudio: f }))} onClear={() => setFiles(x => ({ ...x, demoAudio: undefined }))} />
-            <Dropzone label="Accompaniment track" hint="The music without the lead vocal, for a church to sing along to · MP3, WAV or M4A" accept=".mp3,.wav,.m4a,.ogg,.flac" maxMB={90} testId="file-accompaniment" onFile={f => setFiles(x => ({ ...x, accompaniment: f }))} onClear={() => setFiles(x => ({ ...x, accompaniment: undefined }))} />
+            <Dropzone label="Demo recording" hint="MP3, WAV or M4A · a phone recording is fine" accept=".mp3,.wav,.m4a,.ogg" maxMB={25} testId="file-demo" {...slot("demoAudio")} />
+            <Dropzone label="Accompaniment track" hint="The music without the lead vocal, for a church to sing along to · MP3, WAV or M4A" accept=".mp3,.wav,.m4a,.ogg,.flac" maxMB={90} testId="file-accompaniment" {...slot("accompaniment")} />
             {props.proposalType !== "additionalFile" && (
-              <Dropzone label="Sheet music" hint="Lead sheet or vocal score · PDF or MusicXML" accept=".pdf,.xml,.musicxml" maxMB={25} testId="file-sheet" onFile={f => setFiles(x => ({ ...x, sheetPdf: f }))} onClear={() => setFiles(x => ({ ...x, sheetPdf: undefined }))} />
+              <Dropzone label="Sheet music" hint="Lead sheet or vocal score · PDF or MusicXML" accept=".pdf,.xml,.musicxml" maxMB={25} testId="file-sheet" {...slot("sheetPdf")} />
             )}
-            <Dropzone label="MIDI melody" hint="A .mid file of the tune · churches play it in the browser" accept=".mid,.midi" maxMB={1} testId="file-midi" onFile={f => setFiles(x => ({ ...x, midi: f }))} onClear={() => setFiles(x => ({ ...x, midi: undefined }))} />
-            <Dropzone label="Multitracks" hint="ZIP of stems — one WAV or MP3 per part, every file starting at bar 1 · include click & guide if you have them" accept=".zip" maxMB={50} testId="file-stems" onFile={f => setFiles(x => ({ ...x, stemsZip: f }))} onClear={() => setFiles(x => ({ ...x, stemsZip: undefined }))} />
-            <Dropzone label="Cover art" hint="JPG, PNG or WebP · we shrink it and make the thumbnail here in your browser" accept=".png,.jpg,.jpeg,.webp" maxMB={20} testId="file-art" onClear={() => { artJob.current = null; setArtPreview(""); setFiles(x => ({ ...x, art: undefined, thumb: undefined })); }} preview={artPreview} onFile={f => {
+            <Dropzone label="MIDI melody" hint="A .mid file of the tune · churches play it in the browser" accept=".mid,.midi" maxMB={1} testId="file-midi" {...slot("midi")} />
+            <Dropzone label="Multitracks" hint="ZIP of stems — one WAV or MP3 per part, every file starting at bar 1 · include click & guide if you have them" accept=".zip" maxMB={50} testId="file-stems" {...slot("stemsZip")} />
+            <Dropzone label="Cover art" hint="JPG, PNG or WebP · we shrink it and make the thumbnail here in your browser" accept=".png,.jpg,.jpeg,.webp" maxMB={20} testId="file-art" attachedName={props.onFileRemove ? attachedFor("art") : undefined} onClear={() => { artJob.current = null; setArtPreview(""); clearFile("art"); clearFile("thumb"); }} preview={artPreview} onFile={f => {
               const job: Promise<SongFiles> = prepareArt(f).catch(() => ({ art: f }));
               artJob.current = job;
               job.then(art => {
-                setFiles(x => ({ ...x, ...art }));
+                for (const [role, file] of Object.entries(art)) if (file) pickFile(role as keyof SongFiles, file);
                 setArtPreview(URL.createObjectURL((art.thumb || art.art) as File));
               });
             }} />
             {props.proposalType === "additionalFile" && (
-              <Dropzone label="Lyrics or ChordPro file" hint="Plain text or ChordPro · .cho .crd .txt" accept=".cho,.crd,.txt,.chordpro" maxMB={1} testId="file-lyrics" onFile={f => setFiles(x => ({ ...x, lyrics: f }))} onClear={() => setFiles(x => ({ ...x, lyrics: undefined }))} />
+              <Dropzone label="Lyrics or ChordPro file" hint="Plain text or ChordPro · .cho .crd .txt" accept=".cho,.crd,.txt,.chordpro" maxMB={1} testId="file-lyrics" {...slot("lyrics")} />
             )}
           </div>
           <p className="hint" style={{ margin: "10px 0 0" }}>{t("Drop a file on a box or click it. Upload stems once, in the recorded key.")}</p>
@@ -786,7 +804,7 @@ export const SongForm: React.FC<Props> = (props) => {
           <h2><span className="n">{step()}</span>{t("Master recording")}</h2>
           <p className="hint">{t("The finished song, vocals and all. It unlocks stems and a full mix on the song page; the composition grant above stays as it is. A backing track without the vocal goes under Files as an accompaniment track.")}</p>
           <div className="step-body dz-row">
-            <Dropzone label="Master recording" hint="The finished mix, vocals included · WAV, MP3, M4A or FLAC" accept=".wav,.mp3,.m4a,.flac,.ogg" maxMB={90} testId="file-master" onFile={f => setFiles(x => ({ ...x, master: f }))} onClear={() => setFiles(x => ({ ...x, master: undefined }))} />
+            <Dropzone label="Master recording" hint="The finished mix, vocals included · WAV, MP3, M4A or FLAC" accept=".wav,.mp3,.m4a,.flac,.ogg" maxMB={90} testId="file-master" {...slot("master")} />
           </div>
           <h3 style={{ margin: "16px 0 4px" }}>{t("Master recording license")}</h3>
           <p className="hint">{t("The recording can carry a different license from the composition.")}</p>
