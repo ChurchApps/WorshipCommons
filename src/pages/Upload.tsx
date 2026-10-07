@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { uploadFile, wcGet, wcPost, wcPut } from "../api";
-import { SongForm, blankSong, conventionalName, FILE_LABEL, hasRecording, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import { SongForm, blankSong, conventionalName, FILE_LABEL, hasRecordingFile, payloadFrom, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n, SONG_LANG } from "../i18n";
@@ -75,7 +75,8 @@ export const Upload: React.FC = () => {
       const saved = () => setSaveStatus(t("Draft saved {time}", { time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) }));
       ensureDraft(form, false).then(id => {
         if (!hadId) return saved();
-        return wcPut(`/submissions/${id}`, { payload: payloadFrom(form, false) }, true).then(saved);
+        // keep the ownership box: a reopened draft's recordings are already on the server
+        return wcPut(`/submissions/${id}`, { payload: payloadFrom(form, true) }, true).then(saved);
       }).catch(() => setSaveStatus(t("Not saved — check your connection")));
     }, 1000);
   };
@@ -83,7 +84,8 @@ export const Upload: React.FC = () => {
   const handleSubmit = async (form: SongFormValues, files: SongFiles) => {
     if (busyRef.current) return;
     setError("");
-    if (hasRecording(files) && !form.recordingOwned) {
+    const recording = hasRecordingFile(files, attached);
+    if (recording && !form.recordingOwned) {
       setError(t("Please confirm you own this recording (or have the owner's permission to share it)."));
       return;
     }
@@ -92,8 +94,8 @@ export const Upload: React.FC = () => {
     setBusy(true);
     setProgress("");
     try {
-      const id = await ensureDraft(form, hasRecording(files));
-      await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, hasRecording(files)) }, true);
+      const id = await ensureDraft(form, recording);
+      await wcPut(`/submissions/${id}`, { payload: payloadFrom(form, recording) }, true);
       for (const [role, file] of Object.entries(files)) {
         if (!file) continue;
         const name = t(FILE_LABEL[role] || role);

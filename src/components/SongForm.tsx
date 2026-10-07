@@ -73,6 +73,9 @@ export type SongFiles = { demoAudio?: File; master?: File; accompaniment?: File;
 /** Either audio file is a recording someone must vouch for. */
 export const hasRecording = (files: SongFiles) => !!(files.demoAudio || files.master || files.accompaniment);
 
+/** A recording picked now or one a reopened draft already uploaded — the API asks for the ownership box either way. */
+export const hasRecordingFile = (files: SongFiles, attached: string[] = []) => hasRecording(files) || attached.some(n => /^(demoAudio|master|accompaniment)\./.test(n));
+
 /** Mirrors the API's NO_MELODY_MESSAGE: chords and words alone don't teach a church the tune. */
 const hasMelody = (files: SongFiles, videoUrl: string, attached: string[]) =>
   !!(files.demoAudio || files.master || files.sheetPdf || files.midi || files.stemsZip || videoUrl.trim()) || attached.some(n => /^(demoAudio|master|sheetPdf|stemsZip)\.|^tune\./.test(n));
@@ -521,7 +524,7 @@ export const SongForm: React.FC<Props> = (props) => {
     if (isNewSong && form.submissionType === "new" && !hasMelody(files, form.videoUrl, props.attached || [])) gap(t("A way to learn the melody — a demo recording, sheet music, a MIDI file or a video link"), "step-files");
     if (form.videoUrl.trim() && !/^https?:\/\/\S+$/i.test(form.videoUrl.trim())) gap(t("Video link must be a web address starting with https://"), "video-url");
     if (showMaster && !files.master) gap(t("Master recording"), "step-master");
-    if (hasRecording(files) && !form.recordingOwned) gap(t("This recording is mine (or I have the owner’s permission to share it)."), "recording-owned");
+    if (hasRecordingFile(files, props.attached) && !form.recordingOwned) gap(t("This recording is mine (or I have the owner’s permission to share it)."), "recording-owned");
     if (showWord && !grantComplete(form)) gap(t("Your word — every box in this step"), GRANT_KEYS.find(k => !form[k]) || "step-word");
     if (showContribution && !form.contributionAgreed) gap(t("Confirm your change is accurate"), "contributionAgreed");
     if (props.proposalType && noteShort) gap(props.proposalType === "removal" ? t("A note of at least {n} characters is required: say why the song should come down", { n: MIN_NOTE_LENGTH }) : t("A note of at least {n} characters is required: say what changed and why", { n: MIN_NOTE_LENGTH }), "edit-note");
@@ -751,7 +754,7 @@ export const SongForm: React.FC<Props> = (props) => {
               <input type="url" id="video-url" data-testid="video-url" placeholder="https://www.youtube.com/watch?v=…" value={form.videoUrl} onChange={e => set("videoUrl", e.target.value)} />
             </div>
           )}
-          {(files.demoAudio || files.accompaniment) && !showMaster && <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />}
+          {(files.demoAudio || files.accompaniment || props.attached?.some(n => /^(demoAudio|accompaniment)\./.test(n))) && !showMaster && <RecordingOwned checked={form.recordingOwned} onChange={v => set("recordingOwned", v)} />}
         </section>
       )}
 
