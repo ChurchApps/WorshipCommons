@@ -85,7 +85,8 @@ export function foldUnlabelled<T extends { label: string; lines: unknown[] }>(st
 // a bare "PRE" is how many charts shorten the pre-chorus; BARE_LABEL only takes it as the whole line, so "Precious" stays a lyric
 const HEADING = "(?:(?:pre[- ]?)?(?:verse|chorus|bridge|refrain|intro(?:duction)?|outro|tag|interlude|ending|coda|instrumental|turnaround|estrofa|strophe|coro)|pre)";
 // "Chorus3" counts too: the heading word may run straight into its number
-const BARE_LABEL = new RegExp(String.raw`^${HEADING}(?:\b|(?=\d))(?:[\s\d.:,/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
+// "Repeat Chorus" / "REPEAT CHORUS 1" head a repeated section the same way "(Repeat Chorus)" does
+const BARE_LABEL = new RegExp(String.raw`^(?:repeat\s+)?${HEADING}(?:\b|(?=\d))(?:[\s\d.:,/&+()x-]|${HEADING}|one|two|three|four|five|six)*$`, "i");
 const CHORDS = /\[[^\]]*\]/g;
 const COMMENT_DIRECTIVE = /^\s*\{\s*(?:c|ci|comment|comment_italic)\s*:\s*(.+?)\s*\}\s*$/i;
 
