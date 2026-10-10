@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
-import { corePost } from "./api";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { corePost, wcGet } from "./api";
 import { clearLibraryCache } from "./library";
 
 export interface WcUser { id: string; email: string; firstName: string; lastName: string; }
@@ -50,4 +50,22 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth outside AuthProvider");
   return ctx;
+};
+
+// one lookup per signed-in user: reviewers (server admins, music editors) may edit songs whose license closes them to the public
+const reviewerChecks = new Map<string, Promise<boolean>>();
+
+/** True when the signed-in user reviews submissions, false when not; undefined while it is being checked. */
+export const useReviewer = (): boolean | undefined => {
+  const { user } = useAuth();
+  const [state, setState] = useState<{ id: string; reviewer: boolean } | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    let live = true;
+    if (!reviewerChecks.has(user.id)) reviewerChecks.set(user.id, wcGet("/admin/status", true).then((s: any) => !!(s?.admin || s?.musicEditor)).catch(() => false));
+    reviewerChecks.get(user.id)!.then(reviewer => { if (live) setState({ id: user.id, reviewer }); });
+    return () => { live = false; };
+  }, [user]);
+  if (!user) return false;
+  return state?.id === user.id ? state.reviewer : undefined;
 };
