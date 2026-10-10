@@ -9,7 +9,7 @@ import { ChordDiagram } from "../components/ChordDiagram";
 import { wcGet, wcPost, COMMONS_API } from "../api";
 import { parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 import { libraryIds, setInLibrary } from "../library";
-import { useAuth } from "../auth";
+import { useAuth, useReviewer } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { needsCcliReport } from "../rights";
@@ -60,6 +60,7 @@ export const SongPage: React.FC = () => {
   const { id: rawId = "" } = useParams();
   const id = idOf(rawId);
   const { user } = useAuth();
+  const reviewer = useReviewer();
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedKey, setSelectedKey] = useState<string>("");
@@ -126,6 +127,8 @@ export const SongPage: React.FC = () => {
     return () => { stale = true; };
   }, [id, user, attempt]);
   const song = data?.song ?? null;
+  // a license may close the song to public edits; reviewers can still fix it
+  const canPropose = !!song && (acceptsProposals(song) || !!reviewer);
   const [supportLinks, setSupportLinks] = useState<WriterLink[]>([]);
   useEffect(() => {
     const authorId = song?.authorId || song?.writerId;
@@ -477,7 +480,7 @@ export const SongPage: React.FC = () => {
                   <p className="rel-hint"><a href={song.sheetPdfUrl} target="_blank" rel="noopener">{t("Open full size →")}</a> · <a href={song.sheetPdfUrl} download onClick={handleRecordDownload}>{t("Download PDF")}</a></p>
                 </div>
               )}
-              {!song.abcUrl && song.midiUrl && acceptsProposals(song) && (
+              {!song.abcUrl && song.midiUrl && canPropose && (
                 <p className="rel-hint"><Link to={`${songPath(song)}/transcribe`} data-testid="transcribe-link">{song.sheetPdfUrl ? t("Help turn this sheet into an editable score") : t("No sheet music yet — help transcribe it")}</Link></p>
               )}
             </div>
@@ -586,7 +589,7 @@ export const SongPage: React.FC = () => {
           <section className="panel">
             <h3>{t("Improve it")}</h3>
             <p className="side-links">
-              {acceptsProposals(song) && <><Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
+              {canPropose && <><Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
               {!song.masterUrl && <><span aria-hidden="true">·</span><Link to={`${songPath(song)}/edit?type=recording`} data-testid="add-master">{t("Add a master recording")}</Link></>}
               <span aria-hidden="true">·</span></>}
               <Link to={`/report?song=${encodeURIComponent(`${song.title} — ${songPath(song)}`)}`}>{t("Report this song")}</Link>
@@ -610,7 +613,7 @@ export const SongPage: React.FC = () => {
           )}
           {relatives.length === 0 && data.similar.length === 0 && <p className="empty">{t("Nothing related yet.")}</p>}
         </div>
-        <ScriptureConnection reference={song.scripture} songId={song.id} canPropose={acceptsProposals(song)} />
+        <ScriptureConnection reference={song.scripture} songId={song.id} canPropose={canPropose} />
         <div className="col tr">
           <h4>🌐 {t("Translations")} {allowsDerivatives(song) && <Link className="more" to="/upload">{t("Add one →")}</Link>}</h4>
           {!allowsDerivatives(song) && <p className="rel-hint" data-testid="translations-closed">{t("Translations need the writer’s permission.")}</p>}
