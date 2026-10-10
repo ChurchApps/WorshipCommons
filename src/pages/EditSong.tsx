@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
-import { useAuth, useReviewer } from "../auth";
+import { useAuth, useMayEditClosed } from "../auth";
 import { idOf } from "../songs";
 import { acceptsProposals } from "../licenses";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
@@ -52,7 +52,7 @@ export const EditSong: React.FC = () => {
   const [params] = useSearchParams();
   const draftParam = params.get("draft") || "";
   const { user } = useAuth();
-  const reviewer = useReviewer();
+  const mayEditClosed = useMayEditClosed(id);
   const location = useLocation();
   const [base, setBase] = useState<any>(null);
   // a draft reopened from /my-songs — its payload, note and type replace the live song as the starting point
@@ -145,9 +145,9 @@ export const EditSong: React.FC = () => {
   }
 
   const closed = base && !acceptsProposals(base);
-  if (!base || (closed && reviewer === undefined)) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
-  // some writer grants keep every change with the writer; the API refuses the proposal too, except from a reviewer
-  if (closed && !reviewer) return <main className="wrap-narrow"><div className="page-head" data-testid="proposals-closed"><h1>{base.name}</h1><p className="lede">{t("The writer makes all changes to this song.")} <Link to={`/report?song=${encodeURIComponent(base.name)}`}>{t("Spotted a problem? Let us know.")}</Link></p></div></main>;
+  if (!base || (closed && mayEditClosed === undefined)) return <main className="wrap"><p style={{ padding: "60px 0" }}>{t("Loading…")}</p></main>;
+  // some writer grants keep every change with the writer; the API refuses the proposal too, except from a reviewer or the publisher
+  if (closed && !mayEditClosed) return <main className="wrap-narrow"><div className="page-head" data-testid="proposals-closed"><h1>{base.name}</h1><p className="lede">{t("The writer makes all changes to this song.")} <Link to={`/report?song=${encodeURIComponent(base.name)}`}>{t("Spotted a problem? Let us know.")}</Link></p></div></main>;
 
   const fromDraft = draft && asType(draft.type || draft.payload?.type) === type;
   const initial = songFromPayload(fromDraft ? draft.payload : base);
