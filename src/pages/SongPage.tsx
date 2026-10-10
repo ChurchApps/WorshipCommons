@@ -9,7 +9,7 @@ import { ChordDiagram } from "../components/ChordDiagram";
 import { wcGet, wcPost, COMMONS_API } from "../api";
 import { parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 import { libraryIds, setInLibrary } from "../library";
-import { useAuth, useReviewer } from "../auth";
+import { useAuth, useMayEditClosed } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { needsCcliReport } from "../rights";
@@ -60,7 +60,6 @@ export const SongPage: React.FC = () => {
   const { id: rawId = "" } = useParams();
   const id = idOf(rawId);
   const { user } = useAuth();
-  const reviewer = useReviewer();
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedKey, setSelectedKey] = useState<string>("");
@@ -127,8 +126,9 @@ export const SongPage: React.FC = () => {
     return () => { stale = true; };
   }, [id, user, attempt]);
   const song = data?.song ?? null;
-  // a license may close the song to public edits; reviewers can still fix it
-  const canPropose = !!song && (acceptsProposals(song) || !!reviewer);
+  // a license may close the song to public edits; reviewers and the song's publisher can still fix it
+  const mayEditClosed = useMayEditClosed(song?.id);
+  const canPropose = !!song && (acceptsProposals(song) || !!mayEditClosed);
   const [supportLinks, setSupportLinks] = useState<WriterLink[]>([]);
   useEffect(() => {
     const authorId = song?.authorId || song?.writerId;

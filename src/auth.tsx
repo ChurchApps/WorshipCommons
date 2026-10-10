@@ -69,3 +69,24 @@ export const useReviewer = (): boolean | undefined => {
   if (!user) return false;
   return state?.id === user.id ? state.reviewer : undefined;
 };
+
+const mineChecks = new Map<string, Promise<Set<string>>>();
+
+/** True when the signed-in user may edit a song whose license closes it to public edits: a reviewer, or the song's publisher. Undefined while checking. */
+export const useMayEditClosed = (songId?: string): boolean | undefined => {
+  const { user } = useAuth();
+  const reviewer = useReviewer();
+  const [mine, setMine] = useState<{ id: string; ids: Set<string> } | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    let live = true;
+    if (!mineChecks.has(user.id)) mineChecks.set(user.id, wcGet("/songs/mine", true).then((rows: any) => new Set<string>((rows || []).map((r: any) => String(r.id)))).catch(() => new Set<string>()));
+    mineChecks.get(user.id)!.then(ids => { if (live) setMine({ id: user.id, ids }); });
+    return () => { live = false; };
+  }, [user]);
+  if (!user) return false;
+  if (reviewer) return true;
+  const ids = mine?.id === user.id ? mine.ids : undefined;
+  if (reviewer === undefined || !ids) return undefined;
+  return !!songId && ids.has(songId);
+};
