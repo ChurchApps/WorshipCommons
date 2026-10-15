@@ -6,6 +6,7 @@ import { parseChordPro, lintChordPro } from "../chordpro";
 import { allowsDerivatives, isCustomLicense, licenseById, UPLOADABLE, type License } from "../licenses";
 import { prepareArt } from "../artThumb";
 import "../styles/upload.css";
+import { useMySongIds } from "../auth";
 import { useI18n, SONG_LANG } from "../i18n";
 import { THEMES, loadSongs, Song, songPath } from "../songs";
 
@@ -503,17 +504,31 @@ export const SongForm: React.FC<Props> = (props) => {
   const noteShort = !!props.proposalType && noteLength < MIN_NOTE_LENGTH;
 
   const parentSong = catalog.find(s => s.id === form.parentSongId) || null;
+  const mineIds = useMySongIds();
   // a translation or arrangement is meant to match its original — only other songs count as duplicates
   const dupes = similar.filter(s => s.id !== form.parentSongId && !(parentSong && s.title === parentSong.title && s.writer === parentSong.writer));
   const query = parentQuery.trim().toLowerCase();
-  // only originals whose license lets anyone share a translation or arrangement (not custom or ND grants)
-  const parentChoices = catalog.filter(s => allowsDerivatives(s) && (!query || s.title.toLowerCase().includes(query))).slice(0, 50);
-  if (parentSong && !parentChoices.some(s => s.id === parentSong.id)) parentChoices.unshift(parentSong);
+  const matchesTitle = (s: Song) => !query || s.title.toLowerCase().includes(query);
+  // the license still blocks everyone else; the account that published the song may translate it, not arrange it
+  const uploaderMayTranslate = (s: Song) => form.submissionType === "translation" && !!mineIds?.has(s.id);
+  const selectableParent = (s: Song) => allowsDerivatives(s) || uploaderMayTranslate(s);
+  const parentChoices = catalog.filter(s => selectableParent(s) && matchesTitle(s)).slice(0, 50);
+  if (parentSong && selectableParent(parentSong) && !parentChoices.some(s => s.id === parentSong.id)) parentChoices.unshift(parentSong);
+  const closedReason = form.submissionType === "arrangement"
+    ? t("Arrangements of this song need the writer’s permission")
+    : t("Translations of this song need the writer’s permission");
+  const excludedParents = query ? catalog.filter(s => !selectableParent(s) && matchesTitle(s)).slice(0, 20) : [];
 
-  const setType = (submissionType: SubmissionType) => setForm(f => ({ ...f, submissionType, parentSongId: submissionType === "new" ? "" : f.parentSongId }));
+  const setType = (submissionType: SubmissionType) => setForm(f => {
+    if (submissionType === "new") return { ...f, submissionType, parentSongId: "" };
+    const parent = catalog.find(s => s.id === f.parentSongId);
+    const keep = !!parent && (allowsDerivatives(parent) || (submissionType === "translation" && !!mineIds?.has(parent.id)));
+    return { ...f, submissionType, parentSongId: keep ? f.parentSongId : "" };
+  });
   // an arrangement keeps the original's title, credit and key unless the writer changes them
   const pickParent = (id: string) => {
     const picked = catalog.find(s => s.id === id);
+    if (picked && !selectableParent(picked)) return;
     setForm(f => ({ ...f, parentSongId: id, ...(picked && f.submissionType === "arrangement" ? { title: picked.title, writer: picked.writer || "", songKey: picked.songKey || f.songKey } : {}) }));
   };
 
@@ -613,6 +628,7 @@ export const SongForm: React.FC<Props> = (props) => {
                 <select id="parent-song" data-testid="parent-song" value={form.parentSongId} onChange={e => pickParent(e.target.value)} style={{ marginTop: 8 }}>
                   <option value="">{catalog.length ? t("Choose the original…") : t("Loading…")}</option>
                   {parentChoices.map(s => <option key={s.id} value={s.id}>{`${s.title} — ${s.writer || "?"} (${s.language})`}</option>)}
+                  {excludedParents.map(s => <option key={s.id} value={s.id} disabled>{`${s.title} — ${s.writer || "?"} (${s.language}) — ${closedReason}`}</option>)}
                 </select>
                 <p className="hint">{t("We link the two song pages together, both ways.")}</p>
               </div>
