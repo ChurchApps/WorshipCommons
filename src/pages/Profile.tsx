@@ -106,7 +106,9 @@ export const Profile: React.FC = () => {
       {!profile && <p>{t("Loading…")}</p>}
 
       {profile && !profile.id && (
-        <EmptyState testId="no-writer-page" message={t("You’ll have a writer page once one of your songs is live and credits you on your own.")} to="/upload" action={t("Share a song")} />
+        <EmptyState testId="no-writer-page" message={t("You’ll have a writer page once one of your songs is live and credits you on your own.")} to="/upload" action={t("Share a song")}>
+          <p className="hint">{t("Co-wrote your songs, or already have a writer page? Ask us to link it to your account:")}{" "}<a href="mailto:support@churchapps.org" data-testid="profile-support-email">support@churchapps.org</a></p>
+        </EmptyState>
       )}
 
       {profile?.id && (

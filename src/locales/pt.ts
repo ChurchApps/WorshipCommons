@@ -887,6 +887,7 @@ const pt: Record<string, string> = {
 
   // terms / DMCA agent
   "You can also write to": "Você também pode escrever para",
+  "Co-wrote your songs, or already have a writer page? Ask us to link it to your account:": "Você coescreveu suas músicas ou já tem uma página de autor? Peça para a vincularmos à sua conta:",
   "You can also write to our designated copyright agent:": "Você também pode escrever ao nosso agente de direitos autorais designado:",
   "Phone:": "Telefone:",
   "Email:": "E-mail:",
