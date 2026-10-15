@@ -9,7 +9,7 @@ import { ChordDiagram } from "../components/ChordDiagram";
 import { wcGet, wcPost, COMMONS_API } from "../api";
 import { parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 import { libraryIds, setInLibrary } from "../library";
-import { useAuth, useMayEditClosed } from "../auth";
+import { useAuth, useMayEditClosed, useMySongIds } from "../auth";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { needsCcliReport } from "../rights";
@@ -60,6 +60,7 @@ export const SongPage: React.FC = () => {
   const { id: rawId = "" } = useParams();
   const id = idOf(rawId);
   const { user } = useAuth();
+  const mineIds = useMySongIds();
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedKey, setSelectedKey] = useState<string>("");
@@ -615,8 +616,8 @@ export const SongPage: React.FC = () => {
         </div>
         <ScriptureConnection reference={song.scripture} songId={song.id} canPropose={canPropose} />
         <div className="col tr">
-          <h4>🌐 {t("Translations")} {allowsDerivatives(song) && <Link className="more" to="/upload">{t("Add one →")}</Link>}</h4>
-          {!allowsDerivatives(song) && <p className="rel-hint" data-testid="translations-closed">{t("Translations need the writer’s permission.")}</p>}
+          <h4>🌐 {t("Translations")} {(allowsDerivatives(song) || !!mineIds?.has(song.id)) && <Link className="more" to="/upload">{t("Add one →")}</Link>}</h4>
+          {!allowsDerivatives(song) && mineIds && !mineIds.has(song.id) && <p className="rel-hint" data-testid="translations-closed">{t("Translations need the writer’s permission.")}</p>}
           {translations.length > 0
             ? (
               <ul className="rel-list" data-testid="translations">
