@@ -887,6 +887,7 @@ const hu: Record<string, string> = {
 
   // terms / DMCA agent
   "You can also write to": "Írhatsz ide:",
+  "Co-wrote your songs, or already have a writer page? Ask us to link it to your account:": "Társszerzőként írtad a dalaidat, vagy már van szerzői oldalad? Kérd meg, hogy kapcsoljuk a fiókodhoz:",
   "You can also write to our designated copyright agent:": "Írhatsz a kijelölt szerzői jogi ügynökünknek is:",
   "Phone:": "Telefon:",
   "Email:": "E-mail:",

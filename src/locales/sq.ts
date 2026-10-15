@@ -887,6 +887,7 @@ const sq: Record<string, string> = {
 
   // terms / DMCA agent
   "You can also write to": "Mund t’i shkruani edhe",
+  "Co-wrote your songs, or already have a writer page? Ask us to link it to your account:": "I keni shkruar këngët bashkë me të tjerë, apo keni tashmë një faqe autori? Na kërkoni ta lidhim me llogarinë tuaj:",
   "You can also write to our designated copyright agent:": "Mund t’i shkruani edhe agjentit tonë të caktuar për të drejtat e autorit:",
   "Phone:": "Telefon:",
   "Email:": "E-mail:",
