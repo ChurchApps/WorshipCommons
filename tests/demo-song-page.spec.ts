@@ -10,6 +10,8 @@ interface Row {
   confidence?: string;
   firstLine?: string | null;
   videoUrl?: string;
+  hasScore?: boolean;
+  hasTiming?: boolean;
   fileUrls?: Record<string, string>;
 }
 
@@ -91,6 +93,44 @@ test.describe("song page: hero, modes, rights", () => {
     expect(await lead.getAttribute("href")).toMatch(new RegExp(`/songs/[a-z0-9-]+-${timed!.id}/lead\\?key=`));
   });
 
+  test("the piano preview credits the Salamander Grand Piano and plays it", async ({ page, request }) => {
+    // summary rows may omit fileUrls, so confirm the melody file and the absence of a recording on the detail
+    let midiOnly: Row | undefined;
+    for (const s of rows.filter(r => r.hasScore || r.hasTiming || r.fileUrls?.midi).slice(0, 8)) {
+      const detail = await (await request.get(`${WC_API}/songs/${s.id}`)).json();
+      const urls = detail.fileUrls || {};
+      if (urls.midi && !urls.demoAudio && !urls.master && !/\.(mp3|wav|m4a|ogg|flac)(\?|#|$)/i.test(urls.song || "")) { midiOnly = s; break; }
+    }
+    test.skip(!midiOnly, "no seeded song with only a melody file");
+    const errors: string[] = [];
+    page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("pageerror", e => errors.push(e.message));
+    await page.goto(`/songs/${midiOnly!.id}`);
+    const credit = page.getByTestId("piano-credit");
+    await expect(credit).toBeVisible();
+    await expect(credit).toContainText("Salamander Grand Piano");
+    await expect(credit).toContainText("Alexander Holm");
+    await expect(credit.getByRole("link", { name: "Salamander Grand Piano" })).toHaveAttribute("href", "https://github.com/sfzinstruments/SalamanderGrandPiano");
+    await expect(credit.getByRole("link", { name: "CC BY 3.0" })).toHaveAttribute("href", "https://creativecommons.org/licenses/by/3.0/");
+
+    const soundfont = page.waitForResponse(r => r.url().endsWith("/soundfonts/acoustic_grand_piano-mp3.js"));
+    await page.getByTestId("hero-play").click();
+    expect((await soundfont).status()).toBe(200);
+    await expect(page.locator(".player.playing")).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+
+  test("the vendored piano soundfont is the Salamander build: 88 keys, under 4 MB", async ({ request }) => {
+    const res = await request.get("/soundfonts/acoustic_grand_piano-mp3.js");
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body.length).toBeLessThan(4 * 1024 * 1024);
+    expect(body.includes("Salamander Grand Piano by Alexander Holm, CC BY 3.0"), "Salamander credit header").toBe(true);
+    const names = "C Db D Eb E F Gb G Ab A Bb B".split(" ");
+    const keys = Array.from({ length: 88 }, (_, i) => names[(i + 21) % 12] + (Math.floor((i + 21) / 12) - 1));
+    expect(keys.filter(k => !body.includes(`"${k}": "data:audio/mp3;base64,`))).toEqual([]);
+  });
+
   test("a writer recording plays in the hero instead of the synthesized midi", async ({ page }) => {
     // every package registers its song.json under the "song" role, so only an audio one is a recording —
     // the same test songFromApi applies before it promotes urls.song to demoAudioUrl
@@ -101,6 +141,7 @@ test.describe("song page: hero, modes, rights", () => {
     await expect(page.locator(".player-meta")).toContainText("Demo recording");
     await expect(page.locator(".player-meta")).not.toContainText("Synthesized preview");
     await expect(page.locator(".player-meta")).not.toContainText("Piano preview");
+    await expect(page.getByTestId("piano-credit")).toHaveCount(0);
   });
 
   test("a hymn with a melody file and lyrics links Lead worship even without timing.json", async ({ page, request }) => {
