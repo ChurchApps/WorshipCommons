@@ -528,6 +528,16 @@ export const SongPage: React.FC = () => {
             </div>
             <button type="button" className="btn btn-ghost practice-pitch" data-testid="pitch-pipe" onClick={() => playPitch(60 + noteIndex(selRoot))}>{t("Play {note}", { note: selRoot })}</button>
             <p className="rel-hint">{!recordingUrl && song.midiUrl ? t("The preview, tempo, and click follow the key on the page — piano from the melody file, not a recording.") : t("A click in {time} at the tempo above, plus the starting note of {key} to pitch the room.", { time: song.timeSignature, key: keyLabel })}</p>
+            {!recordingUrl && song.midiUrl && (
+              <p className="rel-hint" data-testid="piano-credit">
+                {/* CC BY 3.0 asks for attribution wherever the samples play */}
+                {t("Piano sound: {name} by {author}, {license}.").split(/(\{\w+\})/).map((part, i) => part === "{name}"
+                  ? <a key={i} href="https://github.com/sfzinstruments/SalamanderGrandPiano" target="_blank" rel="noopener">Salamander Grand Piano</a>
+                  : part === "{license}"
+                    ? <a key={i} href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>
+                    : part.replace("{author}", "Alexander Holm"))}
+              </p>
+            )}
             {kitFile(song, "click.mp3") && (
               <div className="kit-audio" data-testid="kit-audio">
                 <p className="listen-kind">{t("Click")}<audio controls src={kitFile(song, "click.mp3")} preload="none" /></p>
