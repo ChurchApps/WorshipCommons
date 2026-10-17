@@ -61,7 +61,7 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const writers = new Set<string>();
     const picks = songs
-      .filter(s => published(s) && Date.now() - songRecency(s) < 30 * 864e5)
+      .filter(s => published(s) && !s.demoted && Date.now() - songRecency(s) < 30 * 864e5)
       .sort((a, b) => songRecency(b) - songRecency(a))
       .filter(s => { const w = (s.writer || "").split(/,|&/)[0].trim().toLowerCase(); return !writers.has(w) && !!writers.add(w); })
       .slice(0, 12);

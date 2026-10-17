@@ -198,11 +198,12 @@ export const Songs: React.FC = () => {
   const list = useMemo(() => {
     const filtered = songs.filter(s => matches(s));
     // the API blends usage with moderation quality into rank; ties keep the API's order
-    filtered.sort((a, b) =>
-      sort === "downloads" ? (b.rank ?? 0) - (a.rank ?? 0) :
+    // demoted songs stay findable but always sort last
+    filtered.sort((a, b) => +!!a.demoted - +!!b.demoted ||
+      (sort === "downloads" ? (b.rank ?? 0) - (a.rank ?? 0) :
         sort === "saves" ? (b.saveCount ?? 0) - (a.saveCount ?? 0) || (b.downloadCount ?? 0) - (a.downloadCount ?? 0) :
           sort === "new" ? songRecency(b) - songRecency(a) :
-            a.title.localeCompare(b.title));
+            a.title.localeCompare(b.title)));
     return filtered;
   }, [songs, state, sort]);
 

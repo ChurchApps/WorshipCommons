@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { WC_API } from "./helpers/api";
 
-interface RankedSong { id: string; title: string; language: string; rank?: number; qualityScore?: number; }
+interface RankedSong { id: string; title: string; language: string; rank?: number; demoted?: boolean; qualityScore?: number; }
 
 // The moderation quality score is reviewer-only. The public payloads carry the opaque
 // popularity/quality blend the API computes instead, and the library sorts on it.
@@ -12,6 +12,7 @@ test.describe("song rank", () => {
     for (const s of songs) {
       expect(s, `${s.title} leaks qualityScore`).not.toHaveProperty("qualityScore");
       expect(typeof s.rank, `${s.title} has no rank`).toBe("number");
+      expect(typeof s.demoted, `${s.title} has no demoted flag`).toBe("boolean");
     }
 
     const detail = await (await request.get(`${WC_API}/songs/${songs[0].id}`)).json();

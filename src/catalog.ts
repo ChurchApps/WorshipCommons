@@ -107,7 +107,7 @@ export const START_HERE = new Set<string>(START_HERE_IDS);
  * The heading is an English key for t().
  */
 export function topBlock(songs: Song[], language: string): { heading: string; songs: Song[] } {
-  const inLang = songs.filter(s => s.language === language).sort(byRank);
+  const inLang = songs.filter(s => s.language === language && !s.demoted).sort(byRank);
   const sunday = inLang.filter(s => s.sundayReady);
   if (sunday.length) return { heading: "Sunday-ready", songs: sunday };
   const start = inLang.filter(s => START_HERE.has(s.id));

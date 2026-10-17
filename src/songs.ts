@@ -61,6 +61,8 @@ export interface Song {
   proAnswer?: string;
   /** opaque popularity/quality blend from the API; the moderation quality score stays reviewer-only */
   rank?: number;
+  /** under the moderation quality floor: searchable, but off the home page and sorted last */
+  demoted?: boolean;
   status?: string;
   createdAt?: string;
   publishedAt?: string;
