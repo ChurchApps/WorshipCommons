@@ -78,8 +78,12 @@ export const MySongs: React.FC = () => {
   const [tab, setTab] = useState("all");
 
   const load = useCallback(async () => {
-    const [mine, assets] = await Promise.all([wcGet("/submissions/mine", true), wcGet("/assets/mine", true).catch((): { id: string; downloadCount: number }[] => [])]);
-    setSubs(mine || []);
+    const [mine, assets] = await Promise.all([wcGet("/submissions/mine", true), wcGet("/assets/mine", true).catch((): { id: string; name: string; status: string; downloadCount: number; publishedAt?: string }[] => [])]);
+    // a song an admin made you a co-publisher of has no submission of yours; list it as live
+    const subbed = new Set((mine || []).map((s: Submission) => s.assetId));
+    const coPublished: Submission[] = (assets || []).filter((a: { id: string; status: string }) => a.status === "published" && !subbed.has(a.id))
+      .map((a: { id: string; name: string; publishedAt?: string }) => ({ id: `asset-${a.id}`, assetId: a.id, assetName: a.name, status: "approved", type: "new", createdAt: a.publishedAt }));
+    setSubs([...(mine || []), ...coPublished]);
     setDownloads(Object.fromEntries((assets || []).map((a: { id: string; downloadCount: number }) => [a.id, a.downloadCount])));
   }, []);
 
