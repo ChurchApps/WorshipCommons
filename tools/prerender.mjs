@@ -17,6 +17,8 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 import { coverSvg } from "../src/cover.mjs";
 import { songPath, writerPath } from "../src/slug.mjs";
+import { catalogPersons, creditParts, parseCredit, personId } from "../src/credits.mjs";
+import { COLLECTIONS, collectionSongs, groupByLanguage } from "../src/collections.mjs";
 
 const BUILD = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "build");
 const DEFAULT_SITE = "https://worshipcommons.org";
@@ -60,6 +62,24 @@ function stanzas(chordPro) {
 
 const songUrl = (site, song) => `${site}${songPath(song)}/`;
 
+// catalogPersons walks every credit in the catalog; song pages ask once per song
+const personCache = new WeakMap();
+export function personsOf(songs) {
+  if (!Array.isArray(songs)) return [];
+  if (!personCache.has(songs)) personCache.set(songs, catalogPersons(songs));
+  return personCache.get(songs);
+}
+
+// the credit as written, with each person linked to their writer page
+export function creditHtml(song, persons) {
+  const parts = creditParts(song.writer, persons);
+  if (!parts.some(p => p.person)) {
+    const legacy = song.authorId || song.writerId;
+    return legacy ? `<a href="${writerPath(legacy, song.writer)}/">${esc(song.writer)}</a>` : esc(song.writer);
+  }
+  return parts.map(p => p.person ? `<a href="${p.person.path}/">${esc(p.text)}</a>` : esc(p.text)).join("");
+}
+
 const lastmod = (song) => {
   const t = Date.parse(song.publishedAt || song.createdAt || "");
   return Number.isNaN(t) ? "" : new Date(t).toISOString().slice(0, 10);
@@ -91,12 +111,12 @@ export function page(shell, { title, description, canonical, ogImage, ogImageAlt
     .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
 }
 
-export function songBody(song) {
+export function songBody(song, persons = []) {
   const parts = [
     `<main style="max-width:700px;margin:0 auto;padding:40px 24px;font-family:Georgia,serif">`,
     `<p><a href="/songs/">← All songs</a></p>`,
     `<h1>${esc(song.title)}</h1>`,
-    `<p>Words and music by ${esc(song.writer)} · ${esc(song.year)}</p>`,
+    `<p>By ${creditHtml(song, persons)} · ${esc(song.year)}</p>`,
     `<p>Key of ${esc(song.songKey)} · ${esc(song.bpm)} BPM · ${esc(song.timeSignature)} · ${esc(song.themes)}${song.scripture ? ` · ${esc(song.scripture)}` : ""}</p>`
   ];
   for (const st of stanzas(song.chordPro)) {
@@ -131,7 +151,25 @@ export function songAlternates(song, songs, site = DEFAULT_SITE) {
   ];
 }
 
+// schema.org Person per credited person, linked to their writer page
+export function creditJsonLd(song, persons, site = DEFAULT_SITE) {
+  const byId = new Map(persons.map(p => [p.id, p]));
+  const people = parseCredit(song.writer).map(c => {
+    const person = byId.get(personId(c.name));
+    return { role: c.role, node: person ? { "@type": "Person", "@id": `${site}${person.path}/#person`, name: person.name, url: `${site}${person.path}/` } : { "@type": "Person", name: c.name } };
+  });
+  const of = (role) => people.filter(p => p.role === role).map(p => p.node);
+  const out = {};
+  const writers = of("writer");
+  if (writers.length) out.composer = writers.length === 1 ? writers[0] : writers;
+  const translators = of("translator");
+  if (translators.length) out.translator = translators.length === 1 ? translators[0] : translators;
+  if (!writers.length) out.creditText = song.writer;
+  return out;
+}
+
 export function songPage(shell, song, songs, site = DEFAULT_SITE) {
+  const persons = personsOf(songs);
   const url = songUrl(site, song);
   const parent = song.parentSongId ? songs.find(s => s.id === song.parentSongId) : null;
   const translations = songs.filter(s => s.parentSongId === song.id);
@@ -141,7 +179,7 @@ export function songPage(shell, song, songs, site = DEFAULT_SITE) {
     "@type": "MusicComposition",
     name: song.title,
     url,
-    composer: { "@type": "Person", name: song.writer },
+    ...creditJsonLd(song, persons, site),
     copyrightYear: song.year,
     inLanguage: langIso(song.language) || song.language,
     musicalKey: song.songKey,
@@ -169,14 +207,16 @@ export function songPage(shell, song, songs, site = DEFAULT_SITE) {
     ogImageAlt: `${song.title} — ${song.writer}`,
     ogType: "music.song",
     jsonLd: [jsonLd, breadcrumb],
-    body: songBody(song),
+    body: songBody(song, persons),
     alternates: songAlternates(song, songs, site),
     site
   });
 }
 
+// a writer page changes when a song of theirs does
+const newest = (songs) => songs.map(lastmod).filter(Boolean).sort().pop() || "";
+
 export function sitemapXml(songs, site = DEFAULT_SITE) {
-  const writers = [...new Map(songs.filter(s => s.authorId || s.writerId).map(s => [s.authorId || s.writerId, s.writer])).entries()];
   const entries = [
     { loc: `${site}/` },
     { loc: `${site}/songs/` },
@@ -187,11 +227,13 @@ export function sitemapXml(songs, site = DEFAULT_SITE) {
     { loc: `${site}/terms/` },
     { loc: `${site}/upload/` },
     { loc: `${site}/report/` },
+    ...COLLECTIONS.filter(c => collectionSongs(c, songs).length).map(c => ({ loc: `${site}${c.path}/`, lastmod: newest(collectionSongs(c, songs)) })),
     ...songs.map(s => ({ loc: songUrl(site, s), lastmod: lastmod(s) })),
-    ...writers.map(([id, name]) => ({ loc: `${site}${writerPath(id, name)}/` }))
+    // one page per person; single-song and collective credits are noindex and stay out
+    ...personsOf(songs).filter(p => p.indexable).map(p => ({ loc: `${site}${p.path}/`, lastmod: newest(p.songs.map(x => x.song)) }))
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    entries.map(e => `  <url><loc>${esc(e.loc)}</loc>${e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : ""}</url>`).join("\n") +
+    entries.map(e => `  <url><loc>${esc(encodeURI(e.loc))}</loc>${e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : ""}</url>`).join("\n") +
     `\n</urlset>\n`;
 }
 
@@ -206,8 +248,9 @@ export function llmsTxt(songs, site = DEFAULT_SITE, hasFeed = false) {
     `## Links`,
     ``,
     `- [Song library](${site}/songs/)`,
-    `- [Mission](${site}/mission)`,
-    `- [License](${site}/license)`,
+    `- [Mission](${site}/mission/)`,
+    `- [License](${site}/license/)`,
+    ...COLLECTIONS.map(c => `- [${c.h1}](${site}${c.path}/)`),
     ...(hasFeed ? [`- [Feed](${site}/feed.xml)`] : []),
     ``,
     `## Songs`,
@@ -409,7 +452,8 @@ export function homeBody() {
 <p>Discover worship songs, timeless hymns, and the resources to lead them. All freely shared with the Church.</p>
 <p><a href="/songs/">Find your next song →</a> · <a href="/mission/">Our Mission</a></p>
 <form action="/songs/" method="get" role="search"><input type="search" name="q" aria-label="Search songs"> <button type="submit">Search</button></form>
-<p><a href="/songs/">All Songs</a> · <a href="/songs/?start=1">Start here</a> · <a href="/songs/?license=PD">Timeless Hymns</a> · <a href="/songs/?era=modern">Modern Worship</a> · <a href="/songs/?guitar=1">Acoustic</a> · <a href="/songs/?sort=new">New Releases</a> · <a href="/songs/?theme=Kids">Kids &amp; VBS</a></p>
+<p><a href="/songs/">All Songs</a> · <a href="/songs/?start=1">Start here</a> · <a href="/hymns/">Timeless Hymns</a> · <a href="/songs/?era=modern">Modern Worship</a> · <a href="/songs/?guitar=1">Acoustic</a> · <a href="/songs/?sort=new">New Releases</a> · <a href="/songs/?theme=Kids">Kids &amp; VBS</a></p>
+<p>${COLLECTIONS.map(c => `<a href="${c.path}/">${esc(c.h1)}</a>`).join(" · ")}</p>
 <h2>Find your next Sunday set.</h2>
 <h2>Everything you need to lead the song.</h2>
 <ul><li>Chord charts in your key</li><li>Sheet music &amp; lyrics</li><li>Tracks for rehearsal &amp; worship</li></ul>
@@ -459,6 +503,8 @@ export function homePage(shell, site = DEFAULT_SITE) {
   });
 }
 
+// Legacy writer pages: one per credit string (authorId), e.g. "Fanny Crosby & John Sweney".
+// They stay reachable for old links but are noindex; person pages replace them.
 export function writerGroups(songs) {
   const groups = new Map();
   for (const song of songs) {
@@ -475,33 +521,191 @@ export function writerGroups(songs) {
   return [...groups.values()];
 }
 
-export function writerPage(shell, writer, site = DEFAULT_SITE) {
-  const url = `${site}${writerPath(writer.id, writer.name)}/`;
-  const description = "Songs in the commons by this writer.";
-  const items = writer.songs.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a></li>`).join("");
-  const body = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><p>Writer</p><h1>${esc(writer.name)}</h1><p>${description}</p><ul>${items}</ul></main>`;
+// A static redirect for S3: an instant meta refresh is read by Google as a permanent redirect,
+// the canonical says the same, and the script keeps ?query and #hash for people.
+export function redirectPage(target, title = "Moved — WorshipCommons") {
+  const href = esc(target);
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>${esc(title)}</title>
+<link rel="canonical" href="${href}">
+<meta http-equiv="refresh" content="0; url=${href}">
+<script>location.replace(${JSON.stringify(target).replace(/</g, "\\u003c")} + location.search + location.hash);</script>
+</head>
+<body><p>This page has moved to <a href="${href}">${href}</a>.</p></body>
+</html>
+`;
+}
+
+// bio of a person: the writerBio sent with a song they wrote alone (a co-written credit's bio may be about someone else)
+export function personBio(person) {
+  const bios = new Map();
+  for (const { song, role } of person.songs) {
+    if (role !== "writer" || !song.writerBio) continue;
+    const solo = parseCredit(song.writer).filter(c => c.role === "writer");
+    if (solo.length !== 1) continue;
+    const bio = String(song.writerBio).trim();
+    bios.set(bio, (bios.get(bio) || 0) + 1);
+  }
+  return [...bios.entries()].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0]?.[0] || "";
+}
+
+const ROLE_LABEL = { writer: "Songs", translator: "Translations", arranger: "Arrangements" };
+
+export function writerPage(shell, person, persons, site = DEFAULT_SITE) {
+  const url = `${site}${person.path}/`;
+  const bio = personBio(person);
+  const count = person.songs.length;
+  const titles = person.songs.slice(0, 3).map(x => x.song.title);
+  const description = `${person.name}: ${count} ${count === 1 ? "song" : "songs"} in WorshipCommons with free chord charts and lyrics — ${titles.join(", ")}${count > 3 ? ", and more" : ""}.`;
+  const byRole = new Map();
+  for (const x of person.songs) {
+    if (!byRole.has(x.role)) byRole.set(x.role, []);
+    byRole.get(x.role).push(x.song);
+  }
+  const coIds = new Set();
+  for (const { song } of person.songs) for (const p of creditParts(song.writer, persons)) if (p.person && p.person.id !== person.id) coIds.add(p.person.id);
+  const co = persons.filter(p => coIds.has(p.id));
+  const sections = [...byRole.entries()].map(([role, songs]) =>
+    `<h2>${ROLE_LABEL[role] || "Songs"}</h2><ul>${songs.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a>${s.language && s.language !== "English" ? ` (${esc(s.language)})` : ""}${s.year ? ` · ${esc(s.year)}` : ""}</li>`).join("")}</ul>`).join("");
+  const body = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><p><a href="/songs/">← All songs</a></p><p>Writer</p><h1>${esc(person.name)}</h1>` +
+    (bio ? bio.split(/\n\s*\n/).map(p => `<p>${esc(p.trim())}</p>`).join("") + "<p><small>Bio via Wikipedia (CC BY-SA).</small></p>" : "") +
+    `<p>${esc(description)}</p>` + sections +
+    (co.length ? `<h2>Wrote with</h2><p>${co.map(p => `<a href="${p.path}/">${esc(p.name)}</a>`).join(" · ")}</p>` : "") +
+    `</main>`;
+  const personNode = { "@type": "Person", "@id": `${url}#person`, name: person.name, url };
+  if (bio) personNode.description = bio.split(/\n/)[0].slice(0, 500);
   return page(shell, {
-    title: `${writer.name} — WorshipCommons`,
+    title: `${person.name} — songs, chords and lyrics | WorshipCommons`,
     description,
     canonical: url,
-    jsonLd: {
-      "@context": "https://schema.org",
-      "@type": "ProfilePage",
-      url,
-      name: writer.name,
-      mainEntity: { "@type": "Person", name: writer.name, url }
-    },
+    robots: person.indexable ? undefined : "noindex, follow",
+    jsonLd: [
+      { "@context": "https://schema.org", "@type": "ProfilePage", url, name: person.name, mainEntity: personNode },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "WorshipCommons", item: `${site}/` },
+          { "@type": "ListItem", position: 2, name: "Song library", item: `${site}/songs/` },
+          { "@type": "ListItem", position: 3, name: person.name, item: url }
+        ]
+      }
+    ],
     body,
     site
   });
 }
 
+// a credit shared by several people, or a collective one ("Traditional"): list its songs and link each person
+export function creditPage(shell, group, persons, site = DEFAULT_SITE) {
+  const people = creditParts(group.name, persons).filter(p => p.person).map(p => p.person);
+  const items = group.songs.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a></li>`).join("");
+  const body = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><p>Writers</p><h1>${esc(group.name)}</h1>` +
+    (people.length ? `<p>${people.map(p => `<a href="${p.path}/">${esc(p.name)}</a>`).join(" · ")}</p>` : "") +
+    `<ul>${items}</ul></main>`;
+  return page(shell, {
+    title: `${group.name} — WorshipCommons`,
+    description: `Songs credited to ${group.name} in WorshipCommons.`,
+    canonical: `${site}${writerPath(group.id, group.name)}/`,
+    robots: "noindex, follow",
+    body,
+    site
+  });
+}
+
+/** Where an old credit URL should go: the person page when the credit is one person, else null. */
+export function creditTarget(group, persons) {
+  const people = creditParts(group.name, persons).filter(p => p.person);
+  const ids = new Set(people.map(p => p.person.id));
+  return ids.size === 1 ? people[0].person : null;
+}
+
 export function writeWriterPages(root, shell, songs, site = DEFAULT_SITE) {
-  for (const writer of writerGroups(songs)) {
-    const dir = path.join(root, writerPath(writer.id, writer.name).replace(/^\//, ""));
+  const persons = personsOf(songs);
+  const write = (urlPath, html) => {
+    const dir = path.join(root, urlPath.replace(/^\//, ""));
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, "index.html"), writerPage(shell, writer, site));
+    fs.writeFileSync(path.join(dir, "index.html"), html);
+  };
+  for (const person of persons) write(person.path, writerPage(shell, person, persons, site));
+  for (const group of writerGroups(songs)) {
+    const target = creditTarget(group, persons);
+    const legacy = writerPath(group.id, group.name);
+    const html = target ? redirectPage(`${site}${target.path}/`, `${target.name} — WorshipCommons`) : creditPage(shell, group, persons, site);
+    // the slugged credit URL and the bare-id one Google saw before slugs
+    if (legacy !== target?.path) write(legacy, html);
+    write(`/writers/${group.id}`, target ? html : redirectPage(`${site}${legacy}/`, `${group.name} — WorshipCommons`));
   }
+}
+
+// /songs/<id>/ is what Google indexed before slugs; send it to /songs/<slug>-<id>/
+export function writeLegacySongRedirects(root, songs, site = DEFAULT_SITE) {
+  for (const song of songs) {
+    const dir = path.join(root, "songs", song.id);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), redirectPage(songUrl(site, song), `${song.title} — WorshipCommons`));
+  }
+}
+
+export function collectionBody(collection, songs) {
+  const hits = collectionSongs(collection, songs);
+  const list = collection.limit
+    ? `<ul>${hits.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a> — ${esc(s.writer)}</li>`).join("")}</ul>`
+    : groupByLanguage(hits).map(([lang, list], _i, all) =>
+      `${all.length > 1 ? `<h2>${esc(lang)}</h2>` : ""}<ul>${list.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a> — ${esc(s.writer)}${s.year ? `, ${esc(s.year)}` : ""}</li>`).join("")}</ul>`).join("");
+  const faq = (collection.faq || []).map(([q, a]) => `<h2>${esc(q)}</h2><p>${esc(a)}</p>`).join("");
+  const others = COLLECTIONS.filter(c => c.slug !== collection.slug).map(c => `<a href="${c.path}/">${esc(c.h1)}</a>`).join(" · ");
+  return wrap(`<p><a href="/songs/">← All songs</a></p><h1>${esc(collection.h1)}</h1>` +
+    collection.intro.map(p => `<p>${esc(p)}</p>`).join("") + faq +
+    `<h2>${hits.length} ${hits.length === 1 ? "song" : "songs"}</h2>${list}<p>More: ${others}</p>`);
+}
+
+export function collectionPage(shell, collection, songs, site = DEFAULT_SITE) {
+  const url = `${site}${collection.path}/`;
+  const hits = collectionSongs(collection, songs);
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      url,
+      name: collection.h1,
+      description: collection.description,
+      isPartOf: { "@id": `${site}/#website` },
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: hits.length,
+        itemListElement: hits.slice(0, 100).map((s, i) => ({ "@type": "ListItem", position: i + 1, url: songUrl(site, s), name: s.title }))
+      }
+    }
+  ];
+  if (collection.faq) {
+    jsonLd.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: collection.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } }))
+    });
+  }
+  return page(shell, { title: collection.title, description: collection.description, canonical: url, jsonLd, body: collectionBody(collection, songs), site });
+}
+
+export function writeCollectionPages(root, shell, songs, site = DEFAULT_SITE) {
+  for (const c of COLLECTIONS) {
+    if (!collectionSongs(c, songs).length) continue;
+    writeRoute(root, c.path.replace(/^\//, ""), collectionPage(shell, c, songs, site));
+  }
+}
+
+// CloudFront answers paths with no prerendered file with this document (tools/ensure-spa-fallback.mjs).
+// It still boots the SPA, which sets its own robots tag after render, but a crawler that does not
+// run JS sees noindex and no canonical instead of a copy of the homepage.
+export function spaFallbackPage(shell) {
+  return shell
+    .replace(/<link rel="canonical" href="[^"]*">\n?/g, "")
+    .replace(/<meta property="og:url" content="[^"]*">\n?/g, "")
+    .replace("</head>", `<meta name="robots" content="noindex">\n</head>`);
 }
 
 // Account routes. noindex, and a real document so CloudFront does not answer
@@ -555,7 +759,8 @@ async function run() {
     fs.writeFileSync(path.join(dir, "index.html"), songPage(shell, song, songs, SITE));
   }
 
-  const listBody = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><h1>Song library</h1><ul>` +
+  const listBody = `<main style="max-width:700px;margin:0 auto;padding:40px 24px"><h1>Song library</h1>` +
+    `<p>${COLLECTIONS.map(c => `<a href="${c.path}/">${esc(c.h1)}</a>`).join(" · ")}</p><ul>` +
     songs.map(s => `<li><a href="${songPath(s)}/">${esc(s.title)}</a> — ${esc(s.writer)}, ${esc(s.year)}</li>`).join("") +
     `</ul></main>`;
   fs.writeFileSync(path.join(BUILD, "songs", "index.html"), page(shell, {
@@ -567,7 +772,10 @@ async function run() {
   }));
 
   writeStaticPages(BUILD, shell, songs, SITE);
+  writeCollectionPages(BUILD, shell, songs, SITE);
   writeWriterPages(BUILD, shell, songs, SITE);
+  writeLegacySongRedirects(BUILD, songs, SITE);
+  fs.writeFileSync(path.join(BUILD, "spa.html"), spaFallbackPage(shell));
   writeGatedPages(BUILD, shell, SITE);
   // last: index.html is both the homepage and the SPA fallback shell the other pages were stamped from
   writeHomePage(BUILD, shell, SITE);
@@ -577,7 +785,8 @@ async function run() {
   fs.writeFileSync(path.join(BUILD, "feed.xml"), feedXml(songs, SITE));
   fs.writeFileSync(path.join(BUILD, "llms.txt"), llmsTxt(songs, SITE, true));
 
-  console.log(`Prerendered homepage, ${songs.length} song pages, ${writerGroups(songs).length} writer pages, account shells, /songs, /mission, /license, /terms, /upload, /new, /call-for-songs, /report, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
+  const persons = personsOf(songs);
+  console.log(`Prerendered homepage, ${songs.length} song pages (+ id redirects), ${persons.length} writer pages (${persons.filter(p => p.indexable).length} indexed), ${writerGroups(songs).length} legacy credit URLs, ${COLLECTIONS.length} collections, account shells, /songs, /mission, /license, /terms, /upload, /new, /call-for-songs, /report, spa.html, sitemap.xml, feed.xml, robots.txt, llms.txt (${SITE})`);
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   run().catch(err => { console.error("Prerender failed:", err.message || err); process.exit(1); });

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { idOf, writerPath, coverOf, fileUrl, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
+import { idOf, coverOf, fileUrl, kitFile, canLead, leadFiles, listedMidi, loadSongPage, recordingUrlOf, resolveLead, Song, SongPageData, songPath } from "../songs";
 import { parseChordPro, transposeChord, toNashville, splitKey, noteIndex, KEY_CHOICES, FLAT_KEYS, chartShapes, rootAt, semitonesBetween } from "../chordpro";
 import { loadTune, parseMidi, TunePlayer } from "../midiPlayer";
 import { playPitch, setMetronomeBpm, startMetronome, stopMetronome } from "../practice";
@@ -259,10 +259,6 @@ export const SongPage: React.FC = () => {
   };
   const showChord = (chord: string) => nashville ? toNashville(chord, origRoot) : transposeChord(chord, dispShift, useFlats);
 
-  const writerHref = song.authorId || song.writerId
-    ? writerPath(song.authorId || song.writerId || "", song.writer)
-    : `/songs?q=${encodeURIComponent(song.writer)}`;
-
   const leadHref = (canLead(song) || (midiUrl && !!(song.chordPro || song.hasTiming || song.lyricsUrl)))
     ? `${songPath(song)}/lead?key=${encodeURIComponent(keyLabel)}`
     : undefined;
@@ -343,7 +339,7 @@ export const SongPage: React.FC = () => {
         <span className="crumb-here">{song.title}</span>
       </p>
 
-      <SongHero song={song} keyLabel={keyLabel} writerHref={writerHref} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={handleToggleLibrary} supportLinks={supportLinks} />
+      <SongHero song={song} keyLabel={keyLabel} leadHref={leadHref} inLibrary={inLib} onToggleLibrary={handleToggleLibrary} supportLinks={supportLinks} />
 
       {(recordingUrl || midiUrl) && (
         <section className={"player" + (playState === "playing" ? " playing" : "")} aria-label={recordingUrl ? t("Demo recording") : t("Piano preview")}>
@@ -488,7 +484,7 @@ export const SongPage: React.FC = () => {
           )}
 
           <div hidden={tab !== "about"}>
-            <AboutPanel song={song} similar={data.similar} history={data.history} writerHref={writerHref} />
+            <AboutPanel song={song} similar={data.similar} history={data.history} />
           </div>
         </section>
 
@@ -601,8 +597,8 @@ export const SongPage: React.FC = () => {
             <h3>{t("Improve it")}</h3>
             <p className="side-links">
               {canPropose && <><Link to={`${songPath(song)}/edit`} data-testid="propose-edit">{t("Propose an edit")}</Link>
-              {!song.masterUrl && <><span aria-hidden="true">·</span><Link to={`${songPath(song)}/edit?type=recording`} data-testid="add-master">{t("Add a master recording")}</Link></>}
-              <span aria-hidden="true">·</span></>}
+                {!song.masterUrl && <><span aria-hidden="true">·</span><Link to={`${songPath(song)}/edit?type=recording`} data-testid="add-master">{t("Add a master recording")}</Link></>}
+                <span aria-hidden="true">·</span></>}
               <Link to={`/report?song=${encodeURIComponent(`${song.title} — ${songPath(song)}`)}`}>{t("Report this song")}</Link>
             </p>
           </section>

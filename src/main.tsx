@@ -24,6 +24,8 @@ import { EditSong } from "./pages/EditSong";
 import { PreviewSubmission } from "./pages/PreviewSubmission";
 import { Terms } from "./pages/Terms";
 import { Writer } from "./pages/Writer";
+import { Collection } from "./pages/Collection";
+import { COLLECTIONS } from "./collections.mjs";
 import { CallForSongs } from "./pages/CallForSongs";
 import { LeadWorship } from "./pages/LeadWorship";
 import { Project } from "./pages/Project";
@@ -59,6 +61,7 @@ createRoot(document.getElementById("root")).render(
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/songs" element={<Songs />} />
+              {COLLECTIONS.map(c => <Route key={c.slug} path={c.path} element={<Collection slug={c.slug} />} />)}
               <Route path="/new" element={<New />} />
               <Route path="/listen" element={<Listen />} />
               <Route path="/songs/:id" element={<SongPage />} />

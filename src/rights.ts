@@ -6,7 +6,7 @@ const REGISTERED = new Map(registry.licenses.map(l => [l.id, l]));
 export const USES: Use[] = ["project", "print", "stream", "arrange", "record"];
 /** Condition the server and this file both emit when a license id is not in their table. Not a denial: the answer is unknown. */
 export const UNKNOWN = "License not recognised";
-export const isUnknown = (r: UseRule) => r.conditions.includes(UNKNOWN);
+export const isUnknown = (r: UseRule) => !!r?.conditions?.includes(UNKNOWN);
 
 const all = (allowed: boolean, ...conditions: string[]): RightsMatrix =>
   Object.fromEntries(USES.map(u => [u, { allowed, conditions: [...conditions] } as UseRule])) as RightsMatrix;

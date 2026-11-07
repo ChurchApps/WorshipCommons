@@ -1,5 +1,5 @@
 // Idempotent prod CloudFront viewer-request: 301 www and extensionless paths
-// to https://worshipcommons.org/<path>/. The function hardcodes the apex host,
+// to https://worshipcommons.org/<path>/, and 404 paths that are no route of the site. The function hardcodes the apex host,
 // so pass only the prod distribution id.
 // Usage: node tools/ensure-apex-redirect.mjs <distribution-id>
 import { execFileSync } from "child_process";
@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 
 const NAME = "worshipcommons-apex-redirect";
 const CODE = fs.readFileSync(fileURLToPath(new URL("./cloudfront/apex-redirect.js", import.meta.url)));
-const CONFIG = { Comment: "301 www and extensionless paths to the worshipcommons.org trailing-slash URL", Runtime: "cloudfront-js-2.0" };
+const CONFIG = { Comment: "301 www and extensionless paths to the worshipcommons.org trailing-slash URL; 404 unknown paths", Runtime: "cloudfront-js-2.0" };
 
 const cliFile = (file) => "file://" + file.replace(/\\/g, "/");
 
@@ -140,6 +140,45 @@ function smoke(etag) {
     if (generated.response?.statusCode !== 301 || location !== "https://worshipcommons.org/") {
       throw new Error("apex redirect smoke test failed: " + result.FunctionOutput);
     }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  // an unknown path must come back as a real 404 page, not fall through to the S3 fallback
+  const missing = testFunction(etag, "/this-page-does-not-exist/", "worshipcommons.org");
+  if (missing.response?.statusCode !== 404 || !/Page not found/.test(missing.response?.body?.data || "")) {
+    throw new Error("not-found smoke test failed: " + JSON.stringify(missing));
+  }
+  const song = testFunction(etag, "/songs/", "worshipcommons.org");
+  if (song.response || song.request?.uri !== "/songs/") throw new Error("pass-through smoke test failed: " + JSON.stringify(song));
+}
+
+function testFunction(etag, uri, host) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cf-test-"));
+  const event = path.join(dir, "event.json");
+  fs.writeFileSync(event, JSON.stringify({
+    version: "1.0",
+    context: { distributionDomainName: "d2go4bgy698jd.cloudfront.net", distributionId: "E363E9V6GH4TVJ", eventType: "viewer-request", requestId: "seo-smoke" },
+    viewer: { ip: "198.51.100.11" },
+    request: { method: "GET", uri, querystring: {}, headers: { host: { value: host } }, cookies: {} }
+  }));
+  try {
+    const out = JSON.parse(aws([
+      "cloudfront",
+      "test-function",
+      "--name",
+      NAME,
+      "--stage",
+      "DEVELOPMENT",
+      "--if-match",
+      etag,
+      "--event-object",
+      "fileb://" + event.replace(/\\/g, "/"),
+      "--output",
+      "json"
+    ]));
+    const result = out.TestResult || {};
+    if (result.FunctionErrorMessage) throw new Error(result.FunctionErrorMessage);
+    return JSON.parse(result.FunctionOutput);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

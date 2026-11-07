@@ -6,7 +6,9 @@ import assert from "node:assert/strict";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { songPage, songBody, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages, homePage, writerPage, writeWriterPages, writeGatedPages, langIso } from "./prerender.mjs";
+import { songPage, songBody, page, sitemapXml, llmsTxt, robotsTxt, staticPages, writeStaticPages, homePage, writerPage, writeWriterPages, writeGatedPages, langIso, personsOf, writeLegacySongRedirects, redirectPage, spaFallbackPage, writeCollectionPages, collectionPage, creditJsonLd } from "./prerender.mjs";
+import { personId, personPath } from "../src/credits.mjs";
+import { COLLECTIONS, collectionBySlug } from "../src/collections.mjs";
 import { idOf, songPath, writerPath } from "../src/slug.mjs";
 import { indexablePath, canonicalPath } from "../src/crawl.mjs";
 import * as os from "os";
@@ -167,9 +169,28 @@ test("sitemap lists every page with lastmod", () => {
   assert.match(xml, /<loc>https:\/\/example\.test\/license\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/upload\/<\/loc>/);
   assert.match(xml, /<loc>https:\/\/example\.test\/call-for-songs\/<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/augustus-toplady-toplady0001\/<\/loc>/);
-  assert.match(xml, /<loc>https:\/\/example\.test\/writers\/ada-vance-adavance001\/<\/loc>/);
-  assert.equal(xml.match(/<loc>/g).length, 9 + SONGS.length + 2);
+  // collections with songs: /hymns/ (Rock of Ages) and /no-ccli/ (all three)
+  assert.match(xml, /<loc>https:\/\/example\.test\/hymns\/<\/loc><lastmod>2024-03-01<\/lastmod>/);
+  assert.match(xml, /<loc>https:\/\/example\.test\/no-ccli\/<\/loc>/);
+  assert.doesNotMatch(xml, /\/songs\/christmas\//);
+  // single-song people are noindex and stay out; credit-string pages are gone
+  assert.doesNotMatch(xml, /\/writers\//);
+  assert.equal(xml.match(/<loc>/g).length, 9 + 2 + SONGS.length);
+});
+
+test("sitemap lists a writer once they have two songs, under their person URL", () => {
+  const second = { ...SONGS[0], id: "Toplady0002", title: "A Debtor to Mercy Alone", writer: "Augustus M. Toplady · tr. Jan Foss", authorId: "toplady0002", publishedAt: "2024-05-01T00:00:00.000Z" };
+  const xml = sitemapXml([...SONGS, second], SITE);
+  // "Augustus M. Toplady" and "Augustus Toplady" are one person; on a tie the fuller spelling names the page
+  assert.match(xml, new RegExp(`<loc>${SITE}/writers/augustus-m-toplady-${personId("Augustus Toplady")}/</loc><lastmod>2024-05-01</lastmod>`));
+  assert.equal(xml.match(/\/writers\//g).length, 1);
+  assert.doesNotMatch(xml, /jan-foss/);
+  assert.doesNotMatch(xml, /toplady0001|toplady0002/);
+});
+
+test("sitemap percent-encodes non-ASCII URLs", () => {
+  const song = { ...SONGS[2], id: "NateShenjt1", title: "Natë e Shenjtë", language: "Albanian" };
+  assert.match(sitemapXml([song], SITE), /<loc>https:\/\/example\.test\/songs\/nat%C3%AB-e-shenjt%C3%AB-NateShenjt1\/<\/loc>/);
 });
 
 test("static SPA routes write crawlable HTML under build/<route>/index.html", () => {
@@ -216,7 +237,8 @@ test("llms.txt and robots.txt invite the AI crawlers", () => {
   assert.match(llms, /^# WorshipCommons/);
   assert.match(llms, /Full terms: https:\/\/example\.test\/license/);
   assert.match(llms, /- \[Song library\]\(https:\/\/example\.test\/songs\/\)/);
-  assert.match(llms, /- \[Mission\]\(https:\/\/example\.test\/mission\)/);
+  assert.match(llms, /- \[Mission\]\(https:\/\/example\.test\/mission\/\)/);
+  assert.match(llms, /- \[Public domain hymns\]\(https:\/\/example\.test\/hymns\/\)/);
   assert.match(llms, /\n## Songs\n/);
   assert.match(llms, /- \[Rock of Ages by Augustus Toplady\]\(https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/\)/);
   assert.match(llms, /- \[Steady Light by Ada Vance\]\(https:\/\/example\.test\/songs\/steady-light-SteadyLigh1\/\)/);
@@ -267,30 +289,123 @@ test("song share cards do not say no license is needed", () => {
   assert.doesNotMatch(desc, /no license needed/i);
 });
 
-test("writer pages are crawlable and account pages are noindex", () => {
-  const html = writerPage(shell, { id: "toplady0001", name: "Augustus Toplady", songs: [SONGS[0]] }, SITE);
-  assert.match(html, /<title>Augustus Toplady — WorshipCommons<\/title>/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/writers\/augustus-toplady-toplady0001\/">/);
+test("writer pages are per person, noindex below two songs, and account pages are noindex", () => {
+  const second = { ...SONGS[0], id: "Toplady0002", title: "A Debtor to Mercy Alone", writer: "Augustus Toplady & Ada Vance", authorId: "toplady0002", writerBio: "Shared bio." };
+  const songs = [{ ...SONGS[0], writerBio: "Augustus Montague Toplady was an English Anglican cleric." }, SONGS[1], SONGS[2], second];
+  const persons = personsOf(songs);
+  const toplady = persons.find(p => p.name === "Augustus Toplady");
+  assert.equal(toplady.songs.length, 2);
+  assert.equal(toplady.indexable, true);
+  const html = writerPage(shell, toplady, persons, SITE);
+  assert.match(html, /<title>Augustus Toplady — songs, chords and lyrics \| WorshipCommons<\/title>/);
+  assert.match(html, new RegExp(`<link rel="canonical" href="${SITE}${toplady.path}/">`));
   assert.match(html, /<h1>Augustus Toplady<\/h1>/);
-  assert.match(html, /Songs in the commons by this writer\./);
+  assert.match(html, /Augustus Montague Toplady was an English Anglican cleric\./); // solo-credit bio only
+  assert.doesNotMatch(html, /Shared bio/);
   assert.match(html, /href="\/songs\/rock-of-ages-RockOfAges1\/"/);
+  assert.match(html, /<h2>Wrote with<\/h2><p><a href="\/writers\/ada-vance-[^"]+\/">Ada Vance<\/a>/);
   assert.match(html, /"@type":"ProfilePage"/);
+  assert.doesNotMatch(html, /name="robots"/);
+  const ada = persons.find(p => p.name === "Ada Vance");
+  assert.equal(ada.indexable, true);
+  const westrup = persons.find(p => p.name === "T. M. Westrup");
+  assert.match(writerPage(shell, westrup, persons, SITE), /<meta name="robots" content="noindex, follow">/);
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-writers-"));
   try {
-    writeWriterPages(dir, shell, SONGS, SITE);
-    assert.ok(fs.existsSync(path.join(dir, "writers", "augustus-toplady-toplady0001", "index.html")));
+    writeWriterPages(dir, shell, songs, SITE);
+    const at = (p) => fs.readFileSync(path.join(dir, p, "index.html"), "utf8");
+    assert.match(at(toplady.path), /<h1>Augustus Toplady<\/h1>/);
+    // a one-person credit URL, slugged or bare id, redirects to the person
+    assert.match(at("writers/augustus-toplady-toplady0001"), new RegExp(`<meta http-equiv="refresh" content="0; url=${SITE}${toplady.path}/">`));
+    assert.match(at("writers/toplady0001"), new RegExp(`<link rel="canonical" href="${SITE}${toplady.path}/">`));
+    // a shared credit keeps a noindex page that links each person
+    const shared = at("writers/augustus-toplady-ada-vance-toplady0002");
+    assert.match(shared, /<meta name="robots" content="noindex, follow">/);
+    assert.match(shared, new RegExp(`href="${toplady.path}/">Augustus Toplady</a>`));
+    assert.match(at("writers/toplady0002"), /url=https:\/\/example\.test\/writers\/augustus-toplady-ada-vance-toplady0002\//);
     writeGatedPages(dir, shell, SITE);
-    const login = fs.readFileSync(path.join(dir, "login", "index.html"), "utf8");
+    const login = at("login");
     assert.match(login, /<meta name="robots" content="noindex, follow">/);
     assert.match(login, /<h1>Welcome back<\/h1>/);
     assert.match(login, /<link rel="canonical" href="https:\/\/example\.test\/login\/">/);
-    const saved = fs.readFileSync(path.join(dir, "library", "index.html"), "utf8");
+    const saved = at("library");
     assert.match(saved, /Songs you’ve saved/);
     assert.match(saved, /noindex, follow/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("song pages link each credited person and split the composer in JSON-LD", () => {
+  const song = { ...SONGS[0], id: "Debtor00001", title: "A Debtor to Mercy", writer: "Augustus Toplady & Ada Vance · tr. Jan Foss" };
+  const songs = [...SONGS, song];
+  const persons = personsOf(songs);
+  const body = songBody(song, persons);
+  assert.match(body, new RegExp(`<p>By <a href="${personPath("Augustus Toplady")}/">Augustus Toplady</a> &amp; <a href="${personPath("Ada Vance")}/">Ada Vance</a> · tr\\. <a href="${personPath("Jan Foss")}/">Jan Foss</a> · 1763</p>`));
+  assert.doesNotMatch(body, /Words and music by/);
+  const ld = creditJsonLd(song, persons, SITE);
+  assert.deepEqual(ld.composer.map(p => p.name), ["Augustus Toplady", "Ada Vance"]);
+  assert.equal(ld.composer[0].url, `${SITE}${personPath("Augustus Toplady")}/`);
+  assert.equal(ld.translator.name, "Jan Foss");
+  // a collective credit is not a Person
+  const trad = creditJsonLd({ writer: "Traditional" }, persons, SITE);
+  assert.equal(trad.composer, undefined);
+  assert.equal(trad.creditText, "Traditional");
+  assert.match(songBody({ ...SONGS[0], writer: "Traditional", authorId: "trad0000001" }, persons), /By <a href="\/writers\/traditional-trad0000001\/">Traditional<\/a>/);
+});
+
+test("bare song ids redirect to the slugged URL", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-legacy-"));
+  try {
+    writeLegacySongRedirects(dir, SONGS, SITE);
+    const html = fs.readFileSync(path.join(dir, "songs", "RockOfAges1", "index.html"), "utf8");
+    assert.match(html, /<meta http-equiv="refresh" content="0; url=https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/">/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/">/);
+    assert.match(html, /location\.replace\("https:\/\/example\.test\/songs\/rock-of-ages-RockOfAges1\/" \+ location\.search \+ location\.hash\)/);
+    assert.doesNotMatch(html, /noindex/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  assert.doesNotMatch(redirectPage("https://x.test/a\"><script>"), /"><script>/);
+});
+
+test("the SPA fallback is noindex with no canonical", () => {
+  const home = homePage(shell, SITE);
+  const fallback = spaFallbackPage(shell);
+  assert.match(fallback, /<meta name="robots" content="noindex">/);
+  assert.doesNotMatch(fallback, /rel="canonical"/);
+  assert.doesNotMatch(fallback, /og:url/);
+  assert.match(fallback, /<div id="root"><\/div>/);
+  assert.match(home, /<link rel="canonical" href="https:\/\/example\.test\/">/);
+  assert.doesNotMatch(home, /noindex/);
+});
+
+test("collection pages list their songs with the shared copy and skip empty ones", () => {
+  const xmas = { ...SONGS[2], id: "SilentNigh1", title: "Silent Night", writer: "Joseph Mohr", year: 1818, license: "PD", themes: "Christmas, Peace" };
+  const songs = [...SONGS, xmas];
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wc-collections-"));
+  try {
+    writeCollectionPages(dir, shell, songs, SITE);
+    const hymns = fs.readFileSync(path.join(dir, "hymns", "index.html"), "utf8");
+    assert.match(hymns, /<link rel="canonical" href="https:\/\/example\.test\/hymns\/">/);
+    assert.match(hymns, /<h1>Public domain hymns<\/h1>/);
+    assert.match(hymns, /href="\/songs\/rock-of-ages-RockOfAges1\/">Rock of Ages<\/a>/);
+    assert.doesNotMatch(hymns, /Roca de la Eternidad/); // English only
+    assert.doesNotMatch(hymns, /Steady Light/); // WorshipCommons License, not public domain
+    assert.match(hymns, /"@type":"CollectionPage"/);
+    const christmas = fs.readFileSync(path.join(dir, "songs", "christmas", "index.html"), "utf8");
+    assert.match(christmas, /Silent Night/);
+    assert.doesNotMatch(christmas, /Rock of Ages/);
+    const noCcli = fs.readFileSync(path.join(dir, "no-ccli", "index.html"), "utf8");
+    assert.match(noCcli, /"@type":"FAQPage"/);
+    assert.match(noCcli, /Steady Light/);
+    assert.equal(fs.existsSync(path.join(dir, "songs", "easter")), false);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  assert.ok(COLLECTIONS.every(c => indexablePath(c.path)), "every collection must be indexable in the SPA crawl policy");
+  assert.match(collectionPage(shell, collectionBySlug("advent"), songs, SITE), /<title>Advent hymns and songs for church/);
 });
 
 test("crawl policy indexes songs and writers and hides account and print views", () => {

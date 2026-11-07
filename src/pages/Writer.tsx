@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { idOf, loadSongs, Song, songFromApi, songPath, themeList, writerPath } from "../songs";
+import { idOf, loadSong, loadSongs, Song, songFromApi, songPath, themeList, writerPath } from "../songs";
 import { wcGet } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
 import { licenseOf } from "../licenses";
 import { SupportWriter, linkLabel, parseWriterLinks, type WriterLink } from "../components/SupportWriter";
 import { EmptyState } from "../components/EmptyState";
+import { loadPersons } from "../components/CreditLinks";
+import { creditParts } from "../credits.mjs";
 
 interface Profile {
   name: string;
@@ -22,6 +24,17 @@ const matchesWriter = (song: Song, q: string) => {
   return writer.split(/[,&;]| and /i).map(p => p.trim()).includes(q);
 };
 
+function setRobots(content: string) {
+  let el = document.querySelector('meta[name="robots"]');
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute("name", "robots");
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
+
+// /writers/<slug>-<id>: id is a person (src/credits.mjs) or, for older links, a credit-string author id.
 export const Writer: React.FC = () => {
   const { t } = useI18n();
   const { name = "" } = useParams();
@@ -38,10 +51,41 @@ export const Writer: React.FC = () => {
     const fromCatalog = (all: Song[]) => all.filter(s => matchesWriter(s, q) || s.authorId === query || s.writerId === query);
 
     loadSongs().then(async all => {
+      const person = (await loadPersons()).find(p => p.id === query);
+      if (person) {
+        if (!live) return;
+        if (`/writers/${name}` !== person.path) navigate(person.path, { replace: true });
+        setProfile({ name: person.name, links: [], supportLinks: [] });
+        setSongs(person.songs.map(x => x.song));
+        // single-song people are noindex in the prerender too; set it after the crawl policy has run
+        if (!person.indexable) setRobots("noindex, follow");
+        // a song this person wrote alone carries their bio, and its author id holds the profile a writer claimed
+        const own = person.songs.find(x => x.role === "writer" && creditParts(x.song.writer).filter(c => c.person).length === 1);
+        if (own) {
+          const detail: Song | null = await loadSong(own.song.id).catch((): null => null);
+          const raw: any = detail?.authorId ? await wcGet(`/authors/${encodeURIComponent(detail.authorId)}`).catch((): null => null) : null;
+          if (!live) return;
+          setProfile({
+            name: person.name,
+            bio: raw?.bio || detail?.writerBio || undefined,
+            portraitUrl: raw?.portraitUrl || detail?.writerPortraitUrl || undefined,
+            links: parseWriterLinks(raw?.links),
+            supportLinks: parseWriterLinks(raw?.supportLinks)
+          });
+        }
+        return;
+      }
       try {
         const raw = await wcGet(`/authors/${encodeURIComponent(query)}`);
         if (!live) return;
         const listed: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.songs) ? raw.songs : [];
+        // an old credit URL for one person: that person's page replaces it
+        const people = raw?.name ? creditParts(raw.name, await loadPersons()).filter(p => p.person) : [];
+        if (people.length && new Set(people.map(p => p.person.id)).size === 1) {
+          navigate(people[0].person.path, { replace: true });
+          return;
+        }
+        if (raw?.name) setRobots("noindex, follow");
         if (raw?.id && raw?.name && `/writers/${name}` !== writerPath(raw.id, raw.name)) navigate(writerPath(raw.id, raw.name), { replace: true });
         setProfile({
           name: raw?.name || raw?.writer || query,

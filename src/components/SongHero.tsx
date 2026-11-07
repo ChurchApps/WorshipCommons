@@ -7,6 +7,7 @@ import { useI18n } from "../i18n";
 import { LicenseBadge } from "./LicenseBadge";
 import { AddToSetlist } from "./AddToSetlist";
 import { SupportWriter, type WriterLink } from "./SupportWriter";
+import { CreditLinks } from "./CreditLinks";
 
 const PlayIcon: React.FC = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" /></svg>;
 
@@ -22,7 +23,6 @@ export const clock = (s?: number | null) => (s && s > 0 ? `${Math.floor(s / 60)}
 interface Props {
   song: Song;
   keyLabel: string;
-  writerHref: string;
   /** the full-screen Lead worship route, in the key on screen; absent when the song has nothing to lead from */
   leadHref?: string;
   inLibrary: boolean;
@@ -51,7 +51,7 @@ export const SongHero: React.FC<Props> = (props) => {
         <h1 className="song-title">{props.song.title}</h1>
         {props.song.firstLine && <p className="first-line" data-testid="first-line">{props.song.firstLine}</p>}
         <p className="byline">
-          <Link to={props.writerHref}>{props.song.writer}</Link> · {props.song.year}
+          <CreditLinks song={props.song} /> · {props.song.year}
           {props.song.tune && <> · {t("Tune")}: <b data-testid="tune-name">{props.song.tune}</b></>}
         </p>
         <div className="tags">

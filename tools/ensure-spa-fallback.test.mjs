@@ -37,3 +37,17 @@ test("withSpaFallback patches 403/404 without dropping other error pages", () =>
   assert.equal(spaFallbackMissing(next), false);
   assert.equal(next.CustomErrorResponses.Items.find(i => i.ErrorCode === 500).ResponsePagePath, "/500.html");
 });
+
+test("the fallback is the noindex spa.html, not the homepage", () => {
+  assert.ok(SPA_ERROR_RESPONSES.every(r => r.ResponsePagePath === "/spa.html" && r.ResponseCode === "200"));
+  // a distribution still pointed at /index.html gets patched
+  assert.equal(spaFallbackMissing({
+    CustomErrorResponses: {
+      Quantity: 2,
+      Items: [
+        { ErrorCode: 403, ResponsePagePath: "/index.html", ResponseCode: "200" },
+        { ErrorCode: 404, ResponsePagePath: "/index.html", ResponseCode: "200" }
+      ]
+    }
+  }), true);
+});

@@ -86,6 +86,9 @@ export const Layout: React.FC = () => {
           </div>
           <p className="foot-legal">
             <Link to="/new">{t("New songs")}</Link>
+            <Link to="/hymns">{t("Public domain hymns")}</Link>
+            <Link to="/no-ccli">{t("No CCLI needed")}</Link>
+            <Link to="/songs/christmas">{t("Christmas songs")}</Link>
             <Link to="/call-for-songs">{t("Call for songs")}</Link>
             <Link to="/report">{t("Report a song")}</Link>
             <Link to="/license">{t("Licenses")}</Link>
