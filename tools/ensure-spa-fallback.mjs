@@ -1,7 +1,11 @@
-// Idempotent CloudFront patch: 403 and 404 → /index.html with HTTP 200.
+// Idempotent CloudFront patch: 403 and 404 → /spa.html with HTTP 200.
 // S3 REST origins return 403 (not 404) for a missing key when the caller
 // cannot ListBucket; website origins return 404. Either way the SPA needs
 // the document so /songs/:id that are not in this prerender still boot.
+// spa.html is the app shell with noindex and no canonical (tools/prerender.mjs
+// spaFallbackPage), so a path that was never prerendered is not stored as a
+// copy of the homepage. Paths outside the site's routes 404 before they get
+// here (tools/cloudfront/apex-redirect.js).
 // Usage: node tools/ensure-spa-fallback.mjs <distribution-id>
 import { execFileSync } from "child_process";
 import * as fs from "fs";
@@ -10,8 +14,8 @@ import * as path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 export const SPA_ERROR_RESPONSES = [
-  { ErrorCode: 403, ResponsePagePath: "/index.html", ResponseCode: "200", ErrorCachingMinTTL: 0 },
-  { ErrorCode: 404, ResponsePagePath: "/index.html", ResponseCode: "200", ErrorCachingMinTTL: 0 }
+  { ErrorCode: 403, ResponsePagePath: "/spa.html", ResponseCode: "200", ErrorCachingMinTTL: 0 },
+  { ErrorCode: 404, ResponsePagePath: "/spa.html", ResponseCode: "200", ErrorCachingMinTTL: 0 }
 ];
 
 const same = (a, b) => Number(a.ErrorCode) === Number(b.ErrorCode)
@@ -44,7 +48,7 @@ function run(id) {
   }
   const data = JSON.parse(aws(["cloudfront", "get-distribution-config", "--id", id, "--output", "json"]));
   if (!spaFallbackMissing(data.DistributionConfig)) {
-    console.log(`CloudFront ${id}: SPA 403/404 → /index.html already set`);
+    console.log(`CloudFront ${id}: SPA 403/404 → /spa.html already set`);
     return;
   }
   const cfg = withSpaFallback(data.DistributionConfig);
@@ -55,7 +59,7 @@ function run(id) {
     aws([
       "cloudfront", "update-distribution", "--id", id, "--if-match", data.ETag, "--distribution-config", pathToFileURL(cfgPath).href
     ], { stdio: "inherit" });
-    console.log(`CloudFront ${id}: set SPA 403/404 → /index.html 200`);
+    console.log(`CloudFront ${id}: set SPA 403/404 → /spa.html 200`);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

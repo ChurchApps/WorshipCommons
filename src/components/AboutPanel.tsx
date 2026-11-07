@@ -5,6 +5,7 @@ import { useI18n } from "../i18n";
 import { RightsPanel } from "./RightsPanel";
 import { acceptsProposals, allowsDerivatives } from "../licenses";
 import SourcesPanel from "./SourcesPanel";
+import { CreditLinks } from "./CreditLinks";
 
 const ArrowRight: React.FC = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -24,7 +25,6 @@ interface Props {
   song: Song;
   similar: (Song & { reason?: string })[];
   history: HistoryEntry[];
-  writerHref: string;
 }
 
 // Author, scripture, topics, other tunes for this text, who contributed, and the rights matrix — everything that
@@ -46,7 +46,7 @@ export const AboutPanel: React.FC<Props> = (props) => {
               <div className="writer-row">
                 {props.song.writerPortraitUrl && <img className="writer-photo" src={props.song.writerPortraitUrl} alt={t("Portrait of {writer}", { writer: props.song.writer })} loading="lazy" />}
                 <div>
-                  <Link to={props.writerHref}><b>{props.song.writer}</b></Link>
+                  <CreditLinks song={props.song} bold />
                   {props.song.writerBio && <p className="writer-bio" data-testid="song-writer-bio">{props.song.writerBio}</p>}
                 </div>
               </div>
@@ -54,7 +54,7 @@ export const AboutPanel: React.FC<Props> = (props) => {
             </div>
           )
           : (
-            <p className="about-line"><b>{t("Writer")}</b> <Link to={props.writerHref}>{props.song.writer}</Link>{props.song.year ? `, ${props.song.year}` : ""}</p>
+            <p className="about-line"><b>{t("Writer")}</b> <CreditLinks song={props.song} />{props.song.year ? `, ${props.song.year}` : ""}</p>
           )}
         {(props.song.scriptureText || props.song.scripture) && (
           <p className="epigraph" data-testid="about-scripture">

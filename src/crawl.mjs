@@ -2,7 +2,9 @@
 // noindex so they are not stored as copies of the homepage (CloudFront serves
 // index.html for any path that was not prerendered).
 
-export const PUBLIC_PATHS = ["/new", "/mission", "/license", "/call-for-songs", "/report", "/terms", "/upload"];
+export const PUBLIC_PATHS = [
+  "/new", "/mission", "/license", "/call-for-songs", "/report", "/terms", "/upload", "/hymns", "/no-ccli"
+];
 
 // prefixes of routes that are private or per-browser
 export const PRIVATE_PREFIXES = ["/login", "/library", "/my-songs", "/profile", "/setlists", "/preview"];
