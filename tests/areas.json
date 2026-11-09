@@ -1,0 +1,91 @@
+{
+  "$comment": "Maps source paths to the specs that cover them. Used by tests/setup/affected.mjs (yarn test:affected). A changed file in no area runs every spec. New spec files must be added to an area; yarn test:areas checks that.",
+  "always": ["home.spec.ts"],
+  "ignore": ["**/*.md", ".github/**", ".claude/**", "docs/**", "tests/areas.json", "tests/smoke/**", "tests/setup/smoke.mjs", "tests/setup/affected.mjs", "playwright.smoke.config.ts", "tools/*", "LICENSE"],
+  "areas": {
+    "home": {
+      "src": ["src/pages/Home.tsx", "src/styles/home.css"],
+      "specs": ["home.spec.ts", "catalog-load.spec.ts", "demo-start-here.spec.ts", "demo-search-filters.spec.ts", "new-songs.spec.ts", "call-for-songs.spec.ts", "demo-theme-vocabulary.spec.ts", "demo-multi-license.spec.ts", "license-note.spec.ts", "demo-spa-routes.spec.ts"]
+    },
+    "library": {
+      "src": ["src/pages/Songs.tsx", "src/pages/Collection.tsx", "src/collections.mjs", "src/catalog.ts", "src/era.ts", "src/components/ConfidenceBadge.tsx", "src/styles/songs.css"],
+      "specs": ["library.spec.ts", "song-rank.spec.ts", "catalog-load.spec.ts", "demo-search-filters.spec.ts", "demo-start-here.spec.ts", "demo-meter.spec.ts", "demo-theme-vocabulary.spec.ts", "demo-multi-license.spec.ts", "cover-art.spec.ts"]
+    },
+    "new": {
+      "src": ["src/pages/New.tsx"],
+      "specs": ["new-songs.spec.ts", "demo-spa-routes.spec.ts"]
+    },
+    "listen": {
+      "src": ["src/pages/Listen.tsx"],
+      "specs": ["listen.spec.ts"]
+    },
+    "song": {
+      "src": ["src/pages/SongPage.tsx", "src/components/SongHero.tsx", "src/components/AboutPanel.tsx", "src/components/RightsPanel.tsx", "src/components/SourcesPanel.tsx", "src/components/ChordDiagram.tsx", "src/components/ScriptureConnection.tsx", "src/components/LicenseBadge.tsx", "src/components/AddToSetlist.tsx", "src/rights.ts", "src/bible.ts", "src/pipeline.ts", "src/styles/song.css"],
+      "specs": ["song.spec.ts", "demo-song-page.spec.ts", "catalog-load.spec.ts", "chord-diagrams.spec.ts", "nashville.spec.ts", "inline-notation.spec.ts", "downloads.spec.ts", "download-pack.spec.ts", "ratings.spec.ts", "practice.spec.ts", "demo-ccli.spec.ts", "demo-meter.spec.ts", "demo-nd-switch.spec.ts", "demo-no-chords-controls.spec.ts", "demo-conservative-rights.spec.ts", "demo-master-license.spec.ts", "demo-multi-license.spec.ts", "license-note.spec.ts", "demo-writer-support.spec.ts", "demo-writer-profile.spec.ts", "my-library.spec.ts", "demo-setlists.spec.ts"]
+    },
+    "lead": {
+      "src": ["src/pages/LeadWorship.tsx", "src/practice.ts", "src/recordingPlayer.ts", "src/styles/lead.css"],
+      "specs": ["lead-worship.spec.ts", "practice.spec.ts", "song.spec.ts"]
+    },
+    "print": {
+      "src": ["src/pages/PrintChart.tsx"],
+      "specs": ["print-chords.spec.ts"]
+    },
+    "sheet": {
+      "src": ["src/pages/SheetMusic.tsx", "src/abc.ts"],
+      "specs": ["sheet-music.spec.ts", "sheet-pdf.spec.ts", "demo-song-page.spec.ts", "lead-worship.spec.ts"]
+    },
+    "project": {
+      "src": ["src/pages/Project.tsx", "src/components/ProjectPanel.tsx", "src/slides.ts", "src/exports.ts", "src/styles/project.css"],
+      "specs": ["demo-project.spec.ts", "demo-setlists.spec.ts"]
+    },
+    "transcribe": {
+      "src": ["src/pages/Transcribe.tsx", "src/components/AbcEditor.tsx", "src/abcDraft.ts"],
+      "specs": ["transcribe.spec.ts"]
+    },
+    "upload": {
+      "src": ["src/pages/Upload.tsx", "src/pages/EditSong.tsx", "src/components/SongForm.tsx", "src/components/ChordProPreview.tsx", "src/artThumb.ts", "src/styles/upload.css"],
+      "specs": ["upload-*.spec.ts", "edit.spec.ts", "cover-art.spec.ts", "duplicate-warning.spec.ts", "demo-change-proposals.spec.ts", "demo-chordpro-lint.spec.ts", "demo-submission-type.spec.ts", "demo-theme-vocabulary.spec.ts", "demo-multi-license.spec.ts", "demo-master-license.spec.ts", "demo-ccli.spec.ts", "demo-no-chords-controls.spec.ts", "license-note.spec.ts", "sheet-music.spec.ts", "sheet-pdf.spec.ts", "transcribe.spec.ts", "co-publishers.spec.ts", "preview.spec.ts", "login.spec.ts"]
+    },
+    "preview": {
+      "src": ["src/pages/PreviewSubmission.tsx"],
+      "specs": ["preview.spec.ts"]
+    },
+    "mySongs": {
+      "src": ["src/pages/MySongs.tsx"],
+      "specs": ["co-publishers.spec.ts", "upload-*.spec.ts", "demo-change-proposals.spec.ts", "demo-submission-type.spec.ts", "demo-writer-profile.spec.ts", "transcribe.spec.ts"]
+    },
+    "profile": {
+      "src": ["src/pages/Profile.tsx", "src/components/SupportWriter.tsx"],
+      "specs": ["profile-empty-writer-page.spec.ts", "demo-writer-profile.spec.ts", "demo-writer-support.spec.ts"]
+    },
+    "writer": {
+      "src": ["src/pages/Writer.tsx", "src/components/CreditLinks.tsx", "src/credits.mjs"],
+      "specs": ["demo-writer-profile.spec.ts", "demo-writer-support.spec.ts", "song.spec.ts"]
+    },
+    "library-saved": {
+      "src": ["src/pages/Library.tsx", "src/library.ts"],
+      "specs": ["my-library.spec.ts"]
+    },
+    "setlists": {
+      "src": ["src/pages/Setlists.tsx", "src/pages/SetlistPage.tsx", "src/setlists.ts", "src/zip.ts", "src/styles/setlist.css", "tools/cloudfront/**"],
+      "specs": ["demo-setlists.spec.ts", "setlists-share-link-redirect.spec.ts"]
+    },
+    "report": {
+      "src": ["src/pages/Report.tsx", "src/styles/report.css"],
+      "specs": ["report.spec.ts", "demo-dmca.spec.ts"]
+    },
+    "login": {
+      "src": ["src/pages/Login.tsx"],
+      "specs": ["login.spec.ts"]
+    },
+    "static": {
+      "src": ["src/pages/Mission.tsx", "src/pages/License.tsx", "src/pages/Terms.tsx", "src/pages/CallForSongs.tsx", "src/components/DeedIcons.tsx", "src/styles/license.css", "src/styles/mission.css"],
+      "specs": ["demo-spa-routes.spec.ts", "call-for-songs.spec.ts", "license-note.spec.ts", "demo-multi-license.spec.ts", "demo-conservative-rights.spec.ts", "demo-writer-support.spec.ts", "demo-dmca.spec.ts", "demo-footer.spec.ts"]
+    },
+    "locales": {
+      "src": ["src/locales/**"],
+      "specs": ["library.spec.ts"]
+    }
+  }
+}
