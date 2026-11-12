@@ -24,6 +24,7 @@
     "test:smoke": "playwright test -c playwright.smoke.config.ts",
     "test:affected": "node tests/setup/affected.mjs",
     "test:areas": "node tests/setup/affected.mjs --check",
+    "test:affected-select": "node --test tests/setup/affected.test.mjs",
     "demo": "node tests/setup/demo.mjs",
     "test:slug": "node --test tools/slug.test.mjs",
     "test:feed": "node --test tools/feed.test.mjs",
