@@ -5,7 +5,7 @@ interface Row { id: string; title: string; hasTiming?: boolean; fileUrls?: Recor
 interface Word { t: number; text: string }
 
 let PATH = "";
-let SONG: { songKey: string; bpm: number; publishedKeys?: string[]; form?: { defaultOrder: string[] } | null } = { songKey: "", bpm: 0 };
+let SONG: { songKey: string; bpm: number; publishedKeys?: string[]; form?: { defaultOrder: string[] } | null; fileUrls?: Record<string, string> } = { songKey: "", bpm: 0 };
 let LINES: string[] = [];
 let LABELS: string[] = [];
 
@@ -16,7 +16,7 @@ test.beforeAll(async ({ request }) => {
   if (!row) throw new Error("No seeded song with timing + midi");
   PATH = `/songs/${row.id}/lead`;
   SONG = await (await request.get(`${WC_API}/songs/${row.id}`)).json();
-  const timing = await (await request.get((SONG as any).fileUrls.timing)).json();
+  const timing = await (await request.get(SONG.fileUrls.timing)).json();
   LINES = timing.stanzas[0].lines.map((l: Word[]) => l.map(w => w.text).join(" "));
   LABELS = timing.stanzas.map((s: { label: string }) => s.label);
 });

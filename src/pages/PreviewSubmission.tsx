@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { ChordProPreview } from "../components/ChordProPreview";
+import type { SongPayloadDetail } from "../components/SongForm";
 import { wcGet } from "../api";
 import { licenseById } from "../licenses";
 import "../styles/song.css";
 
 interface PreviewFile { name: string; action?: string; url?: string }
-interface Preview { payload?: { name?: string; tags?: string; language?: string; license?: string; licenseVersion?: string; detail?: Record<string, any> }; note?: string; files?: PreviewFile[] }
+interface Preview { payload?: { name?: string; tags?: string; language?: string; license?: string; licenseVersion?: string; detail?: SongPayloadDetail }; note?: string; files?: PreviewFile[] }
 
 // read-only render of a proposed submission — token-gated for reviewers, owner JWT when no token
 export const PreviewSubmission: React.FC = () => {

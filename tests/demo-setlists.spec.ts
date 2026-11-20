@@ -19,9 +19,12 @@ async function seed(page: Page, name: string, items: { songId: string; key: stri
   }, { name, items, extra });
 }
 
+// The stubbed clipboard keeps the last copied text on window for the spec to read back.
+type CopyWindow = Window & { __copied?: string };
+
 const stubClipboard = (page: Page) => page.evaluate(() => {
-  (window as any).__copied = "";
-  Object.defineProperty(navigator, "clipboard", { value: { writeText: (t: string) => { (window as any).__copied = t; return Promise.resolve(); } }, configurable: true });
+  (window as CopyWindow).__copied = "";
+  Object.defineProperty(navigator, "clipboard", { value: { writeText: (t: string) => { (window as CopyWindow).__copied = t; return Promise.resolve(); } }, configurable: true });
 });
 
 test.describe("setlists", () => {
@@ -144,7 +147,7 @@ test.describe("setlists", () => {
     await stubClipboard(page);
     await page.getByTestId("copy-chordpro").click();
     await expect(page.getByTestId("copy-chordpro")).toContainText("Copied");
-    const copied = await page.evaluate(() => (window as any).__copied as string);
+    const copied = await page.evaluate(() => (window as CopyWindow).__copied as string);
     expect(copied.startsWith("{title: Amazing Grace}")).toBe(true);
     expect(copied).toContain("{title: Be Thou My Vision}");
     expect(copied).toContain("{key: D}");

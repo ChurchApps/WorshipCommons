@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { idOf, loadSong, loadSongs, Song, songFromApi, songPath, themeList, writerPath } from "../songs";
+import { ApiSong, idOf, loadSong, loadSongs, Song, songFromApi, songPath, themeList, writerPath } from "../songs";
 import { wcGet } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -9,6 +9,10 @@ import { SupportWriter, linkLabel, parseWriterLinks, type WriterLink } from "../
 import { EmptyState } from "../components/EmptyState";
 import { loadPersons } from "../components/CreditLinks";
 import { creditParts } from "../credits.mjs";
+
+// /authors/:id lists a writer's songs as ids or as full song rows.
+type AuthorSong = string | ApiSong;
+interface AuthorRecord { id?: string; name?: string; writer?: string; bio?: string; portraitUrl?: string; links?: unknown; supportLinks?: unknown; songs?: AuthorSong[] }
 
 interface Profile {
   name: string;
@@ -63,7 +67,7 @@ export const Writer: React.FC = () => {
         const own = person.songs.find(x => x.role === "writer" && creditParts(x.song.writer).filter(c => c.person).length === 1);
         if (own) {
           const detail: Song | null = await loadSong(own.song.id).catch((): null => null);
-          const raw: any = detail?.authorId ? await wcGet(`/authors/${encodeURIComponent(detail.authorId)}`).catch((): null => null) : null;
+          const raw: AuthorRecord | null = detail?.authorId ? await wcGet(`/authors/${encodeURIComponent(detail.authorId)}`).catch((): null => null) : null;
           if (!live) return;
           setProfile({
             name: person.name,
@@ -78,7 +82,7 @@ export const Writer: React.FC = () => {
       try {
         const raw = await wcGet(`/authors/${encodeURIComponent(query)}`);
         if (!live) return;
-        const listed: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.songs) ? raw.songs : [];
+        const listed: AuthorSong[] = Array.isArray(raw) ? raw : Array.isArray(raw?.songs) ? raw.songs : [];
         // an old credit URL for one person: that person's page replaces it
         const people = raw?.name ? creditParts(raw.name, await loadPersons()).filter(p => p.person) : [];
         if (people.length && new Set(people.map(p => p.person.id)).size === 1) {
@@ -95,10 +99,10 @@ export const Writer: React.FC = () => {
           supportLinks: parseWriterLinks(raw?.supportLinks)
         });
         if (listed.length && typeof listed[0] === "string") {
-          const ids = new Set(listed);
+          const ids = new Set(listed as string[]);
           setSongs(all.filter(s => ids.has(s.id)));
         } else if (listed.length && typeof listed[0] === "object") {
-          setSongs(listed.map(songFromApi));
+          setSongs((listed as ApiSong[]).map(songFromApi));
         } else {
           setSongs(fromCatalog(all));
         }

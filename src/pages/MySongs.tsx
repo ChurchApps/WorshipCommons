@@ -4,7 +4,7 @@ import { useAuth } from "../auth";
 import { wcDelete, wcGet, wcPost } from "../api";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
-import { NEW_PACKAGE_TYPES } from "../components/SongForm";
+import { NEW_PACKAGE_TYPES, type SongPayloadDetail } from "../components/SongForm";
 import { EmptyState } from "../components/EmptyState";
 
 interface Submission {
@@ -17,7 +17,7 @@ interface Submission {
   note?: string;
   reviewReason?: string;
   reviewNote?: string;
-  payload?: { type?: string; detail?: Record<string, any> };
+  payload?: { type?: string; detail?: SongPayloadDetail };
   submittedAt?: string;
   createdAt?: string;
 }

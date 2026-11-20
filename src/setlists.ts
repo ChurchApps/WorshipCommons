@@ -200,8 +200,8 @@ export const licenseLineFor = (song: Song) => `${song.title} — ${song.writer}$
 
 // ---- shape guards ----
 
-const isItem = (x: any): x is SetlistItem => !!x && typeof x.songId === "string";
-const isSetlist = (x: any): x is Setlist => !!x && typeof x.id === "string" && typeof x.name === "string" && Array.isArray(x.items);
+const isItem = (x: Partial<SetlistItem>): x is SetlistItem => !!x && typeof x.songId === "string";
+const isSetlist = (x: Partial<Setlist>): x is Setlist => !!x && typeof x.id === "string" && typeof x.name === "string" && Array.isArray(x.items);
 const cleanItem = (i: SetlistItem): SetlistItem => ({
   songId: i.songId,
   key: i.key || "",

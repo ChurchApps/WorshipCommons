@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
-import { pendingSubmissionFor, submissionDetail, WC_API } from "./helpers/api";
+import { pendingSubmissionFor, submissionDetail, SongRow, SubmissionFileRow, WC_API } from "./helpers/api";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TRANSLATION_TITLE = "Spec Translation E2E";
@@ -13,7 +13,7 @@ const LYRICS = "Verse 1\n[G]Sing a new song [C]to the [G]Lord,\nall the [Em]eart
 /** An English original from the seeded catalog, so the translation really has a parent to point at. */
 async function englishOriginal(request: import("@playwright/test").APIRequestContext) {
   const list = await (await request.get(`${WC_API}/songs`)).json();
-  const song = list.find((s: any) => s.language === "English" && !s.parentSongId && s.title);
+  const song = list.find((s: SongRow) => s.language === "English" && !s.parentSongId && s.title);
   if (!song) throw new Error("No English original in the seeded catalog");
   return song as { id: string; title: string };
 }
@@ -74,7 +74,7 @@ test.describe.serial("submission type", () => {
 
     const pending = await pendingSubmissionFor(request, MIDI_TITLE);
     const detail = await submissionDetail(request, pending.id);
-    const midi = detail.files.find((f: any) => f.name === "tune.mid");
+    const midi = detail.files.find((f: SubmissionFileRow) => f.name === "tune.mid");
     expect(midi, "tune.mid is on the submission").toBeTruthy();
     expect(midi.sizeBytes).toBeGreaterThan(0);
 

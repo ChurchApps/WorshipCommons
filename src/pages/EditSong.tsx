@@ -4,7 +4,7 @@ import { useAuth, useMayEditClosed } from "../auth";
 import { idOf } from "../songs";
 import { acceptsProposals } from "../licenses";
 import { uploadFile, wcDelete, wcGet, wcPost, wcPut } from "../api";
-import { SongForm, conventionalName, FILE_LABEL, GRANT_KEYS, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload } from "../components/SongForm";
+import { SongForm, conventionalName, FILE_LABEL, GRANT_KEYS, hasRecording, payloadFrom, PROPOSAL_TYPES, ProposalType, SongFiles, SongFormValues, songFromPayload, SongPayload } from "../components/SongForm";
 import "../styles/upload.css";
 import { usePageMeta } from "../seo";
 import { useI18n } from "../i18n";
@@ -23,13 +23,19 @@ const COPY: Record<ProposalType, { submit: string; hint: string; thanks: string 
   removal: { submit: "Request removal", hint: "A reviewer decides; nothing comes down until then.", thanks: "Thank you — your request is in review" }
 };
 
+/** The live song as /assets/:id/editable returns it: a payload that always names its license. */
+type EditableSong = SongPayload & { license: string };
+interface SubmissionFile { name: string; action?: string }
+/** A saved submission reopened from /my-songs. */
+interface SubmissionDraft { status?: string; assetId?: string; type?: string; payload?: SongPayload; files?: SubmissionFile[]; note?: string; reviewReason?: string; reviewNote?: string }
+
 const asType = (v: string | null): ProposalType | null => (PROPOSAL_TYPES as string[]).includes(v || "") ? v as ProposalType : null;
 
 /**
  * The payload each proposal type sends: a removal names the song and nothing more, files ride on the live payload untouched, a correction is the form.
  * The song's own grant (license, attestation, the writer's certify boxes) stays exactly as the writer made it; the proposer adds only their contribution statement.
  */
-function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFiles, base: any) {
+function proposalPayload(type: ProposalType, form: SongFormValues, files: SongFiles, base: EditableSong) {
   if (type === "removal") return { type, name: base.name, language: base.language, license: base.license, detail: { writer: base.detail?.writer, songKey: base.detail?.songKey } };
   const contribution = { contributionAgreed: form.contributionAgreed, contributionAt: new Date().toISOString() };
   if (type === "additionalFile") return { ...base, type, detail: { ...base.detail, ...contribution, recordingOwned: files.demoAudio || files.accompaniment ? form.recordingOwned : base.detail?.recordingOwned } };
@@ -54,9 +60,9 @@ export const EditSong: React.FC = () => {
   const { user } = useAuth();
   const mayEditClosed = useMayEditClosed(id);
   const location = useLocation();
-  const [base, setBase] = useState<any>(null);
+  const [base, setBase] = useState<EditableSong>(null);
   // a draft reopened from /my-songs — its payload, note and type replace the live song as the starting point
-  const [draft, setDraft] = useState<any>(null);
+  const [draft, setDraft] = useState<SubmissionDraft>(null);
   const [type, setType] = useState<ProposalType>(asType(params.get("type")) || "correction");
   const [notFound, setNotFound] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -69,7 +75,7 @@ export const EditSong: React.FC = () => {
   useEffect(() => {
     if (!id || !user) return;
     let live = true;
-    const draftReq: Promise<any> = draftParam ? wcGet(`/submissions/${draftParam}`, true).catch((): any => null) : Promise.resolve(null);
+    const draftReq: Promise<SubmissionDraft | null> = draftParam ? wcGet(`/submissions/${draftParam}`, true).catch((): null => null) : Promise.resolve(null);
     Promise.all([wcGet(`/assets/${id}/editable`, true), draftReq]).then(([editable, sub]) => {
       if (!live) return;
       setBase(editable);
@@ -151,7 +157,7 @@ export const EditSong: React.FC = () => {
 
   const fromDraft = draft && asType(draft.type || draft.payload?.type) === type;
   const initial = songFromPayload(fromDraft ? draft.payload : base);
-  const draftFiles: string[] = fromDraft ? (draft.files || []).filter((f: any) => f.action !== "remove").map((f: any) => f.name) : [];
+  const draftFiles: string[] = fromDraft ? (draft.files || []).filter((f: SubmissionFile) => f.action !== "remove").map((f: SubmissionFile) => f.name) : [];
 
   return (
     <main className="wrap-narrow">
