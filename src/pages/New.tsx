@@ -53,13 +53,13 @@ export const New: React.FC = () => {
                     ? <img src={coverOf(s, "thumb")!.src} alt="" loading="lazy" width={64} height={64} style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
                     : <span aria-hidden="true" style={{ width: 64, height: 64, borderRadius: 8, overflow: "hidden", flexShrink: 0, display: "block" }} dangerouslySetInnerHTML={{ __html: coverSvg(s, 64, 64) }} />}
                   <div>
-                  <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
-                  <p className="hint">
-                    {s.writer}
-                    {" · "}{t(licenseOf(s).label)}
-                    {" · "}{s.language}
-                    {" · "}{new Date(songRecency(s)).toLocaleDateString(lang, { year: "numeric", month: "long", day: "numeric" })}
-                  </p>
+                    <h3 style={{ marginBottom: 4 }}><Link to={songPath(s)}>{s.title}</Link></h3>
+                    <p className="hint">
+                      {s.writer}
+                      {" · "}{t(licenseOf(s).label)}
+                      {" · "}{s.language}
+                      {" · "}{new Date(songRecency(s)).toLocaleDateString(lang, { year: "numeric", month: "long", day: "numeric" })}
+                    </p>
                   </div>
                 </li>
               ))}
