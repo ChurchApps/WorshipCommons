@@ -318,7 +318,7 @@ const Stage: React.FC<StageProps> = (props) => {
     let lock: { release: () => Promise<void>; addEventListener: (ev: string, fn: () => void) => void } | null = null;
     const request = async () => {
       try {
-        lock = await (navigator as any).wakeLock?.request("screen");
+        lock = await navigator.wakeLock?.request("screen");
         if (lock) { lock.addEventListener("release", () => setAwake(false)); setAwake(true); }
       } catch { setAwake(false); }
     };

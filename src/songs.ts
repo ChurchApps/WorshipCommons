@@ -122,7 +122,10 @@ export function isMissingSong(err: unknown): boolean {
 
 // the API ships one fileUrls map (media key → absolute URL); fan it back out to the
 // legacy per-file fields so the rest of the site keeps its vocabulary
-const URL_FIELDS: [keyof Song, string][] = [
+// Song fields that hold any string, so a fileUrls entry can be copied into them.
+type SongTextField = { [K in keyof Song]-?: string extends Song[K] ? K : never }[keyof Song];
+
+const URL_FIELDS: [SongTextField, string][] = [
   ["demoAudioUrl", "demoAudio"],
   ["masterUrl", "master"],
   ["sheetPdfUrl", "sheetPdf"],
@@ -248,7 +251,10 @@ export function hasStemsPack(song: Pick<Song, "hasStems" | "stemsZipUrl" | "file
   return !!song.hasStems || !!stemsZipUrlOf(song);
 }
 
-export function songFromApi(raw: any): Song {
+/** A song as the API sends it: confidence may still carry a retired value until songFromApi maps it. */
+export type ApiSong = Omit<Song, "confidence"> & { confidence?: string };
+
+export function songFromApi(raw: ApiSong): Song {
   const urls = raw.fileUrls || {};
   for (const [field, key] of URL_FIELDS) if (urls[key]) raw[field] = urls[key];
   // harvested writer recordings live at sources/master/song.mp3; basename "song" used to collide with song.json
@@ -269,7 +275,7 @@ export function clearSongCache() {
 
 export async function loadSongs(): Promise<Song[]> {
   if (cache && Date.now() - cacheAt < LIST_TTL_MS) return cache;
-  const songs = (await wcGet("/songs") as any[]).map(songFromApi);
+  const songs = (await wcGet("/songs") as ApiSong[]).map(songFromApi);
   attachListMedia(songs, contentRootFromApi(CORE_API));
   cache = songs;
   cacheAt = Date.now();

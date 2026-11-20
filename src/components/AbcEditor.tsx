@@ -19,7 +19,7 @@ export const AbcEditor: React.FC<Props> = (props) => {
     import("abcjs").then(m => {
       if (stale || !paperRef.current) return;
       const [tune] = m.default.renderAbc(paperRef.current, props.value, { responsive: "resize" });
-      setWarnings((tune as any)?.warnings || []);
+      setWarnings(tune?.warnings || []);
     });
     return () => { stale = true; };
   }, [props.value]);

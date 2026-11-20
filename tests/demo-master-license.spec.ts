@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { agreeContribution, checkGrant } from "./helpers/attest";
 import path from "path";
 import { fileURLToPath } from "url";
-import { approveSubmission, pendingSubmissionFor, submissionDetail, WC_API } from "./helpers/api";
+import { approveSubmission, pendingSubmissionFor, submissionDetail, SongRow, WC_API } from "./helpers/api";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WAV = path.join(__dirname, "fixtures", "tiny.wav");
@@ -82,7 +82,7 @@ test.describe.serial("composition and master: two grants, two licenses", () => {
     const songs = await (await request.get(`${WC_API}/songs`)).json();
     // change-proposals takes the last free English song and edit.spec the first; this one takes the second-to-last
     // custom writer grants (larry-holder) cannot carry a proposal license, so only registry licenses qualify
-    const free = songs.filter((s: any) => !RESERVED.includes(s.title) && s.language === "English" && !s.fileUrls?.master && ["WC", "PD", "CC-BY"].includes(s.license));
+    const free = songs.filter((s: SongRow) => !RESERVED.includes(s.title) && s.language === "English" && !s.fileUrls?.master && ["WC", "PD", "CC-BY"].includes(s.license));
     const song = free[free.length - 2];
     expect(song, "a free English song without a master").toBeTruthy();
 

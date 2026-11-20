@@ -4,6 +4,15 @@ export const CORE_API = process.env.CORE_API || "http://localhost:8084";
 export const WC_API = CORE_API + "/commons";
 export const CONTENT = CORE_API + "/content/commons";
 
+/** A row of GET /songs, with the fields specs filter on. */
+export interface SongRow { id: string; title: string; language?: string; license?: string; parentSongId?: string; fileUrls?: Record<string, string>; publishedAt?: string; createdAt?: string }
+/** A row of the admin queue or /submissions/mine. */
+export interface SubmissionRow { id: string; assetId?: string; assetName?: string }
+/** A file on an admin submission detail. */
+export interface SubmissionFileRow { name: string; sizeBytes?: number }
+
+interface LoginChurch { jwt?: string; apis?: { permissions?: { contentType: string; action: string }[] }[] }
+
 const auth = (jwt: string) => ({ Authorization: `Bearer ${jwt}` });
 
 async function ok(resp: import("@playwright/test").APIResponse, what: string) {
@@ -21,8 +30,8 @@ export async function songIdByTitle(request: APIRequestContext, title: string): 
 /** An English seed song with melody + art but no sheet PDF — the harvest keeps adding PDFs to the famous hymns, so specs pick one instead of naming it. */
 export async function songWithoutSheetPdf(request: APIRequestContext): Promise<{ id: string; title: string; slug: string }> {
   const list = await (await request.get(`${WC_API}/songs`)).json();
-  const song = list.find((s: any) => s.language === "English" && s.fileUrls?.midi && !s.fileUrls?.sheetPdf && (s.fileUrls?.art || s.fileUrls?.cover) && s.title === "Rock of Ages")
-    || list.find((s: any) => s.language === "English" && s.fileUrls?.midi && !s.fileUrls?.sheetPdf && (s.fileUrls?.art || s.fileUrls?.cover));
+  const song = list.find((s: SongRow) => s.language === "English" && s.fileUrls?.midi && !s.fileUrls?.sheetPdf && (s.fileUrls?.art || s.fileUrls?.cover) && s.title === "Rock of Ages")
+    || list.find((s: SongRow) => s.language === "English" && s.fileUrls?.midi && !s.fileUrls?.sheetPdf && (s.fileUrls?.art || s.fileUrls?.cover));
   if (!song) throw new Error("No seed song without a sheet PDF");
   const slug = song.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   return { id: song.id, title: song.title, slug };
@@ -38,7 +47,7 @@ export async function userJwt(request: APIRequestContext): Promise<string> {
 export async function adminJwt(request: APIRequestContext): Promise<string> {
   const resp = await request.post(`${CORE_API}/membership/users/login`, { data: { email: "demo@b1.church", password: "password", appName: "WorshipCommons" } });
   const body = await resp.json();
-  const church = (body.userChurches || []).find((uc: any) => uc.jwt && (uc.apis || []).some((api: any) => (api.permissions || []).some((p: any) => p.contentType === "Server" && p.action === "Admin")));
+  const church = (body.userChurches || []).find((uc: LoginChurch) => uc.jwt && (uc.apis || []).some(api => (api.permissions || []).some(p => p.contentType === "Server" && p.action === "Admin")));
   if (!church) throw new Error("demo@b1.church has no Server/Admin claim");
   return church.jwt;
 }
@@ -63,7 +72,7 @@ export async function submissionDetail(request: APIRequestContext, id: string) {
 export async function pendingSubmissionFor(request: APIRequestContext, assetIdOrName: string) {
   const jwt = await adminJwt(request);
   const rows = await ok(await request.get(`${WC_API}/admin/submissions`, { headers: auth(jwt) }), "admin queue");
-  const row = rows.find((r: any) => r.assetId === assetIdOrName || r.assetName === assetIdOrName);
+  const row = rows.find((r: SubmissionRow) => r.assetId === assetIdOrName || r.assetName === assetIdOrName);
   if (!row) throw new Error(`No pending submission for ${assetIdOrName}`);
   return row;
 }
@@ -75,7 +84,7 @@ export async function mySubmissions(request: APIRequestContext) {
 
 export async function mySubmissionFor(request: APIRequestContext, assetName: string) {
   const rows = await mySubmissions(request);
-  const row = rows.find((r: any) => r.assetName === assetName);
+  const row = rows.find((r: SubmissionRow) => r.assetName === assetName);
   if (!row) throw new Error(`Not in /submissions/mine: ${assetName}`);
   return row;
 }

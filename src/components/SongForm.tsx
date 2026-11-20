@@ -89,8 +89,44 @@ export const blankSong = (language: string): SongFormValues => ({ submissionType
 /** A license the form can show: the public uploadable set, or a writer grant the API gives only to named users (it re-checks). */
 const offered = (id?: string) => !!id && (UPLOADABLE.some(l => l.id === id) || isCustomLicense(licenseById(id)));
 
-export const songFromPayload = (payload: any): SongFormValues => {
-  const d = payload?.detail || {};
+/** Song details inside a submission payload. Older payloads may carry fields the form no longer edits. */
+export interface SongPayloadDetail {
+  writer?: string;
+  parentSongId?: string;
+  relationLabel?: string;
+  translator?: string;
+  arranger?: string;
+  year?: string | number;
+  songKey?: string;
+  bpm?: string | number;
+  timeSignature?: string;
+  scripture?: string;
+  ccli?: string | number;
+  chordPro?: string;
+  videoUrl?: string;
+  masterLicense?: string;
+  proAnswer?: string;
+  certified?: boolean;
+  recordingOwned?: boolean;
+  [key: string]: unknown;
+}
+
+/** A song submission payload, also the shape of a live song's editable record. */
+export interface SongPayload {
+  type?: string;
+  name?: string;
+  tags?: string;
+  language?: string;
+  license?: string;
+  licenseVersion?: string;
+  attestationVersion?: string;
+  attestedAt?: string;
+  detail?: SongPayloadDetail;
+  [key: string]: unknown;
+}
+
+export const songFromPayload = (payload: SongPayload): SongFormValues => {
+  const d: SongPayloadDetail = payload?.detail || {};
   const parentSongId = d.parentSongId || "";
   const type = payload?.type;
   return {
@@ -127,7 +163,7 @@ export const relationLabelFor = (form: SongFormValues) =>
   !form.parentSongId ? "" : form.submissionType === "translation" ? `Translation (${form.language})` : form.submissionType === "arrangement" ? "Arrangement" : "";
 
 // base keeps the fields this form doesn't edit (scriptureText, videoUrl…) when proposing an edit
-export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: any) => ({
+export const payloadFrom = (form: SongFormValues, hasAudio: boolean, base?: SongPayload) => ({
   ...base,
   type: form.submissionType,
   name: form.title,

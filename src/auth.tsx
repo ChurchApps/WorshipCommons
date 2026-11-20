@@ -62,7 +62,7 @@ export const useReviewer = (): boolean | undefined => {
   useEffect(() => {
     if (!user) return;
     let live = true;
-    if (!reviewerChecks.has(user.id)) reviewerChecks.set(user.id, wcGet("/admin/status", true).then((s: any) => !!(s?.admin || s?.musicEditor)).catch(() => false));
+    if (!reviewerChecks.has(user.id)) reviewerChecks.set(user.id, wcGet("/admin/status", true).then((s: { admin?: boolean, musicEditor?: boolean }) => !!(s?.admin || s?.musicEditor)).catch(() => false));
     reviewerChecks.get(user.id)!.then(reviewer => { if (live) setState({ id: user.id, reviewer }); });
     return () => { live = false; };
   }, [user]);
@@ -79,7 +79,7 @@ export const useMySongIds = (): Set<string> | undefined => {
   useEffect(() => {
     if (!user) return;
     let live = true;
-    if (!mineChecks.has(user.id)) mineChecks.set(user.id, wcGet("/songs/mine", true).then((rows: any) => new Set<string>((rows || []).map((r: any) => String(r.id)))).catch(() => new Set<string>()));
+    if (!mineChecks.has(user.id)) mineChecks.set(user.id, wcGet("/songs/mine", true).then((rows: { id: string | number }[]) => new Set<string>((rows || []).map(r => String(r.id)))).catch(() => new Set<string>()));
     mineChecks.get(user.id)!.then(ids => { if (live) setMine({ id: user.id, ids }); });
     return () => { live = false; };
   }, [user]);
@@ -95,7 +95,7 @@ export const useMayEditClosed = (songId?: string): boolean | undefined => {
   useEffect(() => {
     if (!user) return;
     let live = true;
-    if (!mineChecks.has(user.id)) mineChecks.set(user.id, wcGet("/songs/mine", true).then((rows: any) => new Set<string>((rows || []).map((r: any) => String(r.id)))).catch(() => new Set<string>()));
+    if (!mineChecks.has(user.id)) mineChecks.set(user.id, wcGet("/songs/mine", true).then((rows: { id: string | number }[]) => new Set<string>((rows || []).map(r => String(r.id)))).catch(() => new Set<string>()));
     mineChecks.get(user.id)!.then(ids => { if (live) setMine({ id: user.id, ids }); });
     return () => { live = false; };
   }, [user]);

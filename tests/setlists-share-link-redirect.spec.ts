@@ -16,7 +16,7 @@ function afterProdRedirect(link: string) {
   const url = new URL(link);
   const querystring: Record<string, { value: string }> = {};
   url.searchParams.forEach((value, key) => { querystring[key] = { value }; });
-  const sandbox: { result?: any } = {};
+  const sandbox: { result?: { statusCode: number; headers: { location: { value: string } } } } = {};
   vm.createContext(sandbox);
   const event = JSON.stringify({ request: { headers: { host: { value: "worshipcommons.org" } }, uri: url.pathname, querystring } });
   vm.runInContext(`${redirect}\nthis.result = handler(${event});`, sandbox);

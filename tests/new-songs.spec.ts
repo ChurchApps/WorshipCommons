@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { WC_API } from "./helpers/api";
+import { WC_API, SongRow } from "./helpers/api";
 
 const recency = (s: { publishedAt?: string; createdAt?: string }) => Date.parse(s.publishedAt || s.createdAt || "");
 
 test.describe("new songs", () => {
   test("lists the newest published song first, grouped by descending month", async ({ page, request }) => {
     const all = await (await request.get(`${WC_API}/songs`)).json();
-    const dated = all.filter((s: any) => !Number.isNaN(recency(s))).sort((a: any, b: any) => recency(b) - recency(a));
+    const dated = all.filter((s: SongRow) => !Number.isNaN(recency(s))).sort((a: SongRow, b: SongRow) => recency(b) - recency(a));
     expect(dated.length, "seed catalog has no published dates to changelog").toBeGreaterThan(0);
 
     await page.goto("/new");
